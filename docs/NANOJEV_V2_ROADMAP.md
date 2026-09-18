@@ -23,6 +23,7 @@ Current reference checkpoint: `variants/local_atomic_seed17`.
 | invalid probability outputs | 0 observed | full local smoke and public evaluation |
 
 The baseline report must be regenerated before comparing a new checkpoint. See [`benchmark_nanojev_v2.py`](../scripts/benchmark_nanojev_v2.py).
+The current seed-17 receipt, including all paired sample keys and provenance hashes, is [`nanojev_v2_baseline_seed17.json`](../results/nanojev_v2_baseline_seed17.json). Candidate reports are compared with [`compare_nanojev_v2.py`](../scripts/compare_nanojev_v2.py); a single-seed comparison deliberately reports no training-seed confidence interval.
 
 ## Phase 0: measurement and contract gates
 
@@ -33,8 +34,9 @@ Status: **in progress**
 - [x] Test candidate counts through 255.
 - [x] Test candidate permutation invariance.
 - [x] Add one machine-readable benchmark command.
-- [ ] Add multi-seed confidence intervals and paired checkpoint comparisons.
-- [ ] Add a benchmark manifest containing dataset, checkpoint, dependency, and hardware hashes.
+- [x] Add deterministic source-group confidence intervals, multi-seed aggregation, and paired checkpoint comparison tooling.
+- [x] Add a benchmark manifest containing dataset, checkpoint, dependency, and hardware hashes.
+- [ ] Evaluate the first V2.1 candidate and its baseline with at least three matched training seeds.
 
 Exit gate: every model change reports accuracy, NLL, Brier, ECE, invalid-output count, cold start, warm p50/p95, throughput, and peak memory on the same cohort.
 
