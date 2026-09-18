@@ -146,7 +146,7 @@ The [game data package](https://huggingface.co/datasets/C-Tianyu/NanoJev-Data/tr
 
 ## Download and run the model
 
-The [model](https://huggingface.co/C-Tianyu/NanoJev) and [dataset](https://huggingface.co/datasets/C-Tianyu/NanoJev-Data) are public. Prepare a CUDA environment with the recorded [Python dependencies](requirements-toy.txt):
+The [model](https://huggingface.co/C-Tianyu/NanoJev) and [dataset](https://huggingface.co/datasets/C-Tianyu/NanoJev-Data) are public. Prepare an NVIDIA CUDA or Apple Silicon environment with the recorded [Python dependencies](requirements-toy.txt):
 
 ```bash
 python -m pip install -r requirements-toy.txt
@@ -175,6 +175,8 @@ python scripts/serve_decisions.py \
 ```
 
 Open **http://127.0.0.1:8765**. The service loads the model once and accepts repeated batches through **`POST /api/evaluate`**.
+
+Apple Silicon checkpoint inference uses MPS with FP32. See [Apple Silicon inference](docs/APPLE_SILICON.md). For a reproducible local-versus-official comparison, use the [Jev comparison protocol](docs/JEV_COMPARISON_PROTOCOL.md).
 
 The [pipeline runbook](research/pipeline_runbook.md) covers data generation, training, evaluation, checkpoint creation, and continuing from the downloaded model and data.
 
