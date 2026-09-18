@@ -128,3 +128,13 @@ This branch starts Phase 0 and prepares Phase 1:
 2. Establish the M5 Max baseline from the public local-maze data.
 3. Use that baseline to evaluate hard-negative, calibration, and multi-seed experiments.
 4. Select the first V2 checkpoint only after the acceptance gates above are measured.
+
+## Codex local skill and telemetry
+
+Status: **implemented**
+
+NanoJev is also packaged as the `nanojev-local-decider` Codex skill under [`integrations/codex-skill/nanojev-local-decider`](../integrations/codex-skill/nanojev-local-decider). The installed copy lives in the local Codex skills directory and uses a persistent loopback HTTP service, preferring `127.0.0.1:8765` and remembering an automatic fallback port if that port is already occupied by another local service.
+
+The skill is intended for routing, candidate selection, confidence gates, verification, and computer-use decisions. It is not a chat or code-generation replacement. It records one privacy-preserving JSONL event per decision by default, including task tags, schema types, candidate cardinalities, latency, confidence, abstention, runtime, checkpoint identity, and a request fingerprint. Raw states and criteria remain excluded unless a user deliberately enables local debug payload capture.
+
+Downstream outcomes are recorded separately through `record-feedback`, using `correct`, `incorrect`, `abstained`, `fallback`, or `human_override`. The summary command exposes latency, confidence, abstention, task-type, and feedback coverage for later calibration, dataset construction, and optimization. This telemetry is an input to V2.1 success-rate work and V2.2 runtime work; it is not treated as ground truth until feedback or an independently verified outcome exists.
