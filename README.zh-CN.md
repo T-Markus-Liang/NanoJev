@@ -145,7 +145,7 @@ checkpoint_dir = Path(snapshot) / "variants" / variant
 
 ## 下载并运行模型
 
-模型和数据集均可公开下载。在兼容 CUDA 的环境中安装 [Python 依赖](requirements-toy.txt)：
+模型和数据集均可公开下载。在 NVIDIA CUDA 或 Apple Silicon 环境中安装 [Python 依赖](requirements-toy.txt)：
 
 ```bash
 python -m pip install -r requirements-toy.txt
@@ -174,6 +174,8 @@ python scripts/serve_decisions.py \
 ```
 
 打开 **http://127.0.0.1:8765**，或向 **`POST /api/evaluate`** 发送批量请求。模型只加载一次，后续请求复用权重。
+
+Apple Silicon 使用 MPS FP32 运行 checkpoint 推理，参见 [Apple Silicon 推理说明](docs/APPLE_SILICON.md)。需要公平比较本地模型与官方 Jev 时，使用 [Jev 对比协议](docs/JEV_COMPARISON_PROTOCOL.md)。
 
 [完整手册](research/pipeline_runbook.md)包含数据生成、训练、评测、checkpoint 创建，以及从下载模型和数据继续运行的命令。
 

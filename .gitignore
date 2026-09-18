@@ -16,9 +16,16 @@ runs/
 checkpoints/
 weights/
 data/
+dataset/
 artifacts/
 publish/
 *.safetensors
 *.pt
 *.pth
 .DS_Store
+
+# Local Apple Silicon reproduction outputs.
+local_test_input.json
+local_test_output.json
+toy_inference_output.json
+composed_maze_mps_report.json
