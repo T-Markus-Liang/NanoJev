@@ -81,7 +81,7 @@ Measured in the running service: **6 states · 18 questions · 44 candidate path
 
 The local safety model reaches **77.84% accuracy on test questions** and **76.56% on 50×50 OOD questions**. The probability-learning pilot's paired proper-reward arm reaches **0.11844 test / 0.06202 OOD distribution error**, measured as the sum of squared differences from the simulator's event probabilities.
 
-[Atomic planning](docs/ATOMIC_PLANNING.md) · [Scaled-game pipeline](docs/SCALED_GAMES.md) · [RLCD implementation and results](docs/RLCD_EXPERIMENT.md) · [Input contract](docs/TYPESAFE_CONTRACT.md) · [Game results](docs/DEVELOPMENT_RESULTS.md)
+[Atomic planning](docs/ATOMIC_PLANNING.md) · [Scaled-game pipeline](docs/SCALED_GAMES.md) · [RLCD implementation and results](docs/RLCD_EXPERIMENT.md) · [Input contract](docs/TYPESAFE_CONTRACT.md) · [Game results](docs/DEVELOPMENT_RESULTS.md) · [V2 roadmap](docs/NANOJEV_V2_ROADMAP.md)
 
 ## Earlier 40-map navigation benchmark
 
@@ -181,6 +181,8 @@ Apple Silicon checkpoint inference uses MPS with FP32. See [Apple Silicon infere
 The [pipeline runbook](research/pipeline_runbook.md) covers data generation, training, evaluation, checkpoint creation, and continuing from the downloaded model and data.
 
 ## Roadmap
+
+The active upgrade plan is maintained in [NANOJEV_V2_ROADMAP.md](docs/NANOJEV_V2_ROADMAP.md). The current development slice is the reproducible V2 benchmark gate before any checkpoint or architecture change.
 
 - [x] **Scale up data** — Add larger mazes, Snake, atomic questions, and observed-event datasets.
 - [x] **Calibrated reward prototype** — Implement and test paired proper-reward learning with CE/Brier controls.

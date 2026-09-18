@@ -82,7 +82,7 @@
 
 局部安全模型的测试题准确率为 **77.84%**，50×50 OOD 题为 **76.56%**。概率学习先导中，成对适当奖励组的分布误差为 **测试 0.11844 / OOD 0.06202**；该误差是模型分布与模拟器事件概率之间的差值平方和。
 
-[原子判断与规划](docs/ATOMIC_PLANNING.md) · [大规模游戏流程](docs/SCALED_GAMES.md) · [RLCD 实现与结果](docs/RLCD_EXPERIMENT.md) · [输入契约](docs/TYPESAFE_CONTRACT.md) · [游戏结果](docs/DEVELOPMENT_RESULTS.md)
+[原子判断与规划](docs/ATOMIC_PLANNING.md) · [大规模游戏流程](docs/SCALED_GAMES.md) · [RLCD 实现与结果](docs/RLCD_EXPERIMENT.md) · [输入契约](docs/TYPESAFE_CONTRACT.md) · [游戏结果](docs/DEVELOPMENT_RESULTS.md) · [V2 路线图](docs/NANOJEV_V2_ROADMAP.md)
 
 ## 此前完整 40 图导航评测
 
@@ -180,6 +180,8 @@ Apple Silicon 使用 MPS FP32 运行 checkpoint 推理，参见 [Apple Silicon �
 [完整手册](research/pipeline_runbook.md)包含数据生成、训练、评测、checkpoint 创建，以及从下载模型和数据继续运行的命令。
 
 ## 路线图
+
+当前升级计划维护在 [NANOJEV_V2_ROADMAP.md](docs/NANOJEV_V2_ROADMAP.md)。当前研发切片是先建立可复现的 V2 benchmark gate，再进行 checkpoint 或架构升级。
 
 - [x] **扩展数据：** 大迷宫、贪吃蛇、原子问题与观测事件数据集。
 - [x] **校准奖励原型：** 实现并验证成对适当奖励学习，提供 CE/Brier 对照。
