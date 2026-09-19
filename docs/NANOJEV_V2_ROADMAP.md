@@ -32,9 +32,9 @@ Full suite: **380 tests OK (2 skipped)**. Nothing was purchased; no broker, acco
 was ever touched. `HEAD` remained at `be0303c` throughout the work; this revision is the first
 commit of that work.
 
-**User directive (2026-09-19): the local decision model must be integrated into the main-model workflow to increase speed and reduce token consumption.** The concrete missing deliverable is the G1 provider gateway (work package G1 in the handoff plan): a loopback gateway exposing OpenAI- and Anthropic-compatible pass-through endpoints, defaulting to byte-preserving shadow mode, failing open on every error path, with a documented measured-versus-estimated token accounting rule. Building and testing that gateway is authorized now. **Enabling active pruning in production is not**: it still requires every Track A acceptance gate below plus paired downstream-quality and net-token-cost evidence across at least three main-model families and a zero-deletion protected-segment stress suite.
+**User directive (2026-09-19): the local decision model must be integrated into the main-model workflow to increase speed and reduce token consumption.** The concrete missing deliverable is the G1 provider gateway (work package G1 in the handoff plan): a loopback gateway exposing OpenAI- and Anthropic-compatible pass-through endpoints, defaulting to byte-preserving shadow mode, failing open on every error path, with a documented measured-versus-estimated token accounting rule. Building and testing that gateway is authorized now. **Enabling active pruning in production is not**: it still requires every Track A acceptance gate below plus paired downstream-quality and net-token-cost evidence across at least three main-model families and a zero-deletion protected-segment stress suite. *(Status: G1 is delivered and verified — see the delivered table above; this paragraph records the directive, not current state.)*
 
-**User scope decision (2026-09-19) for Track B: perpetual-contract crypto trading only, never spot**, across **Binance, Bybit, Aster, and Hyperliquid**, with RLCD training and a paper-trading backtest as explicit deliverables. Live capital remains out of scope. Consequences that must be visible in every plan: the spot-era draft (long-only, gross price-move label) must become two-sided with leverage, margin, funding, and liquidation semantics; the existing simulator refuses short sales and models no margin or funding, which is a hard blocker for perp backtesting; and the previously recommended Binance Vision archive is CC BY-NC-SA 4.0 (non-commercial) with a §4.2 clause prohibiting live proprietary trading execution, so it can never support an execution phase and must be re-assessed per venue.
+**User scope decision (2026-09-19) for Track B: perpetual-contract crypto trading only, never spot**, across **Binance, Bybit, Aster, and Hyperliquid**, with RLCD training and a paper-trading backtest as explicit deliverables. Live capital remains out of scope. Consequences that must be visible in every plan: the spot-era draft (long-only, gross price-move label) must become two-sided with leverage, margin, funding, and liquidation semantics; the existing simulator refuses short sales and models no margin or funding, which is a hard blocker for perp backtesting *(resolved in P2b — the simulator now models shorting, margin, funding, and liquidation; 80 tests)*; and the previously recommended Binance Vision archive is CC BY-NC-SA 4.0 (non-commercial) with a §4.2 clause prohibiting live proprietary trading execution, so it can never support an execution phase and must be re-assessed per venue.
 
 **User directive (2026-09-19): advance real-data simulated (paper) trading first — it is the cheaper path.** This reordered the financial track: the data/simulator/backtest plumbing was delivered end to end on **real** venue data before any RLCD training. See [Real-data paper trading V1](PAPER_TRADE_REAL_DATA_V1.md) and [Venue data licensing audit V1](VENUE_DATA_LICENSING_V1.md).
 
@@ -58,9 +58,11 @@ venues' mark prices agree to within **1–2 basis points** (Aster vs Bybit mean 
 0.0199%, Aster vs Binance 0.0122%). Runs A and B differ by three days and one rejected order;
 that single order flips the sign.
 
-So the divergence is **not** data quality. The reference strategy is **chaotic with respect to its
-input**, and three amplifiers are identified and must be fixed before any financial number can
-carry meaning:
+**Price-level differences are too small to explain the spread** — but that alone does not exclude
+data issues: time alignment, units, funding handling, volume accounting, and missing measurements
+have not all been audited to exclusion. What is established is that the located **candidate
+mechanisms** are in the execution path, and three amplifiers are identified and must be fixed
+before any financial number can carry meaning:
 
 1. a **rejected or partially filled** order silently breaks the intended position path, and the
    strategy then compounds from a position it does not hold;
@@ -85,6 +87,36 @@ Reviewed 2026-09-19. See [the pinned reference review](JEV_COMMUNITY_REFERENCES.
 | [kshetrajna12/reflex](https://github.com/kshetrajna12/reflex) | Shared runtime and model quality: Qwen3.5 direct-logits readout without trained heads, packed/batched branch isolation with numerical-equivalence tests, calibration protocol, TypeSafe-compatible API shape | WebGPU demo verification on this Mac (Safari 18+), then a reviewed direct-logits-versus-trained-heads ablation spec on frozen cohorts | Direct-logits caps Choice at 26 candidates versus our 255 contract; MMLU/Jev ECE figures are cross-source comparisons; supervised proper-scoring LoRA is not RLCD; GB10/WebGPU timings do not transfer to our MPS service |
 
 Financial calibrated decisions remain the highest strategic priority. The already-running Track A relevance experiment is closed and reported (no promotion); advance financial data/simulator foundations next. Visual demos, plugin packaging, and the laya/reflex Mac-local exploratory checks must not displace that work. No reference changes the frozen training protocol or authorizes provider reconfiguration, external transcript uploads, active pruning, or trading.
+
+## Ecosystem update (2026-09-19, second sweep)
+
+A broader ecosystem sweep was provided by the project owner. Every item is classified by evidence level; **nothing here changes acceptance gates**. Star counts are GitHub API snapshots taken 2026-09-19.
+
+**Verified to exist** (GitHub API, 2026-09-19 snapshot):
+
+| Project | Stars | Relevance to this roadmap |
+|---|---:|---|
+| [tamaratran/fast-jev-compaction](https://github.com/tamaratran/fast-jev-compaction) | 3,729 | Largest community Jev project; Claude Code plugin replacing summary-based compaction with per-item Jev decisions and verbatim retention — the same semantics as our A2/A4. Its README states token sizes are **character-count estimates without a tokenizer**, with a 25k estimated-token state cap and a 30k request cap under Jev's 32k request ceiling. The reported "156,000 → 62,000 tokens, 78% → 31%" figure is **not in the README** and remains unverified. |
+| [vercel-labs/json-render](https://github.com/vercel-labs/json-render) | 16,681 | Generative UI framework; its compose path uses Jev to pick components and actions |
+| [vercel-labs/fx](https://github.com/vercel-labs/fx) | 3,064 | Unix-like coding agent in Zig; ships a `typesafe_permission_reviewer` |
+| [vercel-labs/ai-python](https://github.com/vercel-labs/ai-python) | 184 | Official Python SDK whose evaluation op supports Jev |
+| [cline/plugins](https://github.com/cline/plugins) | 23 | Official curated plugins; includes `jev-browser` |
+| [jaredpalmer/kev](https://github.com/jaredpalmer/kev) | 287 | Minimal Jev-like model on Qwen2.5-0.5B, trainable and runnable on a MacBook — relevant to the Mac-training ladder below |
+| [achimala/jevinci](https://github.com/achimala/jevinci) | 19 | Creative: parallel per-pixel color decisions; confidence maps to brush width |
+| [luiginotmario/postgres-Jev](https://github.com/luiginotmario/postgres-Jev) | 0 | Natural-language PostgreSQL predicates (`WHERE jev(...)`-style) |
+| [sosopop/jev_stock](https://github.com/sosopop/jev_stock) | 6 | Experimental short-term stock-direction forecasting with a first-trading-day backtest script |
+| [rorshopping/jev-on-a-laptop](https://github.com/rorshopping/jev-on-a-laptop) | 14 | Unofficial Jev-style parallel typed-decisions study |
+| [TianyuCodings/NanoJev](https://github.com/TianyuCodings/NanoJev) (upstream) | 626 | The upstream project this fork tracks; repo created 2026-09-17 — the sweep's "72 hours" framing is roughly consistent with that timeline |
+
+**Provided but not verified** (recorded as unverified, not as false): Atomic (structured-output provider claim; no matching repo found), Jevinik (finance; search returns unrelated repos), the Monad on-chain trading bot (claimed real orders every 300 ms block; not located), the DuckDB extension ("1,000 rows ≈ 10 s"; not located), the cost case studies ($0.09 per 724 ad breakdowns; $2.17 for 3M replay events → 132 rage-click clusters and 213 fix PRs; $0.19 for 384 news items versus a same-day frontier-model comparison; no primary sources checked), the 2,276-like objection thread, Decider-2B and System-One 4B (no matching repos found), the Jev-compatible public API (Qwen3.6-35B-A3B), and the "Jev-ify any HF model" library.
+
+### What the sweep changes — absorbed as tasks, never as capabilities
+
+1. **The compression controversy becomes a formal experiment arm (new A5).** The largest community project is filtering-based (score each tool call/result, delete the unneeded, keep survivors verbatim) — the same semantics as our A2/A4. The loudest public objection argues compaction is reconstruction, not filtering. Both positions are unproven. A5 runs a frozen, paired comparison across verbatim-retain, deterministic safe dedup, relevance filtering, abstractive summary, and retrieval-rebuild arms, measuring dependency retention, evidence fidelity, downstream success, restore cost, and end-to-end cost with paired confidence intervals per task family. Fail-open stays "forward the original bytes"; a summary fallback is a different policy and must never be substituted silently. Retained text being verbatim does not imply deletion is lossless, and byte-reversible restore does not imply reduced-context inference is equivalent.
+2. **Cost becomes a first-class test standard.** The ecosystem's most persuasive artifacts are cost receipts (cents per task). Phase 0 gains a rule: every evaluation reports cost per decision, per classified row, or per defect found, with full denominators (eligible versus all requests), including scorer, cache-discount, rebuild, retry, and tool-re-execution costs. Our paired estimate-versus-actual token accounting is the foundation; character-count estimates (as used by fast-jev-compaction) do not qualify.
+3. **"Judgment as a code primitive" gets a capability matrix — C-track candidates, not commitments.** Three surfaces appeared: structured-output providers sharing a resolver, database row predicates (Postgres/DuckDB), and SDK evaluation operators. Gates: protocol, schema, and semantic compatibility are verified separately per provider/model/version; a database predicate must expose unknown/abstain, budgets, snapshot identity, batch and failure semantics, and must never act as a permission, row-level security, or deterministic constraint; batch throughput is not per-decision latency.
+4. **Finance signals are safety-requirement sources only.** Community projects claim real-money execution (a Monad bot placing real orders every 300 ms block). That changes nothing here: real market data plus simulated fills remains the ceiling, and any live execution needs a new, separate authorization. `jev_stock`'s first-trading-day backtest pattern matches our W1 shape and reinforces the per-venue/per-regime breakdown standard.
+5. **Mac-trainable small models get a five-level acceptance ladder.** kev (0.5B, trains and runs on a MacBook) and our own training pipeline both target this. Levels: loads → infers → backpropagates → full training run reproducible (checkpoint save/reload identity, peak unified memory, wall time, no hidden cloud/CUDA dependency) → meets frozen quality/cost targets. "Loads" is not "trains". A small-model field (Laya 421M, kev 0.5B, NanoJev 0.6B, plus unverified Decider-2B / Reflex / System-One 4B) is forming; our differentiator — complete probability distributions with zero output-token decoding under frozen evaluation — must be demonstrated, not asserted.
 
 ## Baseline: V1.0
 
@@ -123,6 +155,8 @@ Status: **in progress**
 - [ ] Add human-reviewed challenges and genuinely held-out task families beyond synthetic rendering variants.
 - [ ] Evaluate the first V2.1 candidate and its baseline with at least three matched training seeds.
 - [ ] **[NEW] Add a mandatory sensitivity/spread report** to every financial result so no point estimate can be published alone (see B0).
+- [ ] **[NEW] Cost-native reporting**: every evaluation reports cost per decision, per classified row, or per defect found, with full denominators (eligible versus all requests) and including scorer, cache-discount, rebuild, retry, and tool-re-execution costs. Token counts must be provider-reported or tokenizer-based; character-count estimates do not qualify.
+- [ ] **[NEW] External-claim evidence ledger**: every ecosystem number used in a document carries an evidence level (author claim / source audit / local reproduction / paired comparison), source URL, snapshot timestamp, and comparison scope.
 
 Exit gate: every model change reports accuracy, NLL, Brier, ECE, invalid-output count, abstention, cold start, warm p50/p95/p99, throughput, and peak memory on the same frozen cohort. Product-specific evaluations add token savings or financial utility without replacing these shared metrics.
 
@@ -199,6 +233,16 @@ The three tool-linkage ambiguity cases (`duplicate_ids`, `orphan_result`, `pendi
 - Unsupported or ambiguous histories must pass through unchanged.
 - Measure provider-tokenizer or API-reported input counts, gate overhead, tool re-execution, downstream failures, and total cost. Character reduction alone is not token or money savings.
 - Ship only shadow receipts until Track A acceptance gates pass. Do not tune the 0.99 gate using held-out outcomes or copy upstream's 0.5 threshold.
+
+### A5. Filter-versus-rebuild comparison arm
+
+Status: **planned; added 2026-09-19 in response to the ecosystem sweep.** The compression debate (filtering versus reconstruction) is the community's most contested question and both positions are unproven. This arm makes it a frozen, paired experiment rather than a mailing-list argument.
+
+- Arms: unfiltered control, deterministic safe deduplication, relevance filtering (our A2/A4 semantics), abstractive summary, and retrieval-rebuild. All arms see the same frozen tool-history and long-context fixtures.
+- Measure: dependency-pair retention, evidence fidelity, protected-segment deletion (must be zero), downstream task success, restore cost, and **end-to-end cost per request** including scorer, rebuild, retry, and tool re-execution — provider-reported or tokenizer-based tokens only, never character estimates.
+- Report paired confidence intervals per task family; a win on the aggregate that loses on a protected family is a fail.
+- Fail-open is "forward the original bytes" in every arm. A summary fallback is a separate policy and is never substituted silently.
+- No arm is adopted from this experiment alone; adoption still requires the Track A acceptance gates below.
 
 ### Track A acceptance gates
 
@@ -440,6 +484,13 @@ The previous M5 Max targets remain useful for the general runtime, but they do n
 - Never treat the project owner's authorisation as the venue's permission where a clause requires the venue's consent.
 - Never connect a data source whose terms prohibit the access method without recording the conflict explicitly.
 - Never enable active context removal without fail-open fallback and protected-segment tests.
+- Never treat an ecosystem direction as a delivered capability, a star count as product evidence, or a passing test as real-world validity.
+- Never treat character-count reduction as token savings, or token savings as net bill savings.
+- Never treat a normalized probability as calibrated, calibration as trading profitability, or real-data paper trading as live trading.
+- Never treat schema validity as semantic correctness, API-shape compatibility as architectural equivalence, or batch throughput divided by item count as single-decision latency.
+- Never treat "loads and runs on this Mac" as "trains on this Mac"; the five-level ladder (load, infer, backpropagate, reproducible full run, quality/cost targets) applies.
+- Never call a third-party recipe "RLCD" equivalence because its author named it that; it is a candidate to be compared against our frozen baselines.
+- Never quote an external performance, cost, accuracy, or adoption number without its evidence level, source URL, snapshot time, and comparison scope.
 - Never enable live trading as part of model research or benchmark automation.
 - Every speed optimization needs a numerical-equivalence or task-quality report.
 - Every capability extension needs a versioned input/output contract and a migration test.
@@ -499,27 +550,40 @@ to the [handoff work packages](CURRENT_PROGRESS_AND_HANDOFF.md).
 
 ### Track A, in parallel
 
-8. **[A2 blocker] A gate model that actually proposes drops.** The gateway is complete and
-   verified, but the real checkpoint proposes **zero** removals, so token savings are exactly
-   zero and every Track A gate is unmet. Decide the path: a newly pre-registered relevance
-   protocol with fresh confirmation splits, a laya-encoder fine-tune, or batching. Do **not**
-   re-tune the 0.99 threshold on the existing test/OOD to manufacture a winner.
-9. **[A2 limit] Resolve the `MAX_SCORED = 32` serviceability question.** Requests with more than
-   32 scorable candidates bypass entirely, which excludes exactly the long-context case the gate
-   exists for. Either batch the scoring and merge the removal plans, or accept and document the
-   boundary. This determines what "reduces token consumption" can ever mean here.
-10. **[A3] Paired downstream-quality and net-token-cost comparison** across at least three
+8. **[A2 limit, first] Resolve the `MAX_SCORED = 32` serviceability question with a batching
+   baseline, before any model-comparison experiment.** Requests with more than 32 scorable
+   candidates bypass entirely, which excludes exactly the long-context case the gate exists for.
+   Build the batch-and-merge scoring path with numerical-equivalence tests against single-batch
+   scoring on ≤32-candidate requests. This ordering is deliberate: a laya/reflex comparison on
+   workloads the gate cannot even serve would be uninterpretable.
+9. **[A2 blocker] A gate model that actually proposes drops.** The real checkpoint proposes
+   **zero** removals, so token savings are exactly zero and every Track A gate is unmet. The
+   measured reason is on record: Catalog Choice accuracy collapses 100% → 54.17% under irrelevant
+   archived context, so abstaining is currently the correct behavior. Paths: a newly
+   pre-registered relevance protocol with fresh confirmation splits, a laya-encoder fine-tune
+   (E1 step 2 zero-shot probe first), or the reflex direct-logits ablation. Do **not** re-tune
+   the 0.99 threshold on the existing test/OOD to manufacture a winner.
+10. **[A5, new] Filter-versus-rebuild paired comparison** on frozen tool-history fixtures (see
+    the ecosystem section). This answers the community's central controversy with evidence and
+    directly exercises A4's corpus.
+11. **[A3] Paired downstream-quality and net-token-cost comparison** across at least three
     materially different main-model families, with the protected-segment zero-deletion stress
     suite. This needs a real main-model family and credentials — neither is available yet.
 
 ### Housekeeping
 
-11. **Independent review** of P0's three-seed relevance result, and version-control closure for
+12. **Independent review** of P0's three-seed relevance result, and version-control closure for
     the delivered work packages.
-12. **[B8 / visual] Optional only.** The B8 shared-scoring parity experiment informed by
+13. **[E2, new] Ecosystem verification ledger.** Keep the second-sweep table current: re-snapshot
+    star counts before quoting them, locate primary sources for the unverified items (Atomic,
+    Jevinik, the Monad bot, the DuckDB extension, the cost case studies, Decider-2B, System-One
+    4B, the Jev-compatible API, the HF-model adapter library), and re-check the fast-jev-compaction
+    156k→62k claim against its own benchmark receipts if they appear. One page per verified item,
+    filed under the community references document.
+14. **[B8 / visual] Optional only.** The B8 shared-scoring parity experiment informed by
     `jev-visual` and any visual financial state stay behind a structured financial baseline. The
     reflex browser timing check remains deferred.
-13. **Latency work last**, on frozen tasks, without weakening calibration, risk, or leakage gates.
+15. **Latency work last**, on frozen tasks, without weakening calibration, risk, or leakage gates.
 
 ## Codex local skill and telemetry
 

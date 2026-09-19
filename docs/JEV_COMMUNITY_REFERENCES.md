@@ -42,7 +42,7 @@ Our fallback remains the original request. Built-in summarization may be compare
 4. Frozen paired comparison: unfiltered, deterministic safe deduplication, upstream-style policy, and local gate. Compare result-omitted versus evidence-bearing judge states separately.
 5. Downstream task correctness and actual input tokens on at least three main-model families before default active use, with the roadmap's protected-context and quality gates intact.
 
-Current status: reference review complete; this tool-history experiment has not been implemented or run. The existing synthetic dependency training is preparatory evidence only.
+Current status (2026-09-19): reference review complete; **the tool-history experiment is now implemented** as work package A4 — 11 deterministic fixtures, 13 unit tests, and all 11 replayed through the real gateway with 11/11 status/reason matches and zero receipt leaks ([Tool history shadow V1](TOOL_HISTORY_SHADOW_V1.md)). The paired main-model quality/cost comparison remains open.
 
 ## Track B: jev-visual
 
@@ -109,7 +109,7 @@ This is the most Mac-friendly runtime reference of the four: a 421M encoder is s
 3. A short written comparison of its GRPO-style proper-scoring recipe against our paired Brier estimator and exact proper-loss baselines, filed under Track B4 as a research candidate.
 4. Encoder-gate architecture question (encoder scorer versus our decoder heads for Track A) is a design decision requiring review before any prototyping beyond step 1–2.
 
-Current status: source review complete; nothing installed, trained, or measured locally.
+Current status (2026-09-19): **step 1 done** — laya installed in an isolated environment and ran on this Mac's MPS: in-process warm p50 **40.8 ms** over 4 questions (load 241.8 s including one-time weight download); see the review log's E1 entry. Steps 2–4 remain open; no integration, training, or quality claim is made.
 
 ## Shared runtime and model quality: reflex (Qwen3.5 + direct-logits readout)
 
@@ -142,7 +142,7 @@ Two cheap, zero-risk evaluation paths exist on this machine today: the WebGPU de
 2. A direct-logits ablation specification for NanoJev: same frozen local-maze/workflow cohorts, same backbone, trained heads versus label-token readout, with permutation-bias measurement and the 26-candidate cap stated as a contract limitation. Requires review before execution; it is a model-quality experiment, not a runtime change.
 3. Feed the packed-mask isolation and content-hash cache ideas into the shared runtime program's prefix-sharing design review, with numerical-equivalence tests as the acceptance bar.
 
-Current status: source review complete; nothing installed, run, or measured locally.
+Current status (2026-09-19): the WebGPU demo page is confirmed reachable and usable in this Mac's browser (zero install). The timing verification (step 1), the direct-logits ablation spec (step 2), and the prefix-sharing design input (step 3) all remain open.
 
 ## Execution order
 
