@@ -21,6 +21,21 @@ from urllib.parse import urlsplit, urlunsplit
 
 
 SKILL_DIR = Path(__file__).resolve().parents[1]
+STAGES = ("development", "testing", "optimization", "deployment")
+
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, *args, **kwargs):
+        raise RuntimeError("NanoJev local service redirects are forbidden")
+
+
+def validate_local_url(url: str) -> None:
+    parsed = urlsplit(url)
+    if (parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "::1", "localhost"}
+            or parsed.username is not None or parsed.password is not None
+            or parsed.query or parsed.fragment):
+        raise ValueError("NanoJev requires an HTTP loopback URL without credentials/query/fragment")
+    _ = parsed.port  # reject malformed/out-of-range ports before any network operation
 
 
 def discover_project_root() -> Path:
@@ -52,8 +67,9 @@ def canonical_json(value: object) -> str:
 
 
 def json_request(url: str, payload: object | None = None, timeout: float = 30.0) -> object:
+    validate_local_url(url)
     # Local inference must not be affected by an unrelated HTTP proxy setting.
-    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
     if payload is None:
         request = urllib.request.Request(url, method="GET")
     else:
@@ -67,7 +83,7 @@ def json_request(url: str, payload: object | None = None, timeout: float = 30.0)
 
 def health(url: str) -> dict:
     result = json_request(f"{url}/api/health", timeout=5)
-    if not isinstance(result, dict) or not result.get("ready"):
+    if not isinstance(result, dict) or result.get("ready") is not True or result.get("provider_calls") != 0:
         raise RuntimeError(f"NanoJev service is not ready: {result!r}")
     return result
 
@@ -130,6 +146,7 @@ def service_command(project_root: Path, checkpoint: Path, url: str) -> list[str]
 
 
 def ensure_service(url: str, project_root: Path, checkpoint: Path, runtime_dir: Path, startup_timeout: float = 180.0) -> dict:
+    validate_local_url(url)
     try:
         return health(url)
     except Exception as initial_error:
@@ -155,6 +172,8 @@ def ensure_service(url: str, project_root: Path, checkpoint: Path, runtime_dir: 
             process = subprocess.Popen(
                 service_command(project_root, checkpoint, service_url), cwd=project_root,
                 stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT,
+                env={**os.environ, "HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1",
+                     "HF_HUB_DISABLE_TELEMETRY": "1"},
                 start_new_session=True,
             )
         (runtime_dir / "service.pid").write_text(str(process.pid) + "\n", encoding="utf-8")
@@ -221,17 +240,27 @@ def normalize_payload(payload: dict) -> tuple[dict, dict[tuple[str, str], dict]]
 
 def confidence(answer: dict) -> float:
     probabilities = answer.get("probabilities", {})
-    values = [float(value) for value in probabilities.values()]
-    return max(values) if values else 0.0
+    if not isinstance(probabilities, dict) or not probabilities:
+        raise ValueError("Missing local probability distribution")
+    values = list(probabilities.values())
+    if (any(type(v) not in (float, int) or not math.isfinite(v) or not 0 <= v <= 1 for v in values)
+            or not math.isclose(sum(values), 1.0, abs_tol=1e-5)):
+        raise ValueError("Invalid local probability distribution")
+    return max(values)
 
 
 def apply_response_compatibility(result: dict, gates: dict[tuple[str, str], dict]) -> dict:
     output = copy.deepcopy(result)
     confidences: list[float] = []
     abstained = 0
+    seen = set()
     for state in output.get("states", []):
         state_id = state.get("id")
         for qid, answer in state.get("answers", {}).items():
+            key = (state_id, qid)
+            if key in seen or key not in gates:
+                raise ValueError("Unexpected/duplicate local answer")
+            seen.add(key)
             gate = gates.get((state_id, qid), {})
             original_type = gate.get("type")
             if original_type == "noul":
@@ -245,7 +274,14 @@ def apply_response_compatibility(result: dict, gates: dict[tuple[str, str], dict
             answer["abstained"] = is_abstained
             if is_abstained:
                 answer["abstain_reason"] = "confidence_below_threshold"
+                # Keep raw scores for analysis, but no executable selection survives abstention.
+                answer["suggested_value"] = answer.get("value", answer.get("choice"))
+                answer["value"] = None
+                if "choice" in answer:
+                    answer["choice"] = None
                 abstained += 1
+    if seen != set(gates):
+        raise ValueError("Incomplete local response")
     output["decision_summary"] = {
         "questions": len(confidences),
         "confidence_min": min(confidences) if confidences else None,
@@ -374,13 +410,41 @@ def command_decide(args: argparse.Namespace) -> int:
     result = json_request(f"{service_url}/api/evaluate", normalized, timeout=args.timeout)
     if not isinstance(result, dict):
         raise RuntimeError("NanoJev returned a non-object response")
+    if result.get("execution", {}).get("network_model_calls") != 0:
+        raise RuntimeError("Local-only inference evidence missing or remote model call reported")
+    actual_checkpoint = result.get("checkpoint", {}).get("directory")
+    if not actual_checkpoint or Path(actual_checkpoint).resolve() != args.checkpoint.resolve():
+        raise RuntimeError("Running service checkpoint does not match requested checkpoint")
     result = apply_response_compatibility(result, gates)
     event_id = str(uuid.uuid4())
     elapsed_ms = (time.perf_counter() - start) * 1000
-    append_event(usage_record(payload, result, args.source, args.task_tag, args.checkpoint, elapsed_ms, event_id), args.log)
+    record = usage_record(payload, result, args.source, args.task_tag, args.checkpoint, elapsed_ms, event_id)
+    stage = getattr(args, "stage", None)
+    if stage is not None:
+        result["workflow"] = {"stage": stage, "advisory_only": True,
+                              "requires_independent_verification": True, "authorizes_execution": False}
+        record["workflow"] = result["workflow"]
+    append_event(record, args.log)
     result["usage"] = {"event_id": event_id, "log": str(args.log), "service_url": service_url, "latency_ms": round(elapsed_ms, 3)}
     print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))
     return 0
+
+
+def command_lifecycle(args: argparse.Namespace) -> int:
+    candidates = json.loads(args.candidates)
+    if (not isinstance(candidates, dict) or not 2 <= len(candidates) <= 32
+            or any(not isinstance(k, str) or not k.strip() or not isinstance(v, str) or not v.strip()
+                   for k, v in candidates.items())):
+        raise ValueError("lifecycle candidates must be 2..32 named, nonempty descriptions")
+    if not args.state.strip():
+        raise ValueError("lifecycle state must contain observed facts")
+    args.json = canonical_json({"states": [{"id": args.stage, "state": args.state, "questions": {
+        "next_check": {"type": "choice", "instructions":
+            "Select the most relevant next check based only on the observed facts. "
+            "This is advisory, not permission to execute or a certification of correctness.",
+            "criteria": candidates, "abstain_below": args.abstain_below}}}]})
+    args.input, args.task_tag = None, args.stage
+    return command_decide(args)
 
 
 def command_feedback(args: argparse.Namespace) -> int:
@@ -414,6 +478,14 @@ def build_parser() -> argparse.ArgumentParser:
     decide.add_argument("--task-tag", default="unspecified")
     decide.add_argument("--timeout", type=float, default=180.0)
     decide.set_defaults(handler=command_decide)
+    lifecycle = sub.add_parser("lifecycle", help="Local advisory decision for each engineering phase")
+    lifecycle.add_argument("--stage", choices=STAGES, required=True)
+    lifecycle.add_argument("--state", required=True, help="Short observed facts, no secrets")
+    lifecycle.add_argument("--candidates", required=True, help="JSON object of candidate IDs/descriptions")
+    lifecycle.add_argument("--abstain-below", type=float, default=0.9)
+    lifecycle.add_argument("--source", default="codex")
+    lifecycle.add_argument("--timeout", type=float, default=30.0)
+    lifecycle.set_defaults(handler=command_lifecycle)
     feedback = sub.add_parser("record-feedback")
     feedback.add_argument("--event-id", required=True)
     feedback.add_argument("--label", required=True, choices=["correct", "incorrect", "abstained", "fallback", "human_override"])

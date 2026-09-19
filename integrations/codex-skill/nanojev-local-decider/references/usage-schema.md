@@ -11,6 +11,12 @@ The helper writes one JSON object per line to `~/.codex/nanojev/usage.jsonl` by 
 - `runtime`: device and precision reported by the service.
 - `request`: counts, question types, candidate cardinalities, and a SHA-256 fingerprint of the normalized request.
 - `result`: end-to-end latency, confidence summary, abstention count, candidate paths, forward passes, network model calls, and local inference index.
+- `workflow` (lifecycle calls): stage (`development`, `testing`, `optimization`, `deployment`),
+  `advisory_only: true`, `requires_independent_verification: true`, and `authorizes_execution: false`.
+
+Missing/invalid response probabilities, incomplete answers, a mismatched checkpoint, or a
+reported remote model call are errors, not successful decision events. Abstention leaves
+scores available but clears `choice`/`value`; it never authorizes an operation.
 
 Raw states and criteria are omitted. Set `NANOJEV_LOG_PAYLOADS=1` only for a deliberate local debugging session, and turn it off afterward. Do not enable that mode for credentials, tokens, or sensitive user data.
 
