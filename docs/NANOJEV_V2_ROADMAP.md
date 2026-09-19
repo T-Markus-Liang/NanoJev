@@ -135,6 +135,8 @@ Current reference checkpoint: `variants/local_atomic_seed17`.
 | test ECE | 0.0851 | 10-bin top-label ECE |
 | OOD ECE | 0.0734 | 10-bin top-label ECE |
 | warm MPS latency | about 65 ms | 3 questions, 8 candidate paths |
+| local skill: 13 engineering questions | **13/13 abstained** (default 0.9); max confidence 0.736 | [Skill readiness V1](NANOJEV_SKILL_READINESS_V1.md) |
+| local skill: accuracy below threshold | **3/6 = 50%**, errors at the top 3 confidences | 6 questions with fixed answers |
 | 255-candidate Choice | about 1.28 s | M5 Max, FP32 MPS |
 | invalid probability outputs | 0 observed | full local smoke and public evaluation |
 
@@ -196,7 +198,7 @@ Delivered and verified at five levels — library tests (42), CLI entry point, r
 Two measured limits now bound what this can claim:
 
 - **`MAX_SCORED = 32`.** Requests with more than 32 scorable candidates bypass entirely with `scoring_budget_exceeded` and zero reduction. Long coding-agent histories — the case the gate exists for — are the most likely to hit this. Serviceability of long contexts is therefore an **open design question**, not a solved one.
-- **Real-checkpoint proposals remain zero**, so actual token savings are still zero. Every Track A gate below is unmet.
+- **Real-checkpoint proposals remain zero**, so actual token savings are still zero. Every Track A gate below is unmet. The reason is now measured directly rather than inferred: on a 13-question survey of this project's own engineering decisions the checkpoint **abstained 13/13 at the documented 0.9 threshold** (max confidence 0.736), and below the threshold it scored **3/6 on questions with fixed answers, with the three wrong answers carrying the three highest confidences** — including answering "safe to remove context without a validated gate" `true` at 0.736. Confidence is anti-correlated with correctness on this sample. See [NanoJev skill readiness V1](NANOJEV_SKILL_READINESS_V1.md). The checkpoint is **technically skill-ready** (starts on demand, deterministic, offline, 0.27–0.33 s for 13 questions) but **not decision-ready**; the 0.9 gate is doing its job and must not be lowered to obtain answers.
 
 Also open: main-model quality comparisons, broader provenance adapters, calibrated threshold fitting on calibration data, and independent challenge families.
 
