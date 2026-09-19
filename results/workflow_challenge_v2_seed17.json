@@ -1,0 +1,2221 @@
+{
+  "schema_version": "nanojev-raw-dataset-v2-report-v2",
+  "definitions": {
+    "teacher": "KL/TV against the explicitly usable rounded teacher proxy; non-unit teacher vectors are excluded only here.",
+    "gold": "KL/TV against independent gold distribution; optimal-action targets describe a policy, not event uncertainty.",
+    "deterministic_ece": "10-bin top-label ECE, only deterministic truth questions",
+    "analytic_expected_ece": "10-bin difference between predicted confidence and known conditional probability of its selected event; no sampled outcomes.",
+    "expected_brier": "sum(p^2)-2 dot(q,p)+1, expectation under known q",
+    "log_floor": "CE/KL use log(max(p,1e-12)); report affected target mass, so infinite true losses are explicitly capped. Tiny negative KL from arithmetic is clamped to zero.",
+    "policy_brier": "For optimal-action targets, expected Brier is only a loss under the specified reference policy, not event calibration.",
+    "weighting": "Question mean; report family/type breakdown before considering any pooled value.",
+    "selection": "This evaluation does not fit temperatures or select checkpoints."
+  },
+  "splits": {
+    "ood": {
+      "questions": 1152,
+      "deterministic_accuracy": 0.8567708333333334,
+      "gold_cross_entropy": 0.7207952765026607,
+      "gold_expected_brier": 0.3966652203105976,
+      "gold_kl_target_to_student": 0.3840155239306998,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.21422753820990043,
+      "gold_tv": 0.2996579526116554,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 768,
+      "policy_questions": 0,
+      "analytic_questions": 384,
+      "teacher_target_status_counts": {
+        "missing": 1152
+      },
+      "deterministic_ece": 0.14359835226787251,
+      "analytic_expected_ece": 0.22324296293377263
+    },
+    "test": {
+      "questions": 2112,
+      "deterministic_accuracy": 0.8065476190476191,
+      "gold_cross_entropy": 0.7948609045218991,
+      "gold_expected_brier": 0.44855847584767544,
+      "gold_kl_target_to_student": 0.4291321060472456,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.25167076630296914,
+      "gold_tv": 0.330722841820606,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 1344,
+      "policy_questions": 0,
+      "analytic_questions": 768,
+      "teacher_target_status_counts": {
+        "missing": 2112
+      },
+      "deterministic_ece": 0.18473095213994384,
+      "analytic_expected_ece": 0.20605036150691022
+    }
+  },
+  "by_family_type": {
+    "ood/catalog_lookup_v2/boolean": {
+      "questions": 128,
+      "deterministic_accuracy": 0.671875,
+      "gold_cross_entropy": 0.49818749922331496,
+      "gold_expected_brier": 0.3291161684909786,
+      "gold_kl_target_to_student": 0.49818749922331496,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.3291161684909786,
+      "gold_tv": 0.3681523916311562,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 128,
+      "policy_questions": 0,
+      "analytic_questions": 0,
+      "teacher_target_status_counts": {
+        "missing": 128
+      },
+      "deterministic_ece": 0.1937497099861503,
+      "analytic_expected_ece": null
+    },
+    "ood/catalog_lookup_v2/choice": {
+      "questions": 128,
+      "deterministic_accuracy": 0.8125,
+      "gold_cross_entropy": 0.5645951065661535,
+      "gold_expected_brier": 0.25107557636286637,
+      "gold_kl_target_to_student": 0.5645951065661535,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.25107557636286637,
+      "gold_tv": 0.2905304215047977,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 128,
+      "policy_questions": 0,
+      "analytic_questions": 0,
+      "teacher_target_status_counts": {
+        "missing": 128
+      },
+      "deterministic_ece": 0.09230294893495737,
+      "analytic_expected_ece": null
+    },
+    "ood/catalog_lookup_v2/score": {
+      "questions": 128,
+      "deterministic_accuracy": 1.0,
+      "gold_cross_entropy": 0.3329634752707018,
+      "gold_expected_brier": 0.16190298420213564,
+      "gold_kl_target_to_student": 0.3329634752707018,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.16190298420213567,
+      "gold_tv": 0.24653014736634304,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 128,
+      "policy_questions": 0,
+      "analytic_questions": 0,
+      "teacher_target_status_counts": {
+        "missing": 128
+      },
+      "deterministic_ece": 0.24653014400973916,
+      "analytic_expected_ece": null
+    },
+    "ood/known_chance_v2/boolean": {
+      "questions": 128,
+      "gold_cross_entropy": 0.7600049857917995,
+      "gold_expected_brier": 0.5656365738004084,
+      "gold_kl_target_to_student": 0.31647874783878843,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.2838469152815147,
+      "gold_tv": 0.36047036820308975,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 0,
+      "policy_questions": 0,
+      "analytic_questions": 128,
+      "teacher_target_status_counts": {
+        "missing": 128
+      },
+      "deterministic_ece": null,
+      "analytic_expected_ece": 0.2531948230715622
+    },
+    "ood/known_chance_v2/choice": {
+      "questions": 128,
+      "gold_cross_entropy": 1.8239169151701558,
+      "gold_expected_brier": 0.8444270585906137,
+      "gold_kl_target_to_student": 0.2387501273083426,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.09164316586615695,
+      "gold_tv": 0.2692291858162457,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 0,
+      "policy_questions": 0,
+      "analytic_questions": 128,
+      "teacher_target_status_counts": {
+        "missing": 128
+      },
+      "deterministic_ece": null,
+      "analytic_expected_ece": 0.18788701967106833
+    },
+    "ood/known_chance_v2/score": {
+      "questions": 128,
+      "gold_cross_entropy": 1.2671386625414411,
+      "gold_expected_brier": 0.742768919615693,
+      "gold_kl_target_to_student": 0.2648139152086174,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.1354033319527691,
+      "gold_tv": 0.2564729198614091,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 0,
+      "policy_questions": 0,
+      "analytic_questions": 128,
+      "teacher_target_status_counts": {
+        "missing": 128
+      },
+      "deterministic_ece": null,
+      "analytic_expected_ece": 0.22864704605868724
+    },
+    "ood/smart_home_v2/boolean": {
+      "questions": 128,
+      "deterministic_accuracy": 0.71875,
+      "gold_cross_entropy": 0.5219846283377235,
+      "gold_expected_brier": 0.3387456961409258,
+      "gold_kl_target_to_student": 0.5219846283377235,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.3387456961409258,
+      "gold_tv": 0.3891717230435461,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 128,
+      "policy_questions": 0,
+      "analytic_questions": 0,
+      "teacher_target_status_counts": {
+        "missing": 128
+      },
+      "deterministic_ece": 0.25836567394435406,
+      "analytic_expected_ece": null
+    },
+    "ood/smart_home_v2/choice": {
+      "questions": 128,
+      "deterministic_accuracy": 0.96875,
+      "gold_cross_entropy": 0.34986815867941495,
+      "gold_expected_brier": 0.162877813739212,
+      "gold_kl_target_to_student": 0.34986815867941495,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.162877813739212,
+      "gold_tv": 0.2308564378762341,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 128,
+      "policy_questions": 0,
+      "analytic_questions": 0,
+      "teacher_target_status_counts": {
+        "missing": 128
+      },
+      "deterministic_ece": 0.1949048471869901,
+      "analytic_expected_ece": null
+    },
+    "ood/smart_home_v2/score": {
+      "questions": 128,
+      "deterministic_accuracy": 0.96875,
+      "gold_cross_entropy": 0.368498056943241,
+      "gold_expected_brier": 0.1734361918525446,
+      "gold_kl_target_to_student": 0.368498056943241,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.1734361918525446,
+      "gold_tv": 0.28550797820207663,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 128,
+      "policy_questions": 0,
+      "analytic_questions": 0,
+      "teacher_target_status_counts": {
+        "missing": 128
+      },
+      "deterministic_ece": 0.24734071944840252,
+      "analytic_expected_ece": null
+    },
+    "test/catalog_lookup_v2/boolean": {
+      "questions": 192,
+      "deterministic_accuracy": 0.6614583333333334,
+      "gold_cross_entropy": 0.5531003187528086,
+      "gold_expected_brier": 0.3788157263808261,
+      "gold_kl_target_to_student": 0.5531003187528086,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.3788157263808261,
+      "gold_tv": 0.39724166819360107,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 192,
+      "policy_questions": 0,
+      "analytic_questions": 0,
+      "teacher_target_status_counts": {
+        "missing": 192
+      },
+      "deterministic_ece": 0.133348623290658,
+      "analytic_expected_ece": null
+    },
+    "test/catalog_lookup_v2/choice": {
+      "questions": 192,
+      "deterministic_accuracy": 0.78125,
+      "gold_cross_entropy": 0.6405728830198993,
+      "gold_expected_brier": 0.2719139748425377,
+      "gold_kl_target_to_student": 0.6405728830198993,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.2719139748425377,
+      "gold_tv": 0.31774322791868786,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 192,
+      "policy_questions": 0,
+      "analytic_questions": 0,
+      "teacher_target_status_counts": {
+        "missing": 192
+      },
+      "deterministic_ece": 0.11006627006766695,
+      "analytic_expected_ece": null
+    },
+    "test/catalog_lookup_v2/score": {
+      "questions": 192,
+      "deterministic_accuracy": 1.0,
+      "gold_cross_entropy": 0.4259761666344608,
+      "gold_expected_brier": 0.20876460453822557,
+      "gold_kl_target_to_student": 0.4259761666344608,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.20876460453822557,
+      "gold_tv": 0.30735762322228766,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 192,
+      "policy_questions": 0,
+      "analytic_questions": 0,
+      "teacher_target_status_counts": {
+        "missing": 192
+      },
+      "deterministic_ece": 0.30735762137919664,
+      "analytic_expected_ece": null
+    },
+    "test/known_chance_v2/boolean": {
+      "questions": 256,
+      "gold_cross_entropy": 0.7601289861122655,
+      "gold_expected_brier": 0.5656680495336774,
+      "gold_kl_target_to_student": 0.31652830550570343,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.2834615258849369,
+      "gold_tv": 0.35453660188464386,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 0,
+      "policy_questions": 0,
+      "analytic_questions": 256,
+      "teacher_target_status_counts": {
+        "missing": 256
+      },
+      "deterministic_ece": null,
+      "analytic_expected_ece": 0.24814482007526856
+    },
+    "test/known_chance_v2/choice": {
+      "questions": 256,
+      "gold_cross_entropy": 1.7810901910214663,
+      "gold_expected_brier": 0.8119947642135426,
+      "gold_kl_target_to_student": 0.20401914571873492,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.07109755598873442,
+      "gold_tv": 0.24504373224529077,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 0,
+      "policy_questions": 0,
+      "analytic_questions": 256,
+      "teacher_target_status_counts": {
+        "missing": 256
+      },
+      "deterministic_ece": null,
+      "analytic_expected_ece": 0.1622794385538058
+    },
+    "test/known_chance_v2/score": {
+      "questions": 256,
+      "gold_cross_entropy": 1.2052359352506778,
+      "gold_expected_brier": 0.711320760061005,
+      "gold_kl_target_to_student": 0.20864507374408003,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.1101008881907265,
+      "gold_tv": 0.2348068097810339,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 0,
+      "policy_questions": 0,
+      "analytic_questions": 256,
+      "teacher_target_status_counts": {
+        "missing": 256
+      },
+      "deterministic_ece": null,
+      "analytic_expected_ece": 0.20789671696563747
+    },
+    "test/smart_home_v2/boolean": {
+      "questions": 256,
+      "deterministic_accuracy": 0.4375,
+      "gold_cross_entropy": 0.7185185749727292,
+      "gold_expected_brier": 0.5279200644925822,
+      "gold_kl_target_to_student": 0.7185185749727292,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.5279200644925822,
+      "gold_tv": 0.48641215451061726,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 256,
+      "policy_questions": 0,
+      "analytic_questions": 0,
+      "teacher_target_status_counts": {
+        "missing": 256
+      },
+      "deterministic_ece": 0.31735384091734886,
+      "analytic_expected_ece": null
+    },
+    "test/smart_home_v2/choice": {
+      "questions": 256,
+      "deterministic_accuracy": 0.98046875,
+      "gold_cross_entropy": 0.34190371954003274,
+      "gold_expected_brier": 0.15194985485813578,
+      "gold_kl_target_to_student": 0.34190371954003274,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.15194985485813578,
+      "gold_tv": 0.23690619031249582,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 256,
+      "policy_questions": 0,
+      "analytic_questions": 0,
+      "teacher_target_status_counts": {
+        "missing": 256
+      },
+      "deterministic_ece": 0.21654511179076508,
+      "analytic_expected_ece": null
+    },
+    "test/smart_home_v2/score": {
+      "questions": 256,
+      "deterministic_accuracy": 0.984375,
+      "gold_cross_entropy": 0.5359880291031194,
+      "gold_expected_brier": 0.2871332032631876,
+      "gold_kl_target_to_student": 0.5359880291031194,
+      "gold_log_floor_affected_target_mass": 0.0,
+      "gold_squared_probability_error": 0.2871332032631876,
+      "gold_tv": 0.4040010667849856,
+      "gold_zero_predicted_mass_on_target_support": 0.0,
+      "teacher_eligible": 0,
+      "deterministic_questions": 256,
+      "policy_questions": 0,
+      "analytic_questions": 0,
+      "teacher_target_status_counts": {
+        "missing": 256
+      },
+      "deterministic_ece": 0.38667205127421767,
+      "analytic_expected_ece": null
+    }
+  },
+  "checkpoint": "/Users/markus/Documents/NanoJev/checkpoints/local_atomic_seed17/variants/local_atomic_seed17",
+  "input": "/Users/markus/Documents/NanoJev/data/workflow_challenge_v2",
+  "input_files": [
+    "/Users/markus/Documents/NanoJev/data/workflow_challenge_v2/ood.jsonl",
+    "/Users/markus/Documents/NanoJev/data/workflow_challenge_v2/test.jsonl"
+  ],
+  "evaluated_records_sha256": "600bca7bc4a6a16ffbd73407caf4edbf9b072a2e387b3134e10ea816dca9c938",
+  "predictions_sha256": "1dba469a867db3239b40ee7a8716084d1a1f5d387e59bcaf4e7899b90104e902",
+  "arguments": {
+    "splits": [
+      "ood",
+      "test"
+    ],
+    "batch_states": 8,
+    "batch_questions": 0,
+    "max_length": 2048
+  },
+  "by_variant": {
+    "archived_distractor": {
+      "schema_version": "openjev-pipeline-metrics-v2",
+      "definitions": {
+        "teacher": "KL/TV against the explicitly usable rounded teacher proxy; non-unit teacher vectors are excluded only here.",
+        "gold": "KL/TV against independent gold distribution; optimal-action targets describe a policy, not event uncertainty.",
+        "deterministic_ece": "10-bin top-label ECE, only deterministic truth questions",
+        "analytic_expected_ece": "10-bin difference between predicted confidence and known conditional probability of its selected event; no sampled outcomes.",
+        "expected_brier": "sum(p^2)-2 dot(q,p)+1, expectation under known q",
+        "log_floor": "CE/KL use log(max(p,1e-12)); report affected target mass, so infinite true losses are explicitly capped. Tiny negative KL from arithmetic is clamped to zero.",
+        "policy_brier": "For optimal-action targets, expected Brier is only a loss under the specified reference policy, not event calibration.",
+        "weighting": "Question mean; report family/type breakdown before considering any pooled value.",
+        "selection": "This evaluation does not fit temperatures or select checkpoints."
+      },
+      "splits": {
+        "ood": {
+          "questions": 288,
+          "deterministic_accuracy": 0.7447916666666666,
+          "gold_cross_entropy": 0.9294065347981595,
+          "gold_expected_brier": 0.5217092912575414,
+          "gold_kl_target_to_student": 0.5926267822261987,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.33927160915684423,
+          "gold_tv": 0.4185242218736803,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 192,
+          "policy_questions": 0,
+          "analytic_questions": 96,
+          "teacher_target_status_counts": {
+            "missing": 288
+          },
+          "deterministic_ece": 0.18900202812316516,
+          "analytic_expected_ece": 0.21094435396553782
+        },
+        "test": {
+          "questions": 528,
+          "deterministic_accuracy": 0.7529761904761905,
+          "gold_cross_entropy": 0.9343678585834163,
+          "gold_expected_brier": 0.5269776607806528,
+          "gold_kl_target_to_student": 0.5686390601087629,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.3300899512359465,
+          "gold_tv": 0.4080881956548767,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 336,
+          "policy_questions": 0,
+          "analytic_questions": 192,
+          "teacher_target_status_counts": {
+            "missing": 528
+          },
+          "deterministic_ece": 0.26385120023041964,
+          "analytic_expected_ece": 0.1991129311368172
+        }
+      },
+      "by_family_type": {
+        "ood/catalog_lookup_v2/boolean": {
+          "questions": 32,
+          "deterministic_accuracy": 0.53125,
+          "gold_cross_entropy": 0.6711059450155411,
+          "gold_expected_brier": 0.479762362623933,
+          "gold_kl_target_to_student": 0.6711059450155411,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.479762362623933,
+          "gold_tv": 0.4750187813770026,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.09198910742998118,
+          "analytic_expected_ece": null
+        },
+        "ood/catalog_lookup_v2/choice": {
+          "questions": 32,
+          "deterministic_accuracy": 0.625,
+          "gold_cross_entropy": 1.1231790110942153,
+          "gold_expected_brier": 0.5048697662762467,
+          "gold_kl_target_to_student": 1.1231790110942153,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.5048697662762467,
+          "gold_tv": 0.5468135448245448,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.16469599539414048,
+          "analytic_expected_ece": null
+        },
+        "ood/catalog_lookup_v2/score": {
+          "questions": 32,
+          "deterministic_accuracy": 1.0,
+          "gold_cross_entropy": 0.6100062247619994,
+          "gold_expected_brier": 0.3181443821270524,
+          "gold_kl_target_to_student": 0.6100062247619994,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.3181443821270525,
+          "gold_tv": 0.4353299977010465,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.43532999604940414,
+          "analytic_expected_ece": null
+        },
+        "ood/known_chance_v2/boolean": {
+          "questions": 32,
+          "gold_cross_entropy": 0.756277565325653,
+          "gold_expected_brier": 0.562403145385076,
+          "gold_kl_target_to_student": 0.31275132737264205,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.28061348686618226,
+          "gold_tv": 0.35582279346635304,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 32,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.3061549177004511
+        },
+        "ood/known_chance_v2/choice": {
+          "questions": 32,
+          "gold_cross_entropy": 1.7960836549472663,
+          "gold_expected_brier": 0.8357632559658897,
+          "gold_kl_target_to_student": 0.21091686708545315,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.08297936324143292,
+          "gold_tv": 0.24847538758196894,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 32,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.14894063692134651
+        },
+        "ood/known_chance_v2/score": {
+          "questions": 32,
+          "gold_cross_entropy": 1.2187005494334806,
+          "gold_expected_brier": 0.7246315277698397,
+          "gold_kl_target_to_student": 0.21637580210065704,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.1172659401069158,
+          "gold_tv": 0.23366175711781575,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 32,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.177737507274816
+        },
+        "ood/smart_home_v2/boolean": {
+          "questions": 32,
+          "deterministic_accuracy": 0.5,
+          "gold_cross_entropy": 0.6677426691566071,
+          "gold_expected_brier": 0.4772577295693621,
+          "gold_kl_target_to_student": 0.6677426691566071,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.4772577295693621,
+          "gold_tv": 0.4706462463364005,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.2011400330811739,
+          "analytic_expected_ece": null
+        },
+        "ood/smart_home_v2/choice": {
+          "questions": 32,
+          "deterministic_accuracy": 0.875,
+          "gold_cross_entropy": 0.8348078262014458,
+          "gold_expected_brier": 0.4156156932305517,
+          "gold_kl_target_to_student": 0.8348078262014458,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.4156156932305517,
+          "gold_tv": 0.5106575793761294,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.3668512115254998,
+          "analytic_expected_ece": null
+        },
+        "ood/smart_home_v2/score": {
+          "questions": 32,
+          "deterministic_accuracy": 0.9375,
+          "gold_cross_entropy": 0.6867553672472273,
+          "gold_expected_brier": 0.3769357583699211,
+          "gold_kl_target_to_student": 0.6867553672472273,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.3769357583699211,
+          "gold_tv": 0.4902919090818614,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.41291795391589403,
+          "analytic_expected_ece": null
+        },
+        "test/catalog_lookup_v2/boolean": {
+          "questions": 48,
+          "deterministic_accuracy": 0.5625,
+          "gold_cross_entropy": 0.7011433778706455,
+          "gold_expected_brier": 0.5071222351849968,
+          "gold_kl_target_to_student": 0.7011433778706455,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.5071222351849968,
+          "gold_tv": 0.489189086171488,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 48,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 48
+          },
+          "deterministic_ece": 0.1058335776130358,
+          "analytic_expected_ece": null
+        },
+        "test/catalog_lookup_v2/choice": {
+          "questions": 48,
+          "deterministic_accuracy": 0.5416666666666666,
+          "gold_cross_entropy": 1.2169849108684996,
+          "gold_expected_brier": 0.52378370754293,
+          "gold_kl_target_to_student": 1.2169849108684996,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.52378370754293,
+          "gold_tv": 0.5648354624105801,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 48,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 48
+          },
+          "deterministic_ece": 0.10257459928592046,
+          "analytic_expected_ece": null
+        },
+        "test/catalog_lookup_v2/score": {
+          "questions": 48,
+          "deterministic_accuracy": 1.0,
+          "gold_cross_entropy": 0.7010345612832833,
+          "gold_expected_brier": 0.3728537935489507,
+          "gold_kl_target_to_student": 0.7010345612832833,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.3728537935489507,
+          "gold_tv": 0.4801875524717616,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 48,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 48
+          },
+          "deterministic_ece": 0.4801875427365303,
+          "analytic_expected_ece": null
+        },
+        "test/known_chance_v2/boolean": {
+          "questions": 64,
+          "gold_cross_entropy": 0.7654106903787345,
+          "gold_expected_brier": 0.5711211530909007,
+          "gold_kl_target_to_student": 0.32181000977217245,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.2889146294421601,
+          "gold_tv": 0.35703889134282396,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 64,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.27691112857729155
+        },
+        "test/known_chance_v2/choice": {
+          "questions": 64,
+          "gold_cross_entropy": 1.7536351191990742,
+          "gold_expected_brier": 0.8071590208596365,
+          "gold_kl_target_to_student": 0.17656407389634268,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.06626181263482844,
+          "gold_tv": 0.226140073561765,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 64,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.14183128107680693
+        },
+        "test/known_chance_v2/score": {
+          "questions": 64,
+          "gold_cross_entropy": 1.1713041833921465,
+          "gold_expected_brier": 0.6996042142980291,
+          "gold_kl_target_to_student": 0.17471332188554878,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.09838434242775065,
+          "gold_tv": 0.2166172826992013,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 64,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.18030244492193526
+        },
+        "test/smart_home_v2/boolean": {
+          "questions": 64,
+          "deterministic_accuracy": 0.4375,
+          "gold_cross_entropy": 0.7271271991565208,
+          "gold_expected_brier": 0.5348367493071,
+          "gold_kl_target_to_student": 0.7271271991565208,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.5348367493071,
+          "gold_tv": 0.4954056008718908,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 64,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": 0.22637209203094244,
+          "analytic_expected_ece": null
+        },
+        "test/smart_home_v2/choice": {
+          "questions": 64,
+          "deterministic_accuracy": 0.953125,
+          "gold_cross_entropy": 0.6510949444422848,
+          "gold_expected_brier": 0.30885633386075617,
+          "gold_kl_target_to_student": 0.6510949444422848,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.30885633386075617,
+          "gold_tv": 0.43118831073843467,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 64,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": 0.3823545656632632,
+          "analytic_expected_ece": null
+        },
+        "test/smart_home_v2/score": {
+          "questions": 64,
+          "deterministic_accuracy": 0.984375,
+          "gold_cross_entropy": 0.6755905592276025,
+          "gold_expected_brier": 0.3731684278163047,
+          "gold_kl_target_to_student": 0.6755905592276025,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.3731684278163047,
+          "gold_tv": 0.48967837914824486,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 64,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": 0.472105183172971,
+          "analytic_expected_ece": null
+        }
+      }
+    },
+    "choice_order_reversed": {
+      "schema_version": "openjev-pipeline-metrics-v2",
+      "definitions": {
+        "teacher": "KL/TV against the explicitly usable rounded teacher proxy; non-unit teacher vectors are excluded only here.",
+        "gold": "KL/TV against independent gold distribution; optimal-action targets describe a policy, not event uncertainty.",
+        "deterministic_ece": "10-bin top-label ECE, only deterministic truth questions",
+        "analytic_expected_ece": "10-bin difference between predicted confidence and known conditional probability of its selected event; no sampled outcomes.",
+        "expected_brier": "sum(p^2)-2 dot(q,p)+1, expectation under known q",
+        "log_floor": "CE/KL use log(max(p,1e-12)); report affected target mass, so infinite true losses are explicitly capped. Tiny negative KL from arithmetic is clamped to zero.",
+        "policy_brier": "For optimal-action targets, expected Brier is only a loss under the specified reference policy, not event calibration.",
+        "weighting": "Question mean; report family/type breakdown before considering any pooled value.",
+        "selection": "This evaluation does not fit temperatures or select checkpoints."
+      },
+      "splits": {
+        "ood": {
+          "questions": 288,
+          "deterministic_accuracy": 0.9583333333333334,
+          "gold_cross_entropy": 0.5501841363053972,
+          "gold_expected_brier": 0.29641909752366424,
+          "gold_kl_target_to_student": 0.2134043837334363,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.1139814154229671,
+          "gold_tv": 0.19780516131758852,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 192,
+          "policy_questions": 0,
+          "analytic_questions": 96,
+          "teacher_target_status_counts": {
+            "missing": 288
+          },
+          "deterministic_ece": 0.10907737879703445,
+          "analytic_expected_ece": 0.21635313268092685
+        },
+        "test": {
+          "questions": 528,
+          "deterministic_accuracy": 0.8541666666666666,
+          "gold_cross_entropy": 0.6697983623077813,
+          "gold_expected_brier": 0.3821052918361019,
+          "gold_kl_target_to_student": 0.30406956383312783,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.1852175822913956,
+          "gold_tv": 0.2595475448032696,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 336,
+          "policy_questions": 0,
+          "analytic_questions": 192,
+          "teacher_target_status_counts": {
+            "missing": 528
+          },
+          "deterministic_ece": 0.1881581074779942,
+          "analytic_expected_ece": 0.19855558719004926
+        }
+      },
+      "by_family_type": {
+        "ood/catalog_lookup_v2/boolean": {
+          "questions": 32,
+          "deterministic_accuracy": 0.8125,
+          "gold_cross_entropy": 0.3533339599922466,
+          "gold_expected_brier": 0.20496678982697586,
+          "gold_kl_target_to_student": 0.3533339599922466,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.20496678982697586,
+          "gold_tv": 0.27550061547663063,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.2755006141960621,
+          "analytic_expected_ece": null
+        },
+        "ood/catalog_lookup_v2/choice": {
+          "questions": 32,
+          "deterministic_accuracy": 1.0,
+          "gold_cross_entropy": 0.042908070324424064,
+          "gold_expected_brier": 0.006407014283033037,
+          "gold_kl_target_to_student": 0.042908070324424064,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.00640701428303303,
+          "gold_tv": 0.04032336397938252,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.04032336734235291,
+          "analytic_expected_ece": null
+        },
+        "ood/catalog_lookup_v2/score": {
+          "questions": 32,
+          "deterministic_accuracy": 1.0,
+          "gold_cross_entropy": 0.06354707582775533,
+          "gold_expected_brier": 0.009137281461007864,
+          "gold_kl_target_to_student": 0.06354707582775533,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.009137281461007868,
+          "gold_tv": 0.060826679416322804,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.06082667596638203,
+          "analytic_expected_ece": null
+        },
+        "ood/known_chance_v2/boolean": {
+          "questions": 32,
+          "gold_cross_entropy": 0.7479941931745574,
+          "gold_expected_brier": 0.5534927169237993,
+          "gold_kl_target_to_student": 0.30446795522154635,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.2717030584049056,
+          "gold_tv": 0.3544604729649957,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 32,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.18538086626779543
+        },
+        "ood/known_chance_v2/choice": {
+          "questions": 32,
+          "gold_cross_entropy": 1.8464536220225747,
+          "gold_expected_brier": 0.8529119542580925,
+          "gold_kl_target_to_student": 0.2612868341607617,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.10012806153363575,
+          "gold_tv": 0.2837401336837278,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 32,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.20849275723163524
+        },
+        "ood/known_chance_v2/score": {
+          "questions": 32,
+          "gold_cross_entropy": 1.2972623374284424,
+          "gold_expected_brier": 0.7530946913127237,
+          "gold_kl_target_to_student": 0.2949375900956187,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.14572910364979974,
+          "gold_tv": 0.2701359196006127,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 32,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.2551857745433499
+        },
+        "ood/smart_home_v2/boolean": {
+          "questions": 32,
+          "deterministic_accuracy": 0.9375,
+          "gold_cross_entropy": 0.4087963337924132,
+          "gold_expected_brier": 0.23116410481329366,
+          "gold_kl_target_to_student": 0.4087963337924132,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.23116410481329366,
+          "gold_tv": 0.32452912838198245,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.23910360038280487,
+          "analytic_expected_ece": null
+        },
+        "ood/smart_home_v2/choice": {
+          "questions": 32,
+          "deterministic_accuracy": 1.0,
+          "gold_cross_entropy": 0.023965897172210784,
+          "gold_expected_brier": 0.0036090980205365497,
+          "gold_kl_target_to_student": 0.023965897172210784,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.003609098020536553,
+          "gold_tv": 0.022834373096642935,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.02283437550067898,
+          "analytic_expected_ece": null
+        },
+        "ood/smart_home_v2/score": {
+          "questions": 32,
+          "deterministic_accuracy": 1.0,
+          "gold_cross_entropy": 0.16739573701394989,
+          "gold_expected_brier": 0.05298822681351584,
+          "gold_kl_target_to_student": 0.16739573701394989,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.05298822681351584,
+          "gold_tv": 0.1478957652579993,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.1478957701474428,
+          "analytic_expected_ece": null
+        },
+        "test/catalog_lookup_v2/boolean": {
+          "questions": 48,
+          "deterministic_accuracy": 0.75,
+          "gold_cross_entropy": 0.437770023989938,
+          "gold_expected_brier": 0.2813335079179777,
+          "gold_kl_target_to_student": 0.437770023989938,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.2813335079179777,
+          "gold_tv": 0.3217186574668934,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 48,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 48
+          },
+          "deterministic_ece": 0.22679949179291725,
+          "analytic_expected_ece": null
+        },
+        "test/catalog_lookup_v2/choice": {
+          "questions": 48,
+          "deterministic_accuracy": 1.0,
+          "gold_cross_entropy": 0.08142017587679319,
+          "gold_expected_brier": 0.020995179777921664,
+          "gold_kl_target_to_student": 0.08142017587679319,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.02099517977792167,
+          "gold_tv": 0.07204928681511547,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 48,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 48
+          },
+          "deterministic_ece": 0.07204928373297058,
+          "analytic_expected_ece": null
+        },
+        "test/catalog_lookup_v2/score": {
+          "questions": 48,
+          "deterministic_accuracy": 1.0,
+          "gold_cross_entropy": 0.1494190208312245,
+          "gold_expected_brier": 0.04313194097488341,
+          "gold_kl_target_to_student": 0.1494190208312245,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.043131940974883404,
+          "gold_tv": 0.13523924893252115,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 48,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 48
+          },
+          "deterministic_ece": 0.1352392521997293,
+          "analytic_expected_ece": null
+        },
+        "test/known_chance_v2/boolean": {
+          "questions": 64,
+          "gold_cross_entropy": 0.7396308183778707,
+          "gold_expected_brier": 0.545453972037227,
+          "gold_kl_target_to_student": 0.2960301377713086,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.26324744838848646,
+          "gold_tv": 0.3428404167199403,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 64,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.19717106388823807
+        },
+        "test/known_chance_v2/choice": {
+          "questions": 64,
+          "gold_cross_entropy": 1.7955010359972263,
+          "gold_expected_brier": 0.814428470032595,
+          "gold_kl_target_to_student": 0.21842999069449487,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.07353126180778691,
+          "gold_tv": 0.2543930617096291,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 64,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.17522755323322048
+        },
+        "test/known_chance_v2/score": {
+          "questions": 64,
+          "gold_cross_entropy": 1.2195029645951363,
+          "gold_expected_brier": 0.7149787113612311,
+          "gold_kl_target_to_student": 0.2229121030885386,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.11375883949095271,
+          "gold_tv": 0.24041321213646327,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 64,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.22326814444868923
+        },
+        "test/smart_home_v2/boolean": {
+          "questions": 64,
+          "deterministic_accuracy": 0.4375,
+          "gold_cross_entropy": 0.7289273312225685,
+          "gold_expected_brier": 0.5384606684082842,
+          "gold_kl_target_to_student": 0.7289273312225685,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.5384606684082842,
+          "gold_tv": 0.48673520633019507,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 64,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": 0.3773235771805048,
+          "analytic_expected_ece": null
+        },
+        "test/smart_home_v2/choice": {
+          "questions": 64,
+          "deterministic_accuracy": 1.0,
+          "gold_cross_entropy": 0.0565496466844889,
+          "gold_expected_brier": 0.01260904041029552,
+          "gold_kl_target_to_student": 0.0565496466844889,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.012609040410295527,
+          "gold_tv": 0.05214050182840424,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 64,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": 0.05214050784707071,
+          "analytic_expected_ece": null
+        },
+        "test/smart_home_v2/score": {
+          "questions": 64,
+          "deterministic_accuracy": 0.984375,
+          "gold_cross_entropy": 0.48426777663843823,
+          "gold_expected_brier": 0.2673423238951206,
+          "gold_kl_target_to_student": 0.48426777663843823,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.2673423238951206,
+          "gold_tv": 0.36798945099144476,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 64,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": 0.3510646838694811,
+          "analytic_expected_ece": null
+        }
+      }
+    },
+    "original": {
+      "schema_version": "openjev-pipeline-metrics-v2",
+      "definitions": {
+        "teacher": "KL/TV against the explicitly usable rounded teacher proxy; non-unit teacher vectors are excluded only here.",
+        "gold": "KL/TV against independent gold distribution; optimal-action targets describe a policy, not event uncertainty.",
+        "deterministic_ece": "10-bin top-label ECE, only deterministic truth questions",
+        "analytic_expected_ece": "10-bin difference between predicted confidence and known conditional probability of its selected event; no sampled outcomes.",
+        "expected_brier": "sum(p^2)-2 dot(q,p)+1, expectation under known q",
+        "log_floor": "CE/KL use log(max(p,1e-12)); report affected target mass, so infinite true losses are explicitly capped. Tiny negative KL from arithmetic is clamped to zero.",
+        "policy_brier": "For optimal-action targets, expected Brier is only a loss under the specified reference policy, not event calibration.",
+        "weighting": "Question mean; report family/type breakdown before considering any pooled value.",
+        "selection": "This evaluation does not fit temperatures or select checkpoints."
+      },
+      "splits": {
+        "ood": {
+          "questions": 288,
+          "deterministic_accuracy": 0.9583333333333334,
+          "gold_cross_entropy": 0.5501841366296707,
+          "gold_expected_brier": 0.29641909796677796,
+          "gold_kl_target_to_student": 0.21340438405770984,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.11398141586608077,
+          "gold_tv": 0.1978051614837229,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 192,
+          "policy_questions": 0,
+          "analytic_questions": 96,
+          "teacher_target_status_counts": {
+            "missing": 288
+          },
+          "deterministic_ece": 0.10907737817615275,
+          "analytic_expected_ece": 0.21635313361224942
+        },
+        "test": {
+          "questions": 528,
+          "deterministic_accuracy": 0.8541666666666666,
+          "gold_cross_entropy": 0.6697983627441169,
+          "gold_expected_brier": 0.38210529164170776,
+          "gold_kl_target_to_student": 0.30406956426946335,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.18521758209700143,
+          "gold_tv": 0.25954754454444945,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 336,
+          "policy_questions": 0,
+          "analytic_questions": 192,
+          "teacher_target_status_counts": {
+            "missing": 528
+          },
+          "deterministic_ece": 0.18815810765538896,
+          "analytic_expected_ece": 0.19855558594828582
+        }
+      },
+      "by_family_type": {
+        "ood/catalog_lookup_v2/boolean": {
+          "questions": 32,
+          "deterministic_accuracy": 0.8125,
+          "gold_cross_entropy": 0.3533339599922466,
+          "gold_expected_brier": 0.20496678982697586,
+          "gold_kl_target_to_student": 0.3533339599922466,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.20496678982697586,
+          "gold_tv": 0.27550061547663063,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.2755006141960621,
+          "analytic_expected_ece": null
+        },
+        "ood/catalog_lookup_v2/choice": {
+          "questions": 32,
+          "deterministic_accuracy": 1.0,
+          "gold_cross_entropy": 0.042908066535387666,
+          "gold_expected_brier": 0.006407014225075801,
+          "gold_kl_target_to_student": 0.042908066535387666,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.006407014225075793,
+          "gold_tv": 0.04032336248599222,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.04032336361706256,
+          "analytic_expected_ece": null
+        },
+        "ood/catalog_lookup_v2/score": {
+          "questions": 32,
+          "deterministic_accuracy": 1.0,
+          "gold_cross_entropy": 0.06354707582775533,
+          "gold_expected_brier": 0.009137281461007864,
+          "gold_kl_target_to_student": 0.06354707582775533,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.009137281461007868,
+          "gold_tv": 0.060826679416322804,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.06082667596638203,
+          "analytic_expected_ece": null
+        },
+        "ood/known_chance_v2/boolean": {
+          "questions": 32,
+          "gold_cross_entropy": 0.7479941931745574,
+          "gold_expected_brier": 0.5534927169237993,
+          "gold_kl_target_to_student": 0.30446795522154635,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.2717030584049056,
+          "gold_tv": 0.3544604729649957,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 32,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.18538086626779543
+        },
+        "ood/known_chance_v2/choice": {
+          "questions": 32,
+          "gold_cross_entropy": 1.846453628730073,
+          "gold_expected_brier": 0.8529119579831115,
+          "gold_kl_target_to_student": 0.26128684086826004,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.10012806525865471,
+          "gold_tv": 0.28374013621576105,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 32,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.20849276002560296
+        },
+        "ood/known_chance_v2/score": {
+          "questions": 32,
+          "gold_cross_entropy": 1.2972623374284424,
+          "gold_expected_brier": 0.7530946913127237,
+          "gold_kl_target_to_student": 0.2949375900956187,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.14572910364979974,
+          "gold_tv": 0.2701359196006127,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 32,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.2551857745433499
+        },
+        "ood/smart_home_v2/boolean": {
+          "questions": 32,
+          "deterministic_accuracy": 0.9375,
+          "gold_cross_entropy": 0.4087963337924132,
+          "gold_expected_brier": 0.23116410481329366,
+          "gold_kl_target_to_student": 0.4087963337924132,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.23116410481329366,
+          "gold_tv": 0.32452912838198245,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.23910360038280487,
+          "analytic_expected_ece": null
+        },
+        "ood/smart_home_v2/choice": {
+          "questions": 32,
+          "deterministic_accuracy": 1.0,
+          "gold_cross_entropy": 0.023965897172210784,
+          "gold_expected_brier": 0.0036090983414978975,
+          "gold_kl_target_to_student": 0.023965897172210784,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.0036090983414979036,
+          "gold_tv": 0.022834373553209275,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.02283437550067898,
+          "analytic_expected_ece": null
+        },
+        "ood/smart_home_v2/score": {
+          "questions": 32,
+          "deterministic_accuracy": 1.0,
+          "gold_cross_entropy": 0.16739573701394989,
+          "gold_expected_brier": 0.05298822681351584,
+          "gold_kl_target_to_student": 0.16739573701394989,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.05298822681351584,
+          "gold_tv": 0.1478957652579993,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.1478957701474428,
+          "analytic_expected_ece": null
+        },
+        "test/catalog_lookup_v2/boolean": {
+          "questions": 48,
+          "deterministic_accuracy": 0.75,
+          "gold_cross_entropy": 0.437770023989938,
+          "gold_expected_brier": 0.2813335079179777,
+          "gold_kl_target_to_student": 0.437770023989938,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.2813335079179777,
+          "gold_tv": 0.3217186574668934,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 48,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 48
+          },
+          "deterministic_ece": 0.22679949179291725,
+          "analytic_expected_ece": null
+        },
+        "test/catalog_lookup_v2/choice": {
+          "questions": 48,
+          "deterministic_accuracy": 1.0,
+          "gold_cross_entropy": 0.08142017757481422,
+          "gold_expected_brier": 0.020995180351265377,
+          "gold_kl_target_to_student": 0.08142017757481422,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.02099518035126538,
+          "gold_tv": 0.07204928727622928,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 48,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 48
+          },
+          "deterministic_ece": 0.07204928497473401,
+          "analytic_expected_ece": null
+        },
+        "test/catalog_lookup_v2/score": {
+          "questions": 48,
+          "deterministic_accuracy": 1.0,
+          "gold_cross_entropy": 0.1494190208312245,
+          "gold_expected_brier": 0.04313194097488341,
+          "gold_kl_target_to_student": 0.1494190208312245,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.043131940974883404,
+          "gold_tv": 0.13523924893252115,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 48,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 48
+          },
+          "deterministic_ece": 0.1352392521997293,
+          "analytic_expected_ece": null
+        },
+        "test/known_chance_v2/boolean": {
+          "questions": 64,
+          "gold_cross_entropy": 0.7396308183778707,
+          "gold_expected_brier": 0.545453972037227,
+          "gold_kl_target_to_student": 0.2960301377713086,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.26324744838848646,
+          "gold_tv": 0.3428404167199403,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 64,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.19717106388823807
+        },
+        "test/known_chance_v2/choice": {
+          "questions": 64,
+          "gold_cross_entropy": 1.7955010383234786,
+          "gold_expected_brier": 0.8144284679306047,
+          "gold_kl_target_to_student": 0.2184299930207472,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.07353125970579667,
+          "gold_tv": 0.25439305903935266,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 64,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.17522754950793015
+        },
+        "test/known_chance_v2/score": {
+          "questions": 64,
+          "gold_cross_entropy": 1.2195029645951363,
+          "gold_expected_brier": 0.7149787113612311,
+          "gold_kl_target_to_student": 0.2229121030885386,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.11375883949095271,
+          "gold_tv": 0.24041321213646327,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 64,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.22326814444868923
+        },
+        "test/smart_home_v2/boolean": {
+          "questions": 64,
+          "deterministic_accuracy": 0.4375,
+          "gold_cross_entropy": 0.7289273312225685,
+          "gold_expected_brier": 0.5384606684082842,
+          "gold_kl_target_to_student": 0.7289273312225685,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.5384606684082842,
+          "gold_tv": 0.48673520633019507,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 64,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": 0.3773235771805048,
+          "analytic_expected_ece": null
+        },
+        "test/smart_home_v2/choice": {
+          "questions": 64,
+          "deterministic_accuracy": 1.0,
+          "gold_cross_entropy": 0.0565496466844889,
+          "gold_expected_brier": 0.012609040478526151,
+          "gold_kl_target_to_student": 0.0565496466844889,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.01260904047852616,
+          "gold_tv": 0.05214050201757914,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 64,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": 0.05214050784707071,
+          "analytic_expected_ece": null
+        },
+        "test/smart_home_v2/score": {
+          "questions": 64,
+          "deterministic_accuracy": 0.984375,
+          "gold_cross_entropy": 0.48426777663843823,
+          "gold_expected_brier": 0.2673423238951206,
+          "gold_kl_target_to_student": 0.48426777663843823,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.2673423238951206,
+          "gold_tv": 0.36798945099144476,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 64,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": 0.3510646838694811,
+          "analytic_expected_ece": null
+        }
+      }
+    },
+    "structured_envelope": {
+      "schema_version": "openjev-pipeline-metrics-v2",
+      "definitions": {
+        "teacher": "KL/TV against the explicitly usable rounded teacher proxy; non-unit teacher vectors are excluded only here.",
+        "gold": "KL/TV against independent gold distribution; optimal-action targets describe a policy, not event uncertainty.",
+        "deterministic_ece": "10-bin top-label ECE, only deterministic truth questions",
+        "analytic_expected_ece": "10-bin difference between predicted confidence and known conditional probability of its selected event; no sampled outcomes.",
+        "expected_brier": "sum(p^2)-2 dot(q,p)+1, expectation under known q",
+        "log_floor": "CE/KL use log(max(p,1e-12)); report affected target mass, so infinite true losses are explicitly capped. Tiny negative KL from arithmetic is clamped to zero.",
+        "policy_brier": "For optimal-action targets, expected Brier is only a loss under the specified reference policy, not event calibration.",
+        "weighting": "Question mean; report family/type breakdown before considering any pooled value.",
+        "selection": "This evaluation does not fit temperatures or select checkpoints."
+      },
+      "splits": {
+        "ood": {
+          "questions": 288,
+          "deterministic_accuracy": 0.765625,
+          "gold_cross_entropy": 0.8534062982774153,
+          "gold_expected_brier": 0.47211339449440676,
+          "gold_kl_target_to_student": 0.5166265457054544,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.28967571239370954,
+          "gold_tv": 0.3844972657716297,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 192,
+          "policy_questions": 0,
+          "analytic_questions": 96,
+          "teacher_target_status_counts": {
+            "missing": 288
+          },
+          "deterministic_ece": 0.25468810927122826,
+          "analytic_expected_ece": 0.2493212314763763
+        },
+        "test": {
+          "questions": 528,
+          "deterministic_accuracy": 0.7648809523809523,
+          "gold_cross_entropy": 0.905479034452282,
+          "gold_expected_brier": 0.5030456591322394,
+          "gold_kl_target_to_student": 0.5397502359776285,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.3061579495875332,
+          "gold_tv": 0.3957080822798283,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 336,
+          "policy_questions": 0,
+          "analytic_questions": 192,
+          "teacher_target_status_counts": {
+            "missing": 528
+          },
+          "deterministic_ece": 0.1753331423249273,
+          "analytic_expected_ece": 0.2279773417524887
+        }
+      },
+      "by_family_type": {
+        "ood/catalog_lookup_v2/boolean": {
+          "questions": 32,
+          "deterministic_accuracy": 0.53125,
+          "gold_cross_entropy": 0.6149761318932255,
+          "gold_expected_brier": 0.4267687316860296,
+          "gold_kl_target_to_student": 0.6149761318932255,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.4267687316860296,
+          "gold_tv": 0.44658955419436097,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.30784706026315684,
+          "analytic_expected_ece": null
+        },
+        "ood/catalog_lookup_v2/choice": {
+          "questions": 32,
+          "deterministic_accuracy": 0.625,
+          "gold_cross_entropy": 1.0493852783105873,
+          "gold_expected_brier": 0.4866185106671099,
+          "gold_kl_target_to_student": 1.0493852783105873,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.4866185106671099,
+          "gold_tv": 0.5346614147292712,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.20054513635113835,
+          "analytic_expected_ece": null
+        },
+        "ood/catalog_lookup_v2/score": {
+          "questions": 32,
+          "deterministic_accuracy": 1.0,
+          "gold_cross_entropy": 0.5947535246652972,
+          "gold_expected_brier": 0.3111929917594744,
+          "gold_kl_target_to_student": 0.5947535246652972,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.31119299175947446,
+          "gold_tv": 0.42913723293168005,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.42913722805678844,
+          "analytic_expected_ece": null
+        },
+        "ood/known_chance_v2/boolean": {
+          "questions": 32,
+          "gold_cross_entropy": 0.7877539914924301,
+          "gold_expected_brier": 0.5931577159689589,
+          "gold_kl_target_to_student": 0.34422775353941903,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.3113680574500652,
+          "gold_tv": 0.37713773341601453,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 32,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.33586264205020694
+        },
+        "ood/known_chance_v2/choice": {
+          "questions": 32,
+          "gold_cross_entropy": 1.8066767549807086,
+          "gold_expected_brier": 0.8361210661553612,
+          "gold_kl_target_to_student": 0.22150996711889556,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.08333717343090444,
+          "gold_tv": 0.260961085783525,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 32,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.1856219245056886
+        },
+        "ood/known_chance_v2/score": {
+          "questions": 32,
+          "gold_cross_entropy": 1.2553294258753986,
+          "gold_expected_brier": 0.7402547680674851,
+          "gold_kl_target_to_student": 0.2530046785425751,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.1328891804045611,
+          "gold_tv": 0.25195808312659523,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 32,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.22647912787323332
+        },
+        "ood/smart_home_v2/boolean": {
+          "questions": 32,
+          "deterministic_accuracy": 0.5,
+          "gold_cross_entropy": 0.6026031766094607,
+          "gold_expected_brier": 0.4153968453677538,
+          "gold_kl_target_to_student": 0.6026031766094607,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.4153968453677538,
+          "gold_tv": 0.4369823890738189,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.3541154619306326,
+          "analytic_expected_ece": null
+        },
+        "ood/smart_home_v2/choice": {
+          "questions": 32,
+          "deterministic_accuracy": 1.0,
+          "gold_cross_entropy": 0.5167330141717926,
+          "gold_expected_brier": 0.22867736536426186,
+          "gold_kl_target_to_student": 0.5167330141717926,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.22867736536426186,
+          "gold_tv": 0.3670994254789548,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.3670994262211025,
+          "analytic_expected_ece": null
+        },
+        "ood/smart_home_v2/score": {
+          "questions": 32,
+          "deterministic_accuracy": 0.9375,
+          "gold_cross_entropy": 0.452445386497837,
+          "gold_expected_brier": 0.21083255541322568,
+          "gold_kl_target_to_student": 0.452445386497837,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.21083255541322568,
+          "gold_tv": 0.35594847321044654,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 32,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 32
+          },
+          "deterministic_ece": 0.3478326871991157,
+          "analytic_expected_ece": null
+        },
+        "test/catalog_lookup_v2/boolean": {
+          "questions": 48,
+          "deterministic_accuracy": 0.5833333333333334,
+          "gold_cross_entropy": 0.635717849160713,
+          "gold_expected_brier": 0.44547365450235227,
+          "gold_kl_target_to_student": 0.635717849160713,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.44547365450235227,
+          "gold_tv": 0.45634027166912955,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 48,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 48
+          },
+          "deterministic_ece": 0.11128712197144826,
+          "analytic_expected_ece": null
+        },
+        "test/catalog_lookup_v2/choice": {
+          "questions": 48,
+          "deterministic_accuracy": 0.5833333333333334,
+          "gold_cross_entropy": 1.1824662677594904,
+          "gold_expected_brier": 0.5218818316980337,
+          "gold_kl_target_to_student": 1.1824662677594904,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.5218818316980337,
+          "gold_tv": 0.5620388751728266,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 48,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 48
+          },
+          "deterministic_ece": 0.20683170078943172,
+          "analytic_expected_ece": null
+        },
+        "test/catalog_lookup_v2/score": {
+          "questions": 48,
+          "deterministic_accuracy": 1.0,
+          "gold_cross_entropy": 0.7040320635921108,
+          "gold_expected_brier": 0.3759407426541847,
+          "gold_kl_target_to_student": 0.7040320635921108,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.37594074265418476,
+          "gold_tv": 0.47876444255234674,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 48,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 48
+          },
+          "deterministic_ece": 0.4787644383807977,
+          "analytic_expected_ece": null
+        },
+        "test/known_chance_v2/boolean": {
+          "questions": 64,
+          "gold_cross_entropy": 0.7958436173145862,
+          "gold_expected_brier": 0.600643100969355,
+          "gold_kl_target_to_student": 0.35224293670802403,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.3184365773206145,
+          "gold_tv": 0.3754266827558708,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 64,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.32132602394730647
+        },
+        "test/known_chance_v2/choice": {
+          "questions": 64,
+          "gold_cross_entropy": 1.7797235705660863,
+          "gold_expected_brier": 0.8119630980313338,
+          "gold_kl_target_to_student": 0.2026525252633549,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.07106588980652566,
+          "gold_tv": 0.2452487346704163,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 64,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.15683137039726563
+        },
+        "test/known_chance_v2/score": {
+          "questions": 64,
+          "gold_cross_entropy": 1.210633628420292,
+          "gold_expected_brier": 0.7157214032235284,
+          "gold_kl_target_to_student": 0.21404276691369423,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.1145015313532499,
+          "gold_tv": 0.24178353215200776,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 0,
+          "policy_questions": 0,
+          "analytic_questions": 64,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": null,
+          "analytic_expected_ece": 0.20975829923736566
+        },
+        "test/smart_home_v2/boolean": {
+          "questions": 64,
+          "deterministic_accuracy": 0.4375,
+          "gold_cross_entropy": 0.6890924382892589,
+          "gold_expected_brier": 0.4999221718466606,
+          "gold_kl_target_to_student": 0.6890924382892589,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.4999221718466606,
+          "gold_tv": 0.4767726045101881,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 64,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": 0.2883961172774434,
+          "analytic_expected_ece": null
+        },
+        "test/smart_home_v2/choice": {
+          "questions": 64,
+          "deterministic_accuracy": 0.96875,
+          "gold_cross_entropy": 0.6034206403488683,
+          "gold_expected_brier": 0.27372500468296523,
+          "gold_kl_target_to_student": 0.6034206403488683,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.2737250046829653,
+          "gold_tv": 0.41215544666556525,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 64,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": 0.3795448658056557,
+          "analytic_expected_ece": null
+        },
+        "test/smart_home_v2/score": {
+          "questions": 64,
+          "deterministic_accuracy": 0.984375,
+          "gold_cross_entropy": 0.49982600390799864,
+          "gold_expected_brier": 0.24067973744620452,
+          "gold_kl_target_to_student": 0.49982600390799864,
+          "gold_log_floor_affected_target_mass": 0.0,
+          "gold_squared_probability_error": 0.24067973744620455,
+          "gold_tv": 0.390346986008808,
+          "gold_zero_predicted_mass_on_target_support": 0.0,
+          "teacher_eligible": 0,
+          "deterministic_questions": 64,
+          "policy_questions": 0,
+          "analytic_questions": 0,
+          "teacher_target_status_counts": {
+            "missing": 64
+          },
+          "deterministic_ece": 0.3872240409255028,
+          "analytic_expected_ece": null
+        }
+      }
+    }
+  },
+  "coverage": {
+    "ood": {
+      "states": 384,
+      "source_groups": 96
+    },
+    "test": {
+      "states": 704,
+      "source_groups": 176
+    }
+  },
+  "execution": {
+    "device": "mps",
+    "precision": "fp32",
+    "load_ms": 7337.2252502013,
+    "requests": 136,
+    "cold_request_ms": 1246.0991661064327,
+    "warm_requests": 135,
+    "warm_request_p50_ms": 2108.9021251536906,
+    "warm_request_p95_ms": 3927.5255999062206,
+    "warm_request_p99_ms": 4527.1016677375865,
+    "questions_per_second": 10.43521080096359,
+    "elapsed_ms": 312787.1647498105,
+    "peak_rss_bytes": 5282807808,
+    "forward_passes": 136,
+    "network_model_calls": 0,
+    "candidate_paths": 12244,
+    "questions": 3264,
+    "states": 1088,
+    "latency_scope": "Batched predict call including tokenization and host output conversion; not per-question compute. Throughput includes first request and target serialization, excludes model load and provenance hashing."
+  },
+  "manifest": {
+    "schema_version": "nanojev-v2-benchmark-manifest-v1",
+    "input": {
+      "path": "/Users/markus/Documents/NanoJev/data/workflow_challenge_v2",
+      "files": [
+        {
+          "path": "/Users/markus/Documents/NanoJev/data/workflow_challenge_v2/ood.jsonl",
+          "bytes": 852332,
+          "sha256": "fec31a5c4995864c96981271f48ce94af5d7349610bc142511c123801a790a77"
+        },
+        {
+          "path": "/Users/markus/Documents/NanoJev/data/workflow_challenge_v2/test.jsonl",
+          "bytes": 1576516,
+          "sha256": "086c00296f82f352613b51b59b5f96a8cd95566cb006e207a908d94240da5f21"
+        }
+      ],
+      "sha256": "90b68bcc084ea63ad7c4ef29f47bbcfede262c668d949f4633fbd5afcd572534"
+    },
+    "dataset_manifest": {
+      "path": "/Users/markus/Documents/NanoJev/data/workflow_challenge_v2/manifest.json",
+      "bytes": 1620,
+      "sha256": "41890a0758f1c2bcd7dcfed59a50527e343d9c1b310c46c6cbf6710edbc85779"
+    },
+    "checkpoint": {
+      "directory": "/Users/markus/Documents/NanoJev/checkpoints/local_atomic_seed17/variants/local_atomic_seed17",
+      "files": [
+        {
+          "path": "/Users/markus/Documents/NanoJev/checkpoints/local_atomic_seed17/variants/local_atomic_seed17/config.json",
+          "bytes": 2498,
+          "sha256": "3a6b014a77eaa3a79155a9c0c84ce2c005b5a5c66fdf88445067657ac9def176"
+        },
+        {
+          "path": "/Users/markus/Documents/NanoJev/checkpoints/local_atomic_seed17/variants/local_atomic_seed17/best.safetensors",
+          "bytes": 2385039280,
+          "sha256": "2b06e4423861f47da7ca53ad9c23a26aebdbfe79de3a238b36c2954ae9c6abf0"
+        },
+        {
+          "path": "/Users/markus/Documents/NanoJev/checkpoints/local_atomic_seed17/variants/local_atomic_seed17/backbone_config/config.json",
+          "bytes": 1417,
+          "sha256": "30c011854471509747858ac07ffb8a4dab2bc6c04035b184729b69500c557c54"
+        },
+        {
+          "path": "/Users/markus/Documents/NanoJev/checkpoints/local_atomic_seed17/variants/local_atomic_seed17/tokenizer/tokenizer.json",
+          "bytes": 11422650,
+          "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506"
+        },
+        {
+          "path": "/Users/markus/Documents/NanoJev/checkpoints/local_atomic_seed17/variants/local_atomic_seed17/tokenizer/tokenizer_config.json",
+          "bytes": 692,
+          "sha256": "1cc816812993bff176eb4f7495433b736f06fba9b6e7b05cac7b4a1780650c95"
+        }
+      ]
+    },
+    "benchmark_script": {
+      "path": "/Users/markus/Documents/NanoJev/scripts/evaluate_raw_dataset_v2.py",
+      "bytes": 9120,
+      "sha256": "b08815e8501698bb666c99c6d212396fdc93390f28b9489dad14aa6f693f6ec8"
+    },
+    "dependencies": {
+      "versions": {
+        "torch": "2.14.0",
+        "transformers": "5.17.0",
+        "safetensors": "0.8.0",
+        "numpy": "2.5.3"
+      },
+      "sha256": "49999d6d7e5fcca44f755df596574e1d3a321db09379e354f1246d04ecf4645e"
+    },
+    "python": {
+      "version": "3.14.6",
+      "executable": "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14"
+    },
+    "hardware": {
+      "system": "Darwin",
+      "release": "25.5.0",
+      "version": "Darwin Kernel Version 25.5.0: Mon Apr 27 20:41:12 PDT 2026; root:xnu-12377.121.6~2/RELEASE_ARM64_T6050",
+      "machine": "arm64",
+      "processor": "arm",
+      "python_implementation": "CPython",
+      "physical_memory_bytes": 137438953472,
+      "runtime_device": "mps",
+      "sha256": "e4bed9dc44861d65617e52a60938ec7725bfaf6227de523700472c06bbba1030"
+    },
+    "evaluation_code": [
+      {
+        "path": "/Users/markus/Documents/NanoJev/scripts/evaluate_pipeline_decisions.py",
+        "bytes": 10344,
+        "sha256": "bb529f721e8c60a852f12924aacca4c9113e69081a8b5b3a1c2aa1fafa5c4e8b"
+      },
+      {
+        "path": "/Users/markus/Documents/NanoJev/scripts/train_pipeline_decisions.py",
+        "bytes": 33939,
+        "sha256": "792974534f0d64106e6aaaaef1b29da0af73fb085b44a2b5dc9cba72ebb902f1"
+      },
+      {
+        "path": "/Users/markus/Documents/NanoJev/scripts/predict_toy_decisions.py",
+        "bytes": 19276,
+        "sha256": "701851b421eeca7611eb3241c47c06db779645a9771abf5f0074704b49c23514"
+      },
+      {
+        "path": "/Users/markus/Documents/NanoJev/scripts/train_toy_decisions.py",
+        "bytes": 20890,
+        "sha256": "4f39babd5575e43d7acf3eca357329a93c60041f334bc2bd7424929bf9c0da86"
+      },
+      {
+        "path": "/Users/markus/Documents/NanoJev/scripts/benchmark_nanojev_v2.py",
+        "bytes": 15420,
+        "sha256": "f8416a6a3556561c1311dbdcf5411178e71c0b2ce4fb4e6a0a834bb613152d60"
+      }
+    ],
+    "manifest_sha256": "487ad43b21ba6903bcc3b6ac45ab754d6d26855102affe9e78fe7fbe59e43392"
+  },
+  "prediction_count": 3264
+}

@@ -1,0 +1,128 @@
+{
+  "schema_version": "nanojev-financial-pit-stress-v1",
+  "status": "passed",
+  "scope": "Synthetic declared-timestamp integrity only; no real financial data, training, backtest, transaction costs, profits or live trades.",
+  "records": 12000,
+  "assets": 3,
+  "event_definition": {
+    "name": "synthetic_binary_event",
+    "horizon_ns": 300000000000,
+    "outcome_rule": "minute index plus asset index is even; not market data"
+  },
+  "future_data_mutations_rejected": 1000,
+  "label_isolation_mutations": 1000,
+  "folds": [
+    {
+      "counts": {
+        "train": 2979,
+        "dev": 1179,
+        "calibration": 1179,
+        "test": 1200
+      },
+      "exclusion_counts": {
+        "purged_overlap_or_embargo": 63,
+        "outside_windows": 5400
+      },
+      "selection_sha256": "a67401c745efa4a1dea7f903680d444e278c457e8b87caecbdd5ee5d81b463a5",
+      "windows": {
+        "train": [
+          1735689600000000000,
+          1735749600000000000
+        ],
+        "dev": [
+          1735749600000000000,
+          1735773600000000000
+        ],
+        "calibration": [
+          1735773600000000000,
+          1735797600000000000
+        ],
+        "test": [
+          1735797600000000000,
+          1735821600000000000
+        ]
+      },
+      "all_phases_nonempty": true
+    },
+    {
+      "counts": {
+        "train": 4179,
+        "dev": 1179,
+        "calibration": 1179,
+        "test": 1200
+      },
+      "exclusion_counts": {
+        "purged_overlap_or_embargo": 63,
+        "outside_windows": 4200
+      },
+      "selection_sha256": "ebcf2ae3885f899ca3b8d39a95f0b341a1743f5d8225623b88bf6b6d346a90fb",
+      "windows": {
+        "train": [
+          1735689600000000000,
+          1735773600000000000
+        ],
+        "dev": [
+          1735773600000000000,
+          1735797600000000000
+        ],
+        "calibration": [
+          1735797600000000000,
+          1735821600000000000
+        ],
+        "test": [
+          1735821600000000000,
+          1735845600000000000
+        ]
+      },
+      "all_phases_nonempty": true
+    },
+    {
+      "counts": {
+        "train": 5379,
+        "dev": 1179,
+        "calibration": 1179,
+        "test": 1200
+      },
+      "exclusion_counts": {
+        "purged_overlap_or_embargo": 63,
+        "outside_windows": 3000
+      },
+      "selection_sha256": "3d64c9deb28afecd8694e8c57056f68fa66d5d9392507dbb91cfd130c6ea01bb",
+      "windows": {
+        "train": [
+          1735689600000000000,
+          1735797600000000000
+        ],
+        "dev": [
+          1735797600000000000,
+          1735821600000000000
+        ],
+        "calibration": [
+          1735821600000000000,
+          1735845600000000000
+        ],
+        "test": [
+          1735845600000000000,
+          1735869600000000000
+        ]
+      },
+      "all_phases_nonempty": true
+    }
+  ],
+  "dataset_sha256": "5bcd04f0105258e8a4507c01b82b2891cbbcde9fd162f19654e3fead4875091f",
+  "embargo_ns": 120000000000,
+  "asof_ns": 1735929660000000000,
+  "code": [
+    {
+      "path": "/Users/markus/Documents/NanoJev/scripts/benchmark_financial_pit_v1.py",
+      "bytes": 5321,
+      "sha256": "65ed2d3f28599abfcf1a165dd99f736ba2f9c7efafd715092c2656a7c9709b01"
+    },
+    {
+      "path": "/Users/markus/Documents/NanoJev/scripts/financial_pit_v1.py",
+      "bytes": 9408,
+      "sha256": "96e8be1998333e1ea16b80d754898ebe824f4df6be7d2529bf8734e307115c53"
+    }
+  ],
+  "elapsed_ms": 494.01583382859826
+}

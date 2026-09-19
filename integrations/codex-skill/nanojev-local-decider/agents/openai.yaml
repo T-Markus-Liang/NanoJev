@@ -1,0 +1,6 @@
+interface:
+  display_name: "NanoJev Local Decider"
+  short_description: "Local NanoJev decisions across the engineering lifecycle"
+  default_prompt: "Use $nanojev-local-decider in the current development, testing, optimization, or deployment phase and record the local decision and verified feedback."
+policy:
+  allow_implicit_invocation: true

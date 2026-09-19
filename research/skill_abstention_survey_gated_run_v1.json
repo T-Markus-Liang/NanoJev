@@ -1,0 +1,257 @@
+{
+  "schema_version": "openjev-toy-inference-v1",
+  "checkpoint": {
+    "directory": "/Users/markus/Documents/NanoJev/checkpoints/local_atomic_seed17/variants/local_atomic_seed17",
+    "base_model": "Qwen/Qwen3-0.6B",
+    "base_revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+    "set_head": "attention"
+  },
+  "temperature": {
+    "value": 1.0,
+    "fitted_by_this_command": false,
+    "note": "显式应用给定标量；默认1不表示模型已校准。"
+  },
+  "execution": {
+    "device": "mps",
+    "parameter_storage": "float32",
+    "precision": "fp32",
+    "forward_autocast": "disabled",
+    "states": 6,
+    "questions": 13,
+    "candidate_paths": 28,
+    "forward_passes": 1,
+    "batch_questions_limit": "all",
+    "autoregressive_decode_steps": 0,
+    "prefix_sharing": false,
+    "max_length": 2048,
+    "disable_native_triton": false,
+    "network_model_calls": 0,
+    "persistent_model_load_count": 1,
+    "inference_call_index": 25,
+    "server_evaluation_seconds": 0.6682880420703441
+  },
+  "states": [
+    {
+      "id": "phase",
+      "answers": {
+        "b0_first": {
+          "type": "boolean",
+          "probabilities": {
+            "false": 0.6153152585029602,
+            "true": 0.3846847414970398
+          },
+          "p_true": 0.3846847414970398,
+          "value": null,
+          "confidence": 0.6153152585029602,
+          "abstained": true,
+          "abstain_reason": "confidence_below_threshold",
+          "suggested_value": false
+        },
+        "blocked": {
+          "type": "boolean",
+          "probabilities": {
+            "false": 0.6573711633682251,
+            "true": 0.3426288962364197
+          },
+          "p_true": 0.3426288962364197,
+          "value": null,
+          "confidence": 0.6573711633682251,
+          "abstained": true,
+          "abstain_reason": "confidence_below_threshold",
+          "suggested_value": false
+        },
+        "next_phase": {
+          "type": "choice",
+          "probabilities": {
+            "deployment": 0.2259063422679901,
+            "development": 0.24279269576072693,
+            "optimization": 0.2637314796447754,
+            "testing": 0.26756948232650757
+          },
+          "choice": null,
+          "value": null,
+          "confidence": 0.26756948232650757,
+          "abstained": true,
+          "abstain_reason": "confidence_below_threshold",
+          "suggested_value": "testing"
+        }
+      }
+    },
+    {
+      "id": "tests",
+      "answers": {
+        "needs_new_test": {
+          "type": "boolean",
+          "probabilities": {
+            "false": 0.3323286175727844,
+            "true": 0.6676713824272156
+          },
+          "p_true": 0.6676713824272156,
+          "value": null,
+          "confidence": 0.6676713824272156,
+          "abstained": true,
+          "abstain_reason": "confidence_below_threshold",
+          "suggested_value": true
+        },
+        "which_test": {
+          "type": "choice",
+          "probabilities": {
+            "full": 0.3902691900730133,
+            "none": 0.20938274264335632,
+            "targeted": 0.40034809708595276
+          },
+          "choice": null,
+          "value": null,
+          "confidence": 0.40034809708595276,
+          "abstained": true,
+          "abstain_reason": "confidence_below_threshold",
+          "suggested_value": "targeted"
+        }
+      }
+    },
+    {
+      "id": "routing",
+      "answers": {
+        "route": {
+          "type": "choice",
+          "probabilities": {
+            "batch_merge": 0.3380305767059326,
+            "gate_bypass": 0.17190559208393097,
+            "main_model": 0.4900638461112976
+          },
+          "choice": null,
+          "value": null,
+          "confidence": 0.4900638461112976,
+          "abstained": true,
+          "abstain_reason": "confidence_below_threshold",
+          "suggested_value": "main_model"
+        },
+        "safe_to_drop": {
+          "type": "boolean",
+          "probabilities": {
+            "false": 0.2639298439025879,
+            "true": 0.7360702157020569
+          },
+          "p_true": 0.7360702157020569,
+          "value": null,
+          "confidence": 0.7360702157020569,
+          "abstained": true,
+          "abstain_reason": "confidence_below_threshold",
+          "suggested_value": true
+        }
+      }
+    },
+    {
+      "id": "failure",
+      "answers": {
+        "is_regression": {
+          "type": "boolean",
+          "probabilities": {
+            "false": 0.5048428773880005,
+            "true": 0.4951570928096771
+          },
+          "p_true": 0.4951570928096771,
+          "value": null,
+          "confidence": 0.5048428773880005,
+          "abstained": true,
+          "abstain_reason": "confidence_below_threshold",
+          "suggested_value": false
+        },
+        "kind": {
+          "type": "choice",
+          "probabilities": {
+            "code_bug": 0.25499996542930603,
+            "data_bug": 0.24861326813697815,
+            "flaky": 0.24504989385604858,
+            "test_bug": 0.25133687257766724
+          },
+          "choice": null,
+          "value": null,
+          "confidence": 0.25499996542930603,
+          "abstained": true,
+          "abstain_reason": "confidence_below_threshold",
+          "suggested_value": "code_bug"
+        }
+      }
+    },
+    {
+      "id": "risk",
+      "answers": {
+        "action": {
+          "type": "choice",
+          "probabilities": {
+            "abort": 0.257341593503952,
+            "ask": 0.39979130029678345,
+            "commit_push": 0.3428671956062317
+          },
+          "choice": null,
+          "value": null,
+          "confidence": 0.39979130029678345,
+          "abstained": true,
+          "abstain_reason": "confidence_below_threshold",
+          "suggested_value": "ask"
+        },
+        "check_secrets": {
+          "type": "boolean",
+          "probabilities": {
+            "false": 0.3780376613140106,
+            "true": 0.6219622492790222
+          },
+          "p_true": 0.6219622492790222,
+          "value": null,
+          "confidence": 0.6219622492790222,
+          "abstained": true,
+          "abstain_reason": "confidence_below_threshold",
+          "suggested_value": true
+        }
+      }
+    },
+    {
+      "id": "quality",
+      "answers": {
+        "level": {
+          "type": "score",
+          "probabilities": {
+            "0": 0.2101321965456009,
+            "1": 0.2541719675064087,
+            "2": 0.26993513107299805,
+            "3": 0.2657606601715088
+          },
+          "score": 1.5913242101669312,
+          "level": 2,
+          "value": null,
+          "confidence": 0.26993513107299805,
+          "abstained": true,
+          "abstain_reason": "confidence_below_threshold",
+          "suggested_value": 1.5913242101669312
+        },
+        "token_savings": {
+          "type": "boolean",
+          "probabilities": {
+            "false": 0.532272219657898,
+            "true": 0.46772781014442444
+          },
+          "p_true": 0.46772781014442444,
+          "value": null,
+          "confidence": 0.532272219657898,
+          "abstained": true,
+          "abstain_reason": "confidence_below_threshold",
+          "suggested_value": false
+        }
+      }
+    }
+  ],
+  "decision_summary": {
+    "questions": 13,
+    "confidence_min": 0.25499996542930603,
+    "confidence_max": 0.7360702157020569,
+    "confidence_mean": 0.4937087068190941,
+    "abstained": 13
+  },
+  "usage": {
+    "event_id": "4641c61b-1ef2-4d44-8772-ce1bc9182930",
+    "log": "/Users/markus/.codex/nanojev/usage.jsonl",
+    "service_url": "http://127.0.0.1:8876",
+    "latency_ms": 673.117
+  }
+}

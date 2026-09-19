@@ -1,0 +1,122 @@
+{
+  "readout": "semif-letter-choice-logits",
+  "checkpoint": "/Users/markus/Documents/NanoJev/checkpoints/local_atomic_seed17/variants/local_atomic_seed17",
+  "rows": [
+    {
+      "state": "phase",
+      "qid": "next_phase",
+      "letter": "A",
+      "answer": "development: Write new implementation code",
+      "confidence": 0.6871479153633118
+    },
+    {
+      "state": "phase",
+      "qid": "b0_first",
+      "letter": "A",
+      "answer": "The proposition is true.",
+      "confidence": 0.865317702293396
+    },
+    {
+      "state": "phase",
+      "qid": "blocked",
+      "letter": "A",
+      "answer": "The proposition is true.",
+      "confidence": 0.870762288570404
+    },
+    {
+      "state": "tests",
+      "qid": "which_test",
+      "letter": "A",
+      "answer": "full: Run the full unittest suite",
+      "confidence": 0.8950157761573792
+    },
+    {
+      "state": "tests",
+      "qid": "needs_new_test",
+      "letter": "A",
+      "answer": "The proposition is true.",
+      "confidence": 0.9281875491142273
+    },
+    {
+      "state": "routing",
+      "qid": "route",
+      "letter": "A",
+      "answer": "main_model: Send all context to the main model",
+      "confidence": 0.9062151312828064
+    },
+    {
+      "state": "routing",
+      "qid": "safe_to_drop",
+      "letter": "A",
+      "answer": "The proposition is true.",
+      "confidence": 0.9389410018920898
+    },
+    {
+      "state": "failure",
+      "qid": "kind",
+      "letter": "A",
+      "answer": "code_bug: A bug in the implementation",
+      "confidence": 0.7951931357383728
+    },
+    {
+      "state": "failure",
+      "qid": "is_regression",
+      "letter": "A",
+      "answer": "The proposition is true.",
+      "confidence": 0.9483569264411926
+    },
+    {
+      "state": "risk",
+      "qid": "action",
+      "letter": "A",
+      "answer": "commit_push: Commit and push as authorized",
+      "confidence": 0.8987681269645691
+    },
+    {
+      "state": "risk",
+      "qid": "check_secrets",
+      "letter": "A",
+      "answer": "The proposition is true.",
+      "confidence": 0.9342645406723022
+    },
+    {
+      "state": "quality",
+      "qid": "level",
+      "letter": "A",
+      "answer": "not ready",
+      "confidence": 0.6806334257125854
+    },
+    {
+      "state": "quality",
+      "qid": "token_savings",
+      "letter": "A",
+      "answer": "The proposition is true.",
+      "confidence": 0.9065821170806885
+    }
+  ],
+  "permutation_control": {
+    "schema_version": "nanojev-semif-readout-probe-v1",
+    "what_was_tested": "SemIf/JEV-CPU's letter-choice logit readout (TheoLeeCJ/SemIf, 1770 stars) applied to THIS project's fine-tuned checkpoint, holding weights fixed and changing only the readout.",
+    "naive_result": {
+      "median_confidence": 0.899,
+      "max_confidence": 0.948,
+      "answered_at_0_9": "6/13",
+      "answered_at_0_7": "11/13",
+      "answered_at_0_5": "13/13",
+      "vs_trained_head_readout": {
+        "median_confidence": 0.505,
+        "max_confidence": 0.736,
+        "answered_at_0_9": "0/13"
+      }
+    },
+    "control_result": {
+      "chosen_letter_identical_under_option_permutation": "13/13",
+      "chosen_description_identical_under_option_permutation": "0/13",
+      "verdict": "POSITION ARTIFACT"
+    },
+    "conclusion": "The apparent confidence gain is a letter-A preference bias: the model answers 'A' regardless of what A denotes, so the probabilities carry no decision content. The naive readout does NOT fix the abstention on this checkpoint.",
+    "why": "SemIf/JEV-CPU apply this readout to a BASE instruct model, whose next-token distribution over letters reflects the prompt. This checkpoint's backbone was fine-tuned with task-fitted heads, so its letter slots no longer carry the criteria.",
+    "correct_follow_up": "Re-run the same readout on the BASE Qwen/Qwen3-0.6B that SemIf/JEV-CPU actually use, which is the only configuration in which the method is claimed to work.",
+    "limit": "one checkpoint, 13 questions; the permutation control is the load-bearing part"
+  }
+}

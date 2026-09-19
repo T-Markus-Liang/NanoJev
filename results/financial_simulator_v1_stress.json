@@ -1,0 +1,596 @@
+{
+  "backtest": {
+    "attribution_closes": true,
+    "backtest_sha256": "84b78a6d58fb28fdd7c9e4743b26cae2bd99b9c2700e3c78737ccf5c9028c18d",
+    "byte_identical": true,
+    "code": [
+      {
+        "bytes": 44249,
+        "path": "/Users/markus/Documents/NanoJev/scripts/financial_backtest_v1.py",
+        "sha256": "51f70ffc32aa48eb57a0089f107deae2f1cdb36f7939255314d91858f7fb449e"
+      },
+      {
+        "bytes": 147676,
+        "path": "/Users/markus/Documents/NanoJev/scripts/financial_simulator_v1.py",
+        "sha256": "2396d24091a688cf3cd1a46396be273025cf1a7d234c19a3a5315045c1cc9f8a"
+      },
+      {
+        "bytes": 44343,
+        "path": "/Users/markus/Documents/NanoJev/scripts/financial_risk_v1.py",
+        "sha256": "bc2b933bbcb73fc143ed0e667996b5dd5194c4dfeca4ce812b1c765167b2c60b"
+      }
+    ],
+    "conservation_ok": true,
+    "equity_curve_identical": true,
+    "equity_curve_points": 238,
+    "fills": 39,
+    "funding_identical": true,
+    "funding_payments": 6,
+    "instrument_count": 2,
+    "instrument_residual": 4.160938260611147e-11,
+    "limitations": [
+      "Synthetic constructed market path and synthetic decisions; no real instrument, venue, feed, broker or exchange is contacted.",
+      "Paper trading here is offline replay only. No order is submitted anywhere.",
+      "Fees, funding rates, spreads, latency, capacity and margin parameters are explicit guesses that remain provisional pending R1.",
+      "Not evidence of profitability, calibration, fill authenticity, capacity realism, survivorship safety or live readiness.",
+      "The equity curve is sampled at synthetic price-observation times, so intra-interval excursions between observations are not represented."
+    ],
+    "liquidations": 0,
+    "max_drawdown_fraction": 0.009914167992119385,
+    "net_pnl": 107.04877740841039,
+    "regime_labels": [
+      "synthetic-regime-chop",
+      "synthetic-regime-down",
+      "synthetic-regime-up",
+      "unlabeled"
+    ],
+    "regime_residual": 0.0,
+    "schema_version": "nanojev-financial-backtest-v1",
+    "scope": "Synthetic paper-trading backtest of crypto secondary-market PERPETUAL CONTRACT decisions. Synthetic constructed market path and decisions only; no venue, exchange API or broker is contacted, no market data is downloaded, and no profitability, calibration, capacity or live-readiness claim is made.",
+    "turnover_notional": 4689150.628313083
+  },
+  "code": [
+    {
+      "bytes": 147676,
+      "path": "/Users/markus/Documents/NanoJev/scripts/financial_simulator_v1.py",
+      "sha256": "2396d24091a688cf3cd1a46396be273025cf1a7d234c19a3a5315045c1cc9f8a"
+    },
+    {
+      "bytes": 44343,
+      "path": "/Users/markus/Documents/NanoJev/scripts/financial_risk_v1.py",
+      "sha256": "bc2b933bbcb73fc143ed0e667996b5dd5194c4dfeca4ce812b1c765167b2c60b"
+    }
+  ],
+  "conservation": {
+    "liquidation_not_flat_count": 0,
+    "negative_fee_count": 0,
+    "non_finite_cash_entry_count": 0,
+    "ok": true,
+    "residuals": {
+      "all_costs_inside_net_pnl": 0.0,
+      "cash_entries_vs_event_cash_flows": 0.0,
+      "cash_vs_cash_entries": 2.3283064365386963e-10,
+      "cost_basis_vs_fill_replay": 0.0,
+      "equity_vs_cash_plus_market_value": 0.0,
+      "fees_inside_net_pnl": 0.0,
+      "fees_vs_fill_fees": 0.0,
+      "funding_cost_vs_payments": 0.0,
+      "funding_payments_vs_cash_entries": 0.0,
+      "liquidation_fees_vs_cash_entries": -0.0,
+      "market_value_vs_positions": 0.0,
+      "net_pnl_vs_equity": 0.0,
+      "positions_vs_fill_quantities": 0.0,
+      "realized_pnl_vs_fill_replay": 0.0
+    },
+    "scale": 1000000.0,
+    "tolerance": 0.001,
+    "violations": []
+  },
+  "cost_monotonicity": {
+    "fee_bps": [
+      0.0,
+      0.5,
+      2.0,
+      10.0,
+      50.0
+    ],
+    "fees_paid": [
+      0.0,
+      1.8340995531603836,
+      7.336398212641535,
+      36.681991063207676,
+      183.40995531603838
+    ],
+    "net_pnl": [
+      -5.642211483675055,
+      -7.476311036734842,
+      -12.978609696845524,
+      -42.32420254708268,
+      -189.052166799549
+    ],
+    "violations": []
+  },
+  "counts": {
+    "baseline": {
+      "abstain_decisions": 10,
+      "decision_closes": true,
+      "decisions": 60,
+      "expired": 0,
+      "filled": 35,
+      "fills": 35,
+      "funding_payments": 0,
+      "liquidations": 0,
+      "no_order_decisions": 0,
+      "no_trade_decisions": 10,
+      "ordered_decisions": 35,
+      "orders": 35,
+      "partially_filled_orders": 0,
+      "rejected": 0,
+      "rejected_decisions": 2,
+      "risk_blocked_decisions": 3,
+      "unfilled_orders": 0
+    },
+    "no_fill": {
+      "abstain_decisions": 10,
+      "decision_closes": true,
+      "decisions": 60,
+      "expired": 18,
+      "filled": 0,
+      "fills": 0,
+      "funding_payments": 0,
+      "liquidations": 0,
+      "no_order_decisions": 0,
+      "no_trade_decisions": 10,
+      "ordered_decisions": 18,
+      "orders": 18,
+      "partially_filled_orders": 0,
+      "rejected": 0,
+      "rejected_decisions": 22,
+      "risk_blocked_decisions": 0,
+      "unfilled_orders": 18
+    },
+    "partial": {
+      "abstain_decisions": 10,
+      "decision_closes": true,
+      "decisions": 60,
+      "expired": 33,
+      "filled": 0,
+      "fills": 583,
+      "funding_payments": 0,
+      "liquidations": 0,
+      "no_order_decisions": 0,
+      "no_trade_decisions": 10,
+      "ordered_decisions": 33,
+      "orders": 33,
+      "partially_filled_orders": 33,
+      "rejected": 0,
+      "rejected_decisions": 7,
+      "risk_blocked_decisions": 0,
+      "unfilled_orders": 0
+    },
+    "rejection": {
+      "abstain_decisions": 10,
+      "decision_closes": true,
+      "decisions": 60,
+      "expired": 0,
+      "filled": 0,
+      "fills": 0,
+      "funding_payments": 0,
+      "liquidations": 0,
+      "no_order_decisions": 0,
+      "no_trade_decisions": 10,
+      "ordered_decisions": 18,
+      "orders": 18,
+      "partially_filled_orders": 0,
+      "rejected": 18,
+      "rejected_decisions": 22,
+      "risk_blocked_decisions": 0,
+      "unfilled_orders": 18
+    }
+  },
+  "determinism": {
+    "byte_identical": true,
+    "ledger_sha256": [
+      "c00e977da2bc67165908eb45e1db64a553acd19da0032f754a69edf97dda68f4",
+      "c00e977da2bc67165908eb45e1db64a553acd19da0032f754a69edf97dda68f4"
+    ],
+    "runs": 2
+  },
+  "deterministic_receipt": true,
+  "guard": {
+    "decision_leaks_attempted": 200,
+    "decision_leaks_blocked": 200,
+    "post_execution_price_leaks_blocked": 1,
+    "replay_guard": {
+      "decision_checks": 38,
+      "decision_violations": 0,
+      "execution_checks": 35,
+      "execution_violations": 0,
+      "policy": {
+        "forbid_post_decision_prices_in_decisions": true,
+        "forbid_post_decision_prices_in_executions": false,
+        "forbid_post_execution_prices_in_executions": true,
+        "policy_version": "v1-provisional-pending-r1"
+      },
+      "violation_count": 0,
+      "violations": []
+    },
+    "strict_execution_leaks_blocked": 1
+  },
+  "guard_policy": {
+    "forbid_post_decision_prices_in_decisions": true,
+    "forbid_post_decision_prices_in_executions": false,
+    "forbid_post_execution_prices_in_executions": true,
+    "policy_version": "v1-provisional-pending-r1"
+  },
+  "ledger_sha256": "c00e977da2bc67165908eb45e1db64a553acd19da0032f754a69edf97dda68f4",
+  "limitations": [
+    "Synthetic quotes and decisions only; no real instrument, venue, feed or broker.",
+    "Fill, fee, spread, slippage, capacity and latency policies are explicit guesses provisional pending R1.",
+    "Margin, funding, leverage and liquidation parameters are synthetic construction choices provisional pending R1; no venue rule is replicated.",
+    "Paper trading means offline synthetic replay only; no order is submitted anywhere.",
+    "Not evidence of profitability, calibration, fill authenticity, survivorship safety or live readiness."
+  ],
+  "order_statuses_observed": [
+    "accepted",
+    "expired",
+    "filled",
+    "partially_filled",
+    "rejected",
+    "submitted"
+  ],
+  "perp_scope": "Crypto secondary-market PERPETUAL CONTRACT trading only (Binance, Bybit, Aster, Hyperliquid named as the declared venue universe; no venue is contacted and no venue-specific rule is claimed to be replicated). Linear quote-settled contracts; inverse contracts, portfolio margin, insurance funds and ADL are not modelled.",
+  "perpetual_contracts": {
+    "funding_monotonicity": {
+      "conservation_ok": true,
+      "funding_cost": [
+        0.0,
+        0.6,
+        3.0,
+        6.0
+      ],
+      "funding_rate": [
+        0.0,
+        0.0001,
+        0.0005,
+        0.001
+      ],
+      "net_pnl": [
+        0.0,
+        -0.6000000000349246,
+        -3.0,
+        -6.0
+      ],
+      "payments": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "violations": []
+    },
+    "leverage_effect": {
+      "leverage": [
+        1.0,
+        2.0,
+        5.0,
+        10.0
+      ],
+      "net_pnl": [
+        50.0,
+        50.0,
+        50.0,
+        50.0
+      ],
+      "net_pnl_spread": 0.0,
+      "required_initial_margin": [
+        1000.0,
+        500.0,
+        200.0,
+        100.0
+      ]
+    },
+    "limitations": [
+      "Synthetic perpetual-contract scenarios only; no venue rule is replicated.",
+      "Linear quote-settled contracts only; inverse contracts, portfolio margin, insurance funds, ADL and bad-debt socialisation are not modelled."
+    ],
+    "liquidation": {
+      "conservation_ok": true,
+      "liquidation_count": 1,
+      "liquidation_price": 90.45226130653266,
+      "margin_ratio": 0.002373840336003624,
+      "position_after": 0.0,
+      "position_flat": true,
+      "realized_pnl": -480.39601600000026,
+      "trigger_reason_code": "margin_below_maintenance_requirement"
+    },
+    "margin_mode_comparison": {
+      "cross_conservation_ok": true,
+      "cross_final_equity": 7273.981652810973,
+      "cross_liquidations": 0,
+      "isolated_final_equity": 9519.603984,
+      "isolated_liquidations": 1
+    },
+    "margin_sufficiency": {
+      "allocated_margin": 1000.0,
+      "effective_quantity": 100.0,
+      "enforced": true,
+      "reason_codes": [
+        "insufficient_initial_margin",
+        "initial_margin_quantity_reduce",
+        "filled"
+      ],
+      "requested_quantity": 500.0
+    },
+    "multiplier_scaling": {
+      "pnl": [
+        100.0,
+        400.0
+      ],
+      "pnl_ratio_error": 0.0
+    },
+    "netting": {
+      "hedge_conservation_ok": true,
+      "hedge_keys": 2,
+      "hedge_long": 5.0,
+      "hedge_short": -2.0,
+      "one_way_conservation_ok": true,
+      "one_way_keys": 1,
+      "one_way_quantity": 3.0
+    },
+    "schema_version": "nanojev-financial-perp-stress-v1",
+    "scope": "Crypto secondary-market PERPETUAL CONTRACT trading only (Binance, Bybit, Aster, Hyperliquid named as the declared venue universe; no venue is contacted and no venue-specific rule is claimed to be replicated). Linear quote-settled contracts; inverse contracts, portfolio margin, insurance funds and ADL are not modelled.",
+    "short_round_trip": {
+      "conservation_ok": true,
+      "fills": 2,
+      "final_quantity": 0.0,
+      "net_pnl": 100.0,
+      "realized_pnl": 100.0
+    },
+    "venue": "binance"
+  },
+  "policy": {
+    "account": {
+      "cash_buffer_fraction": 0.0,
+      "on_insufficient_cash": "reduce",
+      "policy_version": "v1-provisional-pending-r1",
+      "require_sufficient_cash": true
+    },
+    "capacity": {
+      "max_order_notional": 1000000000000.0,
+      "max_order_quantity": 1000000000.0,
+      "max_participation_fraction": 0.05,
+      "on_order_exceeds_limit": "clamp",
+      "policy_version": "v1-provisional-pending-r1"
+    },
+    "fees": {
+      "fee_bps": 1.0,
+      "fixed_fee_per_fill": 0.0,
+      "minimum_fee": 0.0,
+      "policy_version": "v1-provisional-pending-r1"
+    },
+    "fills": {
+      "fill_probability": 1.0,
+      "minimum_fill_quantity": 1e-09,
+      "order_time_to_live_ns": 1000000000,
+      "policy_version": "v1-provisional-pending-r1",
+      "reject_probability": 0.0,
+      "require_inventory_for_sell": true
+    },
+    "latency": {
+      "ack_to_execution_ns": 1000000,
+      "decision_to_order_ns": 1000000,
+      "order_to_ack_ns": 500000,
+      "policy_version": "v1-provisional-pending-r1"
+    },
+    "marks": {
+      "fallback": "cost_basis",
+      "policy_version": "v1-provisional-pending-r1",
+      "price_source": "mark"
+    },
+    "perps": {
+      "allow_short": true,
+      "default_funding_rate": 0.0,
+      "default_leverage": 5.0,
+      "funding_anchor_ns": 0,
+      "funding_interval_ns": 28800000000000,
+      "funding_rate_schedule": [],
+      "funding_rate_source": "policy_constant",
+      "funding_rates": [],
+      "liquidation_fee_bps": 0.0,
+      "maintenance_margin_rate": 0.005,
+      "margin_mode": "cross",
+      "max_leverage": 20.0,
+      "policy_version": "v1-provisional-pending-r1",
+      "position_mode": "one_way",
+      "trace_perp_curve": false
+    },
+    "slippage": {
+      "fixed_bps": 0.0,
+      "impact_bps_at_full_capacity": 0.0,
+      "policy_version": "v1-provisional-pending-r1"
+    },
+    "spread": {
+      "fixed_half_spread_price": 0.0,
+      "half_spread_bps": 1.0,
+      "policy_version": "v1-provisional-pending-r1"
+    }
+  },
+  "provisional_pending_r1": [
+    "fees.fee_bps",
+    "fees.fixed_fee_per_fill",
+    "fees.minimum_fee",
+    "spread.half_spread_bps",
+    "spread.fixed_half_spread_price",
+    "slippage.fixed_bps",
+    "slippage.impact_bps_at_full_capacity",
+    "capacity.max_participation_fraction",
+    "capacity.max_order_quantity",
+    "capacity.max_order_notional",
+    "capacity.on_order_exceeds_limit",
+    "fills.reject_probability",
+    "fills.fill_probability",
+    "fills.minimum_fill_quantity",
+    "fills.require_inventory_for_sell",
+    "fills.order_time_to_live_ns",
+    "latency.decision_to_order_ns",
+    "latency.order_to_ack_ns",
+    "latency.ack_to_execution_ns",
+    "guard.forbid_post_decision_prices_in_decisions",
+    "guard.forbid_post_execution_prices_in_executions",
+    "guard.forbid_post_decision_prices_in_executions",
+    "marks.fallback",
+    "marks.price_source",
+    "account.require_sufficient_cash",
+    "account.on_insufficient_cash",
+    "account.cash_buffer_fraction",
+    "perps.allow_short",
+    "perps.default_leverage",
+    "perps.max_leverage",
+    "perps.margin_mode",
+    "perps.position_mode",
+    "perps.maintenance_margin_rate",
+    "perps.funding_interval_ns",
+    "perps.funding_anchor_ns",
+    "perps.funding_rate_source",
+    "perps.default_funding_rate",
+    "perps.funding_rates",
+    "perps.funding_rate_schedule",
+    "perps.liquidation_fee_bps",
+    "perps.trace_perp_curve",
+    "contracts.*.contract_multiplier",
+    "contracts.*.tick_size",
+    "contracts.*.lot_size",
+    "contracts.*.min_notional",
+    "contracts.*.margin_mode",
+    "contracts.*.max_leverage",
+    "contracts.*.maintenance_margin_rate",
+    "limits.max_position_quantity",
+    "limits.min_position_quantity",
+    "limits.max_gross_exposure_notional",
+    "limits.max_abs_net_exposure_notional",
+    "limits.max_net_loss_notional",
+    "limits.max_realized_loss_notional",
+    "limits.max_turnover_notional",
+    "limits.turnover_window_ns",
+    "limits.max_orders_per_window",
+    "limits.order_rate_window_ns",
+    "limits.max_order_notional",
+    "limits.max_data_staleness_ns",
+    "limits.max_clock_drift_ns",
+    "limits.require_data_quality_fields",
+    "limits.latch_kill_switch_on_block",
+    "limits.max_leverage",
+    "limits.max_position_notional_per_venue",
+    "limits.max_funding_cost_notional",
+    "limits.max_margin_ratio",
+    "limits.min_available_margin_notional",
+    "limits.min_liquidation_distance_fraction",
+    "limits.max_initial_margin_utilization",
+    "limits.require_margin_sufficiency"
+  ],
+  "replay_sha256": "0fe6655dbe306965cfefcba579e78ebb47a511892e4625aaef98ebae75f371f9",
+  "risk_guards": {
+    "clock_drift_block": {
+      "allowed_quantity": 0.0,
+      "decision": "block",
+      "reason_codes": [
+        "clock_drift"
+      ]
+    },
+    "gross_exposure_block": {
+      "allowed_quantity": 0.0,
+      "decision": "block",
+      "reason_codes": [
+        "gross_exposure_limit"
+      ]
+    },
+    "kill_switch_block": {
+      "allowed_quantity": 0.0,
+      "decision": "block",
+      "reason_codes": [
+        "kill_switch_engaged"
+      ]
+    },
+    "net_loss_block": {
+      "allowed_quantity": 0.0,
+      "decision": "block",
+      "reason_codes": [
+        "net_loss_limit"
+      ]
+    },
+    "order_rate_block": {
+      "allowed_quantity": 0.0,
+      "decision": "block",
+      "reason_codes": [
+        "order_rate_limit"
+      ]
+    },
+    "position_block": {
+      "allowed_quantity": 0.0,
+      "decision": "block",
+      "reason_codes": [
+        "position_limit"
+      ]
+    },
+    "position_reduce": {
+      "allowed_quantity": 4.0,
+      "decision": "reduce",
+      "reason_codes": [
+        "position_limit"
+      ]
+    },
+    "replay_all_blocked": {
+      "fills": 0,
+      "risk_blocked_decisions": 5
+    },
+    "replay_with_gate": {
+      "fills": 4,
+      "risk_blocked_decisions": 1
+    },
+    "stale_data_block": {
+      "allowed_quantity": 0.0,
+      "decision": "block",
+      "reason_codes": [
+        "stale_data"
+      ]
+    },
+    "turnover_reduce": {
+      "allowed_quantity": 2.5,
+      "decision": "reduce",
+      "reason_codes": [
+        "turnover_limit"
+      ]
+    }
+  },
+  "risk_limits": {
+    "latch_kill_switch_on_block": false,
+    "max_abs_net_exposure_notional": 100000.0,
+    "max_clock_drift_ns": 1000000000,
+    "max_data_staleness_ns": 5000000000,
+    "max_funding_cost_notional": 10000.0,
+    "max_gross_exposure_notional": 100000.0,
+    "max_initial_margin_utilization": 0.95,
+    "max_leverage": 20.0,
+    "max_margin_ratio": 0.8,
+    "max_net_loss_notional": 10000.0,
+    "max_order_notional": 25000.0,
+    "max_orders_per_window": 60,
+    "max_position_notional_per_venue": 1000000.0,
+    "max_position_quantity": 100.0,
+    "max_realized_loss_notional": 10000.0,
+    "max_turnover_notional": 250000.0,
+    "min_available_margin_notional": 0.0,
+    "min_liquidation_distance_fraction": 0.05,
+    "min_position_quantity": 0.0,
+    "order_rate_window_ns": 1000000000,
+    "policy_version": "v1-provisional-pending-r1",
+    "require_data_quality_fields": true,
+    "require_margin_sufficiency": true,
+    "turnover_window_ns": 60000000000
+  },
+  "schema_version": "nanojev-financial-simulator-stress-v1",
+  "scope": "Synthetic constructed quotes and orders only; no real market data, no broker, no venue, no fill-authenticity, calibration or profitability claim.",
+  "seed": 20260919,
+  "status": "passed"
+}
