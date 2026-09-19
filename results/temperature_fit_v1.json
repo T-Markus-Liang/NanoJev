@@ -1,0 +1,2499 @@
+{
+  "schema_version": "nanojev-temperature-fit-v1",
+  "generated_by": "scripts/fit_decision_temperature_v1.py",
+  "network_model_calls": 0,
+  "checkpoint": {
+    "directory": "/Users/markus/Documents/NanoJev/checkpoints/local_atomic_seed17/variants/local_atomic_seed17",
+    "config": {
+      "input": "data/local_maze_v1",
+      "output_dir": "runs/local_atomic_seed17",
+      "model": "Qwen/Qwen3-0.6B",
+      "revision": "main",
+      "init_checkpoint": "/home/rwang/openjev_codex_20260917/runs/v3_teacher_coords_multi_seed17",
+      "objective": "gold_distribution",
+      "loss": "ce",
+      "reward_samples": 32,
+      "gradient_checkpointing": true,
+      "set_head": "attention",
+      "steps": 300,
+      "head_steps": 0,
+      "batch_questions": 16,
+      "microbatch_questions": 4,
+      "max_microbatch_tokens": 16384,
+      "eval_every": 50,
+      "max_length": 2048,
+      "seed": 17,
+      "backbone_lr": 2e-05,
+      "head_lr": 0.0002,
+      "head_warmup_lr": 0.001,
+      "precision": "bf16",
+      "disable_native_triton": true,
+      "validate_only": false,
+      "self_check": false,
+      "schema_version": "openjev-decision-pipeline-v1",
+      "resolved_model_revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+      "initialization": "local DecisionModel warm start, fresh optimizer",
+      "data_sha256": {
+        "data/local_maze_v1/train.jsonl": "502f2840f3e15ffac76554f35ef6c2e41c6e25f58f77b5ee3a2f1196cba0c41a",
+        "data/local_maze_v1/dev.jsonl": "bd7f9d4402112770f571210677e329e8673a38caa6bb798b744ee47bc793b9a5",
+        "data/local_maze_v1/calibration.jsonl": "94a233e71eaf3460c939bb0b4b147a0a951931001097070ea7ac8b4b78f39ace",
+        "data/local_maze_v1/test.jsonl": "be7783c395715f9fa2aae7c793c4e5b7c4b1dfe3fcb0880544b577e85b8f3b10",
+        "data/local_maze_v1/ood.jsonl": "e6772998a189880c780b6408c0e348c77324a28204e390767dec54f475d61f4e"
+      },
+      "deps": {
+        "torch": "2.14.0",
+        "transformers": "5.17.0",
+        "safetensors": "0.8.0"
+      },
+      "gpu": "NVIDIA A100-SXM4-80GB",
+      "parameter_storage": "float32",
+      "forward_autocast": "bfloat16",
+      "parameter_count": 596250498,
+      "train_questions": 576,
+      "all_train_questions": 576,
+      "schema_counts": {
+        "records": 300,
+        "questions_by_split": {
+          "train": 576,
+          "dev": 192,
+          "calibration": 192,
+          "test": 176,
+          "ood": 64
+        },
+        "eligible_by_split_objective": {
+          "calibration/gold_distribution": 192,
+          "dev/gold_distribution": 192,
+          "ood/gold_distribution": 64,
+          "test/gold_distribution": 176,
+          "train/gold_distribution": 576
+        }
+      },
+      "loss_description": "per-question proper loss; complete candidate normalization",
+      "rlcd_candidate": null,
+      "selection": "minimum dev target CE; held-out test first evaluated after training and checkpoint selection",
+      "parallelism": "complete candidate paths batched in one backbone call per microbatch; no prefix sharing"
+    }
+  },
+  "method": {
+    "what_is_fitted": "one shared scalar temperature applied as softmax(scores / T)",
+    "not_fitted": [
+      "model weights (no gradient step, no training)",
+      "per-question or per-class temperatures",
+      "any threshold or abstention rule"
+    ],
+    "fit_objective": "nll",
+    "fit_split": "calibration",
+    "also_fit_for_robustness": [
+      "dev"
+    ],
+    "evaluation_splits": [
+      "test",
+      "ood"
+    ],
+    "how_temperature_is_applied": "DecisionPredictor.predict(payload, temperature=T); the service response reports temperature.value = T with fitted_by_this_command = false. No service file was edited.",
+    "metrics_contract": {
+      "nll": "mean -log p of the true label, probability floored at 1e-12",
+      "brier_scalar_bernoulli": "mean (p_true - y)^2",
+      "brier_two_class_sum": "2 x the scalar Bernoulli Brier (repo continuity)",
+      "ece_fixed_width_10": "10 fixed-width bins on p(true), confidence-weighted |mean_p - mean_y|",
+      "ece_adaptive_width_10": "same, equal-count bins (bin-sensitivity check)",
+      "answer_rate": "fraction with max(p_true, 1-p_true) >= threshold, matching the skill's confidence() and abstain_below semantics",
+      "accuracy_invariance": "temperature is strictly monotone, so argmax accuracy is invariant; only calibration and the threshold operating point can move"
+    }
+  },
+  "split_definition": {
+    "cohort_directory": "/Users/markus/Documents/NanoJev/dataset/games_v4/data/local_maze_v1",
+    "manifest": {
+      "path": "dataset/games_v4/data/local_maze_v1/manifest.json",
+      "sha256": "5ad9b122421610f505960d7cb7d35111b3d19294f03dbc2e0260695ceaf1d177",
+      "declared_checks": {
+        "one_output_per_maze_snapshot": true,
+        "source_groups_preserved": true,
+        "split_assignments_preserved": true,
+        "cross_split_source_groups": 0,
+        "cross_split_state_ids": 0,
+        "local_and_geometric_truth_agree": true,
+        "training_schema_valid": true,
+        "resampling": false,
+        "api_calls": 0
+      },
+      "declared_inputs": {
+        "train": {
+          "path": "data/scaled_games_v4b/policy/train.jsonl",
+          "sha256": "af6065315d383bce2f137b3095cc9912aafe1edf0a3ee7c119c9b7af4a0ac399",
+          "rows": 281,
+          "skipped_by_game": {
+            "snake": 137
+          }
+        },
+        "dev": {
+          "path": "data/scaled_games_v4b/policy/dev.jsonl",
+          "sha256": "5e34f86e60dffce37d9454c4ffb978c987ba8467de35c5f79dab99bdb24f3d6b",
+          "rows": 93,
+          "skipped_by_game": {
+            "snake": 45
+          }
+        },
+        "calibration": {
+          "path": "data/scaled_games_v4b/policy/calibration.jsonl",
+          "sha256": "c2b279ecd835068c20bc328c34bca970feee1e8afab67b1f7dea0c201f0d824f",
+          "rows": 92,
+          "skipped_by_game": {
+            "snake": 44
+          }
+        },
+        "test": {
+          "path": "data/scaled_games_v4b/policy/test.jsonl",
+          "sha256": "54e573515e5d1e2c55308763a857d9bb46f2c02b2cbd23e50a4544587a69501c",
+          "rows": 91,
+          "skipped_by_game": {
+            "snake": 47
+          }
+        },
+        "ood": {
+          "path": "data/scaled_games_v4b/policy/ood.jsonl",
+          "sha256": "ac4ea92590a95f40cd2134ad64f450c369601745b36d91ebf5692d9f39ea3135",
+          "rows": 32,
+          "skipped_by_game": {
+            "snake": 16
+          }
+        }
+      }
+    },
+    "splits": {
+      "train": {
+        "path": "dataset/games_v4/data/local_maze_v1/train.jsonl",
+        "sha256": "502f2840f3e15ffac76554f35ef6c2e41c6e25f58f77b5ee3a2f1196cba0c41a",
+        "sha256_declared_in_manifest": "502f2840f3e15ffac76554f35ef6c2e41c6e25f58f77b5ee3a2f1196cba0c41a",
+        "manifest_hash_match": true,
+        "rows": 144,
+        "questions": 576,
+        "source_groups": 34,
+        "state_ids": 144,
+        "true_prevalence": 0.5503472222222222
+      },
+      "dev": {
+        "path": "dataset/games_v4/data/local_maze_v1/dev.jsonl",
+        "sha256": "bd7f9d4402112770f571210677e329e8673a38caa6bb798b744ee47bc793b9a5",
+        "sha256_declared_in_manifest": "bd7f9d4402112770f571210677e329e8673a38caa6bb798b744ee47bc793b9a5",
+        "manifest_hash_match": true,
+        "rows": 48,
+        "questions": 192,
+        "source_groups": 11,
+        "state_ids": 48,
+        "true_prevalence": 0.5364583333333334
+      },
+      "calibration": {
+        "path": "dataset/games_v4/data/local_maze_v1/calibration.jsonl",
+        "sha256": "94a233e71eaf3460c939bb0b4b147a0a951931001097070ea7ac8b4b78f39ace",
+        "sha256_declared_in_manifest": "94a233e71eaf3460c939bb0b4b147a0a951931001097070ea7ac8b4b78f39ace",
+        "manifest_hash_match": true,
+        "rows": 48,
+        "questions": 192,
+        "source_groups": 12,
+        "state_ids": 48,
+        "true_prevalence": 0.53125
+      },
+      "test": {
+        "path": "dataset/games_v4/data/local_maze_v1/test.jsonl",
+        "sha256": "be7783c395715f9fa2aae7c793c4e5b7c4b1dfe3fcb0880544b577e85b8f3b10",
+        "sha256_declared_in_manifest": "be7783c395715f9fa2aae7c793c4e5b7c4b1dfe3fcb0880544b577e85b8f3b10",
+        "manifest_hash_match": true,
+        "rows": 44,
+        "questions": 176,
+        "source_groups": 11,
+        "state_ids": 44,
+        "true_prevalence": 0.5625
+      },
+      "ood": {
+        "path": "dataset/games_v4/data/local_maze_v1/ood.jsonl",
+        "sha256": "e6772998a189880c780b6408c0e348c77324a28204e390767dec54f475d61f4e",
+        "sha256_declared_in_manifest": "e6772998a189880c780b6408c0e348c77324a28204e390767dec54f475d61f4e",
+        "manifest_hash_match": true,
+        "rows": 16,
+        "questions": 64,
+        "source_groups": 4,
+        "state_ids": 16,
+        "true_prevalence": 0.5625
+      }
+    },
+    "fit_data_is": "calibration.jsonl only (48 states, 192 Boolean questions)",
+    "why_this_is_not_test_data": [
+      "the split is a separate frozen file with its own manifest sha256",
+      "state_id overlap with every other split is 0 (computed, not asserted)",
+      "source_group_id overlap with every other split is 0, so no maze group leaks",
+      "the checkpoint config records train_questions = 576 = the whole of train.jsonl, so calibration.jsonl was never trained on",
+      "the checkpoint config records selection = 'minimum dev target CE; held-out test first evaluated after training and checkpoint selection'"
+    ],
+    "disjointness": {
+      "test|calibration": {
+        "state_id_overlap": 0,
+        "source_group_overlap": 0
+      },
+      "test|dev": {
+        "state_id_overlap": 0,
+        "source_group_overlap": 0
+      },
+      "test|train": {
+        "state_id_overlap": 0,
+        "source_group_overlap": 0
+      },
+      "ood|calibration": {
+        "state_id_overlap": 0,
+        "source_group_overlap": 0
+      },
+      "ood|dev": {
+        "state_id_overlap": 0,
+        "source_group_overlap": 0
+      },
+      "ood|train": {
+        "state_id_overlap": 0,
+        "source_group_overlap": 0
+      },
+      "test|ood": {
+        "state_id_overlap": 0,
+        "source_group_overlap": 0
+      },
+      "calibration|dev": {
+        "state_id_overlap": 0,
+        "source_group_overlap": 0
+      }
+    },
+    "guard": {
+      "self_test": {
+        "forbidden_splits": {
+          "ood": "rejected",
+          "test": "rejected"
+        },
+        "allowed_splits": {
+          "calibration": "admitted",
+          "dev": "admitted",
+          "train": "admitted"
+        },
+        "passed": true
+      },
+      "layers": [
+        "G1 name-level: --fit-split/--also-fit refuse test and ood",
+        "G2 hash-level: every split must match the frozen manifest sha256",
+        "G3 row-level: every fitting row must carry split == the fit split",
+        "G4 data-level: fitting state_ids/source_groups must be disjoint from test/ood",
+        "G5 objective-level: each scored row's split is re-checked in the loop"
+      ],
+      "fitted_on_test_or_ood": false
+    }
+  },
+  "fit": {
+    "primary": {
+      "objective": "nll",
+      "fitted_temperature": 0.8542255879801781,
+      "grid_optimum": 0.8537948013385528,
+      "grid_loss_at_optimum": 0.37736147856015206,
+      "refined_loss": 0.3773614482978646,
+      "loss_at_temperature_1": 0.38017895206364116,
+      "at_grid_boundary": false,
+      "grid": {
+        "min": 0.05,
+        "max": 20.0,
+        "points": 4000,
+        "spacing": "log"
+      },
+      "refinement": {
+        "method": "golden_section_in_log_space",
+        "steps": 200
+      },
+      "questions_used_to_fit": 192,
+      "states_used_to_fit": 48,
+      "fit_split": "calibration",
+      "direction": "sharpen (raises every confidence)"
+    },
+    "all_fits": {
+      "calibration": {
+        "nll": {
+          "objective": "nll",
+          "fitted_temperature": 0.8542255879801781,
+          "grid_optimum": 0.8537948013385528,
+          "grid_loss_at_optimum": 0.37736147856015206,
+          "refined_loss": 0.3773614482978646,
+          "loss_at_temperature_1": 0.38017895206364116,
+          "at_grid_boundary": false,
+          "grid": {
+            "min": 0.05,
+            "max": 20.0,
+            "points": 4000,
+            "spacing": "log"
+          },
+          "refinement": {
+            "method": "golden_section_in_log_space",
+            "steps": 200
+          },
+          "questions_used_to_fit": 192,
+          "states_used_to_fit": 48,
+          "fit_split": "calibration",
+          "direction": "sharpen (raises every confidence)"
+        },
+        "brier": {
+          "objective": "brier",
+          "fitted_temperature": 0.9994382393110032,
+          "grid_optimum": 0.9992511601721205,
+          "grid_loss_at_optimum": 0.2526587862174204,
+          "refined_loss": 0.2526587842514366,
+          "loss_at_temperature_1": 0.25265880196715657,
+          "at_grid_boundary": false,
+          "grid": {
+            "min": 0.05,
+            "max": 20.0,
+            "points": 4000,
+            "spacing": "log"
+          },
+          "refinement": {
+            "method": "golden_section_in_log_space",
+            "steps": 200
+          },
+          "questions_used_to_fit": 192,
+          "states_used_to_fit": 48,
+          "fit_split": "calibration",
+          "direction": "sharpen (raises every confidence)"
+        }
+      },
+      "dev": {
+        "nll": {
+          "objective": "nll",
+          "fitted_temperature": 1.109015564702039,
+          "grid_optimum": 1.109742191500319,
+          "grid_loss_at_optimum": 0.48177816144829316,
+          "refined_loss": 0.4817781190510666,
+          "loss_at_temperature_1": 0.4828797532832732,
+          "at_grid_boundary": false,
+          "grid": {
+            "min": 0.05,
+            "max": 20.0,
+            "points": 4000,
+            "spacing": "log"
+          },
+          "refinement": {
+            "method": "golden_section_in_log_space",
+            "steps": 200
+          },
+          "questions_used_to_fit": 192,
+          "states_used_to_fit": 48,
+          "fit_split": "dev",
+          "direction": "soften (lowers every confidence)"
+        },
+        "brier": {
+          "objective": "brier",
+          "fitted_temperature": 1.1904772034852227,
+          "grid_optimum": 1.1907043719248231,
+          "grid_loss_at_optimum": 0.32710328949696144,
+          "refined_loss": 0.3271032878579489,
+          "loss_at_temperature_1": 0.328454230767022,
+          "at_grid_boundary": false,
+          "grid": {
+            "min": 0.05,
+            "max": 20.0,
+            "points": 4000,
+            "spacing": "log"
+          },
+          "refinement": {
+            "method": "golden_section_in_log_space",
+            "steps": 200
+          },
+          "questions_used_to_fit": 192,
+          "states_used_to_fit": 48,
+          "fit_split": "dev",
+          "direction": "soften (lowers every confidence)"
+        }
+      }
+    },
+    "fitted_temperature": 0.8542255879801781,
+    "temperature_1.0_baseline": {
+      "calibration_nll": 0.38017895206364116,
+      "calibration_brier": 0.25265880196715657
+    }
+  },
+  "metrics": {
+    "calibration": {
+      "temperature_1.0": {
+        "questions": 192,
+        "states": 48,
+        "accuracy": 0.8229166666666666,
+        "nll": 0.38017894605562225,
+        "nll_probability_floor": 1e-12,
+        "brier_scalar_bernoulli": 0.12632940009308027,
+        "brier_two_class_sum": 0.25265880018616055,
+        "ece_fixed_width_10": 0.10246084739143649,
+        "ece_adaptive_width_10": 0.07952020619995892,
+        "mce_fixed_width_10": 0.3250473253428936,
+        "ece_bins_fixed": [
+          {
+            "bin": 0,
+            "count": 32,
+            "mean_confidence": 0.05438486626371741,
+            "empirical_true_rate": 0.0,
+            "gap": 0.05438486626371741,
+            "range": [
+              0.0,
+              0.1
+            ]
+          },
+          {
+            "bin": 1,
+            "count": 4,
+            "mean_confidence": 0.1749526746571064,
+            "empirical_true_rate": 0.5,
+            "gap": 0.3250473253428936,
+            "range": [
+              0.1,
+              0.2
+            ]
+          },
+          {
+            "bin": 2,
+            "count": 16,
+            "mean_confidence": 0.2553824055939913,
+            "empirical_true_rate": 0.0,
+            "gap": 0.2553824055939913,
+            "range": [
+              0.2,
+              0.3
+            ]
+          },
+          {
+            "bin": 3,
+            "count": 22,
+            "mean_confidence": 0.3450379859317433,
+            "empirical_true_rate": 0.4090909090909091,
+            "gap": 0.06405292315916583,
+            "range": [
+              0.3,
+              0.4
+            ]
+          },
+          {
+            "bin": 4,
+            "count": 8,
+            "mean_confidence": 0.4587899409234524,
+            "empirical_true_rate": 0.25,
+            "gap": 0.20878994092345238,
+            "range": [
+              0.4,
+              0.5
+            ]
+          },
+          {
+            "bin": 5,
+            "count": 10,
+            "mean_confidence": 0.5539869010448456,
+            "empirical_true_rate": 0.8,
+            "gap": 0.24601309895515444,
+            "range": [
+              0.5,
+              0.6
+            ]
+          },
+          {
+            "bin": 6,
+            "count": 16,
+            "mean_confidence": 0.6384781301021576,
+            "empirical_true_rate": 0.5625,
+            "gap": 0.07597813010215759,
+            "range": [
+              0.6,
+              0.7
+            ]
+          },
+          {
+            "bin": 7,
+            "count": 26,
+            "mean_confidence": 0.7599778565076681,
+            "empirical_true_rate": 0.6153846153846154,
+            "gap": 0.14459324112305272,
+            "range": [
+              0.7,
+              0.8
+            ]
+          },
+          {
+            "bin": 8,
+            "count": 11,
+            "mean_confidence": 0.8560872132127936,
+            "empirical_true_rate": 0.8181818181818182,
+            "gap": 0.03790539503097534,
+            "range": [
+              0.8,
+              0.9
+            ]
+          },
+          {
+            "bin": 9,
+            "count": 47,
+            "mean_confidence": 0.9656550922292344,
+            "empirical_true_rate": 1.0,
+            "gap": 0.0343449077707656,
+            "range": [
+              0.9,
+              1.0
+            ]
+          }
+        ],
+        "confidence_min": 0.50844407081604,
+        "confidence_mean": 0.8048452703903118,
+        "confidence_median": 0.793726235628128,
+        "confidence_p90": 0.9875297546386719,
+        "confidence_max": 0.9953556060791016,
+        "operating_points": {
+          "0.5": {
+            "answer_rate": 1.0,
+            "answered": 192,
+            "accuracy_on_answered": 0.8229166666666666
+          },
+          "0.7": {
+            "answer_rate": 0.7083333333333334,
+            "answered": 136,
+            "accuracy_on_answered": 0.8970588235294118
+          },
+          "0.9": {
+            "answer_rate": 0.4114583333333333,
+            "answered": 79,
+            "accuracy_on_answered": 1.0
+          }
+        }
+      },
+      "temperature_0.854226": {
+        "questions": 192,
+        "states": 48,
+        "accuracy": 0.8229166666666666,
+        "nll": 0.377361442318851,
+        "nll_probability_floor": 1e-12,
+        "brier_scalar_bernoulli": 0.12700571986051545,
+        "brier_two_class_sum": 0.2540114397210309,
+        "ece_fixed_width_10": 0.10498206538613887,
+        "ece_adaptive_width_10": 0.08244608913082627,
+        "mce_fixed_width_10": 0.3216266557574272,
+        "ece_bins_fixed": [
+          {
+            "bin": 0,
+            "count": 32,
+            "mean_confidence": 0.03420124831609428,
+            "empirical_true_rate": 0.0,
+            "gap": 0.03420124831609428,
+            "range": [
+              0.0,
+              0.1
+            ]
+          },
+          {
+            "bin": 1,
+            "count": 7,
+            "mean_confidence": 0.16236563239778792,
+            "empirical_true_rate": 0.2857142857142857,
+            "gap": 0.12334865331649777,
+            "range": [
+              0.1,
+              0.2
+            ]
+          },
+          {
+            "bin": 2,
+            "count": 18,
+            "mean_confidence": 0.24485210991568035,
+            "empirical_true_rate": 0.05555555555555555,
+            "gap": 0.1892965543601248,
+            "range": [
+              0.2,
+              0.3
+            ]
+          },
+          {
+            "bin": 3,
+            "count": 18,
+            "mean_confidence": 0.3351363390684128,
+            "empirical_true_rate": 0.4444444444444444,
+            "gap": 0.10930810537603164,
+            "range": [
+              0.3,
+              0.4
+            ]
+          },
+          {
+            "bin": 4,
+            "count": 7,
+            "mean_confidence": 0.4595572437558855,
+            "empirical_true_rate": 0.2857142857142857,
+            "gap": 0.17384295804159983,
+            "range": [
+              0.4,
+              0.5
+            ]
+          },
+          {
+            "bin": 5,
+            "count": 8,
+            "mean_confidence": 0.5533733442425728,
+            "empirical_true_rate": 0.875,
+            "gap": 0.3216266557574272,
+            "range": [
+              0.5,
+              0.6
+            ]
+          },
+          {
+            "bin": 6,
+            "count": 14,
+            "mean_confidence": 0.6364684530666896,
+            "empirical_true_rate": 0.5714285714285714,
+            "gap": 0.06503988163811825,
+            "range": [
+              0.6,
+              0.7
+            ]
+          },
+          {
+            "bin": 7,
+            "count": 17,
+            "mean_confidence": 0.7575794248019948,
+            "empirical_true_rate": 0.5294117647058824,
+            "gap": 0.22816766009611245,
+            "range": [
+              0.7,
+              0.8
+            ]
+          },
+          {
+            "bin": 8,
+            "count": 19,
+            "mean_confidence": 0.8319449738452309,
+            "empirical_true_rate": 0.6842105263157895,
+            "gap": 0.14773444752944143,
+            "range": [
+              0.8,
+              0.9
+            ]
+          },
+          {
+            "bin": 9,
+            "count": 52,
+            "mean_confidence": 0.9723554780850043,
+            "empirical_true_rate": 1.0,
+            "gap": 0.027644521914995668,
+            "range": [
+              0.9,
+              1.0
+            ]
+          }
+        ],
+        "confidence_min": 0.5098847150802612,
+        "confidence_mean": 0.8265528256306425,
+        "confidence_median": 0.8288444876670837,
+        "confidence_p90": 0.9940471529960633,
+        "confidence_max": 0.9981364011764526,
+        "operating_points": {
+          "0.5": {
+            "answer_rate": 1.0,
+            "answered": 192,
+            "accuracy_on_answered": 0.8229166666666666
+          },
+          "0.7": {
+            "answer_rate": 0.7552083333333334,
+            "answered": 145,
+            "accuracy_on_answered": 0.8827586206896552
+          },
+          "0.9": {
+            "answer_rate": 0.4375,
+            "answered": 84,
+            "accuracy_on_answered": 1.0
+          }
+        }
+      },
+      "delta_fitted_minus_1.0": {
+        "accuracy": {
+          "temperature_1.0": 0.8229166666666666,
+          "temperature_fitted": 0.8229166666666666,
+          "delta": 0.0
+        },
+        "nll": {
+          "temperature_1.0": 0.38017894605562225,
+          "temperature_fitted": 0.377361442318851,
+          "delta": -0.002817503736771254
+        },
+        "brier_scalar_bernoulli": {
+          "temperature_1.0": 0.12632940009308027,
+          "temperature_fitted": 0.12700571986051545,
+          "delta": 0.0006763197674351795
+        },
+        "brier_two_class_sum": {
+          "temperature_1.0": 0.25265880018616055,
+          "temperature_fitted": 0.2540114397210309,
+          "delta": 0.001352639534870359
+        },
+        "ece_fixed_width_10": {
+          "temperature_1.0": 0.10246084739143649,
+          "temperature_fitted": 0.10498206538613887,
+          "delta": 0.002521217994702382
+        },
+        "ece_adaptive_width_10": {
+          "temperature_1.0": 0.07952020619995892,
+          "temperature_fitted": 0.08244608913082627,
+          "delta": 0.002925882930867346
+        },
+        "mce_fixed_width_10": {
+          "temperature_1.0": 0.3250473253428936,
+          "temperature_fitted": 0.3216266557574272,
+          "delta": -0.003420669585466385
+        },
+        "confidence_mean": {
+          "temperature_1.0": 0.8048452703903118,
+          "temperature_fitted": 0.8265528256306425,
+          "delta": 0.021707555240330634
+        },
+        "confidence_max": {
+          "temperature_1.0": 0.9953556060791016,
+          "temperature_fitted": 0.9981364011764526,
+          "delta": 0.0027807950973510742
+        },
+        "answer_rate_at_0.5": {
+          "temperature_1.0": 1.0,
+          "temperature_fitted": 1.0,
+          "delta": 0.0
+        },
+        "accuracy_on_answered_at_0.5": {
+          "temperature_1.0": 0.8229166666666666,
+          "temperature_fitted": 0.8229166666666666,
+          "delta": 0.0
+        },
+        "answer_rate_at_0.7": {
+          "temperature_1.0": 0.7083333333333334,
+          "temperature_fitted": 0.7552083333333334,
+          "delta": 0.046875
+        },
+        "accuracy_on_answered_at_0.7": {
+          "temperature_1.0": 0.8970588235294118,
+          "temperature_fitted": 0.8827586206896552,
+          "delta": -0.014300202839756637
+        },
+        "answer_rate_at_0.9": {
+          "temperature_1.0": 0.4114583333333333,
+          "temperature_fitted": 0.4375,
+          "delta": 0.026041666666666685
+        },
+        "accuracy_on_answered_at_0.9": {
+          "temperature_1.0": 1.0,
+          "temperature_fitted": 1.0,
+          "delta": 0.0
+        }
+      },
+      "logit_recovery_floor_hits": 0
+    },
+    "dev": {
+      "temperature_1.0": {
+        "questions": 192,
+        "states": 48,
+        "accuracy": 0.75,
+        "nll": 0.48287974790143856,
+        "nll_probability_floor": 1e-12,
+        "brier_scalar_bernoulli": 0.1642271145859229,
+        "brier_two_class_sum": 0.3284542291718458,
+        "ece_fixed_width_10": 0.06742570960583785,
+        "ece_adaptive_width_10": 0.08943879130917293,
+        "mce_fixed_width_10": 0.2969165932048451,
+        "ece_bins_fixed": [
+          {
+            "bin": 0,
+            "count": 16,
+            "mean_confidence": 0.054451935924589634,
+            "empirical_true_rate": 0.0,
+            "gap": 0.054451935924589634,
+            "range": [
+              0.0,
+              0.1
+            ]
+          },
+          {
+            "bin": 1,
+            "count": 11,
+            "mean_confidence": 0.15762886134060947,
+            "empirical_true_rate": 0.45454545454545453,
+            "gap": 0.2969165932048451,
+            "range": [
+              0.1,
+              0.2
+            ]
+          },
+          {
+            "bin": 2,
+            "count": 19,
+            "mean_confidence": 0.26660219932857315,
+            "empirical_true_rate": 0.15789473684210525,
+            "gap": 0.1087074624864679,
+            "range": [
+              0.2,
+              0.3
+            ]
+          },
+          {
+            "bin": 3,
+            "count": 20,
+            "mean_confidence": 0.34360267519950866,
+            "empirical_true_rate": 0.25,
+            "gap": 0.09360267519950866,
+            "range": [
+              0.3,
+              0.4
+            ]
+          },
+          {
+            "bin": 4,
+            "count": 19,
+            "mean_confidence": 0.4587719722797996,
+            "empirical_true_rate": 0.47368421052631576,
+            "gap": 0.014912238246516163,
+            "range": [
+              0.4,
+              0.5
+            ]
+          },
+          {
+            "bin": 5,
+            "count": 22,
+            "mean_confidence": 0.5552580762993206,
+            "empirical_true_rate": 0.5454545454545454,
+            "gap": 0.009803530844775143,
+            "range": [
+              0.5,
+              0.6
+            ]
+          },
+          {
+            "bin": 6,
+            "count": 12,
+            "mean_confidence": 0.6382385541995367,
+            "empirical_true_rate": 0.5833333333333334,
+            "gap": 0.05490522086620331,
+            "range": [
+              0.6,
+              0.7
+            ]
+          },
+          {
+            "bin": 7,
+            "count": 22,
+            "mean_confidence": 0.7597226256673987,
+            "empirical_true_rate": 0.6363636363636364,
+            "gap": 0.12335898930376232,
+            "range": [
+              0.7,
+              0.8
+            ]
+          },
+          {
+            "bin": 8,
+            "count": 8,
+            "mean_confidence": 0.8454572036862373,
+            "empirical_true_rate": 0.75,
+            "gap": 0.09545720368623734,
+            "range": [
+              0.8,
+              0.9
+            ]
+          },
+          {
+            "bin": 9,
+            "count": 43,
+            "mean_confidence": 0.9712674603905789,
+            "empirical_true_rate": 0.9767441860465116,
+            "gap": 0.005476725655932713,
+            "range": [
+              0.9,
+              1.0
+            ]
+          }
+        ],
+        "confidence_min": 0.5016232132911682,
+        "confidence_mean": 0.764881694301342,
+        "confidence_median": 0.7477313727140427,
+        "confidence_p90": 0.9860587656497956,
+        "confidence_max": 0.9964324235916138,
+        "operating_points": {
+          "0.5": {
+            "answer_rate": 1.0,
+            "answered": 192,
+            "accuracy_on_answered": 0.75
+          },
+          "0.7": {
+            "answer_rate": 0.6197916666666666,
+            "answered": 119,
+            "accuracy_on_answered": 0.8403361344537815
+          },
+          "0.9": {
+            "answer_rate": 0.3072916666666667,
+            "answered": 59,
+            "accuracy_on_answered": 0.9830508474576272
+          }
+        }
+      },
+      "temperature_0.854226": {
+        "questions": 192,
+        "states": 48,
+        "accuracy": 0.75,
+        "nll": 0.48922175636394555,
+        "nll_probability_floor": 1e-12,
+        "brier_scalar_bernoulli": 0.165957278946791,
+        "brier_two_class_sum": 0.331914557893582,
+        "ece_fixed_width_10": 0.07146050563702983,
+        "ece_adaptive_width_10": 0.09842558732877173,
+        "mce_fixed_width_10": 0.271918922662735,
+        "ece_bins_fixed": [
+          {
+            "bin": 0,
+            "count": 18,
+            "mean_confidence": 0.04118408262729645,
+            "empirical_true_rate": 0.05555555555555555,
+            "gap": 0.014371472928259105,
+            "range": [
+              0.0,
+              0.1
+            ]
+          },
+          {
+            "bin": 1,
+            "count": 12,
+            "mean_confidence": 0.14474774400393167,
+            "empirical_true_rate": 0.4166666666666667,
+            "gap": 0.271918922662735,
+            "range": [
+              0.1,
+              0.2
+            ]
+          },
+          {
+            "bin": 2,
+            "count": 21,
+            "mean_confidence": 0.25219360845429556,
+            "empirical_true_rate": 0.09523809523809523,
+            "gap": 0.15695551321620033,
+            "range": [
+              0.2,
+              0.3
+            ]
+          },
+          {
+            "bin": 3,
+            "count": 16,
+            "mean_confidence": 0.33553836680948734,
+            "empirical_true_rate": 0.375,
+            "gap": 0.03946163319051266,
+            "range": [
+              0.3,
+              0.4
+            ]
+          },
+          {
+            "bin": 4,
+            "count": 18,
+            "mean_confidence": 0.45525772869586945,
+            "empirical_true_rate": 0.4444444444444444,
+            "gap": 0.010813284251425026,
+            "range": [
+              0.4,
+              0.5
+            ]
+          },
+          {
+            "bin": 5,
+            "count": 18,
+            "mean_confidence": 0.5543638500902388,
+            "empirical_true_rate": 0.5,
+            "gap": 0.05436385009023881,
+            "range": [
+              0.5,
+              0.6
+            ]
+          },
+          {
+            "bin": 6,
+            "count": 16,
+            "mean_confidence": 0.6476494334638119,
+            "empirical_true_rate": 0.625,
+            "gap": 0.022649433463811874,
+            "range": [
+              0.6,
+              0.7
+            ]
+          },
+          {
+            "bin": 7,
+            "count": 10,
+            "mean_confidence": 0.764083856344223,
+            "empirical_true_rate": 0.6,
+            "gap": 0.16408385634422307,
+            "range": [
+              0.7,
+              0.8
+            ]
+          },
+          {
+            "bin": 8,
+            "count": 18,
+            "mean_confidence": 0.834569106499354,
+            "empirical_true_rate": 0.6666666666666666,
+            "gap": 0.16790243983268738,
+            "range": [
+              0.8,
+              0.9
+            ]
+          },
+          {
+            "bin": 9,
+            "count": 45,
+            "mean_confidence": 0.9793908834457398,
+            "empirical_true_rate": 0.9777777777777777,
+            "gap": 0.0016131056679620226,
+            "range": [
+              0.9,
+              1.0
+            ]
+          }
+        ],
+        "confidence_min": 0.5019001960754395,
+        "confidence_mean": 0.7850989963238438,
+        "confidence_median": 0.7810796275734901,
+        "confidence_p90": 0.9932108223438263,
+        "confidence_max": 0.9986326098442078,
+        "operating_points": {
+          "0.5": {
+            "answer_rate": 1.0,
+            "answered": 192,
+            "accuracy_on_answered": 0.75
+          },
+          "0.7": {
+            "answer_rate": 0.6458333333333334,
+            "answered": 124,
+            "accuracy_on_answered": 0.8467741935483871
+          },
+          "0.9": {
+            "answer_rate": 0.328125,
+            "answered": 63,
+            "accuracy_on_answered": 0.9682539682539683
+          }
+        }
+      },
+      "delta_fitted_minus_1.0": {
+        "accuracy": {
+          "temperature_1.0": 0.75,
+          "temperature_fitted": 0.75,
+          "delta": 0.0
+        },
+        "nll": {
+          "temperature_1.0": 0.48287974790143856,
+          "temperature_fitted": 0.48922175636394555,
+          "delta": 0.006342008462506987
+        },
+        "brier_scalar_bernoulli": {
+          "temperature_1.0": 0.1642271145859229,
+          "temperature_fitted": 0.165957278946791,
+          "delta": 0.0017301643608680917
+        },
+        "brier_two_class_sum": {
+          "temperature_1.0": 0.3284542291718458,
+          "temperature_fitted": 0.331914557893582,
+          "delta": 0.0034603287217361833
+        },
+        "ece_fixed_width_10": {
+          "temperature_1.0": 0.06742570960583785,
+          "temperature_fitted": 0.07146050563702983,
+          "delta": 0.004034796031191973
+        },
+        "ece_adaptive_width_10": {
+          "temperature_1.0": 0.08943879130917293,
+          "temperature_fitted": 0.09842558732877173,
+          "delta": 0.0089867960195988
+        },
+        "mce_fixed_width_10": {
+          "temperature_1.0": 0.2969165932048451,
+          "temperature_fitted": 0.271918922662735,
+          "delta": -0.024997670542110106
+        },
+        "confidence_mean": {
+          "temperature_1.0": 0.764881694301342,
+          "temperature_fitted": 0.7850989963238438,
+          "delta": 0.020217302022501826
+        },
+        "confidence_max": {
+          "temperature_1.0": 0.9964324235916138,
+          "temperature_fitted": 0.9986326098442078,
+          "delta": 0.002200186252593994
+        },
+        "answer_rate_at_0.5": {
+          "temperature_1.0": 1.0,
+          "temperature_fitted": 1.0,
+          "delta": 0.0
+        },
+        "accuracy_on_answered_at_0.5": {
+          "temperature_1.0": 0.75,
+          "temperature_fitted": 0.75,
+          "delta": 0.0
+        },
+        "answer_rate_at_0.7": {
+          "temperature_1.0": 0.6197916666666666,
+          "temperature_fitted": 0.6458333333333334,
+          "delta": 0.02604166666666674
+        },
+        "accuracy_on_answered_at_0.7": {
+          "temperature_1.0": 0.8403361344537815,
+          "temperature_fitted": 0.8467741935483871,
+          "delta": 0.006438059094605597
+        },
+        "answer_rate_at_0.9": {
+          "temperature_1.0": 0.3072916666666667,
+          "temperature_fitted": 0.328125,
+          "delta": 0.020833333333333315
+        },
+        "accuracy_on_answered_at_0.9": {
+          "temperature_1.0": 0.9830508474576272,
+          "temperature_fitted": 0.9682539682539683,
+          "delta": -0.014796879203658908
+        }
+      },
+      "logit_recovery_floor_hits": 0
+    },
+    "ood": {
+      "temperature_1.0": {
+        "questions": 64,
+        "states": 16,
+        "accuracy": 0.765625,
+        "nll": 0.4466374728721631,
+        "nll_probability_floor": 1e-12,
+        "brier_scalar_bernoulli": 0.15600842182122826,
+        "brier_two_class_sum": 0.3120168436424565,
+        "ece_fixed_width_10": 0.08141863375203685,
+        "ece_adaptive_width_10": 0.10927723470376806,
+        "mce_fixed_width_10": 0.29755109548568726,
+        "ece_bins_fixed": [
+          {
+            "bin": 0,
+            "count": 4,
+            "mean_confidence": 0.048091200180351734,
+            "empirical_true_rate": 0.0,
+            "gap": 0.048091200180351734,
+            "range": [
+              0.0,
+              0.1
+            ]
+          },
+          {
+            "bin": 1,
+            "count": 0
+          },
+          {
+            "bin": 2,
+            "count": 1,
+            "mean_confidence": 0.29755109548568726,
+            "empirical_true_rate": 0.0,
+            "gap": 0.29755109548568726,
+            "range": [
+              0.2,
+              0.3
+            ]
+          },
+          {
+            "bin": 3,
+            "count": 5,
+            "mean_confidence": 0.3262450277805328,
+            "empirical_true_rate": 0.4,
+            "gap": 0.0737549722194672,
+            "range": [
+              0.3,
+              0.4
+            ]
+          },
+          {
+            "bin": 4,
+            "count": 15,
+            "mean_confidence": 0.44919734001159667,
+            "empirical_true_rate": 0.26666666666666666,
+            "gap": 0.18253067334493,
+            "range": [
+              0.4,
+              0.5
+            ]
+          },
+          {
+            "bin": 5,
+            "count": 11,
+            "mean_confidence": 0.5374654368920759,
+            "empirical_true_rate": 0.5454545454545454,
+            "gap": 0.007989108562469482,
+            "range": [
+              0.5,
+              0.6
+            ]
+          },
+          {
+            "bin": 6,
+            "count": 4,
+            "mean_confidence": 0.6418380439281464,
+            "empirical_true_rate": 0.5,
+            "gap": 0.14183804392814636,
+            "range": [
+              0.6,
+              0.7
+            ]
+          },
+          {
+            "bin": 7,
+            "count": 3,
+            "mean_confidence": 0.7523113886515299,
+            "empirical_true_rate": 0.6666666666666666,
+            "gap": 0.08564472198486328,
+            "range": [
+              0.7,
+              0.8
+            ]
+          },
+          {
+            "bin": 8,
+            "count": 3,
+            "mean_confidence": 0.8247207204500834,
+            "empirical_true_rate": 0.6666666666666666,
+            "gap": 0.15805405378341675,
+            "range": [
+              0.8,
+              0.9
+            ]
+          },
+          {
+            "bin": 9,
+            "count": 18,
+            "mean_confidence": 0.9873437219195895,
+            "empirical_true_rate": 1.0,
+            "gap": 0.012656278080410477,
+            "range": [
+              0.9,
+              1.0
+            ]
+          }
+        ],
+        "confidence_min": 0.5072128176689148,
+        "confidence_mean": 0.7363070963765495,
+        "confidence_median": 0.6743688136339188,
+        "confidence_p90": 0.9921963751316071,
+        "confidence_max": 0.9962253570556641,
+        "operating_points": {
+          "0.5": {
+            "answer_rate": 1.0,
+            "answered": 64,
+            "accuracy_on_answered": 0.765625
+          },
+          "0.7": {
+            "answer_rate": 0.453125,
+            "answered": 29,
+            "accuracy_on_answered": 0.9310344827586207
+          },
+          "0.9": {
+            "answer_rate": 0.34375,
+            "answered": 22,
+            "accuracy_on_answered": 1.0
+          }
+        }
+      },
+      "temperature_0.854226": {
+        "questions": 64,
+        "states": 16,
+        "accuracy": 0.765625,
+        "nll": 0.44656297383918697,
+        "nll_probability_floor": 1e-12,
+        "brier_scalar_bernoulli": 0.15650356144321526,
+        "brier_two_class_sum": 0.3130071228864305,
+        "ece_fixed_width_10": 0.09973525255918503,
+        "ece_adaptive_width_10": 0.10657577496021989,
+        "mce_fixed_width_10": 0.3418678442637126,
+        "ece_bins_fixed": [
+          {
+            "bin": 0,
+            "count": 4,
+            "mean_confidence": 0.029460549354553223,
+            "empirical_true_rate": 0.0,
+            "gap": 0.029460549354553223,
+            "range": [
+              0.0,
+              0.1
+            ]
+          },
+          {
+            "bin": 1,
+            "count": 0
+          },
+          {
+            "bin": 2,
+            "count": 4,
+            "mean_confidence": 0.28254642337560654,
+            "empirical_true_rate": 0.5,
+            "gap": 0.21745357662439346,
+            "range": [
+              0.2,
+              0.3
+            ]
+          },
+          {
+            "bin": 3,
+            "count": 3,
+            "mean_confidence": 0.3418678442637126,
+            "empirical_true_rate": 0.0,
+            "gap": 0.3418678442637126,
+            "range": [
+              0.3,
+              0.4
+            ]
+          },
+          {
+            "bin": 4,
+            "count": 14,
+            "mean_confidence": 0.44431427334036144,
+            "empirical_true_rate": 0.2857142857142857,
+            "gap": 0.15859998762607574,
+            "range": [
+              0.4,
+              0.5
+            ]
+          },
+          {
+            "bin": 5,
+            "count": 9,
+            "mean_confidence": 0.5299323466089036,
+            "empirical_true_rate": 0.5555555555555556,
+            "gap": 0.025623208946651932,
+            "range": [
+              0.5,
+              0.6
+            ]
+          },
+          {
+            "bin": 6,
+            "count": 6,
+            "mean_confidence": 0.6447995901107788,
+            "empirical_true_rate": 0.5,
+            "gap": 0.1447995901107788,
+            "range": [
+              0.6,
+              0.7
+            ]
+          },
+          {
+            "bin": 7,
+            "count": 2,
+            "mean_confidence": 0.7693497240543365,
+            "empirical_true_rate": 0.5,
+            "gap": 0.26934972405433655,
+            "range": [
+              0.7,
+              0.8
+            ]
+          },
+          {
+            "bin": 8,
+            "count": 4,
+            "mean_confidence": 0.8492762595415115,
+            "empirical_true_rate": 0.75,
+            "gap": 0.09927625954151154,
+            "range": [
+              0.8,
+              0.9
+            ]
+          },
+          {
+            "bin": 9,
+            "count": 18,
+            "mean_confidence": 0.9936563670635223,
+            "empirical_true_rate": 1.0,
+            "gap": 0.006343632936477661,
+            "range": [
+              0.9,
+              1.0
+            ]
+          }
+        ],
+        "confidence_min": 0.5084434747695923,
+        "confidence_mean": 0.7494652578607202,
+        "confidence_median": 0.7010320127010345,
+        "confidence_p90": 0.9965714693069458,
+        "confidence_max": 0.9985389709472656,
+        "operating_points": {
+          "0.5": {
+            "answer_rate": 1.0,
+            "answered": 64,
+            "accuracy_on_answered": 0.765625
+          },
+          "0.7": {
+            "answer_rate": 0.5,
+            "answered": 32,
+            "accuracy_on_answered": 0.875
+          },
+          "0.9": {
+            "answer_rate": 0.34375,
+            "answered": 22,
+            "accuracy_on_answered": 1.0
+          }
+        }
+      },
+      "delta_fitted_minus_1.0": {
+        "accuracy": {
+          "temperature_1.0": 0.765625,
+          "temperature_fitted": 0.765625,
+          "delta": 0.0
+        },
+        "nll": {
+          "temperature_1.0": 0.4466374728721631,
+          "temperature_fitted": 0.44656297383918697,
+          "delta": -7.449903297612748e-05
+        },
+        "brier_scalar_bernoulli": {
+          "temperature_1.0": 0.15600842182122826,
+          "temperature_fitted": 0.15650356144321526,
+          "delta": 0.0004951396219869952
+        },
+        "brier_two_class_sum": {
+          "temperature_1.0": 0.3120168436424565,
+          "temperature_fitted": 0.3130071228864305,
+          "delta": 0.0009902792439739905
+        },
+        "ece_fixed_width_10": {
+          "temperature_1.0": 0.08141863375203685,
+          "temperature_fitted": 0.09973525255918503,
+          "delta": 0.018316618807148174
+        },
+        "ece_adaptive_width_10": {
+          "temperature_1.0": 0.10927723470376806,
+          "temperature_fitted": 0.10657577496021989,
+          "delta": -0.0027014597435481708
+        },
+        "mce_fixed_width_10": {
+          "temperature_1.0": 0.29755109548568726,
+          "temperature_fitted": 0.3418678442637126,
+          "delta": 0.04431674877802533
+        },
+        "confidence_mean": {
+          "temperature_1.0": 0.7363070963765495,
+          "temperature_fitted": 0.7494652578607202,
+          "delta": 0.013158161484170705
+        },
+        "confidence_max": {
+          "temperature_1.0": 0.9962253570556641,
+          "temperature_fitted": 0.9985389709472656,
+          "delta": 0.0023136138916015625
+        },
+        "answer_rate_at_0.5": {
+          "temperature_1.0": 1.0,
+          "temperature_fitted": 1.0,
+          "delta": 0.0
+        },
+        "accuracy_on_answered_at_0.5": {
+          "temperature_1.0": 0.765625,
+          "temperature_fitted": 0.765625,
+          "delta": 0.0
+        },
+        "answer_rate_at_0.7": {
+          "temperature_1.0": 0.453125,
+          "temperature_fitted": 0.5,
+          "delta": 0.046875
+        },
+        "accuracy_on_answered_at_0.7": {
+          "temperature_1.0": 0.9310344827586207,
+          "temperature_fitted": 0.875,
+          "delta": -0.05603448275862066
+        },
+        "answer_rate_at_0.9": {
+          "temperature_1.0": 0.34375,
+          "temperature_fitted": 0.34375,
+          "delta": 0.0
+        },
+        "accuracy_on_answered_at_0.9": {
+          "temperature_1.0": 1.0,
+          "temperature_fitted": 1.0,
+          "delta": 0.0
+        }
+      },
+      "logit_recovery_floor_hits": 0
+    },
+    "test": {
+      "temperature_1.0": {
+        "questions": 176,
+        "states": 44,
+        "accuracy": 0.7784090909090909,
+        "nll": 0.4406830117660791,
+        "nll_probability_floor": 1e-12,
+        "brier_scalar_bernoulli": 0.14364079843672647,
+        "brier_two_class_sum": 0.28728159687345295,
+        "ece_fixed_width_10": 0.09599565261636268,
+        "ece_adaptive_width_10": 0.04346925926140765,
+        "mce_fixed_width_10": 0.25161124020814896,
+        "ece_bins_fixed": [
+          {
+            "bin": 0,
+            "count": 26,
+            "mean_confidence": 0.05611990535488495,
+            "empirical_true_rate": 0.0,
+            "gap": 0.05611990535488495,
+            "range": [
+              0.0,
+              0.1
+            ]
+          },
+          {
+            "bin": 1,
+            "count": 8,
+            "mean_confidence": 0.14718428812921047,
+            "empirical_true_rate": 0.375,
+            "gap": 0.22781571187078953,
+            "range": [
+              0.1,
+              0.2
+            ]
+          },
+          {
+            "bin": 2,
+            "count": 10,
+            "mean_confidence": 0.25161124020814896,
+            "empirical_true_rate": 0.0,
+            "gap": 0.25161124020814896,
+            "range": [
+              0.2,
+              0.3
+            ]
+          },
+          {
+            "bin": 3,
+            "count": 14,
+            "mean_confidence": 0.3411229039941515,
+            "empirical_true_rate": 0.42857142857142855,
+            "gap": 0.08744852457727703,
+            "range": [
+              0.3,
+              0.4
+            ]
+          },
+          {
+            "bin": 4,
+            "count": 10,
+            "mean_confidence": 0.427666437625885,
+            "empirical_true_rate": 0.6,
+            "gap": 0.17233356237411496,
+            "range": [
+              0.4,
+              0.5
+            ]
+          },
+          {
+            "bin": 5,
+            "count": 15,
+            "mean_confidence": 0.5630369663238526,
+            "empirical_true_rate": 0.6,
+            "gap": 0.036963033676147394,
+            "range": [
+              0.5,
+              0.6
+            ]
+          },
+          {
+            "bin": 6,
+            "count": 16,
+            "mean_confidence": 0.6492322050035,
+            "empirical_true_rate": 0.4375,
+            "gap": 0.21173220500349998,
+            "range": [
+              0.6,
+              0.7
+            ]
+          },
+          {
+            "bin": 7,
+            "count": 26,
+            "mean_confidence": 0.7591618345333979,
+            "empirical_true_rate": 0.8461538461538461,
+            "gap": 0.08699201162044823,
+            "range": [
+              0.7,
+              0.8
+            ]
+          },
+          {
+            "bin": 8,
+            "count": 9,
+            "mean_confidence": 0.8382148610221015,
+            "empirical_true_rate": 0.6666666666666666,
+            "gap": 0.1715481943554349,
+            "range": [
+              0.8,
+              0.9
+            ]
+          },
+          {
+            "bin": 9,
+            "count": 42,
+            "mean_confidence": 0.9619518433298383,
+            "empirical_true_rate": 0.9523809523809523,
+            "gap": 0.009570890948885968,
+            "range": [
+              0.9,
+              1.0
+            ]
+          }
+        ],
+        "confidence_min": 0.5171918272972107,
+        "confidence_mean": 0.7972289736551995,
+        "confidence_median": 0.7889509201049805,
+        "confidence_p90": 0.9810480177402496,
+        "confidence_max": 0.9977791905403137,
+        "operating_points": {
+          "0.5": {
+            "answer_rate": 1.0,
+            "answered": 176,
+            "accuracy_on_answered": 0.7784090909090909
+          },
+          "0.7": {
+            "answer_rate": 0.6875,
+            "answered": 121,
+            "accuracy_on_answered": 0.9008264462809917
+          },
+          "0.9": {
+            "answer_rate": 0.38636363636363635,
+            "answered": 68,
+            "accuracy_on_answered": 0.9705882352941176
+          }
+        }
+      },
+      "temperature_0.854226": {
+        "questions": 176,
+        "states": 44,
+        "accuracy": 0.7784090909090909,
+        "nll": 0.44593989537283707,
+        "nll_probability_floor": 1e-12,
+        "brier_scalar_bernoulli": 0.1445957843982258,
+        "brier_two_class_sum": 0.2891915687964516,
+        "ece_fixed_width_10": 0.06525764987930992,
+        "ece_adaptive_width_10": 0.05377423810899598,
+        "mce_fixed_width_10": 0.3286213390529156,
+        "ece_bins_fixed": [
+          {
+            "bin": 0,
+            "count": 28,
+            "mean_confidence": 0.03987049131787249,
+            "empirical_true_rate": 0.03571428571428571,
+            "gap": 0.004156205603586781,
+            "range": [
+              0.0,
+              0.1
+            ]
+          },
+          {
+            "bin": 1,
+            "count": 9,
+            "mean_confidence": 0.14219163772132662,
+            "empirical_true_rate": 0.2222222222222222,
+            "gap": 0.08003058450089559,
+            "range": [
+              0.1,
+              0.2
+            ]
+          },
+          {
+            "bin": 2,
+            "count": 12,
+            "mean_confidence": 0.25656018033623695,
+            "empirical_true_rate": 0.25,
+            "gap": 0.006560180336236954,
+            "range": [
+              0.2,
+              0.3
+            ]
+          },
+          {
+            "bin": 3,
+            "count": 11,
+            "mean_confidence": 0.3417387740178542,
+            "empirical_true_rate": 0.2727272727272727,
+            "gap": 0.06901150129058148,
+            "range": [
+              0.3,
+              0.4
+            ]
+          },
+          {
+            "bin": 4,
+            "count": 8,
+            "mean_confidence": 0.4213786609470844,
+            "empirical_true_rate": 0.75,
+            "gap": 0.3286213390529156,
+            "range": [
+              0.4,
+              0.5
+            ]
+          },
+          {
+            "bin": 5,
+            "count": 11,
+            "mean_confidence": 0.558832667090676,
+            "empirical_true_rate": 0.6363636363636364,
+            "gap": 0.07753096927296033,
+            "range": [
+              0.5,
+              0.6
+            ]
+          },
+          {
+            "bin": 6,
+            "count": 14,
+            "mean_confidence": 0.6409017528806414,
+            "empirical_true_rate": 0.42857142857142855,
+            "gap": 0.2123303243092129,
+            "range": [
+              0.6,
+              0.7
+            ]
+          },
+          {
+            "bin": 7,
+            "count": 22,
+            "mean_confidence": 0.7575772865252062,
+            "empirical_true_rate": 0.7727272727272727,
+            "gap": 0.015149986202066534,
+            "range": [
+              0.7,
+              0.8
+            ]
+          },
+          {
+            "bin": 8,
+            "count": 17,
+            "mean_confidence": 0.8352460019728717,
+            "empirical_true_rate": 0.7058823529411765,
+            "gap": 0.12936364903169517,
+            "range": [
+              0.8,
+              0.9
+            ]
+          },
+          {
+            "bin": 9,
+            "count": 44,
+            "mean_confidence": 0.9732711599631743,
+            "empirical_true_rate": 0.9545454545454546,
+            "gap": 0.018725705417719674,
+            "range": [
+              0.9,
+              1.0
+            ]
+          }
+        ],
+        "confidence_min": 0.5201226472854614,
+        "confidence_mean": 0.8193444363159043,
+        "confidence_median": 0.823991596698761,
+        "confidence_p90": 0.9902453422546387,
+        "confidence_max": 0.9992157220840454,
+        "operating_points": {
+          "0.5": {
+            "answer_rate": 1.0,
+            "answered": 176,
+            "accuracy_on_answered": 0.7784090909090909
+          },
+          "0.7": {
+            "answer_rate": 0.75,
+            "answered": 132,
+            "accuracy_on_answered": 0.8636363636363636
+          },
+          "0.9": {
+            "answer_rate": 0.4090909090909091,
+            "answered": 72,
+            "accuracy_on_answered": 0.9583333333333334
+          }
+        }
+      },
+      "delta_fitted_minus_1.0": {
+        "accuracy": {
+          "temperature_1.0": 0.7784090909090909,
+          "temperature_fitted": 0.7784090909090909,
+          "delta": 0.0
+        },
+        "nll": {
+          "temperature_1.0": 0.4406830117660791,
+          "temperature_fitted": 0.44593989537283707,
+          "delta": 0.005256883606757967
+        },
+        "brier_scalar_bernoulli": {
+          "temperature_1.0": 0.14364079843672647,
+          "temperature_fitted": 0.1445957843982258,
+          "delta": 0.0009549859614993161
+        },
+        "brier_two_class_sum": {
+          "temperature_1.0": 0.28728159687345295,
+          "temperature_fitted": 0.2891915687964516,
+          "delta": 0.0019099719229986323
+        },
+        "ece_fixed_width_10": {
+          "temperature_1.0": 0.09599565261636268,
+          "temperature_fitted": 0.06525764987930992,
+          "delta": -0.030738002737052766
+        },
+        "ece_adaptive_width_10": {
+          "temperature_1.0": 0.04346925926140765,
+          "temperature_fitted": 0.05377423810899598,
+          "delta": 0.010304978847588332
+        },
+        "mce_fixed_width_10": {
+          "temperature_1.0": 0.25161124020814896,
+          "temperature_fitted": 0.3286213390529156,
+          "delta": 0.07701009884476662
+        },
+        "confidence_mean": {
+          "temperature_1.0": 0.7972289736551995,
+          "temperature_fitted": 0.8193444363159043,
+          "delta": 0.022115462660704743
+        },
+        "confidence_max": {
+          "temperature_1.0": 0.9977791905403137,
+          "temperature_fitted": 0.9992157220840454,
+          "delta": 0.0014365315437316895
+        },
+        "answer_rate_at_0.5": {
+          "temperature_1.0": 1.0,
+          "temperature_fitted": 1.0,
+          "delta": 0.0
+        },
+        "accuracy_on_answered_at_0.5": {
+          "temperature_1.0": 0.7784090909090909,
+          "temperature_fitted": 0.7784090909090909,
+          "delta": 0.0
+        },
+        "answer_rate_at_0.7": {
+          "temperature_1.0": 0.6875,
+          "temperature_fitted": 0.75,
+          "delta": 0.0625
+        },
+        "accuracy_on_answered_at_0.7": {
+          "temperature_1.0": 0.9008264462809917,
+          "temperature_fitted": 0.8636363636363636,
+          "delta": -0.037190082644628086
+        },
+        "answer_rate_at_0.9": {
+          "temperature_1.0": 0.38636363636363635,
+          "temperature_fitted": 0.4090909090909091,
+          "delta": 0.022727272727272763
+        },
+        "accuracy_on_answered_at_0.9": {
+          "temperature_1.0": 0.9705882352941176,
+          "temperature_fitted": 0.9583333333333334,
+          "delta": -0.01225490196078427
+        }
+      },
+      "logit_recovery_floor_hits": 0
+    }
+  },
+  "service_path_verification": {
+    "calibration": {
+      "routes_compared": [
+        "arithmetic_rescale_of_temperature_1.0_run",
+        "direct_predict_temperature_fitted"
+      ],
+      "temperature": 0.8542255879801781,
+      "max_abs_probability_difference": 8.668705953063238e-08,
+      "agrees_within_probability_sum_tolerance": true
+    },
+    "dev": {
+      "routes_compared": [
+        "arithmetic_rescale_of_temperature_1.0_run",
+        "direct_predict_temperature_fitted"
+      ],
+      "temperature": 0.8542255879801781,
+      "max_abs_probability_difference": 7.782540167866614e-08,
+      "agrees_within_probability_sum_tolerance": true
+    },
+    "ood": {
+      "routes_compared": [
+        "arithmetic_rescale_of_temperature_1.0_run",
+        "direct_predict_temperature_fitted"
+      ],
+      "temperature": 0.8542255879801781,
+      "max_abs_probability_difference": 7.478267638472147e-08,
+      "agrees_within_probability_sum_tolerance": true
+    },
+    "test": {
+      "routes_compared": [
+        "arithmetic_rescale_of_temperature_1.0_run",
+        "direct_predict_temperature_fitted"
+      ],
+      "temperature": 0.8542255879801781,
+      "max_abs_probability_difference": 7.534793022845321e-08,
+      "agrees_within_probability_sum_tolerance": true
+    }
+  },
+  "inference": {
+    "calibration": {
+      "temperature": {
+        "value": 1.0,
+        "fitted_by_this_command": false,
+        "note": "显式应用给定标量；默认1不表示模型已校准。"
+      },
+      "execution": {
+        "device": "mps",
+        "parameter_storage": "float32",
+        "precision": "fp32",
+        "forward_autocast": "disabled",
+        "states": 48,
+        "questions": 192,
+        "candidate_paths": 192,
+        "forward_passes": 3,
+        "batch_questions_limit": 64,
+        "autoregressive_decode_steps": 0,
+        "prefix_sharing": false,
+        "max_length": 2048,
+        "disable_native_triton": false,
+        "network_model_calls": 0,
+        "persistent_model_load_count": 1,
+        "inference_call_index": 1
+      }
+    },
+    "dev": {
+      "temperature": {
+        "value": 1.0,
+        "fitted_by_this_command": false,
+        "note": "显式应用给定标量；默认1不表示模型已校准。"
+      },
+      "execution": {
+        "device": "mps",
+        "parameter_storage": "float32",
+        "precision": "fp32",
+        "forward_autocast": "disabled",
+        "states": 48,
+        "questions": 192,
+        "candidate_paths": 192,
+        "forward_passes": 3,
+        "batch_questions_limit": 64,
+        "autoregressive_decode_steps": 0,
+        "prefix_sharing": false,
+        "max_length": 2048,
+        "disable_native_triton": false,
+        "network_model_calls": 0,
+        "persistent_model_load_count": 1,
+        "inference_call_index": 2
+      }
+    },
+    "ood": {
+      "temperature": {
+        "value": 1.0,
+        "fitted_by_this_command": false,
+        "note": "显式应用给定标量；默认1不表示模型已校准。"
+      },
+      "execution": {
+        "device": "mps",
+        "parameter_storage": "float32",
+        "precision": "fp32",
+        "forward_autocast": "disabled",
+        "states": 16,
+        "questions": 64,
+        "candidate_paths": 64,
+        "forward_passes": 1,
+        "batch_questions_limit": 64,
+        "autoregressive_decode_steps": 0,
+        "prefix_sharing": false,
+        "max_length": 2048,
+        "disable_native_triton": false,
+        "network_model_calls": 0,
+        "persistent_model_load_count": 1,
+        "inference_call_index": 3
+      }
+    },
+    "test": {
+      "temperature": {
+        "value": 1.0,
+        "fitted_by_this_command": false,
+        "note": "显式应用给定标量；默认1不表示模型已校准。"
+      },
+      "execution": {
+        "device": "mps",
+        "parameter_storage": "float32",
+        "precision": "fp32",
+        "forward_autocast": "disabled",
+        "states": 44,
+        "questions": 176,
+        "candidate_paths": 176,
+        "forward_passes": 3,
+        "batch_questions_limit": 64,
+        "autoregressive_decode_steps": 0,
+        "prefix_sharing": false,
+        "max_length": 2048,
+        "disable_native_triton": false,
+        "network_model_calls": 0,
+        "persistent_model_load_count": 1,
+        "inference_call_index": 4
+      }
+    }
+  },
+  "engineering_survey_post_hoc": {
+    "path": "research/skill_abstention_survey_v1.json",
+    "sha256": "25ccd45c7967a829a96de0f8baacdc60eb13062ca93d43f15c6ee1c4abec59a2",
+    "role": "post-hoc probe only; no temperature was fitted or selected on it",
+    "temperature_ceiling_semantics": "temperature_to_reach[t] is the largest T at which a question still clears threshold t, so a question is answered at t exactly when T <= that value. temperature_ceiling_to_answer_all_questions is the smallest such value: answering every question requires T at or below it.",
+    "temperature_1.0": {
+      "questions": 13,
+      "fixed_answer_questions": 6,
+      "accuracy_on_fixed_subset_at_argmax": 0.5,
+      "confidence_min": 0.25499996542930603,
+      "confidence_mean": 0.49370869535666245,
+      "confidence_median": 0.5048428773880005,
+      "confidence_max": 0.7360702157020569,
+      "operating_points": {
+        "0.5": {
+          "answered": 7,
+          "questions": 13,
+          "answer_rate": 0.5384615384615384,
+          "answered_fixed_answer_subset": 6,
+          "fixed_answer_subset": 6,
+          "accuracy_on_answered_fixed_subset": 0.5
+        },
+        "0.7": {
+          "answered": 1,
+          "questions": 13,
+          "answer_rate": 0.07692307692307693,
+          "answered_fixed_answer_subset": 1,
+          "fixed_answer_subset": 6,
+          "accuracy_on_answered_fixed_subset": 0.0
+        },
+        "0.9": {
+          "answered": 0,
+          "questions": 13,
+          "answer_rate": 0.0,
+          "answered_fixed_answer_subset": 0,
+          "fixed_answer_subset": 6,
+          "accuracy_on_answered_fixed_subset": null
+        }
+      },
+      "temperature_ceiling_to_answer_all_questions": {
+        "0.5": 0.02205409812312387,
+        "0.7": 0.01154584628895599,
+        "0.9": 0.006114730500664544
+      },
+      "temperature_ceiling_for_most_confident_question": {
+        "0.5": 0.9374717400100768,
+        "0.7": 1.2104859918347914,
+        "0.9": 0.4667898773250234
+      }
+    },
+    "temperature_0.854226": {
+      "questions": 13,
+      "fixed_answer_questions": 6,
+      "accuracy_on_fixed_subset_at_argmax": 0.5,
+      "confidence_min": 0.2558577060699463,
+      "confidence_mean": 0.5076507375790522,
+      "confidence_median": 0.5152605772018433,
+      "confidence_max": 0.7686437964439392,
+      "operating_points": {
+        "0.5": {
+          "answered": 8,
+          "questions": 13,
+          "answer_rate": 0.6153846153846154,
+          "answered_fixed_answer_subset": 6,
+          "fixed_answer_subset": 6,
+          "accuracy_on_answered_fixed_subset": 0.5
+        },
+        "0.7": {
+          "answered": 1,
+          "questions": 13,
+          "answer_rate": 0.07692307692307693,
+          "answered_fixed_answer_subset": 1,
+          "fixed_answer_subset": 6,
+          "accuracy_on_answered_fixed_subset": 0.0
+        },
+        "0.9": {
+          "answered": 0,
+          "questions": 13,
+          "answer_rate": 0.0,
+          "answered_fixed_answer_subset": 0,
+          "fixed_answer_subset": 6,
+          "accuracy_on_answered_fixed_subset": null
+        }
+      },
+      "temperature_ceiling_to_answer_all_questions": {
+        "0.5": 0.025817612203589413,
+        "0.7": 0.013516128442006836,
+        "0.9": 0.007158194352292415
+      },
+      "temperature_ceiling_for_most_confident_question": {
+        "0.5": 1.0974521700377051,
+        "0.7": 1.4170566464865542,
+        "0.9": 0.546448040405201
+      }
+    },
+    "per_question_at_1.0": [
+      {
+        "state_id": "phase",
+        "qid": "next_phase",
+        "type": "choice",
+        "confidence": 0.2675694525241852,
+        "chosen": "testing",
+        "expected": null,
+        "correct": null,
+        "temperature_to_reach": {
+          "0.5": 0.05620226487093026,
+          "0.7": 0.01690065593037994,
+          "0.9": 0.0065754237488707
+        }
+      },
+      {
+        "state_id": "phase",
+        "qid": "b0_first",
+        "type": "boolean",
+        "confidence": 0.6153152585029602,
+        "chosen": "false",
+        "expected": "true",
+        "correct": false,
+        "temperature_to_reach": {
+          "0.5": null,
+          "0.7": 0.5543630266120736,
+          "0.9": 0.21377450952038432
+        }
+      },
+      {
+        "state_id": "phase",
+        "qid": "blocked",
+        "type": "boolean",
+        "confidence": 0.6573711633682251,
+        "chosen": "false",
+        "expected": "true",
+        "correct": false,
+        "temperature_to_reach": {
+          "0.5": null,
+          "0.7": 0.7690340077371964,
+          "0.9": 0.2965563356799346
+        }
+      },
+      {
+        "state_id": "tests",
+        "qid": "which_test",
+        "type": "choice",
+        "confidence": 0.400348037481308,
+        "chosen": "targeted",
+        "expected": null,
+        "correct": null,
+        "temperature_to_reach": {
+          "0.5": 0.26951380570481925,
+          "0.7": 0.030092939457151684,
+          "0.9": 0.011604495739246358
+        }
+      },
+      {
+        "state_id": "tests",
+        "qid": "needs_new_test",
+        "type": "boolean",
+        "confidence": 0.6676713824272156,
+        "chosen": "true",
+        "expected": "true",
+        "correct": true,
+        "temperature_to_reach": {
+          "0.5": null,
+          "0.7": 0.8234079788167311,
+          "0.9": 0.31752412833602217
+        }
+      },
+      {
+        "state_id": "routing",
+        "qid": "route",
+        "type": "choice",
+        "confidence": 0.4900638461112976,
+        "chosen": "main_model",
+        "expected": null,
+        "correct": null,
+        "temperature_to_reach": {
+          "0.5": 0.9374717400100768,
+          "0.7": 0.3721794985580189,
+          "0.9": 0.16768970207862985
+        }
+      },
+      {
+        "state_id": "routing",
+        "qid": "safe_to_drop",
+        "type": "boolean",
+        "confidence": 0.7360702157020569,
+        "chosen": "true",
+        "expected": "false",
+        "correct": false,
+        "temperature_to_reach": {
+          "0.5": null,
+          "0.7": 1.2104859918347914,
+          "0.9": 0.4667898773250234
+        }
+      },
+      {
+        "state_id": "failure",
+        "qid": "kind",
+        "type": "choice",
+        "confidence": 0.25499996542930603,
+        "chosen": "code_bug",
+        "expected": null,
+        "correct": null,
+        "temperature_to_reach": {
+          "0.5": 0.02205409812312387,
+          "0.7": 0.01154584628895599,
+          "0.9": 0.006114730500664544
+        }
+      },
+      {
+        "state_id": "failure",
+        "qid": "is_regression",
+        "type": "boolean",
+        "confidence": 0.5048428773880005,
+        "chosen": "false",
+        "expected": null,
+        "correct": null,
+        "temperature_to_reach": {
+          "0.5": null,
+          "0.7": 0.02286347747508012,
+          "0.9": 0.008816657043374258
+        }
+      },
+      {
+        "state_id": "risk",
+        "qid": "action",
+        "type": "choice",
+        "confidence": 0.39979124069213867,
+        "chosen": "ask",
+        "expected": null,
+        "correct": null,
+        "temperature_to_reach": {
+          "0.5": 0.391471325306906,
+          "0.7": 0.15472543317602708,
+          "0.9": 0.06940428437816504
+        }
+      },
+      {
+        "state_id": "risk",
+        "qid": "check_secrets",
+        "type": "boolean",
+        "confidence": 0.6219622492790222,
+        "chosen": "true",
+        "expected": "true",
+        "correct": true,
+        "temperature_to_reach": {
+          "0.5": null,
+          "0.7": 0.5876157582056749,
+          "0.9": 0.22659749021243816
+        }
+      },
+      {
+        "state_id": "quality",
+        "qid": "level",
+        "type": "score",
+        "confidence": 0.26993513107299805,
+        "chosen": "2",
+        "expected": null,
+        "correct": null,
+        "temperature_to_reach": {
+          "0.5": 0.04695493338488307,
+          "0.7": 0.016990728118789346,
+          "0.9": 0.007087314960141193
+        }
+      },
+      {
+        "state_id": "quality",
+        "qid": "token_savings",
+        "type": "boolean",
+        "confidence": 0.532272219657898,
+        "chosen": "false",
+        "expected": "false",
+        "correct": true,
+        "temperature_to_reach": {
+          "0.5": null,
+          "0.7": 0.15256562200411655,
+          "0.9": 0.05883264115379958
+        }
+      }
+    ],
+    "per_question_at_fitted": [
+      {
+        "state_id": "phase",
+        "qid": "next_phase",
+        "type": "choice",
+        "confidence": 0.2705657184123993,
+        "chosen": "testing",
+        "expected": null,
+        "correct": null,
+        "temperature_to_reach": {
+          "0.5": 0.06579312186903129,
+          "0.7": 0.01978470862206689,
+          "0.9": 0.007697501876634587
+        }
+      },
+      {
+        "state_id": "phase",
+        "qid": "b0_first",
+        "type": "boolean",
+        "confidence": 0.6341047883033752,
+        "chosen": "false",
+        "expected": "true",
+        "correct": false,
+        "temperature_to_reach": {
+          "0.5": null,
+          "0.7": 0.6489657812267242,
+          "0.9": 0.25025540109538497
+        }
+      },
+      {
+        "state_id": "phase",
+        "qid": "blocked",
+        "type": "boolean",
+        "confidence": 0.6819607019424438,
+        "chosen": "false",
+        "expected": "true",
+        "correct": false,
+        "temperature_to_reach": {
+          "0.5": null,
+          "0.7": 0.9002703887550583,
+          "0.9": 0.3471639549412309
+        }
+      },
+      {
+        "state_id": "tests",
+        "qid": "which_test",
+        "type": "choice",
+        "confidence": 0.41003286838531494,
+        "chosen": "targeted",
+        "expected": null,
+        "correct": null,
+        "temperature_to_reach": {
+          "0.5": 0.3155063515278709,
+          "0.7": 0.03522824143943301,
+          "0.9": 0.01358478051860311
+        }
+      },
+      {
+        "state_id": "tests",
+        "qid": "needs_new_test",
+        "type": "boolean",
+        "confidence": 0.6935418248176575,
+        "chosen": "true",
+        "expected": "true",
+        "correct": true,
+        "temperature_to_reach": {
+          "0.5": null,
+          "0.7": 0.9639233167036109,
+          "0.9": 0.3717099163393027
+        }
+      },
+      {
+        "state_id": "routing",
+        "qid": "route",
+        "type": "choice",
+        "confidence": 0.5152605772018433,
+        "chosen": "main_model",
+        "expected": null,
+        "correct": null,
+        "temperature_to_reach": {
+          "0.5": 1.0974521700377051,
+          "0.7": 0.43569228877644445,
+          "0.9": 0.19630611612192958
+        }
+      },
+      {
+        "state_id": "routing",
+        "qid": "safe_to_drop",
+        "type": "boolean",
+        "confidence": 0.7686437964439392,
+        "chosen": "true",
+        "expected": "false",
+        "correct": false,
+        "temperature_to_reach": {
+          "0.5": null,
+          "0.7": 1.4170566464865542,
+          "0.9": 0.546448040405201
+        }
+      },
+      {
+        "state_id": "failure",
+        "qid": "kind",
+        "type": "choice",
+        "confidence": 0.2558577060699463,
+        "chosen": "code_bug",
+        "expected": null,
+        "correct": null,
+        "temperature_to_reach": {
+          "0.5": 0.025817612203589413,
+          "0.7": 0.013516128442006836,
+          "0.9": 0.007158194352292415
+        }
+      },
+      {
+        "state_id": "failure",
+        "qid": "is_regression",
+        "type": "boolean",
+        "confidence": 0.5056692361831665,
+        "chosen": "false",
+        "expected": null,
+        "correct": null,
+        "temperature_to_reach": {
+          "0.5": null,
+          "0.7": 0.0267650586009834,
+          "0.9": 0.0103211920709738
+        }
+      },
+      {
+        "state_id": "risk",
+        "qid": "action",
+        "type": "choice",
+        "confidence": 0.4110996425151825,
+        "chosen": "ask",
+        "expected": null,
+        "correct": null,
+        "temperature_to_reach": {
+          "0.5": 0.4582760502334043,
+          "0.7": 0.18112935755825493,
+          "0.9": 0.08124812648330061
+        }
+      },
+      {
+        "state_id": "risk",
+        "qid": "check_secrets",
+        "type": "boolean",
+        "confidence": 0.6417229771614075,
+        "chosen": "true",
+        "expected": "true",
+        "correct": true,
+        "temperature_to_reach": {
+          "0.5": null,
+          "0.7": 0.6878929407114728,
+          "0.9": 0.265266565307996
+        }
+      },
+      {
+        "state_id": "quality",
+        "qid": "level",
+        "type": "score",
+        "confidence": 0.27323973178863525,
+        "chosen": "2",
+        "expected": null,
+        "correct": null,
+        "temperature_to_reach": {
+          "0.5": 0.05496781134690407,
+          "0.7": 0.01989021787103152,
+          "0.9": 0.008296778074060068
+        }
+      },
+      {
+        "state_id": "quality",
+        "qid": "token_savings",
+        "type": "boolean",
+        "confidence": 0.5377600193023682,
+        "chosen": "false",
+        "expected": "false",
+        "correct": true,
+        "temperature_to_reach": {
+          "0.5": null,
+          "0.7": 0.17860102858723603,
+          "0.9": 0.06887246344585311
+        }
+      }
+    ]
+  },
+  "limits": [
+    "One checkpoint, one cohort, one scalar. The fitted value is an in-domain operating point for local-maze Boolean geometry, not a general calibration.",
+    "Temperature scaling cannot change argmax accuracy or the ranking of confidences; it only rescales them.",
+    "ECE is bin-sensitive; two binnings are reported and both are finite-sample estimates on 176 (test) and 64 (OOD) questions.",
+    "The engineering survey is applied post hoc to show direction, not to claim a calibrated engineering operating point."
+  ]
+}

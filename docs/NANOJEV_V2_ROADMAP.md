@@ -290,7 +290,25 @@ The initial target is a bounded decision engine, not free-form market commentary
 
 ### B0. Measurement integrity — now the first gate
 
-Status: **NOT met; blocking every other financial claim.**
+Status: **substantially met on 2026-09-19; T5 attribution is the remaining piece.**
+
+Delivered and verified: a frozen protocol pins every run parameter with a verified digest (T1); a
+post-replay order-outcome audit reports any divergence and fails the run under `--on-divergence
+error` (T2, catches 11 on Aster in coupled mode, 0 in decoupled mode); sizing is proven and locked
+path-independent (T3); the participation cap is decoupled from venue-reported volume (T4); and a
+**defect that invalidated every earlier number** was found and fixed — `--first-day`/`--last-day`
+were recorded in receipts but never applied, so runs silently used the whole archive while
+claiming a narrower window.
+
+With the window enforced and the cap decoupled, the same strategy gives **Binance −34,080.29 /
+Bybit −37,597.40 / Aster −38,044.85**: a spread of **3,964 (≈4% of capital)** across venues that
+agree in sign, against **271,945 (2.7× capital)** before. The earlier "the strategy is chaotic with
+respect to its input" conclusion is **retracted**. See [B0 window defect V1](B0_WINDOW_DEFECT_V1.md).
+
+Also measured: the replay is **seed-insensitive** while `fill_probability = 1.0` and
+`reject_probability = 0.0`, so a multi-seed axis is degenerate by construction and the meaningful
+sensitivity axes are **venue and period**. Remaining T5 work: the PnL attribution decomposition
+reconciling to net PnL, and the period-spread report.
 
 The real-data result recorded at the top of this document shows a 2.7×-of-capital spread across
 three venues whose prices agree to 1–2 bps. Until that is fixed, no financial number — including
@@ -533,14 +551,17 @@ exact files it touches and the command that proves it done.
 
 | # | Task | Track | Effort | Depends on | Status |
 |---|---|---|---|---|---|
-| T1 | B0-0 frozen replay baseline | B | S | — | ✅ done (protocol + hashes verified) |
+| T1 | B0-0 frozen replay baseline | B | S | — | ✅ done (protocol + hashes; verified) |
 | T2 | B0-A order/fill divergence state machine | B | M | T1 | ✅ done (audit catches 27 on Aster venue_volume, exit 2) |
 | T3 | B0-B path-independent sizing | B | S | T2 | ✅ done (locked by test) |
 | T4 | B0-C capacity decoupling | B | S | T2 | ✅ done (removes the +194k Aster artefact) |
-| T5 | B0-D PnL attribution + mandatory sensitivity report | B | M | T2–T4 | ⬜ |
+| T5 | B0-D PnL attribution + mandatory sensitivity report | B | M | T2–T4 | 🟡 window defect found+fixed; attribution pending |
 | T6 | R1 decision package (feature set, 71 params, numeraire) | B | M | T5 evidence | ⬜ |
 | T7 | Aster licence resolution | B | S | owner action | ⬜ |
 | T8 | A2 batch-and-merge scoring past `MAX_SCORED=32` | A | M | — | ⬜ |
+| T8b | Skill scope guard + measured envelope (added 2026-09-19) | A | S | — | ✅ done (17 tests, `nanojev-scope-guard-v1`) |
+| T8c | Out-of-domain confidence diagnosis (added 2026-09-19) | A | S | — | ✅ done (verdict: collapse is out-of-domain) |
+| T8d | Temperature-scaling repair attempt (added 2026-09-19) | A | S | — | ✅ done (negative: cannot fix abstention) |
 | T9 | A2 gate model that proposes drops (contrastive curation protocol) | A | L | review gate | ⬜ |
 | T10 | A5 filter-versus-rebuild paired comparison | A | M | A4 fixtures (done) | ⬜ |
 | T11 | B3/R3 financial baselines (rules, logistic, GBM, CE, exact-Brier) | B | M | T5, T6 | ⬜ |
