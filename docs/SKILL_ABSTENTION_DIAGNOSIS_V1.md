@@ -71,7 +71,7 @@ selected values nulled. The 13/13 claim is a measurement, not an inference from 
 Fixed-answer subset: **3/6 = 50.0%**; the two safety-relevant misses are `safe_to_drop` → `true`
 at 0.7361 (the highest confidence in the survey) and `blocked` → `false` at 0.6574.
 
-## Result 2 — in-domain the model is confident, and its confidence carries signal
+## Result 2 — in-domain the model has a confident mode, and that confidence carries signal
 
 240 in-domain questions, all answered, none near-uniform.
 
@@ -150,7 +150,9 @@ pattern claimed by the original readiness doc does not hold (see below).
   into [0.255, 0.736].
 - **(c) has only weak, non-established residual support *inside the survey*.** With n=6 the
   anti-correlation on the fixed-answer subset is a direction, not a measurement, and the prior
-  doc's "three highest confidences are the three wrong answers" claim is factually wrong (below).
+  doc's "three highest confidences are the three wrong answers" claim was factually wrong as
+  originally published (see the corrections section; that claim has since been withdrawn in the
+  readiness doc itself).
 
 **Practical reading.** At the 0.9 gate the engineering survey abstains 13/13 because the model has
 no in-domain analogue for those questions — abstention there is correct domain-rejection

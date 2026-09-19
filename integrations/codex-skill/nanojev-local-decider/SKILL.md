@@ -1,6 +1,6 @@
 ---
 name: nanojev-local-decider
-description: Use the local NanoJev model for bounded structured decisions and advisory checks throughout NanoJev development, testing, optimization, and deployment; also supports routing, choice, Boolean/Noul and Score queries. Not a code generator or an authorization system.
+description: Use the local NanoJev model for bounded structured decisions and advisory checks throughout NanoJev development, testing, optimization, and deployment; also supports routing, choice, Boolean/Noul and Score queries. Deterministically refuses engineering-judgment and authorization questions (status out_of_scope). Not a code generator or an authorization system.
 ---
 
 # NanoJev Local Decider
@@ -39,6 +39,56 @@ If service start/inference fails, report the failed local invocation and repair 
 never silently route to a cloud model or fabricate a decision. Do not perform deployment
 or bypass a mandatory roadmap review gate because of any NanoJev score.
 
+## Scope guard: engineering judgment and authorization are out of scope
+
+The helper applies a deterministic, documented text guard (`nanojev-scope-guard-v1`) before any
+result is presented. It has no model component, no network, and no configuration flag to disable
+it. When a question asks for engineering judgment or authorization, the helper marks that answer
+`status: "out_of_scope"`, sets `out_of_scope: true`, records a machine-readable
+`out_of_scope_reason` (`engineering_judgment_or_authorization_out_of_scope`) plus the matched
+pattern IDs and phrases, and clears the presented selection (`value`/`choice`), even when the raw
+confidence is high. The underlying `probabilities`, `p_true`, and `confidence` are preserved
+unchanged: the guard changes the presented status, never the measurement.
+
+It fires on these pattern families (exact lowercase substring matching after whitespace
+normalization, over the state text, question instructions, and choice-candidate descriptions):
+
+- `safety_judgment`: "is it safe to …", "is this safe", "safe to remove/delete/drop/deploy/…".
+- `authorization_decision`: "should we approve/deploy/commit/merge/ship/release/proceed/…",
+  "is it ok/okay/acceptable to …", "sign off", "green light", "go/no-go", "permission to proceed".
+- `test_or_gate_requirement`: "does this change need a test", "need(s) a test", "is a test
+  required", "skip/remove/replace/delete/waive/bypass the test(s)".
+- `gate_or_approval_bypass`: "skip/bypass the gate or review", "without a validated gate",
+  "replace/skip/remove/waive the approval".
+- `context_or_artifact_removal`: "remove/delete/drop context", "remove active/production context",
+  "should we remove/delete", "can this be removed".
+
+The guard is redundant with the measurement on purpose and is expected to be the load-bearing
+safety property for this checkpoint. It is deliberately fail-closed: if request wording resembles
+an authorization or removal decision, the answer is suppressed rather than presented as advice.
+An `out_of_scope` answer is not an abstention and not a negative answer — it is a refusal of the
+question, and it must be routed to the main model plus deterministic gates and human authority.
+
+## Operating envelope (measured)
+
+Every `decide`/`lifecycle` result carries an `operating_envelope` block:
+
+- `checkpoint_default_abstain_threshold: 0.9` — the documented default; do not lower it.
+- At that threshold the shipped checkpoint abstained on **13/13 (100%)** realistic
+  engineering-judgment questions; the highest confidence observed anywhere in that survey
+  (0.736) was below the gate.
+- Below the threshold it scored **3/6 (chance)**; the single highest-confidence answer in the
+  survey — "safe to remove context without a validated gate" = `true` at 0.736 — was wrong in the
+  safety-critical direction. An earlier "confidence is anti-correlated with correctness" claim was
+  withdrawn as unsupported at n=6 (see the correction in the evidence doc); the conclusion is
+  unchanged: this checkpoint cannot be trusted to rank its own answers.
+- Engineering-task quality is **not established** for this game-trained checkpoint.
+- Full evidence: [`docs/NANOJEV_SKILL_READINESS_V1.md`](../../../docs/NANOJEV_SKILL_READINESS_V1.md).
+
+Practical rule: **invoke the skill for the receipt, never treat its output as the decision.**
+The guard exists so that even a caller that ignores this advice cannot obtain a confident-looking
+local answer to an authorization question.
+
 ## Operating rules
 
 - Use only the local service (default `127.0.0.1:8765`; a conflicting port is automatically avoided and remembered, currently `8876`). The helper rejects remote URLs and redirects, disables proxy inheritance, and starts the model in offline mode.
@@ -47,9 +97,10 @@ or bypass a mandatory roadmap review gate because of any NanoJev score.
 - Make independent questions explicit in one `states` request. Do not put prior model answers into a later question unless the workflow intentionally makes that dependency part of the state.
 - Use `choice` for selecting among named candidates, `boolean` for a proposition, `noul` when Jev-compatible naming is required, and `score` for an ordered scale. The helper maps `noul` to the current local `boolean` core and maps the response back.
 - For consequential actions, treat low confidence as a reason to abstain or escalate. Set `abstain_below` on a question when a threshold is appropriate; the helper applies this gate after inference and never pretends an abstention is a confident answer.
-- Always record the decision through the helper. Logs contain privacy-preserving metadata by default: counts, types, candidate cardinalities, latency, confidence, device, checkpoint identity, and a SHA-256 request fingerprint. Raw state and criteria are not logged unless the user explicitly enables `NANOJEV_LOG_PAYLOADS=1`.
+- Per-answer `status` is one of `in_scope_advisory` (bounded, answered, still not a decision), `abstained` (confidence below `abstain_below`), or `out_of_scope` (the deterministic scope guard refused an engineering-judgment/authorization question). Only `in_scope_advisory` presents a selection, and even that is advisory only.
+- Always record the decision through the helper. Logs contain privacy-preserving metadata by default: counts, types, candidate cardinalities, latency, confidence, device, checkpoint identity, scope/out-of-scope counts, and a SHA-256 request fingerprint. Raw state and criteria are not logged unless the user explicitly enables `NANOJEV_LOG_PAYLOADS=1`.
 - When the downstream result becomes known, record feedback with `record-feedback`. Use `correct`, `incorrect`, `abstained`, `fallback`, or `human_override`.
-- All lifecycle output is advisory and carries `authorizes_execution: false`. No command, file mutation, trade, active context deletion, or provider change is automatically executed by this helper.
+- All helper output is advisory, carries `authorizes_execution: false` (top level, per answer, in `scope_assessment`, in `operating_envelope`, and in the workflow/log receipt), and no command, file mutation, trade, active context deletion, or provider change is automatically executed by this helper.
 
 ## Helper commands
 

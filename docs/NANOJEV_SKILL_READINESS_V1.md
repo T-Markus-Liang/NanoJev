@@ -21,6 +21,13 @@ process, so the helper used its remembered fallback port) reporting
 Checkpoint: `checkpoints/local_atomic_seed17/variants/local_atomic_seed17` (Qwen3-0.6B base,
 attention set head), device `mps`, precision `fp32`, 0 autoregressive decode steps.
 
+**Threshold semantics matter here and an earlier version of this section blurred them.** The
+`decide` path has **no threshold default at all** — `abstain_below` is applied only when the
+caller supplies it — while `0.9` is the gate used by the `lifecycle` path. The 13/13 figure is
+therefore reported below both as a **recomputation** from raw confidences and as an
+**observed** run with `abstain_below: 0.9` explicitly set on every question (request and receipt
+committed at `research/skill_abstention_survey_gated_run_v1.json`, event `4641c61b`).
+
 Survey: 6 states / 13 questions (5 choice, 7 boolean, 1 score) written to describe **this
 project's actual engineering decisions** — lifecycle phase selection, test selection, request
 routing under the `MAX_SCORED=32` limit, failure classification, pre-commit risk gating, and
@@ -61,8 +68,12 @@ without judgement:
 | Scan staged files for secrets? | true | true | 0.622 | ✓ |
 | Does this checkpoint save tokens? | false | false | 0.532 | ✓ |
 
-**3/6 = 50.0%.** By mean, the wrong answers scored higher than the right ones (0.670 vs 0.607)
-but at n=6 that difference carries no weight.
+**3/6 = 50.0%.** Three of six is also the *modal* score under chance (P = 0.3125), so it cannot
+by itself be a finding; the 95% interval is roughly [0.12, 0.88]. By mean the wrong answers scored
+higher (0.670 vs 0.607) and every rank correlation computed on this subset is uninformative at
+n=6 (exact permutation p = 0.80; two independent audits even disagreed on the sign of the rank
+correlation, which is itself the point). **Testing 0.8-versus-0.5 at 80% power would need about
+18 labelled items, and 0.7-versus-0.5 about 37** — the survey has six.
 
 > **Correction (2026-09-19, independent diagnosis).** An earlier version of this section claimed
 > the three wrong answers carried the *three highest* confidences. **That was false.** The actual
@@ -79,21 +90,25 @@ obtain answers would have received this as its most confident recommendation.
 
 ## Result 3 — the project's own history agrees
 
-`summary` over the skill's usage log, before this survey was added:
+`summary` over the skill's usage log, **restricted to the window before this survey was added**
+(an earlier version of this section quoted the post-survey totals, 10/23 = 43.5%, which include
+this survey's own calls):
 
 | Metric | Value |
 |---|---|
 | Decision events | 8 |
 | Questions asked | 23 |
-| **Abstained questions** | **10 (43.5%)** |
-| Mean confidence | 0.508 |
+| **Abstained questions** | **7 (30.4%)** |
+| Mean confidence | 0.504 |
 | Latency p50 / p95 | 103.9 ms / 348.1 ms |
 | Feedback events | 6 |
 | **Feedback labels** | **6 × `fallback`, 0 × anything else** |
 
-Every recorded outcome in the project's history is `fallback`: a stronger model or a
-deterministic rule made the actual decision. **The skill has never once been the load-bearing
-decision in this project.**
+Every recorded outcome in this window is `fallback`: a stronger model or a deterministic rule
+made the actual decision. That is evidence of **non-reliance in the recorded cases**, not proof
+that the skill was never load-bearing — and it is contradicted in the other direction by the
+in-domain measurement below, where the checkpoint does answer confidently and accurately. The
+honest statement is: **no recorded outcome credits the skill with the decision.**
 
 ## Result 4 — what does work
 
@@ -101,8 +116,10 @@ These are real, verified properties, and they are why the packaging question has
 
 - **On-demand startup works.** `health --start` brought the service up and `model_loaded_once`
   was true; the helper handles the occupied-port case by itself.
-- **Deterministic.** Two identical runs produced identical confidences and identical answers
-  across all 13 questions. Byte-comparable, not merely "similar".
+- **Deterministic.** Two identical runs produced **bit-identical model output** — the same
+  confidences and the same answers on all 13 questions. The receipt JSON is *not* byte-identical
+  (latency, evaluation time and call index differ), so the determinism claim covers the model
+  output only.
 - **Offline.** `provider_calls: 0`; the helper rejects remote URLs and redirects.
 - **Fast.** 0.27–0.33 s of server evaluation for 13 questions / 28 candidate paths; end-to-end
   helper latency 274–327 ms, consistent with the historical p50 of 104 ms for smaller calls.

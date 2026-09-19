@@ -23,6 +23,82 @@ from urllib.parse import urlsplit, urlunsplit
 SKILL_DIR = Path(__file__).resolve().parents[1]
 STAGES = ("development", "testing", "optimization", "deployment")
 
+# Documented default confidence gate. Do not lower it to obtain answers: on this checkpoint the
+# 0.9 gate is doing its job (see docs/NANOJEV_SKILL_READINESS_V1.md).
+DEFAULT_ABSTAIN_THRESHOLD = 0.9
+
+# Measured operating envelope of the shipped checkpoint. These facts are repeated in every
+# decision receipt so no caller can mistake a local score for a validated decision.
+READINESS_EVIDENCE = "docs/NANOJEV_SKILL_READINESS_V1.md"
+SCOPE_GUARD_VERSION = "nanojev-scope-guard-v1"
+OUT_OF_SCOPE_REASON = "engineering_judgment_or_authorization_out_of_scope"
+OUT_OF_SCOPE_ACTION = (
+    "do_not_treat_as_a_decision: route to the main model plus deterministic gates and human "
+    "authority; the local score is measurement only"
+)
+ANSWER_STATUS_ADVISORY = "in_scope_advisory"
+ANSWER_STATUS_ABSTAINED = "abstained"
+ANSWER_STATUS_OUT_OF_SCOPE = "out_of_scope"
+
+# Deterministic text-only domain guard (no model involvement). Each entry is
+# (pattern_id, rationale, matched phrases). Matching is exact lowercase substring matching on
+# whitespace-normalized request text, so the guard is reproducible and auditable. The guard is
+# fail-closed: engineering-judgment and authorization questions are marked out of scope even when
+# the raw local confidence is high.
+SCOPE_PATTERNS: tuple[tuple[str, str, tuple[str, ...]], ...] = (
+    ("safety_judgment", "asks the local model to certify that an action is safe", (
+        "is it safe to", "is this safe", "is that safe", "is this change safe",
+        "is the change safe", "safe to remove", "safe to delete", "safe to drop",
+        "safe to skip", "safe to merge", "safe to deploy", "safe to commit", "safe to release",
+        "safe to proceed", "safe to ship", "safe to apply", "safe to ignore", "safe to bypass",
+        "safe to replace", "safe to revert", "will this break", "will it break",
+        "is this risky", "is it risky", "risk of removing", "risk of deleting", "risk of dropping",
+    )),
+    ("authorization_decision", "asks the local model to approve, authorize, or green-light an action", (
+        "should we approve", "should i approve", "do we approve", "approve this", "approve the",
+        "approve deployment", "approve release", "should we authorise", "should we authorize",
+        "should i authorise", "should i authorize", "authorize this", "authorise this",
+        "authorization for", "authorisation for", "is this authorized", "is this authorised",
+        "is this approved", "do we have approval", "do we need approval", "need approval",
+        "needs approval", "requires approval", "require approval", "grant approval",
+        "sign off", "sign-off", "green light", "go/no-go", "go no-go",
+        "should we proceed", "should i proceed", "should we deploy", "should i deploy",
+        "should we commit", "should i commit", "should we merge", "should i merge",
+        "should we ship", "should i ship", "should we release", "should i release",
+        "should we publish", "should we go live", "should we push", "should i push",
+        "can we proceed", "may we proceed", "allowed to proceed", "allowed to deploy",
+        "allowed to commit", "allowed to merge", "permission to proceed",
+        "is it ok to", "is it okay to", "is it acceptable to",
+    )),
+    ("test_or_gate_requirement", "asks whether validation can be omitted, replaced, or is required", (
+        "does this need a test", "does this change need a test", "do we need a test",
+        "do we need tests", "need a test", "needs a test", "need a new test",
+        "needs a new test", "need tests", "needs tests", "require a test", "requires a test",
+        "require tests", "requires tests", "test required", "tests required",
+        "is a test needed", "is a test required", "skip the test", "skip the tests", "skip tests",
+        "skip testing", "bypass the test", "bypass tests", "remove the test", "remove tests",
+        "delete the test", "delete tests", "replace the test", "replace the tests",
+        "replace tests", "drop the test", "waive the test", "test waiver",
+    )),
+    ("gate_or_approval_bypass", "asks whether a deterministic gate, review, or approval can be bypassed", (
+        "skip the gate", "skip the review", "skip review", "bypass the gate",
+        "bypass the review", "bypass review", "without a validated gate", "without a gate",
+        "without the gate", "unvalidated gate", "no gate needed", "waive the gate",
+        "waive review", "replace the approval", "replace an approval", "replace approval",
+        "skip approval", "bypass approval", "remove the approval", "waive the approval",
+        "remove the gate", "drop the gate", "skip the check", "skip the checks",
+        "bypass the check",
+    )),
+    ("context_or_artifact_removal", "asks whether context or an artifact can be removed or pruned", (
+        "remove context", "delete context", "drop context", "remove the context",
+        "delete the context", "remove active context", "delete active context",
+        "drop active context", "remove production context", "delete production context",
+        "context removal", "prune context", "remove archived context", "should we remove",
+        "should i remove", "should this be removed", "should we delete", "should this be deleted",
+        "can we remove", "can this be removed", "can we delete",
+    )),
+)
+
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, *args, **kwargs):
@@ -209,6 +285,72 @@ def load_payload(path: str | None, inline: str | None) -> dict:
     return payload
 
 
+def scope_text(value: object) -> str:
+    """Whitespace-normalize a text field for deterministic guard matching."""
+    if not isinstance(value, str):
+        return ""
+    return " ".join(value.lower().split())
+
+
+def assess_question_scope(state_text: object, question: dict) -> dict:
+    """Deterministic domain/scope guard for one question (no model, no network).
+
+    Engineering-judgment and authorization questions are marked out of scope. The result is a
+    machine-readable policy block; it deliberately does not touch the probability distribution.
+    """
+    fragments = [scope_text(state_text), scope_text(question.get("instructions"))]
+    criteria = question.get("criteria")
+    if isinstance(criteria, dict):
+        fragments.extend(scope_text(value) for value in criteria.values())
+    elif isinstance(criteria, (list, tuple)):
+        fragments.extend(scope_text(value) for value in criteria)
+    haystack = "\n".join(fragment for fragment in fragments if fragment)
+    matches = []
+    for pattern_id, rationale, phrases in SCOPE_PATTERNS:
+        for phrase in phrases:
+            if phrase in haystack:
+                matches.append({"pattern": pattern_id, "matched_phrase": phrase,
+                                "rationale": rationale})
+                break
+    out_of_scope = bool(matches)
+    return {
+        "policy": SCOPE_GUARD_VERSION,
+        "out_of_scope": out_of_scope,
+        "reason": OUT_OF_SCOPE_REASON if out_of_scope else None,
+        "patterns": [match["pattern"] for match in matches],
+        "matched_phrases": [match["matched_phrase"] for match in matches],
+        "rationales": [match["rationale"] for match in matches],
+        "action": OUT_OF_SCOPE_ACTION if out_of_scope else "advisory_only",
+    }
+
+
+def operating_envelope(project_root: Path | None = None) -> dict:
+    """Measured operating envelope of the shipped checkpoint, repeated in every receipt."""
+    envelope = {
+        "schema_version": "nanojev-operating-envelope-v1",
+        "checkpoint_default_abstain_threshold": DEFAULT_ABSTAIN_THRESHOLD,
+        "measured_at_default_threshold": (
+            "13/13 (100%) abstention on realistic engineering-judgment questions; the highest "
+            "confidence observed anywhere in that survey (0.736) is below the 0.9 gate."
+        ),
+        "measured_out_of_domain_behaviour": (
+            "This checkpoint abstains on essentially all out-of-domain engineering questions; "
+            "below the threshold the scored subset is too small to support a rate (3/6 is the modal "
+            "chance score; about 18 labelled items would be needed to test 0.8 vs 0.5), and the highest-confidence answer "
+            "in that survey (0.736) was wrong in the safety-critical direction. Do not lower the "
+            "threshold to obtain answers."
+        ),
+        "engineering_task_quality": "not established (game-trained checkpoint)",
+        "evidence": READINESS_EVIDENCE,
+        "scope_guard": SCOPE_GUARD_VERSION,
+        "governance": "advisory measurement only; never a decision or an authorization",
+        "authorizes_execution": False,
+    }
+    if project_root is not None:
+        envelope["evidence_resolved"] = str(Path(project_root) / READINESS_EVIDENCE)
+    return envelope
+
+
 def normalize_payload(payload: dict) -> tuple[dict, dict[tuple[str, str], dict]]:
     normalized = copy.deepcopy(payload)
     gates: dict[tuple[str, str], dict] = {}
@@ -234,7 +376,11 @@ def normalize_payload(payload: dict) -> tuple[dict, dict[tuple[str, str], dict]]
                 question["type"] = "boolean"
             elif original_type not in {"boolean", "choice", "score"}:
                 raise ValueError(f"{state_id}:{qid} has unsupported type: {original_type!r}")
-            gates[(state_id, qid)] = {"type": original_type, "abstain_below": threshold}
+            gates[(state_id, qid)] = {
+                "type": original_type,
+                "abstain_below": threshold,
+                "scope": assess_question_scope(state.get("state"), question),
+            }
     return normalized, gates
 
 
@@ -253,6 +399,8 @@ def apply_response_compatibility(result: dict, gates: dict[tuple[str, str], dict
     output = copy.deepcopy(result)
     confidences: list[float] = []
     abstained = 0
+    out_of_scope = 0
+    out_of_scope_questions: list[str] = []
     seen = set()
     for state in output.get("states", []):
         state_id = state.get("id")
@@ -270,25 +418,67 @@ def apply_response_compatibility(result: dict, gates: dict[tuple[str, str], dict
             confidences.append(current_confidence)
             threshold = gate.get("abstain_below")
             is_abstained = threshold is not None and current_confidence < threshold
+            scope = gate.get("scope") or {}
+            is_out_of_scope = bool(scope.get("out_of_scope"))
             answer["confidence"] = current_confidence
+            # `abstained` remains a pure measurement of the confidence gate. The scope guard below
+            # changes only the presented status and never the recorded probabilities.
             answer["abstained"] = is_abstained
+            answer["authorizes_execution"] = False
             if is_abstained:
                 answer["abstain_reason"] = "confidence_below_threshold"
-                # Keep raw scores for analysis, but no executable selection survives abstention.
+                abstained += 1
+            if is_out_of_scope:
+                answer["out_of_scope"] = True
+                answer["out_of_scope_policy"] = scope.get("policy", SCOPE_GUARD_VERSION)
+                answer["out_of_scope_reason"] = scope.get("reason", OUT_OF_SCOPE_REASON)
+                answer["out_of_scope_patterns"] = scope.get("patterns", [])
+                answer["out_of_scope_matched_phrases"] = scope.get("matched_phrases", [])
+                answer["out_of_scope_action"] = scope.get("action", OUT_OF_SCOPE_ACTION)
+                answer["status"] = ANSWER_STATUS_OUT_OF_SCOPE
+                out_of_scope += 1
+                out_of_scope_questions.append(f"{state_id}:{qid}")
+            elif is_abstained:
+                answer["out_of_scope"] = False
+                answer["status"] = ANSWER_STATUS_ABSTAINED
+            else:
+                answer["out_of_scope"] = False
+                answer["status"] = ANSWER_STATUS_ADVISORY
+            if is_abstained or is_out_of_scope:
+                # Keep the raw scores for analysis, but no executable selection survives the gate.
                 answer["suggested_value"] = answer.get("value", answer.get("choice"))
                 answer["value"] = None
                 if "choice" in answer:
                     answer["choice"] = None
-                abstained += 1
+                answer["presented_value"] = None
     if seen != set(gates):
         raise ValueError("Incomplete local response")
+    status_counts: dict[str, int] = {}
+    for state in output.get("states", []):
+        for answer in state.get("answers", {}).values():
+            status = answer.get("status")
+            if status is not None:
+                status_counts[status] = status_counts.get(status, 0) + 1
     output["decision_summary"] = {
         "questions": len(confidences),
         "confidence_min": min(confidences) if confidences else None,
         "confidence_max": max(confidences) if confidences else None,
         "confidence_mean": sum(confidences) / len(confidences) if confidences else None,
         "abstained": abstained,
+        "out_of_scope": out_of_scope,
+        "answered_advisory": status_counts.get(ANSWER_STATUS_ADVISORY, 0),
+        "status_counts": status_counts,
     }
+    output["scope_assessment"] = {
+        "policy": SCOPE_GUARD_VERSION,
+        "out_of_scope": out_of_scope > 0,
+        "out_of_scope_count": out_of_scope,
+        "out_of_scope_questions": out_of_scope_questions,
+        "reason": OUT_OF_SCOPE_REASON if out_of_scope else None,
+        "action": OUT_OF_SCOPE_ACTION if out_of_scope else "advisory_only",
+        "authorizes_execution": False,
+    }
+    output["authorizes_execution"] = False
     return output
 
 
@@ -318,6 +508,12 @@ def usage_record(payload: dict, result: dict, source: str, task_tag: str, checkp
         "event_type": "decision", "event_id": event_id, "timestamp": utc_now(),
         "schema_version": "nanojev-usage-v1", "source": source, "task_tag": task_tag,
         "checkpoint": checkpoint_identity(checkpoint),
+        "authorizes_execution": False,
+        "operating_envelope": {
+            "checkpoint_default_abstain_threshold": DEFAULT_ABSTAIN_THRESHOLD,
+            "evidence": READINESS_EVIDENCE,
+            "authorizes_execution": False,
+        },
         "runtime": {"device": execution.get("device"), "precision": execution.get("precision")},
         "request": {
             "state_count": len(payload["states"]), "question_count": len(questions),
@@ -333,6 +529,9 @@ def usage_record(payload: dict, result: dict, source: str, task_tag: str, checkp
             "abstained_count": summary.get("abstained", 0), "candidate_paths": execution.get("candidate_paths"),
             "forward_passes": execution.get("forward_passes"), "network_model_calls": execution.get("network_model_calls"),
             "inference_call_index": execution.get("inference_call_index"),
+            "out_of_scope_count": summary.get("out_of_scope", 0),
+            "status_counts": summary.get("status_counts", {}),
+            "scope_policy": SCOPE_GUARD_VERSION,
         },
     }
     if os.environ.get("NANOJEV_LOG_PAYLOADS") == "1":
@@ -374,6 +573,7 @@ def summarize_log(log_path: Path) -> dict:
     confidences = [float(e["result"]["confidence_mean"]) for e in decisions if e.get("result", {}).get("confidence_mean") is not None]
     total_questions = sum(int(e.get("request", {}).get("question_count", 0)) for e in decisions)
     total_abstained = sum(int(e.get("result", {}).get("abstained_count", 0)) for e in decisions)
+    total_out_of_scope = sum(int(e.get("result", {}).get("out_of_scope_count", 0)) for e in decisions)
     feedback_counts: dict[str, int] = {}
     for labels in feedback.values():
         for label in labels:
@@ -387,11 +587,15 @@ def summarize_log(log_path: Path) -> dict:
         "decision_events": len(decisions), "question_count": total_questions,
         "question_types": by_type, "abstained_questions": total_abstained,
         "abstain_rate": total_abstained / total_questions if total_questions else None,
+        "out_of_scope_questions": total_out_of_scope,
+        "out_of_scope_rate": total_out_of_scope / total_questions if total_questions else None,
         "latency_ms": {"p50": percentile(latencies, 0.50), "p95": percentile(latencies, 0.95), "samples": len(latencies)},
         "confidence_mean": sum(confidences) / len(confidences) if confidences else None,
         "feedback_events": sum(len(labels) for labels in feedback.values()),
         "feedback_counts": feedback_counts,
         "feedback_coverage": sum(1 for event in decisions if event.get("event_id") in feedback) / len(decisions) if decisions else None,
+        "operating_envelope": operating_envelope(),
+        "authorizes_execution": False,
     }
 
 
@@ -416,6 +620,8 @@ def command_decide(args: argparse.Namespace) -> int:
     if not actual_checkpoint or Path(actual_checkpoint).resolve() != args.checkpoint.resolve():
         raise RuntimeError("Running service checkpoint does not match requested checkpoint")
     result = apply_response_compatibility(result, gates)
+    result["authorizes_execution"] = False
+    result["operating_envelope"] = operating_envelope(args.project_root)
     event_id = str(uuid.uuid4())
     elapsed_ms = (time.perf_counter() - start) * 1000
     record = usage_record(payload, result, args.source, args.task_tag, args.checkpoint, elapsed_ms, event_id)
@@ -482,7 +688,7 @@ def build_parser() -> argparse.ArgumentParser:
     lifecycle.add_argument("--stage", choices=STAGES, required=True)
     lifecycle.add_argument("--state", required=True, help="Short observed facts, no secrets")
     lifecycle.add_argument("--candidates", required=True, help="JSON object of candidate IDs/descriptions")
-    lifecycle.add_argument("--abstain-below", type=float, default=0.9)
+    lifecycle.add_argument("--abstain-below", type=float, default=DEFAULT_ABSTAIN_THRESHOLD)
     lifecycle.add_argument("--source", default="codex")
     lifecycle.add_argument("--timeout", type=float, default=30.0)
     lifecycle.set_defaults(handler=command_lifecycle)
