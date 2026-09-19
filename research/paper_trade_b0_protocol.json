@@ -1,0 +1,40 @@
+{
+  "schema_version": "nanojev-paper-trade-b0-protocol-v1",
+  "run_id": "b0-baseline-2026-09-19",
+  "purpose": "Frozen, reproducible baseline configuration for the real-data perpetual paper-trading replay. Any change to this file changes protocol_sha256 and aborts runs that reference it. This is a measurement-integrity artifact, not a trading configuration.",
+  "venues": ["binance", "bybit", "aster"],
+  "symbols": ["BTCUSDT", "ETHUSDT", "SOLUSDT"],
+  "first_day": "2024-01-01",
+  "last_day": "2026-08-31",
+  "strategy": {
+    "name": "reference_ma_crossover",
+    "fast": 20,
+    "slow": 60,
+    "declaration": "mechanical execution-path exerciser; NOT a claim of edge, predictive value or profitability"
+  },
+  "policy": {
+    "half_spread_bps": 1.0,
+    "fee_bps": 5.0,
+    "leverage": 3.0,
+    "margin_mode": "cross",
+    "initial_cash": 100000.0,
+    "seed": 20260919,
+    "order_time_to_live_days": 2,
+    "sizing": "fixed_notional",
+    "capacity": "fixed",
+    "on_divergence": "report",
+    "note": "declared provisional guesses pending R1; the archive has no order book, so bid/ask equal the mark close and all spread cost is one declared parameter"
+  },
+  "input_manifests": {
+    "binance": "data/binance_vision_v1/fetch_manifest.json",
+    "bybit": "data/venue_perp_v1/bybit/fetch_manifest.json",
+    "aster": "data/venue_perp_v1/aster/fetch_manifest.json"
+  },
+  "contracts": [
+    "BTCUSDT:0.10:0.001:1:75:0.004",
+    "ETHUSDT:0.01:0.01:1:75:0.005",
+    "SOLUSDT:0.0010:0.1:1:50:0.01",
+    "BNBUSDT:0.010:0.01:1:50:0.0065",
+    "XRPUSDT:0.0001:1:1:50:0.01"
+  ]
+}

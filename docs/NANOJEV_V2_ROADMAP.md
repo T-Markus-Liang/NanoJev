@@ -64,13 +64,18 @@ have not all been audited to exclusion. What is established is that the located 
 mechanisms** are in the execution path, and three amplifiers are identified and must be fixed
 before any financial number can carry meaning:
 
-1. a **rejected or partially filled** order silently breaks the intended position path, and the
-   strategy then compounds from a position it does not hold;
-2. the order quantity is **recomputed from current price** each time, so position size compounds
-   with the path rather than staying fixed;
-3. the **capacity policy interacts with venue-reported volume** (Aster's median daily BTCUSDT bar
-   volume is 9,959 vs Binance's 128,882), so the same strategy receives different position sizes
-   per venue.
+1. a **rejected or partially filled** order silently changes the trade size and timing, and the
+   strategy then compounds from a different path (position *level* self-heals because
+   `long`/`short` are target-position actions sized from the ledger's actual holdings — what does
+   not heal is the size and timing of each trade, hence fees, funding, and PnL);
+2. the **capacity policy interacts with venue-reported volume** (`fill ≤ 10% × bar volume`;
+   Aster's median daily BTCUSDT bar volume is 9,959 vs Binance's 128,882), so the same strategy
+   receives different position sizes per venue — this is the confirmed source of Aster's 27
+   partial fills;
+3. position sizing is **already path-independent** (quantity from initial cash and decision-day
+   close only, verified in code) — an earlier draft of this document incorrectly claimed
+   equity-compounding sizing; the record is corrected here and the property is locked by a test
+   under B0-B.
 
 This is why the financial track still has **no** utility, edge, or profitability claim, and why
 Track B's first acceptance gate is now measurement integrity rather than model quality.
@@ -276,10 +281,11 @@ Required before any further financial measurement:
 - **A fill divergence must be an error, not a silent state change.** When an order is rejected,
   partially filled, or expires, the harness must either raise or explicitly reconcile the
   intended position with the actual one. Continuing from an assumed position is forbidden.
-- **Position sizing must be declared and path-independent by default.** Compounding a size off
-  current equity inside a signal path turns a 1 bp input difference into a 2.7× output
-  difference, which destroys measurability. Compounding may be an explicit, separately reported
-  option, never the silent default.
+- **Position sizing must be declared and path-independent, and locked by test.** The driver
+  already sizes from initial cash and decision-day close only (verified; an earlier draft here
+  claimed equity-compounding — that claim was wrong and is corrected). B0-B adds the locking
+  test and a documented `fixed_notional` mode; an equity-compounding variant would require
+  interleaved decide/replay and is deferred to B5.
 - **Capacity and cost parameters must not be coupled to venue-reported volume** unless that
   coupling is the object of study, because it makes cross-venue comparison meaningless.
 - **A sensitivity report is mandatory** for every financial result: the same run under
@@ -498,95 +504,245 @@ The previous M5 Max targets remain useful for the general runtime, but they do n
 
 ## Current development slice
 
-Re-ordered 2026-09-19 after the real-data results. The governing principle: **do not build a
-model on top of a measurement that cannot yet be trusted.** Work proceeds in this order, mapped
-to the [handoff work packages](CURRENT_PROGRESS_AND_HANDOFF.md).
+Re-ordered 2026-09-19 after the real-data results, and rewritten as an execution task board.
+The governing principle: **do not build a model on top of a measurement that cannot yet be
+trusted.** Effort scale: S < half a day, M = days, L = a week or more. Every task lists the
+exact files it touches and the command that proves it done.
 
-### Now — measurement integrity (Track B, blocks everything financial)
+### Task board
 
-1. **[B0] Fix the three amplifiers** identified in the real-data paper run and re-run the same
-   strategy across Binance, Bybit, and Aster:
-   - make a rejected/partial/expired fill an **explicit error** (or reconcile it) instead of a
-     silent position change;
-   - make position sizing **declared and path-independent by default**;
-   - **decouple capacity from venue-reported volume**, or make that coupling the object of study.
-   Then add the **mandatory sensitivity report** (seeds × day-sets × venues, with the spread
-   stated) so no future financial number can be published as a bare point estimate.
-   *Exit:* the cross-venue spread becomes interpretable, or the harness explicitly declines to
-   emit a headline number.
-2. **[R1 rulings]** Freeze the financial protocol. Specifically:
-   - the **PILOT 9-feature cohort versus the closed 12-feature R1 allowlist** — decide whether to
-     fetch Binance's daily metrics archive to recover the two open-interest features and accept
-     losing `liquidation_intensity_1d` permanently (no venue publishes historical liquidations),
-     or amend the allowlist;
-   - the **71 provisional simulator parameters** (48 simulator + 23 risk) plus 19 backtest
-     construction values;
-   - the **single-numeraire** decision (USDT-margined linear only versus including coin-margined
-     inverse and USDC-margined on-chain perps).
-3. **[Data rights] Resolve Aster.** It is the only venue where a **read** clause
-   (§6.1(b), §6.2(e)) describes this project's automated fetching and grants no research
-   carve-out. Options: request written permission, use an authenticated API key under its own
-   terms, stop using Aster, or record an explicit accepted-risk decision. Re-attempt Bybit and
-   Hyperliquid with a proxy-capable browser; until read, both stay **unverified**.
+| # | Task | Track | Effort | Depends on | Status |
+|---|---|---|---|---|---|
+| T1 | B0-0 frozen replay baseline | B | S | — | 🟡 protocol file created; driver wiring pending |
+| T2 | B0-A order/fill divergence state machine | B | M | T1 | ⬜ |
+| T3 | B0-B path-independent sizing | B | S | T2 | ⬜ |
+| T4 | B0-C capacity decoupling | B | S | T2 | ⬜ |
+| T5 | B0-D PnL attribution + mandatory sensitivity report | B | M | T2–T4 | ⬜ |
+| T6 | R1 decision package (feature set, 71 params, numeraire) | B | M | T5 evidence | ⬜ |
+| T7 | Aster licence resolution | B | S | owner action | ⬜ |
+| T8 | A2 batch-and-merge scoring past `MAX_SCORED=32` | A | M | — | ⬜ |
+| T9 | A2 gate model that proposes drops (contrastive curation protocol) | A | L | review gate | ⬜ |
+| T10 | A5 filter-versus-rebuild paired comparison | A | M | A4 fixtures (done) | ⬜ |
+| T11 | B3/R3 financial baselines (rules, logistic, GBM, CE, exact-Brier) | B | M | T5, T6 | ⬜ |
+| T12 | B5 real-data validation protocol in `financial_backtest_v1.py` | B | M | T5 | ⬜ |
+| T13 | B6 risk gate on real data | B | S | T12 | ⬜ |
+| T14 | B4 RLCD-like estimator comparisons | B | L | T11 | ⬜ |
+| T15 | E2 ecosystem verification ledger (ongoing) | shared | S | — | 🟡 running |
+| T16 | P0 three-seed relevance independent review | A | external | owner | ⬜ |
 
-### Next — financial foundations
+### T1 — B0-0 frozen replay baseline
 
-4. **[B3 / R3] Build the baselines** on the frozen cohort: deterministic rules, logistic
-   regression, gradient boosting, then cross-entropy and exact-Brier objectives under matched
-   data, seeds, initialization, and budget. These come before any RLCD-like estimator.
-5. **[B5] Complete the validation protocol on real data**: purged walk-forward with embargo,
-   complete-regime and instrument holdouts reported separately, realistic costs, and gross/net,
-   turnover, drawdown, tail loss, exposure, calibration, abstention coverage, and uncertainty
-   intervals. Wire the real data into `financial_backtest_v1.py` so the equity curve, drawdown,
-   and per-regime analytics come from the harness rather than a bespoke driver.
-6. **[B6] Put the risk gate on real data** and produce the first real-data risk receipt.
+**Goal.** Make every paper-trading number reproducible from a single frozen config, so "same
+input, same result" is checkable and "different result" always has an explainable cause.
+Effort S. Artifact: `research/paper_trade_b0_protocol.json` + protocol hashes in receipts.
 
-### Then — RLCD
+**Status.** The protocol file [`research/paper_trade_b0_protocol.json`](../research/paper_trade_b0_protocol.json)
+**was created 2026-09-19** (venues, symbols, window, strategy and policy parameters, seed,
+contracts, input-manifest paths). Remaining: the driver-side wiring below.
 
-7. **[B4] RLCD-like estimator comparisons**, only after baselines and simulator integrity pass.
-   Report calibration, selective risk, costs, and regime stability rather than action accuracy or
-   gross return. Note the environment constraint already measured: `training_runtime()`
-   explicitly refuses `paired_brier_pg` on MPS, so RLCD-style sampled policy-gradient work cannot
-   run on this Mac's MPS — it needs CPU or CUDA.
+**Changes.**
+- `scripts/paper_trade_perp_v1.py`: add `--protocol PATH` — when given, the protocol overrides
+  every run parameter, the referenced input manifest must exist, and the receipt records
+  `protocol_sha256` and `input_manifest_sha256`. Unknown schema versions abort.
 
-### Track A, in parallel
+**Verify.** Two runs of the same command produce byte-identical receipts; flipping one parameter
+in the protocol changes `protocol_sha256` and aborts the run.
+`grep -q '"protocol_sha256"' results/paper_trade_perp_binance_v1.json`
 
-8. **[A2 limit, first] Resolve the `MAX_SCORED = 32` serviceability question with a batching
-   baseline, before any model-comparison experiment.** Requests with more than 32 scorable
-   candidates bypass entirely, which excludes exactly the long-context case the gate exists for.
-   Build the batch-and-merge scoring path with numerical-equivalence tests against single-batch
-   scoring on ≤32-candidate requests. This ordering is deliberate: a laya/reflex comparison on
-   workloads the gate cannot even serve would be uninterpretable.
-9. **[A2 blocker] A gate model that actually proposes drops.** The real checkpoint proposes
-   **zero** removals, so token savings are exactly zero and every Track A gate is unmet. The
-   measured reason is on record: Catalog Choice accuracy collapses 100% → 54.17% under irrelevant
-   archived context, so abstaining is currently the correct behavior. Paths: a newly
-   pre-registered relevance protocol with fresh confirmation splits; **contrastive-curated gate
-   training data following the nimble recipe** (change one fact so the answer flips — the exact
-   discrimination our gate lacks; recipe and code are open); a laya-encoder fine-tune (E1 step 2
-   zero-shot probe first); or the reflex direct-logits ablation. Do **not** re-tune the 0.99
-   threshold on the existing test/OOD to manufacture a winner.
-10. **[A5, new] Filter-versus-rebuild paired comparison** on frozen tool-history fixtures (see
-    the ecosystem section). This answers the community's central controversy with evidence and
-    directly exercises A4's corpus.
-11. **[A3] Paired downstream-quality and net-token-cost comparison** across at least three
-    materially different main-model families, with the protected-segment zero-deletion stress
-    suite. This needs a real main-model family and credentials — neither is available yet.
+**Gate.** No receipt without a protocol hash; no headline number without `replay_sha256`.
 
-### Housekeeping
+### T2 — B0-A order/fill divergence state machine
 
-12. **Independent review** of P0's three-seed relevance result, and version-control closure for
-    the delivered work packages.
-13. **[E2, new] Ecosystem verification ledger.** Keep the second-sweep table current: re-snapshot
-    star counts before quoting them, locate primary sources for the unverified items (Atomic,
-    Jevinik, the Monad bot, the DuckDB extension, the cost case studies, Decider-2B, System-One
-    4B, the Jev-compatible API, the HF-model adapter library), and re-check the fast-jev-compaction
-    156k→62k claim against its own benchmark receipts if they appear. One page per verified item,
-    filed under the community references document.
-14. **[B8 / visual] Optional only.** The B8 shared-scoring parity experiment informed by
-    `jev-visual` and any visual financial state stay behind a structured financial baseline. The
-    reflex browser timing check remains deferred.
-15. **Latency work last**, on frozen tasks, without weakening calibration, risk, or leakage gates.
+**Goal.** A rejected, partially filled, or expired order must become an explicit event, never a
+silent change to the trade path. Depends on T1. Effort M. Artifact: receipts carry a
+`divergences` block; new tests in `scripts/test_perp_pipeline_v1.py`.
+
+**Code facts established while planning (2026-09-19).** `long`/`short` are target-position
+actions: the simulator sizes each order as the delta from the **ledger's actual** position, so
+position *level* self-heals after a divergence. What does not heal is the size and timing of
+each trade (capacity clamps at `10% × bar volume`, rejections, TTL expiry), which changes fees,
+funding, and the PnL path. The simulator's `result["orders"]` already carries
+`decision_id`, `requested_quantity`, `filled_quantity`, and `status_history` — sufficient for a
+post-replay audit with no simulator change.
+
+**Changes.**
+- `scripts/paper_trade_perp_v1.py`: add `find_divergences(result)` (terminal status != `filled`
+  or `filled_quantity != requested_quantity` → divergence record) and
+  `--on-divergence {error,report}` (default `error`). `error` writes the receipt, marks
+  `divergence_error: true`, and exits non-zero naming the first divergences. `report` records
+  the full divergence list and continues.
+
+**Verify.** Tests: (a) synthetic rejected order → `error` mode exits non-zero; (b) `report`
+mode → receipt lists the divergence with reason codes; (c) clean run → `divergence_count: 0`.
+Command: `.venv/bin/python -m unittest scripts.test_perp_pipeline_v1 -v`.
+
+**Gate.** Zero silent divergences in any mode; divergence count in every receipt.
+
+### T3 — B0-B path-independent sizing (verify + lock)
+
+**Goal.** Lock the property that sizing cannot compound with the PnL path. Depends on T2.
+Effort S. Artifact: sizing test + receipt field.
+
+**Code fact.** The driver already computes quantity from **initial** cash and the decision-day
+close (`0.25 × initial_cash × leverage / close`) — path-independent notional, verified
+2026-09-19. The earlier "equity compounding" claim in this document was wrong.
+
+**Changes.** `scripts/paper_trade_perp_v1.py`: add `--sizing fixed_notional` (the only driver
+mode; recorded in the receipt). An equity-compounding variant requires interleaved
+decide/replay and is deferred to T12 (B5).
+
+**Verify.** Test: identical price series with shuffled replay outcomes produces identical
+decision quantities (sizing depends on price and initial cash only).
+
+**Gate.** Receipts record `sizing: fixed_notional`; the test locks the property.
+
+### T4 — B0-C capacity decoupling
+
+**Goal.** Cross-venue comparisons must not be driven by venue-reported volume differences.
+
+**Changes.** `scripts/paper_trade_perp_v1.py`: add `--capacity {fixed_bps,venue_volume,off}`,
+default `fixed_bps` with a declared participation rate (e.g. 1% of a **fixed reference notional
+volume** identical across venues). `venue_volume` keeps the current behavior for study runs.
+
+**Verify.** Test: with `fixed_bps`, fill counts for the same strategy are identical across
+venues; with `venue_volume`, Aster's lower volume produces fewer fills (documenting the
+coupling we are removing).
+
+**Gate.** Cross-venue tables in docs must come from `fixed_bps` runs.
+
+### T5 — B0-D PnL attribution + mandatory sensitivity report
+
+**Goal.** Every financial number ships with its decomposition and its spread.
+
+**Changes.**
+- New `scripts/paper_trade_report_v1.py`: reads one or more receipts and emits
+  `results/paper_trade_b0_report_v1.json` with (a) PnL attribution — price/signal, fees,
+  funding, spread, unfilled-capacity remainder — reconciling to net PnL within 1e-6;
+  (b) a sensitivity matrix over seeds × venues × day-subsets with min/median/max and spread;
+  (c) a `headline_allowed` boolean that is false when the spread exceeds a declared threshold.
+- `docs/PAPER_TRADE_REAL_DATA_V1.md`: replace the four-number table with the attributed,
+  sensitivity-qualified version once T2–T4 land.
+
+**Verify.** Attribution sums to net PnL (test); sensitivity report present and
+`headline_allowed` computed (test); doc refuses a bare number (review checklist).
+
+**Gate (B0 exit).** Same strategy across ≥3 venues produces an interpretable spread, or the
+report sets `headline_allowed: false` and says why.
+
+### T6 — R1 decision package
+
+**Goal.** Convert the three open R1 questions into decision-ready material for the owner.
+
+**Changes.** New `docs/FINANCIAL_R1_DECISIONS_V1.md`: for each question (PILOT 9-feature vs
+closed 12-feature allowlist; the 71 provisional parameters + 19 construction values;
+single-numeraire scope), list options, consequences, evidence from T5, and a recommendation.
+The **decision itself is the owner's**, recorded in this file once made.
+
+**Gate.** No Track B training work (T11/T14) starts before these are decided and frozen.
+
+### T7 — Aster licence resolution
+
+**Goal.** Close the only read, concrete, unresolved venue prohibition (Aster §6.1(b)/§6.2(e)).
+
+**Changes.** We prepare `docs/ASTER_PERMISSION_REQUEST_V1.md` (draft request text and the exact
+usage description). **Owner actions**: send the request, obtain an API key under its terms, stop
+using Aster data, or record an accepted-risk decision in the licensing audit.
+
+**Gate.** Until resolved, Aster results stay in a separate, clearly-labelled appendix and never
+in headline tables.
+
+### T8 — A2 batch-and-merge scoring past `MAX_SCORED = 32`
+
+**Goal.** Requests with more than 32 scorable candidates get scored instead of bypassing.
+
+**Changes.** `scripts/context_gate_v1.py`: split the candidate list into ≤32 batches, score each
+batch, merge removal plans in original order. Fail-open semantics unchanged; batches that error
+cause that batch's candidates to be retained.
+
+**Verify.** New tests: numerical equivalence with single-batch scoring on ≤32-candidate
+requests; a >32-candidate request now produces a removal plan instead of `scoring_budget_exceeded`;
+fail-open preserved on injected batch errors.
+
+**Gate.** Merged plans are byte-identical to single-batch plans where both apply.
+
+### T9 — A2 gate model that proposes drops (contrastive curation)
+
+**Goal.** A scorer that discriminates distractor from load-bearing context, fixing the measured
+Catalog Choice 100% → 54.17% collapse.
+
+**Changes.** New `docs/GATE_CONTRASTIVE_PROTOCOL_V1.md` (pre-registered protocol, fresh splits,
+following the nimble contrastive-curation recipe: change one fact so the correct gate decision
+flips); then data builder `scripts/build_gate_contrastive_v1.py`; training via the existing
+runtime. **Review gate before any training**; the existing relevance test/OOD stays untouched.
+
+**Gate.** Promotion requires the full Track A gates; a contrastive checkpoint that still
+proposes zero drops is a valid, reportable negative result.
+
+### T10 — A5 filter-versus-rebuild paired comparison
+
+**Goal.** Settle filter-versus-rebuild on our fixtures with evidence.
+
+**Changes.** New `scripts/filter_vs_rebuild_v1.py` + tests: five arms (unfiltered, safe dedup,
+relevance filter, abstractive summary, retrieval-rebuild) over the A4 fixtures; metrics per the
+A5 section; cost accounting per the Phase 0 cost-native rule.
+
+**Gate.** Paired intervals per task family; aggregate win with a protected-family loss is a fail.
+
+### T11 — B3/R3 financial baselines
+
+**Goal.** Baselines before any RLCD-like estimator.
+
+**Changes.** New `scripts/financial_baselines_v1.py`: deterministic rules, logistic regression,
+gradient boosting, cross-entropy and exact-Brier objectives on the frozen cohort with matched
+seeds/initialization/budget; paired source-group intervals.
+
+**Gate.** Beats determinism with intervals, or we report that it does not.
+
+### T12 — B5 real-data validation protocol
+
+**Goal.** The real data flows through `financial_backtest_v1.py` proper, not a bespoke driver.
+
+**Changes.** Extend `scripts/financial_backtest_v1.py` with a real-data path (external bars +
+funding instead of synthetic path generation); purged walk-forward with embargo; regime and
+instrument holdouts reported separately.
+
+**Gate.** The harness emits equity curve, drawdown, and per-regime analytics for the real cohort.
+
+### T13 — B6 risk gate on real data
+
+**Changes.** Run the existing out-of-model risk guards on the real replay; produce the first
+real-data risk receipt (`results/risk_real_v1.json`).
+
+### T14 — B4 RLCD-like estimators
+
+Only after T11 passes. Report calibration, selective risk, costs, regime stability. Remember:
+`paired_brier_pg` is refused on this Mac's MPS — plan CPU or CUDA.
+
+### T15 — E2 ecosystem verification ledger (ongoing)
+
+**Goal.** No ecosystem number enters a project document without evidence level, source URL,
+snapshot time, and comparison scope. Effort S, recurring. Artifact: updates to the ecosystem
+section and one subsection per verified item in
+[the pinned reference review](JEV_COMMUNITY_REFERENCES.md).
+
+**Recurring checklist.**
+- Re-snapshot star counts (GitHub API) before quoting any of them; record the UTC date.
+- Locate primary sources for the still-unverified sweep items: Atomic, Jevinik, the Monad
+  live-trading bot, the DuckDB extension, the three cost case studies, Decider-2B, System-One
+  4B, the Jev-compatible public API, and the HF-model adapter library.
+- Re-check the fast-jev-compaction 156k→62k claim if the project publishes benchmark receipts
+  (its README currently documents character-count token estimates only).
+- Never install plugins, upload private data, use accounts, or place orders to verify a claim.
+
+### T16 — P0 independent review (external)
+
+**Goal.** The three-seed relevance result (no candidate promoted) gets an independent
+implementation/evidence review; we do not self-certify. Effort external. Artifact: a review
+verdict filed in [the execution review log](EXECUTION_REVIEW_LOG.md).
+
+**Blockers on our side.** None — evidence package is complete (frozen protocol, three run
+receipts, hashes all MATCH, independent report rebuild semantically identical). Waiting on
+reviewer availability.
 
 ## Codex local skill and telemetry
 

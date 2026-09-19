@@ -158,16 +158,19 @@ trigger. **No number on this page may be quoted as a return, a loss, an edge or 
 
 ### The mechanism to fix
 
-The strategy tracks an intended target position and issues absolute-quantity orders, so a
-**rejected or partially filled** order silently breaks the intended position path and the
-strategy then compounds from an assumed position it does not hold. Across the three venues
-that produced 0, 2 and 27 such events respectively. A robust harness must treat any
-divergence from the intended fill as an explicit state error (or use close-only
-`position_effect` semantics) before any inference is possible.
+The strategy issues `long`/`short` **target-position** orders, and the simulator sizes each
+order as the delta from the ledger's **actual** position — so position *level* self-heals. What
+does not heal is the size and timing of each trade: a **rejected or partially filled** order
+silently changes the path of fees, funding, and PnL. Across the three venues that produced 0, 2
+and 27 such events respectively. A robust harness must make any divergence between the requested
+and actual order outcome explicit (the B0-A `--on-divergence` audit) before any inference is
+possible.
 
-A second amplifier: the quantity is recomputed from current price each time
-(`0.25 × equity × leverage / price`), so the position size compounds with the path rather
-than being fixed.
+*Correction (2026-09-19): an earlier version of this section claimed the quantity is recomputed
+from current equity each time ("0.25 × equity × leverage / price"), making position size compound
+with the path. Code inspection shows sizing uses **initial** cash (`0.25 × initial_cash ×
+leverage / close`) — path-independent notional. That claim was wrong; the property is now locked
+by a test under B0-B.*
 
 A third, venue-specific amplifier explains Aster's 27 partial fills. Aster reports far lower
 daily volume than the other two venues:
