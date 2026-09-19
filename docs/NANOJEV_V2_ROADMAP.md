@@ -586,11 +586,14 @@ exact files it touches and the command that proves it done.
 | T8b | Skill scope guard + measured envelope (added 2026-09-19) | A | S | — | ✅ done (17 tests, `nanojev-scope-guard-v1`) |
 | T8c | Out-of-domain confidence diagnosis (added 2026-09-19) | A | S | — | ✅ done (verdict: collapse is out-of-domain) |
 | T8d | Temperature-scaling repair attempt (added 2026-09-19) | A | S | — | ✅ done (**negative**: monotone rescaling cannot repair an ordering failure; fitted T also unstable and all held-out deltas bootstrap-insignificant) |
-| T9 | A2 gate model that proposes drops (contrastive curation protocol) | A | L | review gate | ⬜ |
+| T9 | A2 gate model that proposes drops (contrastive curation protocol) | A | L | review gate | 🟡 corpus delivered (41 pairs/246 items); architecture question open |
+| T9a | **Decide the architecture first**: task-fitted heads vs schema-conditioned readout, on the base Qwen3-0.6B | A | S | — | ⬜ **HIGHEST PRIORITY — decides whether T9 is even needed** |
 | T9b | Encoder/router architecture option (from the laya study, added 2026-09-19) | A | M | corpus exists | ⬜ |
-| T9c | Grouped calibration: temperature per (question type, option count) | A | S | — | ⬜ |
-| T8e | Model-free safe dedup arm (added 2026-09-19) | A | S | — | ✅ done (**negative: 0 removals on every repo fixture**) |
-| T8f | Domain-adaptation runbook (added 2026-09-19) | A | S | — | ✅ done (runbook + feasibility receipt; 3 blockers) |
+| T9c | Grouped calibration: temperature per (question type, option count) | A | S | — | ⬜ (single global scalar tested and refuted; grouped untested) |
+| T8e | Model-free safe dedup arm (added 2026-09-19) | A | S | — | ✅ done (**negative**: 0 removals on every repo fixture; the unchanged gateway also cannot carry such a plan) |
+| T8f | Domain-adaptation runbook (added 2026-09-19) | A | S | — | ✅ done (runbook + feasibility receipt) |
+| T8g | Corpus→trainer adapter (blocker B) | A | S | review gate | ⬜ trainer_view emitted; adapter not written |
+| T9d | Protocol §7 amendment for FP32 full-backbone on MPS (blocker C) | A | S | **owner approval** | ⬜ needs re-review |
 | T10 | A5 filter-versus-rebuild paired comparison | A | M | A4 fixtures (done) | ⬜ |
 | T11 | B3/R3 financial baselines (rules, logistic, GBM, CE, exact-Brier) | B | M | T5, T6 | ⬜ |
 | T12 | B5 real-data validation protocol in `financial_backtest_v1.py` | B | M | T5 | ⬜ |

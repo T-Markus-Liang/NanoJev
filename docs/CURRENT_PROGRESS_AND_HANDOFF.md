@@ -2,13 +2,95 @@
 
 基于 2026-09-19 本地实验产物与工作区核对。**这是下一位执行 AI 的首读入口。**
 
-**最新执行前置要求（2026-09-19）已验收**：Worker 只走 DeepSeek 官方 API 的 V4.1 Flash
-（当前正式 API ID 为 `deepseek-flash`，禁止第三方回退）；本地 NanoJev skill 已安装并增加
-开发/测试/优化/部署四阶段调用入口。真实调用、测试及限制见
-[本地工具链验收](LOCAL_TOOLING_ACCEPTANCE_V1.md)，后续遵循项目 `AGENTS.md`。
-T1/B0 尚未关闭；当前 paper driver 的在途修改不能当成已验收交付。
+---
 
-协作方式：执行 AI 负责范围明确的实现、测试与证据整理；原审阅 AI 在关键设计/数据/实验门禁处审核与调整。用户转交审核材料后再启动审核，不假设后台有人持续监听或自动批准。本文不授权主动上下文裁剪、真实交易、付费资源采购、私密数据外传或全局 provider 配置变更。
+## 0. 接管简报（2026-09-19，最新交接）
+
+### 0.1 一句话现状
+
+**金融侧**：B0 测量完整性基本达成，但它最大的产出是**发现两个使此前所有数字失效的工具缺陷**——修复后跨场所极差从 271,945 收敛到 3,964（本金 4%），此前"策略混沌"的结论**已撤回**。
+**模型侧**：本地 NanoJev 的弃权问题**根因已定位到架构层**，而不是数据层——见 0.2，这是随时可以接手的最高优先项。
+
+### 0.2 最高优先：一个架构级问题悬而未决（**先做这个，再谈训练**）
+
+参考集里有两个**完全不同**的决策模型架构：
+
+| | **任务拟合头**（我们的 NanoJev） | **Schema 条件化 logits 读法**（SemIf / JEV-CPU / reflex / jev-schema-scorer） |
+|---|---|---|
+| 决策方式 | 按题型训练的头 | 一次前向读 `P(选项字母 \| evidence, criterion, options)` |
+| 换新任务 | **必须重训** | **声称无需重训** |
+| 实测表现 | 域外 **13/13 弃权**（最高置信度 0.736） | **未在我们的场景验证** |
+
+**关键事实**：`leesk212/JEV-CPU`（SemIf 的 CPU 移植）跑的是 **`Qwen/Qwen3-0.6B`——和我们完全同一个基座**，在**笔记本 CPU** 上跨**八个域**（含 code-review triage、incident severity）。**如果第二列成立，我们要的不是更多训练数据，而是换读法。**
+
+**我已做的实验与它为什么还不能下结论**：把 SemIf 的字母读法套到**我们自己的 checkpoint**上，中位置信度 0.505→**0.899**、0.9 下作答 0→**6/13**，看似大胜；但**排列对照证明是纯位置伪影**——所选**字母** 13/13 恒为 A，所选**描述** 0/13 不变。原因是 SemIf 用的是**基座 instruct 模型**，而我们的骨干已被任务头微调，字母槽位不再承载 criteria。
+
+**待做的决定性实验（约 20 分钟，无网络风险）**：
+
+```bash
+# 1) 补齐基座（上次下载停在 1.2G/约1.5G，走代理）
+HTTPS_PROXY=http://127.0.0.1:7890 HF_HUB_DISABLE_TELEMETRY=1 .venv/bin/python -c "
+from huggingface_hub import snapshot_download
+print(snapshot_download('Qwen/Qwen3-0.6B', allow_patterns=['*.json','*.safetensors','*.txt','*.jinja']))"
+
+# 2) 用基座 + SemIf 读法跑同一批 13 题（改 probe 里的 CKPT 指向基座），
+#    并**必须同时跑排列对照**（scripts/probe_semif_permutation_control_v1.py 的模式）
+# 3) 三方同题对比：基座+读法 / 我们+读法 / 我们+训练头
+```
+
+**判定标准（先写死，避免事后挑赢家）**：读法只有在**排列对照下所选描述稳定**时才成立；只看置信度上升不算数。
+
+### 0.3 可立即执行的下一步（按顺序）
+
+1. **完成 0.2 的基座对照**——它决定后续全部工作方向。
+2. **写语料→训练器适配器**（阻塞 B）：F1 已产出 `research/engineering_judgment_corpus_v1/trainer_view/*.jsonl`，需评审其是否满足 `train_pipeline_decisions.validate_training_row` 与 source-group 隔离。
+3. **协议 §7 变更评审**（阻塞 C）：预注册的是 LoRA r16 + BF16，本机无 peft 且 MPS 拒 BF16；可行路径是全骨干 FP32/MPS，属协议变更，**必须重新评审**。
+4. 若按第一列（训练头）继续：语料需从 **41 对扩到 120 对**（作者明确拒绝注水，缺的是**人工编写的基座状态**，不是生成器）。
+5. **T5 PnL 归因 + 分时段报告**（B0 最后一块，务必用**已修复的窗口**重跑）。
+
+### 0.4 阻塞与待用户决策
+
+| 项 | 状态 |
+|---|---|
+| **基座对照实验** | 可立即做（0.2） |
+| **语料规模**（41 vs 120 对） | 需人工编写；作者拒绝注水 |
+| **适配器** | 未写，需评审 |
+| **协议 §7 变更** | **需用户/审阅 AI 批准**（LoRA+BF16 → 全骨干 FP32/MPS） |
+| **R1 裁定** | 待决：PILOT 9 特征 vs 闭集 12、71 项参数、计价货币 |
+| **Aster 数据许可（T7）** | 唯一**已读且未解决**的禁止条款；需用户决定：申请书面许可 / 用认证 key / 停用 / 记录接受风险 |
+| **主动上下文裁剪** | **未授权**，需 Track A 全部门禁 |
+| **实盘** | **未授权**，且 Binance §4.2 独立禁止 |
+
+### 0.5 不能丢失的教训（**接手方最容易重犯的错**）
+
+1. **测量完整性就是发现本身。** 做敏感性报告时"一半"样本等于"全部"，揪出**收据谎报样本窗口**（`--first-day/--last-day` 从未生效）。此前的结论因此反转。**任何不可能通过的复现检查都值得跑。**
+2. **我有多项表述被对抗性核验推翻，均已撤回并记录**：错答占置信度前三（假，实为 1/3/5）、置信度与正确性反相关（n=6 不成立）、历史弃权率 43.5%（实为 **30.4%**）。**不要把这三条再写进任何文档。**
+3. **置信度上升不等于修复。** SemIf 读法把置信度从 0.505 抬到 0.899，排列对照证明是字母 A 伪影。**任何"读法/校准改进"都必须过排列对照。**
+4. **温度重标定改不了排序**（单调），故修不了弃权；但只测了**一个全局标量**，laya 是**按（题型，选项数）分组拟合**——那是**另一个实验**，未测。
+5. **种子敏感性在此配置下是退化轴**（`fill_probability=1.0`、`reject_probability=0.0`），有意义的轴是**场所与时段**。
+6. **`decide` 路径没有默认阈值**；0.9 只存在于 `lifecycle`。别把两者混为一谈。
+
+### 0.6 证据索引（权威文件）
+
+| 主题 | 权威文件 |
+|---|---|
+| 执行任务板（T1–T16，唯一权威顺序） | `docs/NANOJEV_V2_ROADMAP.md` 的 Current development slice |
+| 逐工作包验证记录 | `docs/EXECUTION_REVIEW_LOG.md`（W1/W2 为最近两条） |
+| 本地模型能力 | `docs/SKILL_ABSTENTION_DIAGNOSIS_V1.md`、`docs/CONFIDENCE_ATTRIBUTION_V1.md`、`docs/NANOJEV_SKILL_READINESS_V1.md`、`docs/SKILL_CALIBRATION_V1.md`、`docs/SKILL_READINESS_VERIFICATION_V1.md` |
+| 参考项目（Mac 部署） | `docs/LAYA_REFLEX_MAC_STUDY_V1.md`（含 SemIf/JEV-CPU 补漏与位置伪影） |
+| 金融测量缺陷 | `docs/B0_WINDOW_DEFECT_V1.md` |
+| 语料与训练路径 | `docs/ENGINEERING_CORPUS_V1.md`、`docs/GATE_CONTRASTIVE_PROTOCOL_V1.md`、`docs/DOMAIN_ADAPTATION_RUNBOOK_V1.md` |
+| 数据许可 | `docs/VENUE_DATA_LICENSING_V1.md` |
+
+### 0.7 工作区注意
+
+- **可能有并发写入者**：本会话期间观察到另一会话同时改动本仓库。**编辑前先 `git status`**；提交前不要用 `git add -A`（`AGENTS.md` 在 sparse-checkout 之外会导致失败），逐路径 add。
+- **`data/` 被 git 忽略**（约 22MB 原始数据），**不在仓库里**，需重新抓取：`scripts/fetch_binance_vision_v1.py`、`scripts/fetch_venue_perp_v1.py --venue {bybit,aster,hyperliquid}`（后两者**需要本地代理** `127.0.0.1:7890`，直连被本环境 DNS 污染/拒绝）。
+- 分支 `codex/nanojev-v2-roadmap`，远端 `origin`（用户个人公开仓库）。`upstream` 是原项目，**未推送**。
+- 本地服务：`/Users/markus/.codex/skills/nanojev-local-decider/scripts/nanojev_skill.py`（`health --start`，端口 `8876`）。**AGENTS.md 要求每个阶段调用它**；它几乎总弃权，按规则由主模型独立裁决并记录反馈。
+- 每次提交后推送需走代理：`git -c http.proxy=http://127.0.0.1:7890 push origin codex/nanojev-v2-roadmap`。
+
+---
 
 ## 1. 当前状态：不要重新从零开始
 
