@@ -165,3 +165,97 @@ in the batch (1.000) is wrong.
 PYTHONPATH=/tmp/laya_pkg HF_HUB_OFFLINE=1 .venv/bin/python /tmp/laya_probe.py
 # probe source kept at scripts/probe_laya_engineering_v1.py
 ```
+
+---
+
+# Addendum (2026-09-19): the reference set was incomplete, and one readout idea was tested
+
+## A. Three HuggingFace projects we had missed
+
+The first pass studied only GitHub. Searching HuggingFace revealed decision-model projects absent
+from this project's reference list — two of them larger or more directly relevant than reflex.
+
+| Project | Where | Why it matters |
+|---|---|---|
+| **[TheoLeeCJ/SemIf](https://github.com/TheoLeeCJ/SemIf)** — **1,770 stars, MIT**, created 2026-09-16 | GitHub + HF `Meanblock/JEV-CPU` | "Semantic ifs from open models, on a 3090 at home." **Larger than laya (690) and reflex (73) combined**, and it is the author of the compression objection already recorded in this roadmap |
+| **[leesk212/JEV-CPU](https://github.com/leesk212/JEV-CPU)** — MIT, 2026-09-19 | HF `Meanblock/JEV-CPU` | A CPU port of SemIf: **"on a laptop CPU, no GPU"**, `Qwen/Qwen3-0.6B` in float32 (~2.4 GB), ~1 s per decision, demonstrated across **eight domains** including support, **code-review triage** and **incident severity** — i.e. engineering judgment |
+| **[kotoba-lang/typed-decisions](https://github.com/kotoba-lang/typed-decisions)** / HF `com-kotobalabs/open-jev-deberta-v3-large` | Apache-2.0, 20 likes | Jev-shaped typed decisions on DeBERTa-v3-large with **choice over up to 255 options** — matching our contract, not reflex's 26 cap — plus a corpus builder, ablations and ADRs |
+| HF `mobarmg/jev-schema-scorer-deberta-v3-large` | MIT, 158 downloads | States the principle outright: "the question text, criteria and option ids are read **at inference time, never baked into the weights**, so the same checkpoint answers new questions over new label sets **without retraining**" |
+
+**Correction to the reflex section above.** reflex's README also contains material the first pass
+missed, and it is the most directly useful part:
+
+- **A calibration workflow**: `reflex-eval-mmlu --n 1200 --fit-temperature ...`, with measured
+  results — Qwen3.5-4B 72% accuracy, ECE **0.090 → 0.039** after fitting; Qwen3-8B 71%, ECE
+  0.264 → 0.061. (Jev reportedly reports 0.031.)
+- **A data builder**, `reflex-data`, that constructs labelled files "from **eight public datasets**,
+  one recipe each", covering routing intents, exam questions, toxicity with **soft labels**,
+  hallucination checks and **passage relevance**.
+- **The training recipe, stated plainly**: "Temperature fixes over-confidence but cannot make the
+  model *better* at a task. For that you train it... penalise it with a proper scoring rule (log
+  loss or Brier), which is minimised only by the true probabilities. **That is the supervised form
+  of the 'RLCD' training Jev uses.**"
+- **reflex has no HuggingFace weights of its own** — its HF references are only the base Qwen
+  checkpoints. It is a toolkit and recipe over someone else's base model.
+
+## B. Two architectures, and ours is the harder one
+
+| | **Task-fitted heads** (our NanoJev, laya's typed-decisions checkpoint) | **Schema-conditioned logit readout** (SemIf/JEV-CPU, reflex, jev-schema-scorer) |
+|---|---|---|
+| Decision | trained head per question type | `P(option letter \| evidence, criterion, options)` from one forward pass |
+| New task | needs retraining | claimed **without retraining** |
+| Documented weakness | collapses out of domain (ours: 13/13 abstain) | needs a model whose letter distribution reflects the prompt |
+
+This is the sharpest framing the study produced. Our abstention is a symptom of the first column;
+the second column is explicitly designed to avoid it.
+
+## C. Tested: the SemIf readout, on our checkpoint — a position artifact
+
+**[our measurement]** We applied SemIf's readout to **this project's fine-tuned checkpoint**,
+holding the weights fixed and changing only the readout. Naively the result looked spectacular:
+
+| Readout, same weights | Median confidence | Max | Answered at 0.9 |
+|---|---:|---:|---:|
+| Our trained heads | 0.505 | 0.736 | **0 / 13** |
+| SemIf letter-choice logits | **0.899** | **0.948** | **6 / 13** |
+
+**It is an artifact.** Every one of the 13 answers was option **A**. An option-permutation control
+settles it:
+
+| Control | Result |
+|---|---|
+| Chosen **letter** identical under permutation | **13 / 13** (always A) |
+| Chosen **description** identical under permutation | **0 / 13** |
+
+The model answers "A" regardless of what A denotes, so the probabilities carry **no decision
+content**. Our own trained head passes this same control (zero top-choice flips across 272 Choice
+questions), which is why the project tests it.
+
+**Why this happens, and the correct comparison.** SemIf/JEV-CPU apply this readout to a **base
+instruct model**, whose next-token distribution over letters reflects the prompt. Our checkpoint's
+backbone was fine-tuned with task-fitted heads, and its letter slots no longer carry the criteria.
+The honest comparison is therefore **base Qwen3-0.6B + SemIf readout** versus **our checkpoint +
+trained heads** — not the hybrid above. That comparison is the open follow-up; the base weights are
+downloading as this note is written.
+
+## D. What to take from the addendum
+
+1. **Our reference list had a 1,770-star gap.** SemIf/JEV-CPU are the closest published analogues
+   to our problem and must be pinned before any further architecture work.
+2. **The architectural question is now explicit**: task-fitted heads versus schema-conditioned
+   readout, and the second is claimed to generalise without retraining. Our corpus work assumes the
+   first; that assumption should be re-examined before a training run, not after.
+3. **A readout that raises confidence is not a fix until the permutation control passes.** The
+   artifact above would have looked like a 0.505 → 0.899 triumph if the control had not been run.
+4. **Both laya and reflex say the same thing about calibration and about training**: fit a
+   temperature, then train with a proper scoring rule, and expect nothing more from the scalar.
+   reflex supplies a soft-label data builder and calls its recipe the supervised form of RLCD.
+
+## Reproduction
+
+```bash
+.venv/bin/python scripts/probe_semif_readout_v1.py          # naive readout
+.venv/bin/python scripts/probe_semif_permutation_control_v1.py   # the control that refutes it
+```
+
+Receipts: `results/semif_readout_probe_v1.json` (naive result plus the permutation control).
