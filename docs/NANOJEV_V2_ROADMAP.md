@@ -65,6 +65,8 @@ NanoJev will run before a main model as a provider-neutral context gate. It will
 
 ### A2. Shadow mode and adapters
 
+Status: **initial text-request shadow library and loopback adapter implemented**; not globally installed or actively filtering. See [Context shadow V1](CONTEXT_SHADOW_V1.md). Three thousand deterministic guardrail checks and 24 real-checkpoint HTTP requests passed integration checks, but all real scores abstained under the provisional threshold, so actual token savings remain zero. Main-model quality comparisons, broader provenance adapters, and calibrated relevance learning remain open.
+
 - Build a canonical request envelope and adapters for the major chat, coding-agent, and tool-use message formats.
 - Start in shadow mode: score and log proposed removals while sending the original unfiltered request to the main model.
 - Replay identical tasks with filtered and unfiltered context against multiple model families, using fixed seeds or deterministic settings where available.
@@ -103,6 +105,8 @@ Priority: **highest strategic priority**
 The initial target is a bounded decision engine, not free-form market commentary and not an autonomous live-trading system. The model should emit complete probability distributions and an abstain/no-trade decision for clearly defined horizons and market states.
 
 ### B1. Decision and state contract
+
+Status: **initial executable PIT binary-event contract and chronological split validator implemented**. See [Financial PIT V1](FINANCIAL_PIT_V1.md): 12,000 synthetic records, three walk-forward folds, 1,000 rejected timing mutations and 1,000 label-isolation checks. This is not a sourced financial dataset, simulator, trained trading model, or completed B1 state/action contract.
 
 Start with finite actions whose outcomes can be labeled and simulated:
 
@@ -254,16 +258,16 @@ The previous M5 Max targets remain useful for the general runtime, but they do n
 Work proceeds in this order:
 
 1. Preserve the completed broad baseline and synthetic challenge receipts; extend coverage with independently reviewed tasks without training or tuning on the frozen test/OOD records.
-2. Build the provider-neutral universal context-gating adapter in shadow mode with protected segments, receipts, and fail-open fallback.
+2. Extend the implemented text-only shadow adapter with provenance-aware eligible context; build a separate relevance training/development/calibration corpus because the current checkpoint abstains on all 24 smoke cases. Never tune its threshold on frozen test/OOD results.
 3. Establish a paired token-savings and downstream-quality benchmark across multiple main-model families.
-4. Define and freeze the financial point-in-time dataset contract, leakage checks, purged walk-forward splits, execution simulator, and risk controls.
+4. Build on the implemented financial PIT validator: acquire and audit licensed point-in-time data, freeze instrument/regime holdouts, and implement the execution simulator and risk controls. Synthetic schema checks alone cannot establish data authenticity.
 5. Establish deterministic, cross-entropy, and exact-Brier financial baselines before any policy-gradient experiment.
 6. Begin RLCD-like estimator comparisons only after the supervised baselines and simulator pass their integrity checks.
 7. Optimize model, feature, and end-to-end latency only on frozen tasks, without weakening calibration, risk, or leakage gates.
 
 ## Codex local skill and telemetry
 
-Status: **implemented for structured local decisions; universal filtering is not yet implemented**
+Status: **implemented for structured local decisions; the new shadow library reuses its telemetry, but active universal filtering remains unimplemented**
 
 NanoJev is packaged as the `nanojev-local-decider` Codex skill under [`integrations/codex-skill/nanojev-local-decider`](../integrations/codex-skill/nanojev-local-decider). The installed copy lives in the local Codex skills directory and uses a persistent loopback HTTP service, preferring `127.0.0.1:8765` and remembering an automatic fallback port if that port is already occupied by another local service.
 
