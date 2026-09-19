@@ -1,0 +1,1878 @@
+{
+  "schema_version": "nanojev-workflow-paired-challenge-v1",
+  "bootstrap": {
+    "method": "paired_source_group_cluster_bootstrap",
+    "resamples": 1000,
+    "seed": 17
+  },
+  "scope": "Single checkpoint, fixed synthetic test/OOD groups. Intervals are conditional on this checkpoint, not training-seed uncertainty. Choice reversal leaves Boolean/Score unchanged as controls. No checkpoint or threshold selection.",
+  "delta_direction": "Higher accuracy is better; lower Brier/TV is better. A flip is not automatically an error.",
+  "base_questions": 816,
+  "variant_questions": 3264,
+  "comparisons": {
+    "ood/catalog_lookup_v2/boolean/archived_distractor": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 9,
+      "maximum_absolute_probability_drift": 0.3563927114009857,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": -0.28125,
+          "ci95": [
+            -0.4375,
+            -0.125
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.27479557279695715,
+          "ci95": [
+            0.21067556850901667,
+            0.3362906195928442
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.19951816590037197,
+          "ci95": [
+            0.15856720222800505,
+            0.24159759727481286
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/catalog_lookup_v2/boolean/choice_order_reversed": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.0,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 8,
+        "wrong": 0,
+        "error_rate": 0.0
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/catalog_lookup_v2/boolean/structured_envelope": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 9,
+      "maximum_absolute_probability_drift": 0.30039456486701965,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": -0.28125,
+          "ci95": [
+            -0.4375,
+            -0.125
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.2218019418590537,
+          "ci95": [
+            0.16261016747386808,
+            0.27877900474971506
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.17108893871773034,
+          "ci95": [
+            0.133177847758634,
+            0.2086065590789076
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/catalog_lookup_v2/choice/archived_distractor": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 12,
+      "maximum_absolute_probability_drift": 0.899165078997612,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 4,
+        "wrong": 0,
+        "error_rate": 0.0
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": -0.375,
+          "ci95": [
+            -0.53125,
+            -0.21875
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.49846275205117085,
+          "ci95": [
+            0.3490472369787598,
+            0.6419860176007399
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.5064901823385526,
+          "ci95": [
+            0.4031032940758358,
+            0.5973183897693388
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/catalog_lookup_v2/choice/choice_order_reversed": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 1.1920928955078125e-07,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 26,
+        "wrong": 0,
+        "error_rate": 0.0
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 5.7957236232475395e-11,
+          "ci95": [
+            -2.703882177185202e-10,
+            4.00027443808737e-10
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 1.4933903003111482e-09,
+          "ci95": [
+            -1.0162295893678675e-09,
+            5.591527951764873e-09
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/catalog_lookup_v2/choice/structured_envelope": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 12,
+      "maximum_absolute_probability_drift": 0.8791799172759056,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 4,
+        "wrong": 0,
+        "error_rate": 0.0
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": -0.375,
+          "ci95": [
+            -0.53125,
+            -0.21875
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.48021149644203415,
+          "ci95": [
+            0.3392888077955855,
+            0.6123660249706594
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.494338052243279,
+          "ci95": [
+            0.3921922220071451,
+            0.5835022850398154
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/catalog_lookup_v2/score/archived_distractor": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.5351377725601196,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.3090071006660446,
+          "ci95": [
+            0.25491940203456737,
+            0.3620704300048609
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.3745033182847237,
+          "ci95": [
+            0.3295364922610872,
+            0.41906279831166554
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/catalog_lookup_v2/score/choice_order_reversed": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.0,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 29,
+        "wrong": 0,
+        "error_rate": 0.0
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/catalog_lookup_v2/score/structured_envelope": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.49077191948890686,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.30205571029846656,
+          "ci95": [
+            0.24895053006750328,
+            0.3548854323444547
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.36831055351535724,
+          "ci95": [
+            0.3256274010945958,
+            0.4089962791811899
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/known_chance_v2/boolean/archived_distractor": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 9,
+      "maximum_absolute_probability_drift": 0.1415676772594452,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "brier": {
+          "mean": 0.008910428461276657,
+          "ci95": [
+            -0.013023783220343515,
+            0.030573719116691444
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.001362320501357317,
+          "ci95": [
+            -0.014026149176061157,
+            0.016854974348098038
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/known_chance_v2/boolean/choice_order_reversed": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.0,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "brier": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/known_chance_v2/boolean/structured_envelope": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 8,
+      "maximum_absolute_probability_drift": 0.14772677421569824,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "brier": {
+          "mean": 0.03966499904515958,
+          "ci95": [
+            0.01647715485521202,
+            0.06559013703523084
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.02267726045101881,
+          "ci95": [
+            0.008894468913786114,
+            0.037562770908698424
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/known_chance_v2/choice/archived_distractor": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 10,
+      "maximum_absolute_probability_drift": 0.41679054498672485,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "brier": {
+          "mean": -0.01714870201722181,
+          "ci95": [
+            -0.046672978677504154,
+            0.014422354060370015
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": -0.03526474863379213,
+          "ci95": [
+            -0.07819554903781088,
+            0.007557393717216917
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/known_chance_v2/choice/choice_order_reversed": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 1.1920928955078125e-07,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "brier": {
+          "mean": -3.725018949546355e-09,
+          "ci95": [
+            -1.1517762955534638e-08,
+            8.61828014335486e-10
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": -2.5320332497358322e-09,
+          "ci95": [
+            -7.683411240577698e-09,
+            1.8924765754491084e-09
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/known_chance_v2/choice/structured_envelope": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 5,
+      "maximum_absolute_probability_drift": 0.359003484249115,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "brier": {
+          "mean": -0.01679089182775029,
+          "ci95": [
+            -0.040107189613908814,
+            0.005689574221505722
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": -0.02277905043223604,
+          "ci95": [
+            -0.054475976135799326,
+            0.008615690600316313
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/known_chance_v2/score/archived_distractor": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 9,
+      "maximum_absolute_probability_drift": 0.41776441037654877,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "brier": {
+          "mean": -0.028463163542883967,
+          "ci95": [
+            -0.06555877192355884,
+            0.012900586388139101
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": -0.03647416248279694,
+          "ci95": [
+            -0.08308594944412724,
+            0.015125750410001316
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/known_chance_v2/score/choice_order_reversed": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.0,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "brier": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/known_chance_v2/score/structured_envelope": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 4,
+      "maximum_absolute_probability_drift": 0.3809050917625427,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "brier": {
+          "mean": -0.012839923245238631,
+          "ci95": [
+            -0.045181704232774615,
+            0.022125290838488215
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": -0.018177836474017477,
+          "ci95": [
+            -0.055773269647162595,
+            0.018870034999027247
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/smart_home_v2/boolean/archived_distractor": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 14,
+      "maximum_absolute_probability_drift": 0.29838043451309204,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": -0.4375,
+          "ci95": [
+            -0.625,
+            -0.28125
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.2460936247560684,
+          "ci95": [
+            0.17474727898164785,
+            0.3191872618015673
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.14611711795441806,
+          "ci95": [
+            0.11157834652112797,
+            0.18247514909598977
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/smart_home_v2/boolean/choice_order_reversed": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.0,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/smart_home_v2/boolean/structured_envelope": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 14,
+      "maximum_absolute_probability_drift": 0.2484748363494873,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": -0.4375,
+          "ci95": [
+            -0.625,
+            -0.28125
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.1842327405544601,
+          "ci95": [
+            0.1263159333077638,
+            0.24485012290790997
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.11245326069183648,
+          "ci95": [
+            0.08292244984768331,
+            0.14387479206197895
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/smart_home_v2/choice/archived_distractor": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 4,
+      "maximum_absolute_probability_drift": 0.8773069083690643,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 3,
+        "wrong": 0,
+        "error_rate": 0.0
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": -0.125,
+          "ci95": [
+            -0.25,
+            -0.03125
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.4120065948890538,
+          "ci95": [
+            0.3212520338640359,
+            0.4933099278919545
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.48782320582292016,
+          "ci95": [
+            0.40901398654137855,
+            0.5572229557799548
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/smart_home_v2/choice/choice_order_reversed": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 2.9802322387695312e-08,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 30,
+        "wrong": 0,
+        "error_rate": 0.0
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": -3.2096134777725993e-10,
+          "ci95": [
+            -9.609356978537708e-10,
+            1.92674001753268e-12
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": -4.5656634029001e-10,
+          "ci95": [
+            -1.4699253370054067e-09,
+            1.1464180715847756e-10
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/smart_home_v2/choice/structured_envelope": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.7541632205247879,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 4,
+        "wrong": 0,
+        "error_rate": 0.0
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.22506826702276397,
+          "ci95": [
+            0.16366925829491719,
+            0.28587384973582547
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.3442650519257455,
+          "ci95": [
+            0.2720805245909773,
+            0.4045875412273851
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/smart_home_v2/score/archived_distractor": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 2,
+      "maximum_absolute_probability_drift": 0.40899309515953064,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": -0.0625,
+          "ci95": [
+            -0.15625,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.32394753155640527,
+          "ci95": [
+            0.297541510716806,
+            0.3484159712910997
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.3423961438238621,
+          "ci95": [
+            0.3155495978222461,
+            0.36373722094649563
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/smart_home_v2/score/choice_order_reversed": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.0,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 8,
+        "wrong": 0,
+        "error_rate": 0.0
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood/smart_home_v2/score/structured_envelope": {
+      "paired_questions": 32,
+      "source_groups": 32,
+      "top_choice_flips": 2,
+      "maximum_absolute_probability_drift": 0.2584863305091858,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": -0.0625,
+          "ci95": [
+            -0.15625,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.15784432859970984,
+          "ci95": [
+            0.1359278519399383,
+            0.18275019137293702
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.20805270795244724,
+          "ci95": [
+            0.18941544571280247,
+            0.2231946396288549
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/catalog_lookup_v2/boolean/archived_distractor": {
+      "paired_questions": 48,
+      "source_groups": 48,
+      "top_choice_flips": 9,
+      "maximum_absolute_probability_drift": 0.36963456869125366,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": -0.1875,
+          "ci95": [
+            -0.3125,
+            -0.08333333333333333
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.225788727267019,
+          "ci95": [
+            0.1783398560116182,
+            0.27418181107243433
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.16747042870459458,
+          "ci95": [
+            0.13156999264998984,
+            0.20165280002790192
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/catalog_lookup_v2/boolean/choice_order_reversed": {
+      "paired_questions": 48,
+      "source_groups": 48,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.0,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 5,
+        "wrong": 0,
+        "error_rate": 0.0
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/catalog_lookup_v2/boolean/structured_envelope": {
+      "paired_questions": 48,
+      "source_groups": 48,
+      "top_choice_flips": 8,
+      "maximum_absolute_probability_drift": 0.3034532815217972,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": -0.16666666666666666,
+          "ci95": [
+            -0.2708333333333333,
+            -0.0625
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.16414014658437456,
+          "ci95": [
+            0.12032757495176148,
+            0.21177232288553458
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.13462161420223615,
+          "ci95": [
+            0.10412314316878717,
+            0.16499121050195145
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/catalog_lookup_v2/choice/archived_distractor": {
+      "paired_questions": 48,
+      "source_groups": 48,
+      "top_choice_flips": 22,
+      "maximum_absolute_probability_drift": 0.8923192583024502,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 6,
+        "wrong": 0,
+        "error_rate": 0.0
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": -0.4583333333333333,
+          "ci95": [
+            -0.6041666666666666,
+            -0.3125
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.5027885271916647,
+          "ci95": [
+            0.40021524232669287,
+            0.612425025936515
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.4927861751343509,
+          "ci95": [
+            0.41804687266222323,
+            0.5639178352714168
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/catalog_lookup_v2/choice/choice_order_reversed": {
+      "paired_questions": 48,
+      "source_groups": 48,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 5.960464477539063e-08,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 36,
+        "wrong": 0,
+        "error_rate": 0.0
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": -5.733437081582397e-10,
+          "ci95": [
+            -1.986391803531865e-09,
+            2.6414907512474957e-10
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": -4.611138137988746e-10,
+          "ci95": [
+            -1.7041202227119355e-09,
+            3.4354267578843667e-10
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/catalog_lookup_v2/choice/structured_envelope": {
+      "paired_questions": 48,
+      "source_groups": 48,
+      "top_choice_flips": 20,
+      "maximum_absolute_probability_drift": 0.8758553229272366,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 7,
+        "wrong": 0,
+        "error_rate": 0.0
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": -0.4166666666666667,
+          "ci95": [
+            -0.5625,
+            -0.2916666666666667
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.5008866513467684,
+          "ci95": [
+            0.396497381839547,
+            0.6126244788964837
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.48998958789659736,
+          "ci95": [
+            0.41497136693300596,
+            0.5636609684209546
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/catalog_lookup_v2/score/archived_distractor": {
+      "paired_questions": 48,
+      "source_groups": 48,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.45787572860717773,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.32972185257406733,
+          "ci95": [
+            0.2863936639681424,
+            0.37633152906991685
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.34494830353924044,
+          "ci95": [
+            0.31884629601825815,
+            0.37273989567433996
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/catalog_lookup_v2/score/choice_order_reversed": {
+      "paired_questions": 48,
+      "source_groups": 48,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.0,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 13,
+        "wrong": 0,
+        "error_rate": 0.0
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/catalog_lookup_v2/score/structured_envelope": {
+      "paired_questions": 48,
+      "source_groups": 48,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.4599703252315521,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.3328088016793013,
+          "ci95": [
+            0.2863236964811675,
+            0.3821259465663836
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.3435251936198256,
+          "ci95": [
+            0.3139099765371232,
+            0.37305911608931785
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/known_chance_v2/boolean/archived_distractor": {
+      "paired_questions": 64,
+      "source_groups": 64,
+      "top_choice_flips": 10,
+      "maximum_absolute_probability_drift": 0.19342714548110962,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "brier": {
+          "mean": 0.025667181053673705,
+          "ci95": [
+            0.010078277158348392,
+            0.04047397763832734
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.014198474622883612,
+          "ci95": [
+            0.003025215098263519,
+            0.02444153265096247
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/known_chance_v2/boolean/choice_order_reversed": {
+      "paired_questions": 64,
+      "source_groups": 64,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.0,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "brier": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/known_chance_v2/boolean/structured_envelope": {
+      "paired_questions": 64,
+      "source_groups": 64,
+      "top_choice_flips": 12,
+      "maximum_absolute_probability_drift": 0.11756926774978638,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "brier": {
+          "mean": 0.055189128932128045,
+          "ci95": [
+            0.03855624095377248,
+            0.07242532230044826
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.03258626603593047,
+          "ci95": [
+            0.0221728463706453,
+            0.04269567762385122
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/known_chance_v2/choice/archived_distractor": {
+      "paired_questions": 64,
+      "source_groups": 64,
+      "top_choice_flips": 20,
+      "maximum_absolute_probability_drift": 0.5505990907549858,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "brier": {
+          "mean": -0.007269447070968233,
+          "ci95": [
+            -0.021414179188798507,
+            0.006997142127796909
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": -0.028252985477587658,
+          "ci95": [
+            -0.05139465456835931,
+            -0.005658559576468861
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/known_chance_v2/choice/choice_order_reversed": {
+      "paired_questions": 64,
+      "source_groups": 64,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 5.960464477539063e-08,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "brier": {
+          "mean": 2.101990234648632e-09,
+          "ci95": [
+            5.683863296690462e-10,
+            3.90389344271519e-09
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 2.6702764444053173e-09,
+          "ci95": [
+            -3.6416167858988045e-10,
+            5.770016286987811e-09
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/known_chance_v2/choice/structured_envelope": {
+      "paired_questions": 64,
+      "source_groups": 64,
+      "top_choice_flips": 9,
+      "maximum_absolute_probability_drift": 0.3465472459793091,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "brier": {
+          "mean": -0.002465369899271012,
+          "ci95": [
+            -0.011969177999049053,
+            0.008009789264696114
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": -0.009144324368936353,
+          "ci95": [
+            -0.024707192594650623,
+            0.007424026550389022
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/known_chance_v2/score/archived_distractor": {
+      "paired_questions": 64,
+      "source_groups": 64,
+      "top_choice_flips": 12,
+      "maximum_absolute_probability_drift": 0.5925460457801819,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "brier": {
+          "mean": -0.01537449706320206,
+          "ci95": [
+            -0.03484624064588118,
+            0.006017064601878933
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": -0.02379592943726195,
+          "ci95": [
+            -0.049424420810427,
+            0.0034293720140426364
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/known_chance_v2/score/choice_order_reversed": {
+      "paired_questions": 64,
+      "source_groups": 64,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.0,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "brier": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/known_chance_v2/score/structured_envelope": {
+      "paired_questions": 64,
+      "source_groups": 64,
+      "top_choice_flips": 7,
+      "maximum_absolute_probability_drift": 0.4409548342227936,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "brier": {
+          "mean": 0.0007426918622971939,
+          "ci95": [
+            -0.014366704746947116,
+            0.016635529813952325
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.0013703200155445012,
+          "ci95": [
+            -0.017777616053689983,
+            0.020707475829794663
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/smart_home_v2/boolean/archived_distractor": {
+      "paired_questions": 64,
+      "source_groups": 64,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.07631728053092957,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": -0.0036239191011842725,
+          "ci95": [
+            -0.020458601075559198,
+            0.011725130370839491
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.008670394541695714,
+          "ci95": [
+            -8.136714459396883e-05,
+            0.01722604429232888
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/smart_home_v2/boolean/choice_order_reversed": {
+      "paired_questions": 64,
+      "source_groups": 64,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.0,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/smart_home_v2/boolean/structured_envelope": {
+      "paired_questions": 64,
+      "source_groups": 64,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.06546634435653687,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": -0.03853849656162363,
+          "ci95": [
+            -0.05442944964123454,
+            -0.022873974162955484
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": -0.009962601820006967,
+          "ci95": [
+            -0.017281103873392566,
+            -0.0020596122893039143
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/smart_home_v2/choice/archived_distractor": {
+      "paired_questions": 64,
+      "source_groups": 64,
+      "top_choice_flips": 3,
+      "maximum_absolute_probability_drift": 0.6953545063734055,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 7,
+        "wrong": 0,
+        "error_rate": 0.0
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": -0.046875,
+          "ci95": [
+            -0.109375,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.29624729338223,
+          "ci95": [
+            0.24567345250965056,
+            0.35227724657421755
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.37904780872085553,
+          "ci95": [
+            0.32942929910472785,
+            0.4273418514370782
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/smart_home_v2/choice/choice_order_reversed": {
+      "paired_questions": 64,
+      "source_groups": 64,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 2.2351741790771484e-08,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 52,
+        "wrong": 0,
+        "error_rate": 0.0
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": -6.823063121441653e-11,
+          "ci95": [
+            -2.0429630296497914e-10,
+            3.704935837289812e-12
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": -1.8917489796876907e-10,
+          "ci95": [
+            -6.842583388788626e-10,
+            1.3393446351983583e-10
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/smart_home_v2/choice/structured_envelope": {
+      "paired_questions": 64,
+      "source_groups": 64,
+      "top_choice_flips": 2,
+      "maximum_absolute_probability_drift": 0.6558308303356171,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 5,
+        "wrong": 0,
+        "error_rate": 0.0
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": -0.03125,
+          "ci95": [
+            -0.078125,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.2611159642044391,
+          "ci95": [
+            0.2164119321114012,
+            0.307937421915153
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.3600149446479861,
+          "ci95": [
+            0.3169194511704013,
+            0.4046037361727059
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/smart_home_v2/score/archived_distractor": {
+      "paired_questions": 64,
+      "source_groups": 64,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.3771302103996277,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.10582610392118416,
+          "ci95": [
+            0.06758233681314861,
+            0.14701134088248033
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.1216889281568001,
+          "ci95": [
+            0.09022548450211616,
+            0.1570719261024351
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/smart_home_v2/score/choice_order_reversed": {
+      "paired_questions": 64,
+      "source_groups": 64,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.0,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "test/smart_home_v2/score/structured_envelope": {
+      "paired_questions": 64,
+      "source_groups": 64,
+      "top_choice_flips": 0,
+      "maximum_absolute_probability_drift": 0.19926756620407104,
+      "deterministic_confidence_ge_0_9": {
+        "selected": 0,
+        "wrong": 0,
+        "error_rate": null
+      },
+      "deltas_variant_minus_original": {
+        "accuracy": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "mean": -0.026662586448916024,
+          "ci95": [
+            -0.05769517200230392,
+            0.0045421027465874985
+          ],
+          "valid_resamples": 1000
+        },
+        "tv": {
+          "mean": 0.02235753501736326,
+          "ci95": [
+            -0.002558366876291984,
+            0.04889943936886993
+          ],
+          "valid_resamples": 1000
+        }
+      }
+    }
+  },
+  "predictions": {
+    "path": "/Users/markus/Documents/NanoJev/data/workflow_challenge_v2_predictions.jsonl",
+    "bytes": 2876659,
+    "sha256": "1dba469a867db3239b40ee7a8716084d1a1f5d387e59bcaf4e7899b90104e902"
+  },
+  "analysis_script": {
+    "path": "/Users/markus/Documents/NanoJev/scripts/compare_workflow_variants_v2.py",
+    "bytes": 7425,
+    "sha256": "5756309685cfe13b58a22d35103638f9f114875776589bd522c0842e4a04cace"
+  }
+}

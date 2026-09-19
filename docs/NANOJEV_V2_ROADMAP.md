@@ -28,6 +28,8 @@ Current reference checkpoint: `variants/local_atomic_seed17`.
 The baseline report must be regenerated before comparing a new checkpoint. See [`benchmark_nanojev_v2.py`](../scripts/benchmark_nanojev_v2.py).
 The current seed-17 receipt, including all paired sample keys and provenance hashes, is [`nanojev_v2_baseline_seed17.json`](../results/nanojev_v2_baseline_seed17.json). Candidate reports are compared with [`compare_nanojev_v2.py`](../scripts/compare_nanojev_v2.py); a single-seed comparison deliberately reports no training-seed confidence interval.
 
+The [workflow baseline and challenge report](WORKFLOW_V2_BASELINE.md) adds 816 original questions and a 3,264-question paired robustness suite. All variants share 272 source groups. Catalog Choice test accuracy drops from 100% to 54.17% under explicitly irrelevant archived context; smart-home Boolean test accuracy is 43.75%. These are measured blockers for active context removal, not evidence of deployment readiness. The checkpoint was not retrained or selected using these results.
+
 ## Phase 0: measurement and contract gates
 
 Status: **in progress**
@@ -39,7 +41,9 @@ Status: **in progress**
 - [x] Add one machine-readable benchmark command.
 - [x] Add deterministic source-group confidence intervals, multi-seed aggregation, and paired checkpoint comparison tooling.
 - [x] Add a benchmark manifest containing dataset, checkpoint, dependency, and hardware hashes.
-- [ ] Commit and publish the broad workflow baseline covering Boolean, Choice, Score, rule-based tasks, and known probability distributions.
+- [x] Add the broad workflow baseline covering Boolean, Choice, Score, rule-based tasks, and known probability distributions, with committed metric receipts and reproduction commands.
+- [x] Run a four-variant, 3,264-question robustness challenge with paired source-group intervals and complete failure reporting.
+- [ ] Add human-reviewed challenges and genuinely held-out task families beyond synthetic rendering variants.
 - [ ] Evaluate the first V2.1 candidate and its baseline with at least three matched training seeds.
 
 Exit gate: every model change reports accuracy, NLL, Brier, ECE, invalid-output count, abstention, cold start, warm p50/p95/p99, throughput, and peak memory on the same frozen cohort. Product-specific evaluations add token savings or financial utility without replacing these shared metrics.
@@ -249,7 +253,7 @@ The previous M5 Max targets remain useful for the general runtime, but they do n
 
 Work proceeds in this order:
 
-1. Complete and publish the broad baseline and challenge evaluation, including the current rule-based Boolean and probability-calibration weaknesses.
+1. Preserve the completed broad baseline and synthetic challenge receipts; extend coverage with independently reviewed tasks without training or tuning on the frozen test/OOD records.
 2. Build the provider-neutral universal context-gating adapter in shadow mode with protected segments, receipts, and fail-open fallback.
 3. Establish a paired token-savings and downstream-quality benchmark across multiple main-model families.
 4. Define and freeze the financial point-in-time dataset contract, leakage checks, purged walk-forward splits, execution simulator, and risk controls.
