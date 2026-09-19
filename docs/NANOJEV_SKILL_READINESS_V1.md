@@ -47,7 +47,7 @@ Confidence distribution: min 0.255, p25 0.400, **median 0.505**, max 0.736.
 threshold.** There is no setting of the existing threshold at which this checkpoint answers
 these questions and is also being used as designed.
 
-## Result 2 — below the threshold, accuracy is chance and the errors are confidence-ranked
+## Result 2 — below the threshold, out-of-domain accuracy is chance
 
 Six questions have answers fixed by this project's own recorded facts, so they can be scored
 without judgement:
@@ -61,11 +61,16 @@ without judgement:
 | Scan staged files for secrets? | true | true | 0.622 | ✓ |
 | Does this checkpoint save tokens? | false | false | 0.532 | ✓ |
 
-**3/6 = 50.0%.** The three wrong answers carry the **three highest confidences in the entire
-survey** (0.736, 0.657, 0.615) while the three correct answers are lower (0.668, 0.622, 0.532).
-Confidence is therefore **anti-correlated with correctness** on this sample, which is exactly
-what the "confidence is uncalibrated" caveat predicts — and why lowering the threshold is not a
-repair.
+**3/6 = 50.0%.** By mean, the wrong answers scored higher than the right ones (0.670 vs 0.607)
+but at n=6 that difference carries no weight.
+
+> **Correction (2026-09-19, independent diagnosis).** An earlier version of this section claimed
+> the three wrong answers carried the *three highest* confidences. **That was false.** The actual
+> ranks are: 0.736 `safe_to_drop` (wrong), 0.668 `needs_new_test` (**correct**), 0.657 `blocked`
+> (wrong), 0.622 `check_secrets` (correct), 0.615 `b0_first` (wrong), 0.532 `token_savings`
+> (correct) — the wrong answers are ranks 1, 3 and 5, not 1, 2 and 3. The claim that confidence is
+> anti-correlated with correctness is **withdrawn**; only the weak mean difference survives, and
+> at n=6 it is not evidence. See [skill abstention diagnosis V1](SKILL_ABSTENTION_DIAGNOSIS_V1.md).
 
 The most serious single result: asked whether it is safe to remove context without a validated
 gate, the model answered **`true` at 0.736** — the highest confidence in the survey, and the
@@ -111,7 +116,7 @@ These are real, verified properties, and they are why the packaging question has
 - The skill can be packaged, installed, started on demand, and called reliably, offline and
   deterministically. Nothing blocks the *mechanism*.
 - The *model* abstains on essentially every realistic engineering question at the documented
-  threshold, and is at chance with confidence-anti-correlated errors below it. This is consistent
+  threshold, and is at chance on the fixed-answer subset below it. This is consistent
   with the separately measured reason the gate proposes zero removals: under irrelevant archived
   context, Catalog Choice accuracy collapses 100% → 54.17%. The checkpoint currently cannot tell
   a load-bearing segment from a distractor, so abstaining is the **correct** behaviour.

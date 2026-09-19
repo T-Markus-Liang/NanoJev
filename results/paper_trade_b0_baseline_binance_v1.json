@@ -3,16 +3,16 @@
   "counts": {
     "abstain_decisions": 0,
     "decision_closes": true,
-    "decisions": 83,
+    "decisions": 61,
     "expired": 0,
-    "filled": 83,
-    "fills": 83,
-    "funding_payments": 10251,
+    "filled": 61,
+    "fills": 61,
+    "funding_payments": 7002,
     "liquidations": 0,
     "no_order_decisions": 0,
     "no_trade_decisions": 0,
-    "ordered_decisions": 83,
-    "orders": 83,
+    "ordered_decisions": 61,
+    "orders": 61,
     "partially_filled_orders": 0,
     "rejected": 0,
     "rejected_decisions": 0,
@@ -20,11 +20,11 @@
     "unfilled_orders": 0
   },
   "curve_summary": {
-    "first_equity": 105515.592196,
-    "last_equity": 121173.77227528504,
-    "max_margin_ratio": 0.036881418234965595,
-    "min_liquidation_distance_fraction": 0.9631185817650345,
-    "point_count": 5113
+    "first_equity": 94398.44705832,
+    "last_equity": 65919.7073348389,
+    "max_margin_ratio": 0.06147358694568433,
+    "min_liquidation_distance_fraction": 0.9385264130543156,
+    "point_count": 3565
   },
   "data": {
     "first_day": "2024-01-01",
@@ -42,14 +42,14 @@
   "divergence_error": false,
   "divergences": [],
   "drawdown": {
-    "final_drawdown_notional": 55102.11768614955,
-    "longest_drawdown_ns": 52963200000000000,
-    "max_drawdown_fraction": 0.7885716569610026,
-    "max_drawdown_notional": 117970.85039495688,
-    "observation_count": 5113,
-    "peak_ns": 1710201599999000002,
-    "recovery_ns": 1763164799999000002,
-    "trough_ns": 1721606399999000002
+    "final_drawdown_notional": 82490.19594689677,
+    "longest_drawdown_ns": 76291200000000000,
+    "max_drawdown_fraction": 0.873718453071601,
+    "max_drawdown_notional": 129668.47111582401,
+    "observation_count": 3565,
+    "peak_ns": 1711929599999000002,
+    "recovery_ns": null,
+    "trough_ns": 1737244799999000002
   },
   "execution_mode": {
     "capacity": "fixed",
@@ -68,104 +68,104 @@
     "recorded_caveat": "every quantity here is simulated; treat as an internal consistency and plumbing check"
   },
   "ledger": {
-    "allocated_margin_total": 73132.26800000001,
-    "cash": -141742.30672127497,
-    "equity": 121173.77227528504,
-    "fees_paid": 4722.5048665,
-    "fill_count": 83,
-    "funding_cost": 27167.85905477358,
-    "funding_payment_count": 10251,
-    "gross_position_notional": 262916.07899656,
-    "gross_traded_notional": 9445009.733000001,
+    "allocated_margin_total": 43541.51966666666,
+    "cash": -86234.9079617211,
+    "equity": 65919.7073348389,
+    "fees_paid": 2587.8936715,
+    "fill_count": 61,
+    "funding_cost": 15084.7938902175,
+    "funding_payment_count": 7002,
+    "gross_position_notional": 152154.61529656,
+    "gross_traded_notional": 5175787.342999999,
     "initial_cash": 100000.0,
     "liquidation_count": 0,
     "liquidation_fees_paid": 0.0,
-    "net_pnl": 21173.77227528504,
-    "net_pnl_excluding_all_costs": 53064.13619655862,
-    "net_pnl_excluding_explicit_fees": 25896.277141785038,
-    "realized_pnl": 9544.861200000065,
+    "net_pnl": -34080.292665161105,
+    "net_pnl_excluding_all_costs": -16407.605103443602,
+    "net_pnl_excluding_explicit_fees": -31492.398993661103,
+    "realized_pnl": -37937.66139999995,
     "turnover_by_asset": {
-      "BTCUSDT-PERP": 3474261.077200001,
-      "ETHUSDT-PERP": 3151868.0185000002,
-      "SOLUSDT-PERP": 2818880.6373
+      "BTCUSDT-PERP": 1682617.6731000005,
+      "ETHUSDT-PERP": 1491622.4447,
+      "SOLUSDT-PERP": 2001547.2252000002
     },
-    "unrealized_pnl": 43519.274996559994
+    "unrealized_pnl": 21530.056296559997
   },
   "liquidations": 0,
   "mode": "PAPER / SIMULATED. No order was placed and no venue was contacted.",
-  "net_pnl_fraction_of_initial": 0.21173772275285038,
+  "net_pnl_fraction_of_initial": -0.34080292665161105,
   "per_regime": {
     "basis_blowout": {
-      "equity_change": 67939.98496337156,
-      "fees_paid": 196.65938140000026,
-      "fills": 4,
-      "funding_cost": 11096.475759851593,
+      "equity_change": 14039.806469666684,
+      "fees_paid": 92.3064267499999,
+      "fills": 2,
+      "funding_cost": 1080.5816950205744,
       "liquidations": 0,
-      "max_drawdown_notional": 113514.16111693198,
-      "net_pnl_attribution": 67939.98496337156,
-      "observation_count": 476,
+      "max_drawdown_notional": 108775.50644943077,
+      "net_pnl_attribution": 14039.806469666684,
+      "observation_count": 148,
       "regime": "basis_blowout",
-      "turnover_notional": 393318.7628000004
+      "turnover_notional": 184612.8535000002
     },
     "funding_extreme": {
-      "equity_change": -32822.13504157443,
+      "equity_change": -10552.870477582706,
       "fees_paid": 0.0,
       "fills": 0,
-      "funding_cost": 3797.3548877644457,
+      "funding_cost": 414.39511808045245,
       "liquidations": 0,
-      "max_drawdown_notional": 87118.72040527815,
-      "net_pnl_attribution": -32822.13504157443,
-      "observation_count": 120,
+      "max_drawdown_notional": 103762.78070187505,
+      "net_pnl_attribution": -10552.870477582706,
+      "observation_count": 28,
       "regime": "funding_extreme",
       "turnover_notional": 0.0
     },
     "liquidity_low": {
-      "equity_change": 1920.63935065642,
-      "fees_paid": 967.3059044000001,
-      "fills": 19,
-      "funding_cost": 1769.8622818678598,
+      "equity_change": -8586.670243952161,
+      "fees_paid": 768.1615419500001,
+      "fills": 21,
+      "funding_cost": 1232.1043475330607,
       "liquidations": 0,
-      "max_drawdown_notional": 114514.21278783547,
-      "net_pnl_attribution": 1920.63935065642,
-      "observation_count": 955,
+      "max_drawdown_notional": 129005.87635106724,
+      "net_pnl_attribution": -8586.670243952161,
+      "observation_count": 927,
       "regime": "liquidity_low",
-      "turnover_notional": 1934611.808800002
+      "turnover_notional": 1536323.0839
     },
     "normal": {
-      "equity_change": 33180.0728759116,
-      "fees_paid": 2779.5103200500002,
-      "fills": 47,
-      "funding_cost": 7015.572215917748,
+      "equity_change": -37744.5573908497,
+      "fees_paid": 1574.9257654,
+      "fills": 33,
+      "funding_cost": 7630.607299882427,
       "liquidations": 0,
-      "max_drawdown_notional": 117970.85039495688,
-      "net_pnl_attribution": 33180.0728759116,
-      "observation_count": 2727,
+      "max_drawdown_notional": 129668.47111582401,
+      "net_pnl_attribution": -37744.5573908497,
+      "observation_count": 1987,
       "regime": "normal",
-      "turnover_notional": 5559020.640099999
+      "turnover_notional": 3149851.5307999994
     },
     "unlabeled": {
-      "equity_change": 3979.5738631699933,
+      "equity_change": 2328.3856742411444,
       "fees_paid": 0.0,
       "fills": 0,
       "funding_cost": 0.0,
       "liquidations": 0,
-      "max_drawdown_notional": 55102.11768614955,
-      "net_pnl_attribution": 3979.5738631699933,
+      "max_drawdown_notional": 82490.19594689677,
+      "net_pnl_attribution": 2328.3856742411444,
       "observation_count": 2,
       "regime": "unlabeled",
       "turnover_notional": 0.0
     },
     "vol_high": {
-      "equity_change": -58539.95593225013,
-      "fees_paid": 706.4304566499999,
-      "fills": 11,
-      "funding_cost": 3488.593909371934,
+      "equity_change": 12037.16624499562,
+      "fees_paid": 44.85066240000003,
+      "fills": 2,
+      "funding_cost": 4727.105429700985,
       "liquidations": 0,
-      "max_drawdown_notional": 117106.1269906552,
-      "net_pnl_attribution": -58539.95593225013,
-      "observation_count": 832,
+      "max_drawdown_notional": 127385.42564987016,
+      "net_pnl_attribution": 12037.16624499562,
+      "observation_count": 472,
       "regime": "vol_high",
-      "turnover_notional": 1412860.9133000006
+      "turnover_notional": 89701.32480000006
     }
   },
   "policy_provisional": {
@@ -179,11 +179,11 @@
     "caveat": "one global schedule keyed off a single reference instrument; regimes are descriptive buckets, not independent experiments",
     "method": "causal expanding quantiles over trailing observations only; nearest-rank, no interpolation; minimum history 48 bars before any stress label may fire",
     "observation_counts": {
-      "basis_blowout": 119,
-      "funding_extreme": 30,
-      "liquidity_low": 238,
-      "normal": 715,
-      "vol_high": 208
+      "basis_blowout": 37,
+      "funding_extreme": 7,
+      "liquidity_low": 236,
+      "normal": 551,
+      "vol_high": 118
     },
     "priority": [
       "basis_blowout",
@@ -200,7 +200,7 @@
       "vol_high": "trailing 24-bar realized vol above the expanding 75th percentile"
     }
   },
-  "replay_sha256": "cd0ab25b5218314a03a3142dea29ce49fb369d9daccb2ed73292e6b3c1a908f7",
+  "replay_sha256": "2c654d6852457c0fae09aff80e34920eed73b0b71522da73be6dbbf96e8f8d2e",
   "reproducibility": {
     "input_manifest": {
       "path": "data/binance_vision_v1/fetch_manifest.json",

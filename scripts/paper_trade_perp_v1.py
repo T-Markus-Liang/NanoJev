@@ -20,6 +20,7 @@ daily bars (volume, trade count, taker-buy flow), and settled funding rates. The
 a CURRENT SNAPSHOT of history, not an as-of vintage.
 """
 import argparse
+import datetime as dt
 import json
 import math
 import pathlib
@@ -169,6 +170,22 @@ def load_aster(root, symbol):
     return marks, lasts, indexes, funding
 
 
+def day_window_ms(first_day, last_day):
+    """Inclusive UTC day window as ``[start_ms, end_ms)`` on bar open times.
+
+    BUGFIX (2026-09-19): ``--first-day``/``--last-day`` were previously written into the
+    receipt metadata but never applied, so every run silently used the WHOLE archive while
+    claiming a narrower window. A receipt that misstates its own sample is worse than no
+    receipt, so the window is now enforced here.
+    """
+    start = dt.datetime.strptime(first_day, "%Y-%m-%d").replace(tzinfo=dt.timezone.utc)
+    end = dt.datetime.strptime(last_day, "%Y-%m-%d").replace(tzinfo=dt.timezone.utc)
+    if end < start:
+        raise ValueError(f"last_day {last_day} precedes first_day {first_day}")
+    end_exclusive = end + dt.timedelta(days=1)
+    return int(start.timestamp() * 1000), int(end_exclusive.timestamp() * 1000)
+
+
 def load_source(source, archive_root, venue_root, symbol):
     if source == "binance":
         return (load_klines(archive_root, "markPriceKlines", symbol),
@@ -316,6 +333,8 @@ def main():
         marks, lasts, indexes, funding = load_source(args.source, args.archive_root,
                                                      args.venue_root, symbol)
         days = sorted(set(marks) & set(lasts) & set(indexes))
+        window_start_ms, window_end_ms = day_window_ms(args.first_day, args.last_day)
+        days = [day for day in days if window_start_ms <= day < window_end_ms]
         closes, taken = [], []
         quote_volume_logs, abs_funding, abs_basis = [], [], []
         cursor = 0

@@ -42,9 +42,10 @@ commit of that work.
 
 **User directive (2026-09-19): update progress and forward plan in the docs, and commit/sync important material to git.** This revision records the delivered work packages, the negative results, and the re-ordered plan below.
 
-### The single most important V2 result so far is a negative one
+### The most important V2 result so far: the measurement was broken, and fixing it changed the conclusion
 
-Over real data the same reference strategy produced **four mutually contradictory** results:
+Over real data the same reference strategy first appeared to produce **four mutually
+contradictory** results spanning **271,945 on 100,000 of capital — 2.7× the capital**:
 
 | Run | Data | Net PnL |
 |---|---|---:|
@@ -53,32 +54,49 @@ Over real data the same reference strategy produced **four mutually contradictor
 | C | Bybit, same period and instruments | −77,919.27 |
 | D | Aster, same period and instruments | +194,025.96 |
 
-The cross-venue spread is **271,945 on 100,000 of initial capital — 2.7× the capital** — while the
-venues' mark prices agree to within **1–2 basis points** (Aster vs Bybit mean absolute deviation
-0.0199%, Aster vs Binance 0.0122%). Runs A and B differ by three days and one rejected order;
-that single order flips the sign.
+**A first draft of this document concluded that the strategy was "chaotic with respect to its
+input". That conclusion is retracted.** Two tooling defects, not strategy behaviour, produced most
+of the spread:
 
-**Price-level differences are too small to explain the spread** — but that alone does not exclude
-data issues: time alignment, units, funding handling, volume accounting, and missing measurements
-have not all been audited to exclusion. What is established is that the located **candidate
-mechanisms** are in the execution path, and three amplifiers are identified and must be fixed
-before any financial number can carry meaning:
+1. **The receipts misstated their own sample.** `--first-day`/`--last-day` were recorded in the
+   receipt but never applied, so every run silently used the whole archive
+   (2023-01-01 … 2026-08-31) while claiming 2024-01-01 … 2026-08-31 — the venues were never
+   actually compared over the same period. It was caught by a reproduction check that could not
+   pass: a "half" of the sample returned results identical to the whole.
+2. **The participation cap was coupled to venue-reported volume** (`fill ≤ 10% × bar volume`;
+   Aster's median daily BTCUSDT bar volume is 9,959 vs Binance's 128,882), producing Aster's
+   partial fills.
 
-1. a **rejected or partially filled** order silently changes the trade size and timing, and the
-   strategy then compounds from a different path (position *level* self-heals because
-   `long`/`short` are target-position actions sized from the ledger's actual holdings — what does
-   not heal is the size and timing of each trade, hence fees, funding, and PnL);
-2. the **capacity policy interacts with venue-reported volume** (`fill ≤ 10% × bar volume`;
-   Aster's median daily BTCUSDT bar volume is 9,959 vs Binance's 128,882), so the same strategy
-   receives different position sizes per venue — this is the confirmed source of Aster's 27
-   partial fills;
-3. position sizing is **already path-independent** (quantity from initial cash and decision-day
-   close only, verified in code) — an earlier draft of this document incorrectly claimed
-   equity-compounding sizing; the record is corrected here and the property is locked by a test
-   under B0-B.
+With the window enforced and the cap decoupled, the same strategy over the same period gives:
 
-This is why the financial track still has **no** utility, edge, or profitability claim, and why
-Track B's first acceptance gate is now measurement integrity rather than model quality.
+| Venue | Decisions | Net PnL | Divergences |
+|---|---:|---:|---:|
+| Binance | 61 | −34,080.29 | 0 |
+| Bybit | 61 | −37,597.40 | 0 |
+| Aster | 61 | −38,044.85 | 0 |
+
+**The cross-venue spread collapses from 271,945 to 3,964 — about 4% of capital — with all three
+venues agreeing in sign and magnitude.** The capacity-coupling effect alone now measures **820**,
+not 279,000. See [B0 window defect V1](B0_WINDOW_DEFECT_V1.md).
+
+What survives, and is honest to say:
+
+- **The reference strategy loses money on all three venues** over this window under declared
+  provisional costs. It is a mechanical moving-average crossover, not a model, and it authorises
+  nothing.
+- A **≈4%-of-capital** spread is still too large to ignore, so no single-venue number is a result
+  yet — but it is bounded, interpretable dispersion rather than chaos. Characterising it is T5.
+- **Measurement integrity was not a formality before the science here: it was the finding.** Both
+  defects produced plausible numbers that had already been quoted in documents.
+
+Also verified: position sizing is **path-independent** (quantity from initial cash and
+decision-day close only), so an earlier draft's equity-compounding claim is withdrawn; and the
+replay is **insensitive to the seed** while `fill_probability = 1.0` and `reject_probability =
+0.0`, so a multi-seed sensitivity axis would be theatre — the meaningful axes are venue and
+period.
+
+The financial track still has **no** utility, edge, or profitability claim, and Track B's first
+acceptance gate remains measurement integrity rather than model quality.
 
 ## Community references and adoption plan
 

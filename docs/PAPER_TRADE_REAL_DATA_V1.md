@@ -2,6 +2,31 @@
 
 Status: **real venue data, simulated execution, complete and conserving — and explicitly NOT a result.**
 
+**⚠️ SUPERSEDED NUMBERS (2026-09-19).** Every net-PnL figure on this page was computed while
+`--first-day`/`--last-day` were recorded but **never applied**, so the runs silently used the whole
+archive (2023-01-01 … 2026-08-31) while claiming 2024-01-01 … 2026-08-31; Aster additionally ran
+with the participation cap coupled to venue-reported volume. With both defects fixed the same
+strategy over the same period returns **Binance −34,080.29 / Bybit −37,597.40 / Aster −38,044.85**
+— a spread of 3,964 (≈4% of capital) instead of 271,945, all three venues agreeing in sign. The
+narrative below is retained as the record of how the defects were found and is **not** the current
+state. See [B0 window defect V1](B0_WINDOW_DEFECT_V1.md).
+
+## Corrected B0 baselines
+
+Protocol-frozen (`research/paper_trade_b0_protocol.json`), window enforced, capacity decoupled,
+zero divergences at every venue:
+
+| Venue | Decisions | Net PnL | Receipt |
+|---|---:|---:|---|
+| Binance | 61 | −34,080.29 | `results/paper_trade_b0_baseline_binance_v1.json` |
+| Bybit | 61 | −37,597.40 | `results/paper_trade_b0_baseline_bybit_v1.json` |
+| Aster | 61 | −38,044.85 | `results/paper_trade_b0_baseline_aster_v1.json` |
+
+These are still **not results**: costs are declared provisional guesses, the strategy is a
+mechanical crossover with no claimed edge, and ≈4% of capital in cross-venue dispersion means no
+single-venue number may be quoted. Aster's data-rights conflict remains open (T7), so its figures
+belong in an appendix rather than a headline table.
+
 This page records the first end-to-end paper-trading run over real perpetual-contract data
 instead of a constructed path. Read the honesty section before quoting any number from it.
 

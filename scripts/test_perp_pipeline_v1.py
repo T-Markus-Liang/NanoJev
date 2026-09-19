@@ -22,7 +22,8 @@ from fetch_venue_perp_v1 import bybit_series, ms  # noqa: E402
 from financial_pit_v1 import validate_dataset, validate_record  # noqa: E402
 from paper_trade_perp_v1 import (  # noqa: E402
     REGIME_BASIS_BLOWOUT, REGIME_FUNDING_EXTREME, REGIME_LIQUIDITY_LOW, REGIME_NORMAL,
-    REGIME_VOL_HIGH, build_regime_windows, collapse_windows, find_divergences, quantile,
+    REGIME_VOL_HIGH, build_regime_windows, collapse_windows, day_window_ms, find_divergences,
+    quantile,
 )
 from paper_trade_protocol_v1 import (  # noqa: E402
     ProtocolError, input_manifest_sha256, load_protocol, sha256_file,
@@ -236,6 +237,41 @@ class FillDivergenceTest(unittest.TestCase):
 
     def test_empty_result_has_no_divergences(self):
         self.assertEqual(find_divergences({}), [])
+
+
+class DayWindowTest(unittest.TestCase):
+    """Regression test for the window defect: the receipt must not claim a sample it did not use."""
+
+    def test_window_is_half_open_and_covers_the_last_day(self):
+        start, end = day_window_ms("2024-01-01", "2026-08-31")
+        import datetime as dt
+        self.assertEqual(dt.datetime.fromtimestamp(start / 1000, dt.timezone.utc).date(),
+                         dt.date(2024, 1, 1))
+        # The last day must be INCLUDED, so the exclusive end is the next midnight.
+        self.assertEqual(dt.datetime.fromtimestamp(end / 1000, dt.timezone.utc).date(),
+                         dt.date(2026, 9, 1))
+
+    def test_bar_open_times_are_selected_by_the_window(self):
+        import datetime as dt
+        start, end = day_window_ms("2024-01-01", "2024-01-03")
+        def ms(y, m, d):
+            return int(dt.datetime(y, m, d, tzinfo=dt.timezone.utc).timestamp() * 1000)
+        inside = [ms(2024, 1, 1), ms(2024, 1, 2), ms(2024, 1, 3)]
+        outside = [ms(2023, 12, 31), ms(2024, 1, 4)]
+        for stamp in inside:
+            self.assertTrue(start <= stamp < end, stamp)
+        for stamp in outside:
+            self.assertFalse(start <= stamp < end, stamp)
+
+    def test_reversed_window_is_rejected(self):
+        with self.assertRaises(ValueError):
+            day_window_ms("2025-01-01", "2024-01-01")
+
+    def test_driver_applies_the_window_to_the_loaded_days(self):
+        # The defect was that the window was recorded but never applied.
+        source = (ROOT / "scripts" / "paper_trade_perp_v1.py").read_text()
+        self.assertIn("day_window_ms(args.first_day, args.last_day)", source)
+        self.assertIn("window_start_ms <= day < window_end_ms", source)
 
 
 class SizingIndependenceTest(unittest.TestCase):
