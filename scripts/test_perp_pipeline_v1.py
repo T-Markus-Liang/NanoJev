@@ -10,6 +10,7 @@ import math
 import pathlib
 import statistics
 import sys
+import tempfile
 import unittest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -21,7 +22,10 @@ from fetch_venue_perp_v1 import bybit_series, ms  # noqa: E402
 from financial_pit_v1 import validate_dataset, validate_record  # noqa: E402
 from paper_trade_perp_v1 import (  # noqa: E402
     REGIME_BASIS_BLOWOUT, REGIME_FUNDING_EXTREME, REGIME_LIQUIDITY_LOW, REGIME_NORMAL,
-    REGIME_VOL_HIGH, build_regime_windows, collapse_windows, quantile,
+    REGIME_VOL_HIGH, build_regime_windows, collapse_windows, find_divergences, quantile,
+)
+from paper_trade_protocol_v1 import (  # noqa: E402
+    ProtocolError, input_manifest_sha256, load_protocol, sha256_file,
 )
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -150,6 +154,102 @@ class PipeliningUnitTest(unittest.TestCase):
 
 
 @unittest.skipUnless(HAVE_ARCHIVE, "local Binance archive not fetched")
+class B0ProtocolTest(unittest.TestCase):
+    """T1 (B0-0): the frozen protocol must be verifiable and must refuse to be ignored."""
+
+    PROTOCOL = ROOT / "research" / "paper_trade_b0_protocol.json"
+
+    def test_frozen_protocol_loads_and_reports_its_digest(self):
+        protocol, evidence = load_protocol(self.PROTOCOL)
+        self.assertEqual(evidence["protocol_sha256"], sha256_file(self.PROTOCOL))
+        self.assertEqual(evidence["protocol_run_id"], protocol["run_id"])
+        # Every parameter the run depends on must be present and frozen.
+        for name in ("fast", "slow"):
+            self.assertIn(name, protocol["strategy"])
+        for name in ("seed", "sizing", "capacity", "on_divergence", "participation_fraction",
+                     "reference_notional_volume"):
+            self.assertIn(name, protocol["policy"])
+
+    def test_digest_mismatch_is_rejected(self):
+        with self.assertRaises(ProtocolError):
+            load_protocol(self.PROTOCOL, expected="0" * 64)
+
+    def test_matching_digest_is_accepted(self):
+        _, evidence = load_protocol(self.PROTOCOL, expected=sha256_file(self.PROTOCOL))
+        self.assertTrue(evidence["protocol_verified_against_expected"])
+
+    def test_unknown_schema_and_missing_fields_are_rejected(self):
+        original = json.loads(self.PROTOCOL.read_text())
+        with tempfile.TemporaryDirectory() as tmp:
+            for mutate in ("schema", "missing"):
+                candidate = json.loads(json.dumps(original))
+                if mutate == "schema":
+                    candidate["schema_version"] = "some-other-schema"
+                else:
+                    del candidate["policy"]["seed"]
+                path = pathlib.Path(tmp) / f"{mutate}.json"
+                path.write_text(json.dumps(candidate))
+                with self.assertRaises(ProtocolError, msg=mutate):
+                    load_protocol(path)
+
+    def test_input_manifest_digest_is_computed_from_the_declared_path(self):
+        protocol, _ = load_protocol(self.PROTOCOL)
+        manifest = input_manifest_sha256(protocol, "binance", ROOT)
+        declared = ROOT / protocol["input_manifests"]["binance"]
+        if not declared.exists():
+            self.skipTest("binance fetch manifest not present")
+        self.assertEqual(manifest["sha256"], sha256_file(declared))
+
+    def test_unknown_source_has_no_manifest(self):
+        protocol, _ = load_protocol(self.PROTOCOL)
+        with self.assertRaises(ProtocolError):
+            input_manifest_sha256(protocol, "no-such-venue", ROOT)
+
+
+class FillDivergenceTest(unittest.TestCase):
+    """T2 (B0-A): a fill that differs from the request must be reported, never assumed."""
+
+    @staticmethod
+    def _order(status, requested, filled):
+        return {"decision_id": "d1", "asset_id": "BTCUSDT-PERP",
+                "requested_quantity": requested, "filled_quantity": filled,
+                "status_history": [{"status": "submitted"}, {"status": status}]}
+
+    def test_fully_filled_order_is_not_a_divergence(self):
+        result = {"orders": [self._order("filled", 10.0, 10.0)]}
+        self.assertEqual(find_divergences(result), [])
+
+    def test_rejected_order_is_a_divergence(self):
+        result = {"orders": [self._order("rejected", 10.0, 0.0)]}
+        divergences = find_divergences(result)
+        self.assertEqual(len(divergences), 1)
+        self.assertEqual(divergences[0]["terminal_status"], "rejected")
+        self.assertEqual(divergences[0]["filled_quantity"], 0.0)
+
+    def test_partial_fill_is_a_divergence_even_when_status_is_filled(self):
+        result = {"orders": [self._order("filled", 10.0, 4.0)]}
+        self.assertEqual(len(find_divergences(result)), 1)
+
+    def test_expired_order_is_a_divergence(self):
+        result = {"orders": [self._order("expired", 10.0, 3.0)]}
+        self.assertEqual(len(find_divergences(result)), 1)
+
+    def test_empty_result_has_no_divergences(self):
+        self.assertEqual(find_divergences({}), [])
+
+
+class SizingIndependenceTest(unittest.TestCase):
+    """T3 (B0-B): sizing must depend only on initial cash and the decision-day close."""
+
+    def test_sizing_formula_uses_initial_cash_not_equity(self):
+        source = (ROOT / "scripts" / "paper_trade_perp_v1.py").read_text()
+        # The quantity must be built from initial_cash; an equity term would make the size
+        # depend on the PnL path and destroy measurability.
+        self.assertIn("args.initial_cash", source)
+        for forbidden in ("ledger.get(\"equity\")", "equity /", "* equity"):
+            self.assertNotIn(forbidden, source)
+
+
 class RealArchiveTest(unittest.TestCase):
     def test_loader_returns_daily_bars_with_required_fields(self):
         marks = load_klines(ARCHIVE, "markPriceKlines", "BTCUSDT")

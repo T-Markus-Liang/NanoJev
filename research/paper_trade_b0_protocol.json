@@ -23,6 +23,8 @@
     "sizing": "fixed_notional",
     "capacity": "fixed",
     "on_divergence": "report",
+    "participation_fraction": 0.1,
+    "reference_notional_volume": 1000000.0,
     "note": "declared provisional guesses pending R1; the archive has no order book, so bid/ask equal the mark close and all spread cost is one declared parameter"
   },
   "input_manifests": {

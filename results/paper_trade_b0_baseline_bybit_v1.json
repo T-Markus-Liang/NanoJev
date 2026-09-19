@@ -1,0 +1,222 @@
+{
+  "conservation": true,
+  "counts": {
+    "abstain_decisions": 0,
+    "decision_closes": true,
+    "decisions": 83,
+    "expired": 0,
+    "filled": 81,
+    "fills": 81,
+    "funding_payments": 9123,
+    "liquidations": 0,
+    "no_order_decisions": 0,
+    "no_trade_decisions": 0,
+    "ordered_decisions": 81,
+    "orders": 81,
+    "partially_filled_orders": 0,
+    "rejected": 0,
+    "rejected_decisions": 2,
+    "risk_blocked_decisions": 0,
+    "unfilled_orders": 0
+  },
+  "curve_summary": {
+    "first_equity": 102864.85764399997,
+    "last_equity": 22084.619683689572,
+    "max_margin_ratio": 0.14197294235390973,
+    "min_liquidation_distance_fraction": 0.8580270576460903,
+    "point_count": 5102
+  },
+  "data": {
+    "first_day": "2024-01-01",
+    "last_day": "2026-08-31",
+    "point_in_time": "current snapshot of history, NOT an as-of vintage",
+    "source": "Bybit public v5 market API (api.bybit.nl mirror) USDT-M perpetual daily bars",
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT"
+    ],
+    "venue": "bybit_linear"
+  },
+  "divergence_count": 0,
+  "divergence_error": false,
+  "divergences": [],
+  "drawdown": {
+    "final_drawdown_notional": 80780.2379603104,
+    "longest_drawdown_ns": 112147200000000000,
+    "max_drawdown_fraction": 0.9422097195524853,
+    "max_drawdown_notional": 96920.26867255954,
+    "observation_count": 5102,
+    "peak_ns": 1677715199999000002,
+    "recovery_ns": null,
+    "trough_ns": 1737244799999000002
+  },
+  "execution_mode": {
+    "capacity": "fixed",
+    "on_divergence": "report",
+    "participation_fraction": 0.1,
+    "reference_notional_volume": 1000000.0,
+    "sizing": "fixed_notional"
+  },
+  "honesty": {
+    "equity_curve": "this driver reports ledger totals; the equity-curve, drawdown and per-regime breakdown analytics live in financial_backtest_v1.py and are not yet wired to real data",
+    "fill_convention": "a decision taken at the close of bar d fills at bar d's mark price because that is the newest available observation; this is the conventional decide-at-close convention and is mildly optimistic",
+    "funding_convention": "each funding boundary charges the most recent SETTLED rate known at that instant; strictly the boundary should use the rate that settles at it. Declared approximation pending R1.",
+    "no_profitability_claim": true,
+    "not_a_return": "costs are provisional guesses and the price convention is a gross mark move; this figure is a simulation artefact, not a return",
+    "not_live_ready": "no fill authenticity, queue position, capacity or venue-parameter fidelity is established",
+    "recorded_caveat": "every quantity here is simulated; treat as an internal consistency and plumbing check"
+  },
+  "ledger": {
+    "allocated_margin_total": 10738.187466666666,
+    "cash": -19689.27391631043,
+    "equity": 22084.619683689572,
+    "fees_paid": 2323.72377475,
+    "fill_count": 81,
+    "funding_cost": 15478.718041560242,
+    "funding_payment_count": 9123,
+    "gross_position_notional": 41773.8936,
+    "gross_traded_notional": 4647447.549500001,
+    "initial_cash": 100000.0,
+    "liquidation_count": 0,
+    "liquidation_fees_paid": 0.0,
+    "net_pnl": -77915.38031631043,
+    "net_pnl_excluding_all_costs": -60112.938500000186,
+    "net_pnl_excluding_explicit_fees": -75591.65654156043,
+    "realized_pnl": -69672.26969999999,
+    "turnover_by_asset": {
+      "BTCUSDT-PERP": 1482783.8673000003,
+      "ETHUSDT-PERP": 1903104.2015999996,
+      "SOLUSDT-PERP": 1261559.4806
+    },
+    "unrealized_pnl": 9559.3312
+  },
+  "liquidations": 0,
+  "mode": "PAPER / SIMULATED. No order was placed and no venue was contacted.",
+  "net_pnl_fraction_of_initial": -0.7791538031631043,
+  "per_regime": {
+    "basis_blowout": {
+      "equity_change": 48016.291127016535,
+      "fees_paid": 94.39521955000004,
+      "fills": 2,
+      "funding_cost": 6152.527473433551,
+      "liquidations": 0,
+      "max_drawdown_notional": 91904.66184814405,
+      "net_pnl_attribution": 48016.291127016535,
+      "observation_count": 388,
+      "regime": "basis_blowout",
+      "turnover_notional": 188790.43909999996
+    },
+    "funding_extreme": {
+      "equity_change": 34258.79397933772,
+      "fees_paid": 0.0,
+      "fills": 0,
+      "funding_cost": 3422.000490662393,
+      "liquidations": 0,
+      "max_drawdown_notional": 77137.44595660438,
+      "net_pnl_attribution": 34258.79397933772,
+      "observation_count": 164,
+      "regime": "funding_extreme",
+      "turnover_notional": 0.0
+    },
+    "liquidity_low": {
+      "equity_change": -5309.296239788309,
+      "fees_paid": 455.75254174999935,
+      "fills": 18,
+      "funding_cost": 1049.3409080382876,
+      "liquidations": 0,
+      "max_drawdown_notional": 95123.41454909908,
+      "net_pnl_attribution": -5309.296239788309,
+      "observation_count": 744,
+      "regime": "liquidity_low",
+      "turnover_notional": 911505.0834999995
+    },
+    "normal": {
+      "equity_change": -49930.94443283402,
+      "fees_paid": 1234.5167943000008,
+      "fills": 47,
+      "funding_cost": 3674.994358533761,
+      "liquidations": 0,
+      "max_drawdown_notional": 96920.26867255954,
+      "net_pnl_attribution": -49930.94443283402,
+      "observation_count": 2963,
+      "regime": "normal",
+      "turnover_notional": 2469033.5886000013
+    },
+    "unlabeled": {
+      "equity_change": 207.32559999999648,
+      "fees_paid": 0.0,
+      "fills": 0,
+      "funding_cost": 0.0,
+      "liquidations": 0,
+      "max_drawdown_notional": 80780.2379603104,
+      "net_pnl_attribution": 207.32559999999648,
+      "observation_count": 2,
+      "regime": "unlabeled",
+      "turnover_notional": 0.0
+    },
+    "vol_high": {
+      "equity_change": -108022.40799404238,
+      "fees_paid": 430.14486314999976,
+      "fills": 11,
+      "funding_cost": 1179.8548108922482,
+      "liquidations": 0,
+      "max_drawdown_notional": 89668.8749955151,
+      "net_pnl_attribution": -108022.40799404238,
+      "observation_count": 840,
+      "regime": "vol_high",
+      "turnover_notional": 860289.7262999996
+    }
+  },
+  "policy_provisional": {
+    "fee_bps": 5.0,
+    "half_spread_bps": 1.0,
+    "leverage": 3.0,
+    "margin_mode": "cross",
+    "note": "declared provisional guesses pending R1; the archive has no order book, so bid/ask equal the mark close and all spread cost is one declared parameter"
+  },
+  "regime_definition": {
+    "caveat": "one global schedule keyed off a single reference instrument; regimes are descriptive buckets, not independent experiments",
+    "method": "causal expanding quantiles over trailing observations only; nearest-rank, no interpolation; minimum history 48 bars before any stress label may fire",
+    "observation_counts": {
+      "basis_blowout": 97,
+      "funding_extreme": 41,
+      "liquidity_low": 189,
+      "normal": 797,
+      "vol_high": 210
+    },
+    "priority": [
+      "basis_blowout",
+      "funding_extreme",
+      "vol_high",
+      "liquidity_low"
+    ],
+    "reference_instrument": "BTCUSDT",
+    "rules": {
+      "basis_blowout": "|mark-index basis bps| above the expanding 90th percentile",
+      "funding_extreme": "|settled funding rate| above the expanding 90th percentile",
+      "liquidity_low": "log quote volume below the expanding 25th percentile",
+      "normal": "none of the above fired",
+      "vol_high": "trailing 24-bar realized vol above the expanding 75th percentile"
+    }
+  },
+  "replay_sha256": "4cddc7d74ad9cbf8c23138a94a77ca436e578e8385d17f767c3a326063e02bd7",
+  "reproducibility": {
+    "input_manifest": {
+      "path": "data/venue_perp_v1/bybit/fetch_manifest.json",
+      "sha256": "81ec014ffb85b77caa443847764b8308922bb06b70cb23747b54c510a10eadbb"
+    },
+    "note": "no receipt may be quoted as a result without protocol_sha256; the protocol is authoritative for every run parameter when one is supplied",
+    "protocol_path": "research/paper_trade_b0_protocol.json",
+    "protocol_run_id": "b0-baseline-2026-09-19",
+    "protocol_sha256": "9d03a4c0a479d746ca655ff1c0492e5da3755f836ad16804057374917838e5bd",
+    "seed": 20260919
+  },
+  "schema_version": "nanojev-paper-trade-perp-v1",
+  "strategy": {
+    "declaration": "mechanical execution-path exerciser; NOT a claim of edge, predictive value or profitability",
+    "fast": 20,
+    "name": "reference_ma_crossover",
+    "slow": 60
+  }
+}

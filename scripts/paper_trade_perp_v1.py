@@ -33,11 +33,19 @@ from financial_backtest_v1 import (  # noqa: E402
     RegimeWindow, _drawdown_metrics, _per_regime, regime_at,
 )
 from financial_simulator_v1 import (  # noqa: E402
-    AccountPolicy, ContractSpec, Decision, ExecutionPolicy, FeePolicy, FillPolicy,
-    LatencyPolicy, MarkPolicy, PerpPolicy, Quote, SlippagePolicy, SpreadPolicy, replay,
+    AccountPolicy, CapacityPolicy, ContractSpec, Decision, ExecutionPolicy, FeePolicy,
+    FillPolicy, LatencyPolicy, MarkPolicy, PerpPolicy, Quote, SlippagePolicy, SpreadPolicy,
+    replay,
+)
+from paper_trade_protocol_v1 import (  # noqa: E402
+    ProtocolError, input_manifest_sha256, load_protocol,
 )
 
 MS = 1_000_000
+# Declared constant quote volume used in --capacity fixed mode, so the capacity cap
+# (participation_fraction x volume) is identical across venues. Without this, Aster's ~13x
+# smaller reported bar volume silently produces partial fills the other venues never see.
+FIXED_REFERENCE_VOLUME = 1_000_000.0
 REGIME_NORMAL = "normal"
 REGIME_VOL_HIGH = "vol_high"
 REGIME_LIQUIDITY_LOW = "liquidity_low"
@@ -172,6 +180,36 @@ def load_source(source, archive_root, venue_root, symbol):
     return load_bybit(venue_root, symbol)
 
 
+def find_divergences(result):
+    """Post-replay order-outcome audit (task T2, B0-A).
+
+    A divergence is any order whose terminal status is not ``filled`` or whose filled quantity
+    differs from the requested quantity. Such an order silently changes the trade size and
+    timing, and therefore fees, funding, and the PnL path.
+
+    Note on semantics: ``long``/``short`` are target-position actions, so the simulator sizes
+    each order as the delta from the LEDGER's actual position — position *level* self-heals
+    after a divergence. That is exactly why the divergence must still be reported: the path
+    does not heal even though the position does.
+    """
+    divergences = []
+    for order in result.get("orders", []):
+        history = order.get("status_history") or []
+        terminal = history[-1].get("status") if history else None
+        requested = order.get("requested_quantity") or 0.0
+        filled = order.get("filled_quantity") or 0.0
+        if terminal != "filled" or abs(filled - requested) > 1e-9:
+            divergences.append({
+                "decision_id": order.get("decision_id"),
+                "asset_id": order.get("asset_id"),
+                "terminal_status": terminal,
+                "requested_quantity": requested,
+                "filled_quantity": filled,
+                "reason_codes": order.get("selection_reason_codes"),
+            })
+    return divergences
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -195,7 +233,60 @@ def main():
     parser.add_argument("--initial-cash", type=float, default=100_000.0)
     parser.add_argument("--contract", action="append", default=None,
                         help="SYMBOL:tick:lot:mult:maxlev:mmr (repeatable)")
+    parser.add_argument("--protocol", type=pathlib.Path,
+                        default=pathlib.Path("research/paper_trade_b0_protocol.json"),
+                        help="frozen B0 protocol; pass an empty string to run without one")
+    parser.add_argument("--protocol-sha256", default=None,
+                        help="expected frozen digest; default is the <protocol>.sha256 sidecar")
+    parser.add_argument("--on-divergence", choices=("error", "report"), default="error",
+                        help="error: fail the run when an order outcome diverges from the "
+                             "request; report: record divergences and continue")
+    parser.add_argument("--sizing", choices=("fixed_notional",), default="fixed_notional",
+                        help="fixed_notional: quantity from INITIAL cash and the decision-day "
+                             "close only, never from path equity")
+    parser.add_argument("--capacity", choices=("fixed", "venue_volume", "off"), default="fixed",
+                        help="fixed: one declared reference volume for every venue (cross-venue "
+                             "comparable); venue_volume: capacity from reported bar volume; "
+                             "off: no participation cap")
     args = parser.parse_args()
+
+    protocol, protocol_evidence, input_manifest = None, None, None
+    # An empty --protocol means "run without a frozen protocol". pathlib normalises "" to ".",
+    # so both spellings must be treated as absent rather than as a directory path.
+    wants_protocol = args.protocol is not None and args.protocol != pathlib.Path(".")
+    if wants_protocol:
+        try:
+            protocol, protocol_evidence = load_protocol(args.protocol, args.protocol_sha256)
+            input_manifest = input_manifest_sha256(protocol, args.source, pathlib.Path("."))
+        except (ProtocolError, OSError) as error:
+            parser.error(str(error))
+        # A frozen protocol, not CLI defaults, is authoritative for every run parameter.
+        policy = protocol["policy"]
+        args.symbols = ",".join(protocol["symbols"])
+        args.contract = protocol["contracts"]
+        args.first_day, args.last_day = protocol["first_day"], protocol["last_day"]
+        args.fast, args.slow = protocol["strategy"]["fast"], protocol["strategy"]["slow"]
+        args.half_spread_bps = policy["half_spread_bps"]
+        args.fee_bps = policy["fee_bps"]
+        args.leverage = policy["leverage"]
+        args.margin_mode = policy["margin_mode"]
+        args.initial_cash = policy["initial_cash"]
+        args.sizing = policy["sizing"]
+        args.capacity = policy["capacity"]
+        args.on_divergence = policy["on_divergence"]
+        seed = policy["seed"]
+        ttl_ns = int(policy["order_time_to_live_days"]) * 86_400_000_000_000
+        participation = policy["participation_fraction"]
+        reference_notional = policy["reference_notional_volume"]
+    else:
+        seed = 20260919
+        ttl_ns = 2 * 86_400_000_000_000
+        participation = 0.1
+        reference_notional = FIXED_REFERENCE_VOLUME
+
+    capacity_policy = CapacityPolicy(max_participation_fraction=participation)
+    if args.capacity == "off":
+        capacity_policy = CapacityPolicy(max_participation_fraction=1.0)
 
     symbols = [s.strip() for s in args.symbols.split(",") if s.strip()]
     specs = dict(parse_spec(item) for item in (args.contract or [
@@ -208,10 +299,10 @@ def main():
         slippage=SlippagePolicy(fixed_bps=0.0),
         # Daily bars: an order must remain alive until the next observation, so the
         # 1-second default TTL cannot be used. Two days is a declared convention.
-        fills=FillPolicy(fill_probability=1.0,
-                         order_time_to_live_ns=2 * 86_400_000_000_000),
+        fills=FillPolicy(fill_probability=1.0, order_time_to_live_ns=ttl_ns),
         latency=LatencyPolicy(), marks=MarkPolicy(),
         account=AccountPolicy(require_sufficient_cash=True),
+        capacity=capacity_policy,
         perps=PerpPolicy(allow_short=True, default_leverage=args.leverage,
                          margin_mode=args.margin_mode,
                          funding_rate_source="quote_funding_rate_field"),
@@ -239,7 +330,9 @@ def main():
                 cursor += 1
             quotes.append(Quote(asset_id=f"{symbol}-PERP", venue="binance_um",
                                 event_ns=close_time * MS + 1, available_ns=close_time * MS + 2,
-                                bid=mark, ask=mark, volume=lasts[day]["volume"],
+                                bid=mark, ask=mark,
+                                volume=(reference_notional if args.capacity == "fixed"
+                                        else lasts[day]["volume"]),
                                 source_id=f"{args.source}_mark_price_klines",
                                 version="perp-1d-mark-price-close-v1",
                                 mark_price=mark, last_price=lasts[day]["close"],
@@ -286,7 +379,7 @@ def main():
     if not quotes:
         raise SystemExit("no real quotes were built; check the archive root and range")
     asof_ns = max(q.event_ns for q in quotes) + 1
-    result = replay(quotes, decisions, asof_ns=asof_ns, policy=policy, seed=20260919,
+    result = replay(quotes, decisions, asof_ns=asof_ns, policy=policy, seed=seed,
                     initial_cash=args.initial_cash, contracts=contracts, replay_id="paper-perp-v1",
                     trace_perp_curve=True)
     curve = result.get("perp_curve") or []
@@ -295,9 +388,27 @@ def main():
 
     counts = result["counts"]
     ledger = result.get("ledger", {})
+    divergences = find_divergences(result)
+    divergence_error = bool(divergences and args.on_divergence == "error")
     receipt = {
         "schema_version": "nanojev-paper-trade-perp-v1",
         "mode": "PAPER / SIMULATED. No order was placed and no venue was contacted.",
+        "reproducibility": {
+            "protocol_sha256": (protocol_evidence or {}).get("protocol_sha256"),
+            "protocol_path": (protocol_evidence or {}).get("protocol_path"),
+            "protocol_run_id": (protocol_evidence or {}).get("protocol_run_id"),
+            "input_manifest": input_manifest,
+            "seed": seed,
+            "note": "no receipt may be quoted as a result without protocol_sha256; the protocol "
+                    "is authoritative for every run parameter when one is supplied",
+        },
+        "execution_mode": {"sizing": args.sizing, "capacity": args.capacity,
+                           "on_divergence": args.on_divergence,
+                           "participation_fraction": participation,
+                           "reference_notional_volume": reference_notional},
+        "divergences": divergences,
+        "divergence_count": len(divergences),
+        "divergence_error": divergence_error,
         "data": {"source": ("Binance public archive" if args.source == "binance"
                             else "Bybit public v5 market API (api.bybit.nl mirror)")
                          + " USDT-M perpetual daily bars",
@@ -378,7 +489,15 @@ def main():
     print(json.dumps({"output": str(args.output), "quotes": len(quotes),
                       "decisions": len(decisions), "counts": counts,
                       "net_pnl": receipt["ledger"]["net_pnl"],
-                      "liquidations": receipt["liquidations"]}, sort_keys=True, default=str))
+                      "liquidations": receipt["liquidations"],
+                      "divergence_count": len(divergences),
+                      "headline_allowed": False}, sort_keys=True, default=str))
+    if divergence_error:
+        # The receipt is written first so the failure stays inspectable; the run then fails
+        # loudly rather than letting a diverged path be mistaken for a measurement.
+        print("FillDivergenceError: " + json.dumps(divergences[:3], sort_keys=True, default=str),
+              file=sys.stderr)
+        return 2
     return 0
 
 

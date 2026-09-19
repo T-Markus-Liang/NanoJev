@@ -515,10 +515,10 @@ exact files it touches and the command that proves it done.
 
 | # | Task | Track | Effort | Depends on | Status |
 |---|---|---|---|---|---|
-| T1 | B0-0 frozen replay baseline | B | S | — | 🟡 protocol file created; driver wiring pending |
-| T2 | B0-A order/fill divergence state machine | B | M | T1 | ⬜ |
-| T3 | B0-B path-independent sizing | B | S | T2 | ⬜ |
-| T4 | B0-C capacity decoupling | B | S | T2 | ⬜ |
+| T1 | B0-0 frozen replay baseline | B | S | — | ✅ done (protocol + hashes verified) |
+| T2 | B0-A order/fill divergence state machine | B | M | T1 | ✅ done (audit catches 27 on Aster venue_volume, exit 2) |
+| T3 | B0-B path-independent sizing | B | S | T2 | ✅ done (locked by test) |
+| T4 | B0-C capacity decoupling | B | S | T2 | ✅ done (removes the +194k Aster artefact) |
 | T5 | B0-D PnL attribution + mandatory sensitivity report | B | M | T2–T4 | ⬜ |
 | T6 | R1 decision package (feature set, 71 params, numeraire) | B | M | T5 evidence | ⬜ |
 | T7 | Aster licence resolution | B | S | owner action | ⬜ |
