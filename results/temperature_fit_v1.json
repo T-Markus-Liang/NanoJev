@@ -1511,7 +1511,99 @@
           "delta": 0.0
         }
       },
-      "logit_recovery_floor_hits": 0
+      "logit_recovery_floor_hits": 0,
+      "state_clustered_bootstrap_of_delta": {
+        "samples": 2000,
+        "seed": 17,
+        "clusters": 16,
+        "unit": "state_id",
+        "deltas": {
+          "accuracy": {
+            "mean_delta": 0.0,
+            "ci95_low": 0.0,
+            "ci95_high": 0.0,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "nll": {
+            "mean_delta": -0.00013168062935018857,
+            "ci95_low": -0.009302406262331333,
+            "ci95_high": 0.009755902683200908,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "brier_scalar_bernoulli": {
+            "mean_delta": 0.00048057907486556223,
+            "ci95_low": -0.0029775970264790466,
+            "ci95_high": 0.004164895821863354,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "ece_fixed_width_10": {
+            "mean_delta": 0.0010044130686437693,
+            "ci95_low": -0.03802989987671029,
+            "ci95_high": 0.033761692858388426,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "ece_adaptive_width_10": {
+            "mean_delta": -0.00201578970751143,
+            "ci95_low": -0.010530576435121475,
+            "ci95_high": 0.005319252982008033,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "mce_fixed_width_10": {
+            "mean_delta": 0.005726544547961863,
+            "ci95_low": -0.12171311577161148,
+            "ci95_high": 0.12829328909516252,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "answer_rate_at_0.5": {
+            "mean_delta": 0.0,
+            "ci95_low": 0.0,
+            "ci95_high": 0.0,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "accuracy_on_answered_at_0.5": {
+            "mean_delta": 0.0,
+            "ci95_low": 0.0,
+            "ci95_high": 0.0,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "answer_rate_at_0.7": {
+            "mean_delta": 0.0475234375,
+            "ci95_low": 0.0,
+            "ci95_high": 0.125,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "accuracy_on_answered_at_0.7": {
+            "mean_delta": -0.055296120725850766,
+            "ci95_low": -0.1251374633431085,
+            "ci95_high": 0.0,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "answer_rate_at_0.9": {
+            "mean_delta": 0.0,
+            "ci95_low": 0.0,
+            "ci95_high": 0.0,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "accuracy_on_answered_at_0.9": {
+            "mean_delta": 0.0,
+            "ci95_low": 0.0,
+            "ci95_high": 0.0,
+            "excludes_zero": false,
+            "resamples": 2000
+          }
+        }
+      }
     },
     "test": {
       "temperature_1.0": {
@@ -1883,7 +1975,99 @@
           "delta": -0.01225490196078427
         }
       },
-      "logit_recovery_floor_hits": 0
+      "logit_recovery_floor_hits": 0,
+      "state_clustered_bootstrap_of_delta": {
+        "samples": 2000,
+        "seed": 17,
+        "clusters": 44,
+        "unit": "state_id",
+        "deltas": {
+          "accuracy": {
+            "mean_delta": 0.0,
+            "ci95_low": 0.0,
+            "ci95_high": 0.0,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "nll": {
+            "mean_delta": 0.005445338564078107,
+            "ci95_low": -0.00962677514088151,
+            "ci95_high": 0.026250258613434583,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "brier_scalar_bernoulli": {
+            "mean_delta": 0.0009785097345937392,
+            "ci95_low": -0.0020261666355483356,
+            "ci95_high": 0.004324999876042678,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "ece_fixed_width_10": {
+            "mean_delta": -0.020087555708591193,
+            "ci95_low": -0.05959168295508291,
+            "ci95_high": 0.01834205883311702,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "ece_adaptive_width_10": {
+            "mean_delta": 2.3299981390168124e-05,
+            "ci95_low": -0.013039567103524784,
+            "ci95_high": 0.012715314993560739,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "mce_fixed_width_10": {
+            "mean_delta": 0.03319578573104139,
+            "ci95_low": -0.17950967981414212,
+            "ci95_high": 0.2972464900676687,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "answer_rate_at_0.5": {
+            "mean_delta": 0.0,
+            "ci95_low": 0.0,
+            "ci95_high": 0.0,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "accuracy_on_answered_at_0.5": {
+            "mean_delta": 0.0,
+            "ci95_low": 0.0,
+            "ci95_high": 0.0,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "answer_rate_at_0.7": {
+            "mean_delta": 0.06242045454545455,
+            "ci95_low": 0.022727272727272818,
+            "ci95_high": 0.10227272727272729,
+            "excludes_zero": true,
+            "resamples": 2000
+          },
+          "accuracy_on_answered_at_0.7": {
+            "mean_delta": -0.036675057685144806,
+            "ci95_low": -0.06898936169012862,
+            "ci95_high": -0.009548658569021293,
+            "excludes_zero": true,
+            "resamples": 2000
+          },
+          "answer_rate_at_0.9": {
+            "mean_delta": 0.023375,
+            "ci95_low": 0.0,
+            "ci95_high": 0.05681818181818182,
+            "excludes_zero": false,
+            "resamples": 2000
+          },
+          "accuracy_on_answered_at_0.9": {
+            "mean_delta": -0.013561274619880534,
+            "ci95_low": -0.045458118925100016,
+            "ci95_high": 0.0025210084033613356,
+            "excludes_zero": false,
+            "resamples": 2000
+          }
+        }
+      }
     }
   },
   "service_path_verification": {
