@@ -65,7 +65,7 @@
 
 用户提供的 Jev 生态更新已按证据等级分类并写入 roadmap 的「Ecosystem update」节，**只作为任务与观察，不作为能力或证据**：
 
-- **已核实存在**（GitHub API 快照，2026-09-19）：fast-jev-compaction 3,729⭐（其 README 表明 token 为字符估算、无 tokenizer；所述 156k→62k 数字**不在 README 中**，未核实）、json-render 16,681⭐、fx 3,064⭐、ai-python 184⭐、cline/plugins 23⭐、kev 287⭐（MacBook 可训练，直接相关）、jevinci 19⭐、postgres-Jev 0⭐、jev_stock 6⭐、上游 TianyuCodings/NanoJev **626⭐**（仓库创建于 2026-09-17）。
+- **已核实存在**（GitHub API 快照，2026-09-19）：fast-jev-compaction 3,729⭐（其 README 表明 token 为字符估算、无 tokenizer；所述 156k→62k 数字**不在 README 中**，未核实）、json-render 16,681⭐、fx 3,064⭐、ai-python 184⭐、cline/plugins 23⭐、kev 287⭐（MacBook 可训练，直接相关）、**bespokelabsai/nimble 147⭐（开放配方+Apache-2.0 权重，对比式数据策展——直接对应 Track A 零删除瓶颈，已有完整 pinned 评审）**、jevinci 19⭐、postgres-Jev 0⭐、jev_stock 6⭐、上游 TianyuCodings/NanoJev **626⭐**（仓库创建于 2026-09-17）。
 - **未找到/未核实**：Atomic、Jevinik、Monad 实盘 bot、DuckDB 扩展、成本案例（$0.09/$2.17/$0.19）、Decider-2B、System-One 4B、Jev 兼容公开 API、「HF 模型 Jev 化」库。
 - **吸收的路线变更**：新增 **A5 过滤 vs 重建对照实验臂**；Phase 0 新增**成本原生报告**与**外部声明证据账本**两条门禁；「判断即代码原语」三面（provider resolver / 数据库行谓词 / 评估算子）登记为 **C-track 候选**（不承诺）；社区实盘 bot 仅作安全需求来源；Mac 可训练小模型采用**五级验收阶梯**（能加载≠能训练）。
 

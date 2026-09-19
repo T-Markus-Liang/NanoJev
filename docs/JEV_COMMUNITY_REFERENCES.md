@@ -144,6 +144,45 @@ Two cheap, zero-risk evaluation paths exist on this machine today: the WebGPU de
 
 Current status (2026-09-19): the WebGPU demo page is confirmed reachable and usable in this Mac's browser (zero install). The timing verification (step 1), the direct-logits ablation spec (step 2), and the prefix-sharing design input (step 3) all remain open.
 
+## Track A recipe and serving: Bespoke Nimble (Qwen3.5-9B LoRA, contrastive data curation)
+
+Added 2026-09-19 from the owner's ecosystem sweep; verified the same day against the repository README, the Hugging Face model card, and the repository tree.
+
+### What it actually does (verified)
+
+- Repo [bespokelabsai/nimble](https://github.com/bespokelabsai/nimble) (147 stars, created 2026-09-18); HF adapter [bespokelabs/Bespoke-Nimble-9B](https://huggingface.co/bespokelabs/Bespoke-Nimble-9B) (~165 MiB, **Apache-2.0**, requires the Qwen3.5-9B base checkpoint). The GitHub repo ships **no LICENSE file** (GitHub API detects none) — verify before vendoring any code.
+- Recipe is fully published: LoRA rank 16 on Qwen3.5-9B, cross-entropy over the allowed answer tokens only, lr 5e-5, effective batch 8, seed 17, one epoch, BF16, 2,048-token prompt cap; tuning on L40S, final fit and eval on H100. The contrastive curation pipeline is open source under `nimble/datasets/`.
+- **Contrastive data curation**: change one fact so the correct answer flips; the negative examples force discrimination, and calibration is implicit rather than fitted.
+- 2,676 synthetic training examples (856 Choice / 888 Noul / 932 Score) across 10 subjects; the 324-example holdout comes from **only six source families** as 162 near-duplicate pairs; labels are model-checked with **no human review** (their own disclosure).
+- Hard reference labels are **not derived from Jev**; saved Jev probabilities are kept only for optional future soft-target distillation.
+- Serving: on Mac, `ParallelScorer` processes the shared context once and scores all fields in parallel; the CUDA scorer scores each field with the full prompt.
+
+### Measured claims (theirs, not ours)
+
+- Reference-label agreement on the 324 holdout: Jev 93.21%, Nimble 90.12%, Qwen3.8-27B 84.88%, Qwen3.5-9B base 66.36%. This is **agreement with synthetic reference labels**, not accuracy against ground truth, and they say so.
+- Latency: H100 median 106 ms (120 examples); **M5 Pro 64GB median 444 ms, p95 981 ms**; Jev 1.13.0 API median 246.7 ms.
+- Their own limits, stated: probabilities are normalized to sum to 1 across supplied answers and "0.9 does not mean the answer is right 90% of the time"; enum fields cap at **1–26 choices**; text only; prompts over 2,048 tokens are rejected; fields cannot depend on each other; "don't expect a lot of generalization" from 2,676 curated examples.
+
+### Why it matters here
+
+- **Contrastive curation is a published recipe for exactly our Track A blocker.** Our gate checkpoint proposes zero drops because it cannot discriminate distractor context from relevant evidence (Catalog Choice 100% → 54.17%). "Change one fact so the answer flips" is precisely the training signal for that discrimination, with open code we can study.
+- It is the **second token-readout architecture** in the reference set (26-choice cap, like reflex's direct-logits) versus our trained heads (255-candidate contract) — more evidence that the head-based design is the differentiator to defend with measurements.
+- It is a rare ecosystem example of **honest reporting**: denominators (292/324), pair structure, source-family count, and narrowness are all stated. Cite it as the model for our own receipts.
+
+### Adoption boundary
+
+- 9B parameters, 2,048-token prompts, and 444 ms median on an M5 Pro cannot serve Track A long-context gate loads; the 26-choice cap violates our 255-candidate contract; normalized probabilities are not calibration evidence.
+- Their evaluation is agreement with synthetic, model-checked, unreviewed labels from six source families — a narrow test by their own statement. Any comparison on our frozen cohorts must be run by us, under our protocol.
+- Repo code has no license file; only the HF adapter is Apache-2.0. Study the recipe; do not vendor code.
+
+### Deliverables and gates (nimble)
+
+1. Read-only recipe study: `docs/NIMBLE_TRAINING.md` and `nimble/datasets/contrastive_data.py` — extract the contrastive generation procedure and map it onto our gate-training data problem. No vendoring.
+2. A **contrastive-curated gate-training set proposal** for Track A: pre-registered protocol, fresh splits, and a frozen comparison against the current zero-drop checkpoint. Requires review before execution; must not reuse the existing relevance test/OOD.
+3. Optional, low priority (behind B0 and the A2 batching baseline): an MLX read-only local run on this Mac with a latency/memory receipt next to the V1.0 baseline table.
+
+Current status: source review complete (README, HF card, repo tree verified 2026-09-19); nothing installed or run locally.
+
 ## Execution order
 
 The already-frozen three-seed relevance experiment is now trained and reported in [Context relevance V1](CONTEXT_RELEVANCE_V1.md) without changing its splits, losses, or threshold; the mixed outcome (one seed regressing local-maze, one seed false-dropping at 0.99) means no candidate is promoted and no further winner-search on that test/OOD is permitted. Next, prioritize financial data and simulation foundations (handoff packages P1–P3) while extending A4 tool-history shadow tests in parallel.

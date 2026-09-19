@@ -102,6 +102,7 @@ A broader ecosystem sweep was provided by the project owner. Every item is class
 | [vercel-labs/ai-python](https://github.com/vercel-labs/ai-python) | 184 | Official Python SDK whose evaluation op supports Jev |
 | [cline/plugins](https://github.com/cline/plugins) | 23 | Official curated plugins; includes `jev-browser` |
 | [jaredpalmer/kev](https://github.com/jaredpalmer/kev) | 287 | Minimal Jev-like model on Qwen2.5-0.5B, trainable and runnable on a MacBook — relevant to the Mac-training ladder below |
+| [bespokelabsai/nimble](https://github.com/bespokelabsai/nimble) | 147 | Open recipe + open weights (Apache-2.0 adapter): Qwen3.5-9B LoRA with **contrastive data curation** (change one fact so the answer flips). Directly relevant to our Track A zero-drops blocker; full review in the [pinned references](JEV_COMMUNITY_REFERENCES.md) |
 | [achimala/jevinci](https://github.com/achimala/jevinci) | 19 | Creative: parallel per-pixel color decisions; confidence maps to brush width |
 | [luiginotmario/postgres-Jev](https://github.com/luiginotmario/postgres-Jev) | 0 | Natural-language PostgreSQL predicates (`WHERE jev(...)`-style) |
 | [sosopop/jev_stock](https://github.com/sosopop/jev_stock) | 6 | Experimental short-term stock-direction forecasting with a first-trading-day backtest script |
@@ -560,9 +561,11 @@ to the [handoff work packages](CURRENT_PROGRESS_AND_HANDOFF.md).
    **zero** removals, so token savings are exactly zero and every Track A gate is unmet. The
    measured reason is on record: Catalog Choice accuracy collapses 100% → 54.17% under irrelevant
    archived context, so abstaining is currently the correct behavior. Paths: a newly
-   pre-registered relevance protocol with fresh confirmation splits, a laya-encoder fine-tune
-   (E1 step 2 zero-shot probe first), or the reflex direct-logits ablation. Do **not** re-tune
-   the 0.99 threshold on the existing test/OOD to manufacture a winner.
+   pre-registered relevance protocol with fresh confirmation splits; **contrastive-curated gate
+   training data following the nimble recipe** (change one fact so the answer flips — the exact
+   discrimination our gate lacks; recipe and code are open); a laya-encoder fine-tune (E1 step 2
+   zero-shot probe first); or the reflex direct-logits ablation. Do **not** re-tune the 0.99
+   threshold on the existing test/OOD to manufacture a winner.
 10. **[A5, new] Filter-versus-rebuild paired comparison** on frozen tool-history fixtures (see
     the ecosystem section). This answers the community's central controversy with evidence and
     directly exercises A4's corpus.
