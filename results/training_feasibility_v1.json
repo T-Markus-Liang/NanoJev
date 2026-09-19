@@ -1,0 +1,342 @@
+{
+  "schema_version": "nanojev-training-feasibility-v1",
+  "created_utc": "2026-09-19T14:42:05Z",
+  "reverified_utc": "2026-09-19T14:44:57Z",
+  "companion_document": "docs/DOMAIN_ADAPTATION_RUNBOOK_V1.md",
+  "scope": "Read-only verification executed to support a retraining runbook for the decision model. Every entry below is either (a) measured/observed by a command recorded here, or (b) explicitly labelled as an estimate. No training run was performed, no optimizer step was taken, no checkpoint or corpus was written, and no network call was made.",
+  "explicit_non_claims": [
+    "No model was trained, fine-tuned, distilled or otherwise modified.",
+    "No checkpoint file was created, overwritten or touched; the production checkpoint directory was only read.",
+    "No corpus was materialized; both corpus builders were invoked in self-test/no-write modes only.",
+    "No accuracy, abstention, calibration, token-saving or readiness claim is made about any retrained model, because none exists.",
+    "The wall-clock figures under wall_clock_projection are arithmetic projections from measured components, not an observed full run.",
+    "The LoRA/BF16 recipe in docs/GATE_CONTRASTIVE_PROTOCOL_V1.md section 7 was NOT executed and was NOT verified as runnable on this machine; the probe shows it is refused.",
+    "No network access was used (web tools were not called; corpus builders and trainer entry points ran with HF_HUB_OFFLINE=1 / local-only checkpoint loading)."
+  ],
+
+  "machine": {
+    "uname": "Darwin markusdeMacBook-Pro-2.local 25.5.0 Darwin Kernel Version 25.5.0: Mon Apr 27 20:41:12 PDT 2026; root:xnu-12377.121.6~2/RELEASE_ARM64_T6050 arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "machine_arch": "arm64",
+    "soc": "Apple T6050 (M-series Max class; docs/APPLE_SILICON.md documents an M5 Max 128 GB for the same checkpoint)",
+    "physical_memory_bytes": 137438953472,
+    "physical_memory_gib": 128.0,
+    "cpu_count": 18,
+    "torch_num_threads": 6,
+    "workspace_disk_free_bytes_at_probe": 656326041600,
+    "workspace_disk_free_gib_at_probe": 611.25,
+    "python": "3.14.6 (/Users/markus/Documents/NanoJev/.venv/bin/python)"
+  },
+
+  "runtime": {
+    "torch": "2.14.0",
+    "transformers": "5.17.0",
+    "safetensors": "0.8.0",
+    "cuda_available": false,
+    "mps_built": true,
+    "mps_available": true,
+    "effective_training_device": "mps",
+    "effective_precision": "fp32"
+  },
+
+  "hashed_artifacts": {
+    "checkpoints/local_atomic_seed17/variants/local_atomic_seed17/config.json": "3a6b014a77eaa3a79155a9c0c84ce2c005b5a5c66fdf88445067657ac9def176",
+    "scripts/train_pipeline_decisions.py": "d1942528411bf9ad6d762ef1660f7bac3003cb8f9191f160c4cc07ec2746dd0a",
+    "scripts/build_gate_contrastive_v1.py": "6c3c0f8ec1ea3d987ed921fc53620d5cc86f08ea7a2b0aa78d7ace4284db91d6",
+    "scripts/build_engineering_corpus_v1.py": "17b90ad406e35cf2a0f8c84e28d1c53784661784e8d4157d34c05e32eaedbcaa",
+    "docs/GATE_CONTRASTIVE_PROTOCOL_V1.md": "af3d745953ec84370b9b47fd5d53460e8c0400d2043881193fac6346bab4ee0f",
+    "/tmp/nj_probe/probe_step.py": "12ebd2d936ba0c44c6afd5509f0f10261ec51f03904d505d1de493a59a1f15f0",
+    "/tmp/nj_probe/probe_eval.py": "de660470733fb1d78a7622150565ca1bf0d1451aba316d3e6088df0662495a26",
+    "note": "The two probe scripts live in /tmp (ephemeral) because this task owns only docs/DOMAIN_ADAPTATION_RUNBOOK_V1.md and results/training_feasibility_v1.json. Their hash is recorded so the measurements can be attributed; the runbook carries a self-contained re-measurement snippet."
+  },
+
+  "checkpoint_config_fields_found": {
+    "path": "checkpoints/local_atomic_seed17/variants/local_atomic_seed17/config.json",
+    "schema_version": "openjev-decision-pipeline-v1",
+    "model": "Qwen/Qwen3-0.6B",
+    "resolved_model_revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+    "init_checkpoint": "/home/rwang/openjev_codex_20260917/runs/v3_teacher_coords_multi_seed17",
+    "init_checkpoint_local_status": "absent on this machine (Linux path); the warm start must instead be the local checkpoint directory itself",
+    "input": "data/local_maze_v1",
+    "input_local_status": "absent; byte-identical copy present at dataset/games_v4/data/local_maze_v1 (all five sha256 verified below)",
+    "output_dir": "runs/local_atomic_seed17",
+    "objective": "gold_distribution",
+    "loss": "ce",
+    "reward_samples": 32,
+    "gradient_checkpointing": true,
+    "set_head": "attention",
+    "steps": 300,
+    "head_steps": 0,
+    "batch_questions": 16,
+    "microbatch_questions": 4,
+    "max_microbatch_tokens": 16384,
+    "eval_every": 50,
+    "max_length": 2048,
+    "seed": 17,
+    "backbone_lr": 2e-05,
+    "head_lr": 0.0002,
+    "head_warmup_lr": 0.001,
+    "precision": "bf16",
+    "disable_native_triton": true,
+    "parameter_storage": "float32",
+    "forward_autocast": "bfloat16",
+    "parameter_count": 596250498,
+    "gpu_original_training": "NVIDIA A100-SXM4-80GB",
+    "train_questions": 576,
+    "all_train_questions": 576,
+    "schema_counts": {
+      "records": 300,
+      "questions_by_split": {"train": 576, "dev": 192, "calibration": 192, "test": 176, "ood": 64}
+    },
+    "selection": "minimum dev target CE; held-out test first evaluated after training and checkpoint selection",
+    "checkpoint_size": {
+      "best.safetensors_bytes": 2385039280,
+      "directory_bytes_human": "2.2G"
+    }
+  },
+
+  "corpus_identity_verified": {
+    "method": "sha256 of each local split file compared against config.json data_sha256",
+    "dataset/games_v4/data/local_maze_v1": {
+      "train.jsonl": {"local": "502f2840f3e15ffac76554f35ef6c2e41c6e25f58f77b5ee3a2f1196cba0c41a", "matches_checkpoint_config": true},
+      "dev.jsonl": {"local": "bd7f9d4402112770f571210677e329e8673a38caa6bb798b744ee47bc793b9a5", "matches_checkpoint_config": true},
+      "calibration.jsonl": {"local": "94a233e71eaf3460c939bb0b4b147a0a951931001097070ea7ac8b4b78f39ace", "matches_checkpoint_config": true},
+      "test.jsonl": {"local": "be7783c395715f9fa2aae7c793c4e5b7c4b1dfe3fcb0880544b577e85b8f3b10", "matches_checkpoint_config": true},
+      "ood.jsonl": {"local": "e6772998a189880c780b6408c0e348c77324a28204e390767dec54f475d61f4e", "matches_checkpoint_config": true}
+    },
+    "conclusion": "The exact corpus the production checkpoint was trained on is present locally under dataset/games_v4/data/local_maze_v1; the checkpoint config's 'input' path is stale."
+  },
+
+  "corpora_validated_by_validate_only": [
+    {
+      "input": "dataset/games_v4/data/local_maze_v1",
+      "exit_code": 0,
+      "result": {"records": 300, "questions_by_split": {"train": 576, "dev": 192, "calibration": 192, "test": 176, "ood": 64}, "eligible_by_split_objective": {"calibration/gold_distribution": 192, "dev/gold_distribution": 192, "ood/gold_distribution": 64, "test/gold_distribution": 176, "train/gold_distribution": 576}}
+    },
+    {
+      "input": "data/context_relevance_oracle_v1_seed20260919",
+      "exit_code": 0,
+      "result": {"records": 2400, "questions_by_split": {"train": 1200, "dev": 240, "calibration": 240, "test": 360, "ood": 360}, "eligible_by_split_objective": {"calibration/gold_distribution": 240, "dev/gold_distribution": 240, "ood/gold_distribution": 360, "test/gold_distribution": 360, "train/gold_distribution": 1200}}
+    },
+    {
+      "input": "data/workflows_v2",
+      "exit_code": 0,
+      "result": {"records": 1008, "questions_by_split": {"train": 1680, "dev": 264, "calibration": 264, "test": 528, "ood": 288}, "eligible_by_split_objective": {"calibration/gold_distribution": 264, "dev/gold_distribution": 264, "ood/gold_distribution": 288, "test/gold_distribution": 528, "train/gold_distribution": 1680}}
+    },
+    {
+      "input": "data/workflow_challenge_v2",
+      "exit_code": 0,
+      "result": {"records": 1088, "questions_by_split": {"test": 2112, "ood": 1152}, "eligible_by_split_objective": {"ood/gold_distribution": 1152, "test/gold_distribution": 2112}},
+      "note": "Evaluation-only cohort (manifest purpose: evaluation_only, derived from data/workflows_v2 test/ood). It has no train/dev/calibration split, so it can never satisfy the trainer's nonempty train/dev/test requirement; it is an evaluation input only."
+    }
+  ],
+
+  "maze_corpus_label_census": {
+    "question_types": {"boolean": 576},
+    "gold_label_kind": {"deterministic_truth": 576},
+    "observed_outcome_targets": 0,
+    "consequence": "--objective observed_outcome yields an empty train list on the maze corpus (verified by preflight abort), and --loss paired_brier_pg requires observed_outcome; paired_brier_pg is therefore unusable on this corpus independently of the MPS refusal."
+  },
+
+  "device_objective_probe": {
+    "probe": "training_runtime(torch, device_arg, precision_arg, loss, disable_native_triton) called directly from scripts/train_pipeline_decisions.py",
+    "cases": [
+      {"device_arg": "mps", "precision_arg": "fp32", "loss": "ce", "disable_native_triton": false, "accepted": true, "resolved": ["mps", "fp32"]},
+      {"device_arg": "mps", "precision_arg": "fp32", "loss": "brier", "disable_native_triton": false, "accepted": true, "resolved": ["mps", "fp32"]},
+      {"device_arg": "mps", "precision_arg": "fp32", "loss": "paired_brier_pg", "disable_native_triton": false, "accepted": false, "error": "ValueError: MPS sampled policy-gradient training is not validated; use CPU or CUDA"},
+      {"device_arg": "mps", "precision_arg": "bf16", "loss": "ce", "disable_native_triton": false, "accepted": false, "error": "ValueError: MPS path currently fixed to FP32; use --precision fp32 or auto"},
+      {"device_arg": "cpu", "precision_arg": "fp32", "loss": "ce", "disable_native_triton": false, "accepted": true, "resolved": ["cpu", "fp32"]},
+      {"device_arg": "cpu", "precision_arg": "auto", "loss": "ce", "disable_native_triton": false, "accepted": true, "resolved": ["cpu", "fp32"]},
+      {"device_arg": "auto", "precision_arg": "auto", "loss": "ce", "disable_native_triton": false, "accepted": true, "resolved": ["mps", "fp32"]},
+      {"device_arg": "cuda", "precision_arg": "bf16", "loss": "ce", "disable_native_triton": false, "accepted": false, "error": "ValueError: CUDA device requested but no CUDA is available in this environment"},
+      {"device_arg": "mps", "precision_arg": "fp32", "loss": "ce", "disable_native_triton": true, "accepted": false, "error": "ValueError: --disable-native-triton applies only to CUDA"}
+    ],
+    "conclusions": [
+      "MPS + fp32 + ce is accepted; this is the only accelerated training path on this machine.",
+      "MPS refuses bf16, so the protocol section 7 'BF16' clause is not executable here without changing runtime code.",
+      "paired_brier_pg is refused on MPS (matches the prior note and roadmap T14) and needs observed_outcome targets the maze corpus does not have.",
+      "The A100 recipe's --disable-native-triton flag must be omitted on MPS or the run aborts before loading anything."
+    ]
+  },
+
+  "memory": {
+    "measured": {
+      "host_peak_rss_bytes_probe_step": 5262278656,
+      "host_peak_rss_bytes_probe_eval": 5261869056,
+      "mps_current_allocated_bytes_after_step": 2400208640,
+      "mps_driver_allocated_bytes_after_step": 2830827520,
+      "method": "resource.getrusage(RUSAGE_SELF).ru_maxrss plus torch.mps.current_allocated_memory()/driver_allocated_memory() after a forward+backward on the loaded checkpoint",
+      "caveat": "The probe never called optimizer.step(), so AdamW moment buffers were never allocated; the measured RSS is a lower bound for a real run."
+    },
+    "estimated_peak_for_a_real_run": {
+      "parameter_storage_float32_bytes": 2385001992,
+      "gradient_bytes": 2385001992,
+      "adamw_exp_avg_and_exp_avg_sq_bytes": 4770003984,
+      "estimated_peak_total_bytes": 9540007968,
+      "estimated_peak_total_gib": 8.9,
+      "headroom_vs_physical_memory": "about 14x under the 128 GiB unified memory ceiling",
+      "label": "ESTIMATE (analytic), not measured: no optimizer step was taken."
+    },
+    "activation_note": "Maze candidate paths are short (measured max 184 tokens/question at the 2048 cap, 1 candidate path per question), and each microbatch packs 4 complete questions, so activations are small; the dominant terms are parameters, gradients and AdamW state."
+  },
+
+  "wall_clock_measured": {
+    "model_load_seconds": 6.334620540961623,
+    "tokenize_maze_300_records_1200_questions_max_length_2048_seconds": 0.2276107908692211,
+    "optimizer_step_maze_16_questions_4_microbatches_seconds": {
+      "gradient_checkpointing_true": [2.130490917013958, 1.6964940410107374],
+      "gradient_checkpointing_false": [1.4071118750143796, 1.4097005410585552],
+      "note": "forward + backward + CE loss only; optimizer.step() deliberately not called; no state saved"
+    },
+    "evaluation_pass_seconds": {
+      "dev_192_questions": 4.279376749880612,
+      "calibration_192_questions": 4.256591291865334,
+      "test_176_questions": 3.8448198328260332,
+      "ood_64_questions": 1.582060624845326,
+      "note": "evaluate_pipeline(), inference only, microbatch 4, fp32 on MPS"
+    },
+    "packing_measured": {
+      "train_questions_576": 576,
+      "candidate_paths_in_train": 576,
+      "max_path_tokens": 184,
+      "max_group_paths_per_microbatch": 4,
+      "groups_for_full_train": 144,
+      "conclusion": "--max-microbatch-tokens 16384 is never binding on the maze train split; the largest single complete question needs 184 padded tokens"
+    },
+    "existing_mps_run_cross_check": {
+      "source": "runs/context_relevance_oracle_v1_seed17/summary.json, config.json",
+      "recipe": "68 optimizer steps, batch 16, microbatch 4, max_length 512, no gradient checkpointing, 3 dev evaluations of 240 questions, init checkpoint = the local production checkpoint",
+      "training_seconds": [298.72879624995403, 271.2844851659611, 290.14815316721797],
+      "seeds": [17, 18, 19],
+      "conclusion": "All three local context-relevance runs trained on mps/fp32 and completed in ~4.5-5 minutes each, corroborating the probe timings."
+    }
+  },
+
+  "wall_clock_projection": {
+    "label": "PROJECTION from measured components; no full training run was performed",
+    "recipe": "the frozen maze recipe: 300 steps, head_steps 0, batch 16, microbatch 4, max_microbatch_tokens 16384, eval_every 50, max_length 2048",
+    "components": {
+      "optimizer_steps_300_at_measured_per_step": {
+        "gradient_checkpointing_false": {"low_s": 423, "high_s": 423},
+        "gradient_checkpointing_true": {"low_s": 509, "high_s": 639}
+      },
+      "initial_dev_evaluation_s": 4.28,
+      "six_periodic_dev_evaluations_s": 25.7,
+      "final_dev_calibration_test_ood_evaluations_s": 13.96,
+      "load_and_tokenize_s": 6.6,
+      "best_safetensors_saves": "up to 7 x 2.385 GB ~= 16.7 GB of disk writes (initial + one per dev improvement); seconds to tens of seconds depending on the volume"
+    },
+    "total_projected": {
+      "gradient_checkpointing_false": "~8 minutes (about 7.9 min) plus save I/O",
+      "gradient_checkpointing_true": "~9.5-11.5 minutes plus save I/O",
+      "conservative_ceiling_under_contention": "25 minutes per seed"
+    },
+    "sensitivity_to_a_larger_engineering_corpus": {
+      "label": "ESTIMATE, not measured on that corpus",
+      "basis": "per-step cost scales with padded candidate tokens per step; the maze step processes about 4 questions x 1 path x ~184 tokens per microbatch",
+      "example": "if engineering questions average 4 candidate paths of 512 tokens, a step processes roughly 2.8x the maze tokens, implying ~4 s/step without gradient checkpointing and ~20 minutes for 300 steps",
+      "requirement": "measure one real step on the assembled corpus before committing to the full run; the runbook's preflight step says how"
+    }
+  },
+
+  "workspace_churn_observed": {
+    "note": "This workspace is shared with concurrently running sibling workstreams and its file listing changed while the runbook was being written. The training-critical inputs were re-checked after the change and are unmodified.",
+    "observed_utc": "2026-09-19T14:44:57Z",
+    "removed_during_session": [
+      "scripts/build_engineering_corpus_v1.py — observed earlier at sha256 17b90ad406e35cf2a0f8c84e28d1c53784661784e8d4157d34c05e32eaedbcaa, exercising a failing --self-test; on re-check the file no longer exists, no 'engineering' file exists under scripts/, and git status no longer lists it. Its owning workstream withdrew or relocated it."
+    ],
+    "appeared_during_session": [
+      "scripts/safe_dedup_v1.py",
+      "scripts/test_safe_dedup_v1.py",
+      "results/safe_dedup_v1.json"
+    ],
+    "reverified_unchanged_after_churn": {
+      "dataset/games_v4/data/local_maze_v1": "all five split files still sha256-match the checkpoint config",
+      "checkpoints/local_atomic_seed17/variants/local_atomic_seed17/config.json": "3a6b014a77eaa3a79155a9c0c84ce2c005b5a5c66fdf88445067657ac9def176",
+      "checkpoints/local_atomic_seed17/variants/local_atomic_seed17/best.safetensors": {"bytes": 2385039280},
+      "scripts/build_gate_contrastive_v1.py": "--self-test still status ok, 12 pairs, 24 items"
+    },
+    "consequence": "Nothing in this record depends on the withdrawn engineering builder remaining at that path; the runbook states the requirement as a role ('an engineering corpus builder that passes --self-test and --check') and keeps the dated observation as evidence that the data prerequisite was unmet at authoring time."
+  },
+
+  "data_prerequisite_findings": {
+    "engineering_corpus_builder": {
+      "path": "scripts/build_engineering_corpus_v1.py",
+      "tracked": false,
+      "sha256": "17b90ad406e35cf2a0f8c84e28d1c53784661784e8d4157d34c05e32eaedbcaa",
+      "self_test": {
+        "exit_code": 1,
+        "status": "failed",
+        "pairs": 0,
+        "items": 0,
+        "source_groups": 0,
+        "wrote_output": false,
+        "training_performed": false,
+        "errors": ["ValueError: lifecycle-measurement-first#1: the one-fact change to 'invariant_verified' does not flip 'next_phase' ('measurement' -> 'measurement')"]
+      },
+      "corpus_directory_exists": false,
+      "subsequent_status": "REMOVED from the working tree during this session; re-checked at 2026-09-19T14:44:57Z and the file is gone (see workspace_churn_observed). The self-test failure below is a dated observation, not a statement about the current tree.",
+      "declared_output": "research/engineering_judgment_corpus_v1/{train,dev,calibration,test}.jsonl + manifest.json",
+      "declared_composition": "26 hand-authored source groups expanded into one-fact contrastive pairs",
+      "self_declared_authorization": {"corpus_role": "training_data_prerequisite_only", "training_authorized_by_this_corpus": false, "labels_human_reviewed": false},
+      "emitted_item_schema": "nanojev-engineering-judgment-item-v1: item_id, family, feature, question_type, state_id, qid, request{states:[...]}, expected{...}, provenance{...}, contrastive{...}",
+      "trainer_row_schema_required": "id, state_id, family_id, split, state, questions, and gold or gold_probs (+ gold_probs_kind) -- see validate_training_row in scripts/train_pipeline_decisions.py",
+      "gap": "No adapter from the item schema to the trainer row schema exists in the repository (verified by grep and by reading both writers)."
+    },
+    "gate_contrastive_builder": {
+      "path": "scripts/build_gate_contrastive_v1.py",
+      "self_test": {"exit_code": 0, "status": "ok", "pairs": 12, "items": 24, "splits": {"train": 6, "dev": 2, "calibration": 2, "test": 2}, "directions": ["keep_to_remove", "remove_to_keep"], "mechanisms": ["entity_binding", "field_binding", "supersession"], "wrote_output": false, "training_performed": false},
+      "declared_output": "contrastive_manifest.json + pairs/<pair_id>/{keep,remove}/{request.json,sidecar.json,expected.json}",
+      "gap": "Also not the trainer row schema; the same missing adapter applies. Default cohort train split is 6 pairs = 12 items/questions, fewer than the frozen --batch-questions 16, so the default cohort cannot even satisfy the trainer's 'fewer eligible training questions than one effective batch' check at the frozen batch size (arithmetic from the verified split geometry)."
+    },
+    "closest_existing_trainer_shaped_corpora": [
+      "dataset/games_v4/data/local_maze_v1 (in-domain; the production training corpus)",
+      "data/context_relevance_oracle_v1_seed20260919 (self-authored relevance curriculum; already trained on in runs/context_relevance_oracle_v1_seed17..19, whose decision was DO NOT PROMOTE)",
+      "data/workflows_v2 (self-authored engineering-workflow tasks, train/dev/calibration/test/ood; its test/ood is copied into the evaluation-only data/workflow_challenge_v2)"
+    ],
+    "leakage_note": "data/workflow_challenge_v2/manifest.json declares purpose evaluation_only and is built from data/workflows_v2 test/ood, so only the workflows_v2 train/dev/calibration splits could ever be training candidates, and only with explicit review approval (docs/GATE_CONTRASTIVE_PROTOCOL_V1.md section 5 forbids fitting on the workflow V2 test/OOD cohort)."
+  },
+
+  "protocol_recipe_findings": {
+    "protocol": "docs/GATE_CONTRASTIVE_PROTOCOL_V1.md (sha256 af3d745953ec84370b9b47fd5d53460e8c0400d2043881193fac6346bab4ee0f)",
+    "section_7_recipe": "LoRA rank 16, learning rate 5e-5, effective batch 8, seed 17 plus matched 18 and 19, one epoch, BF16, cross-entropy over allowed answer tokens only, 2048-token prompt cap",
+    "executability_on_this_machine": {
+      "lora_rank_16": "NOT EXECUTABLE AS WRITTEN: no LoRA/peft implementation exists in scripts/ or requirements-toy.txt (verified by grep); the only trainer fine-tunes the full 596M-parameter backbone with AdamW",
+      "bf16": "NOT EXECUTABLE AS WRITTEN: resolve_runtime refuses bf16 on MPS",
+      "effective_batch_8": "not the runtime default (batch_questions 16); it is a flag, so it is reachable",
+      "one_epoch": "the runtime has no epoch concept; it runs a fixed --steps count",
+      "consequence": "Executing the retraining requires either a CUDA/bf16 host, or new reviewed code (LoRA and/or MPS bf16), or an explicit protocol amendment to the existing full-backbone fp32 recipe. docs/GATE_CONTRASTIVE_PROTOCOL_V1.md section 1.1 requires any post-review change to become a new protocol version that is re-reviewed."
+    },
+    "review_gate_status": "docs/GATE_CONTRASTIVE_PROTOCOL_V1.md section 8 review has NOT been recorded in this session; no independent PASS was found, and this runbook does not supply one."
+  },
+
+  "commands_run": [
+    {"command": ".venv/bin/python scripts/train_pipeline_decisions.py --help", "exit_code": 0, "note": "full flag surface captured; no --dry-run flag exists, only --validate-only and --self-check"},
+    {"command": ".venv/bin/python scripts/train_pipeline_decisions.py --self-check", "exit_code": 0, "stdout": "{\"schema_checks\": \"passed\", \"complete_question_budget\": \"passed\", \"numerical_checks\": \"passed: grouped soft CE gradient, padding mask, question-mean accumulation and Boolean derivative\"}"},
+    {"command": ".venv/bin/python scripts/train_pipeline_decisions.py --input dataset/games_v4/data/local_maze_v1 --validate-only", "exit_code": 0},
+    {"command": ".venv/bin/python scripts/train_pipeline_decisions.py --input data/context_relevance_oracle_v1_seed20260919 --validate-only", "exit_code": 0},
+    {"command": ".venv/bin/python scripts/train_pipeline_decisions.py --input data/workflows_v2 --validate-only", "exit_code": 0},
+    {"command": ".venv/bin/python scripts/train_pipeline_decisions.py --input data/workflow_challenge_v2 --validate-only", "exit_code": 0},
+    {"command": ".venv/bin/python scripts/train_pipeline_decisions.py --input dataset/games_v4/data/local_maze_v1 --init-checkpoint checkpoints/local_atomic_seed17/variants/local_atomic_seed17 --output-dir /tmp/nj_probe/preflight_out --objective observed_outcome --loss ce --device mps --precision fp32 --steps 300 --head-steps 0 --batch-questions 16 --microbatch-questions 4 --max-microbatch-tokens 16384 --max-length 2048 --seed 17 --eval-every 50", "exit_code": 1, "expected_failure": true, "note": "Deliberate preflight abort AFTER loading the warm-start checkpoint on MPS and tokenizing the corpus. ValueError: Fewer eligible training questions than one effective batch (the maze corpus has zero observed_outcome targets). Output directory verified empty afterwards: no checkpoint written."},
+    {"command": ".venv/bin/python scripts/train_pipeline_decisions.py --input dataset/games_v4/data/local_maze_v1 --init-checkpoint checkpoints/local_atomic_seed17/variants/local_atomic_seed17 --output-dir /tmp/nj_probe/preflight_out2 --objective gold_distribution --loss ce --device mps --precision fp32 --steps 300 --head-steps 0 --batch-questions 16 --microbatch-questions 4 --max-microbatch-tokens 1 --max-length 2048 --seed 17", "exit_code": 1, "expected_failure": true, "note": "Deliberate packing-budget fail-fast. ValueError: Complete question ...:clear_east requires 177 padded tokens, over budget 1. Reached after model load and tokenization, before any file write. Output directory verified empty."},
+    {"command": ".venv/bin/python scripts/train_pipeline_decisions.py --input dataset/games_v4/data/local_maze_v1 --output-dir checkpoints/local_atomic_seed17/variants/local_atomic_seed17 --objective gold_distribution --loss ce", "exit_code": 1, "expected_failure": true, "note": "Overwrite guard. ValueError: Use a new output directory; existing checkpoints are not overwritten. This is the mechanism that protects the production checkpoint from a retraining run; production config.json and best.safetensors mtimes unchanged."},
+    {"command": ".venv/bin/python scripts/build_gate_contrastive_v1.py --self-test", "exit_code": 0, "note": "12 pairs / 24 items, wrote_output false, training_performed false"},
+    {"command": ".venv/bin/python scripts/build_engineering_corpus_v1.py --self-test", "exit_code": 1, "note": "FAILS: status failed, 0 pairs, 0 items; one-fact flip violated for lifecycle-measurement-first#1"},
+    {"command": ".venv/bin/python scripts/build_engineering_corpus_v1.py --help", "exit_code": 0},
+    {"command": ".venv/bin/python /tmp/nj_probe/probe_step.py", "exit_code": 0, "note": "bounded MPS learnability/cost probe: loads the local checkpoint, tokenizes the real maze corpus, packs complete questions, runs 2 forward+backward passes with and without gradient checkpointing; never calls optimizer.step(); writes nothing"},
+    {"command": ".venv/bin/python /tmp/nj_probe/probe_eval.py", "exit_code": 0, "note": "evaluation-cost probe per split; writes nothing"},
+    {"command": ".venv/bin/python scripts/report_context_relevance_v1.py --help", "exit_code": 0},
+    {"command": ".venv/bin/python integrations/codex-skill/nanojev-local-decider/scripts/nanojev_skill.py decide --help", "exit_code": 0},
+    {"command": ".venv/bin/python integrations/codex-skill/nanojev-local-decider/scripts/nanojev_skill.py lifecycle --help", "exit_code": 0},
+    {"command": ".venv/bin/python -c \"...training_runtime probe (9 device/precision/loss cases)...\"", "exit_code": 0, "note": "results embedded under device_objective_probe"}
+  ],
+
+  "uncertainty_and_limitations": [
+    "Per-step timings come from 2 measured steps per configuration on a quiescent machine; a 300-step run may drift (thermal, memory fragmentation) and the projection is arithmetic, not observed.",
+    "The probe measured a lower bound on memory (no optimizer.step()); the real peak is estimated at ~8.9 GiB.",
+    "Timings are specific to this M5-class Mac and this torch build; they are not a cross-machine benchmark.",
+    "The engineering corpus does not exist yet and its builder currently fails its own self-test, so no measurement on the actual domain-adaptation data was possible.",
+    "Whether the 0.6B backbone can express the required engineering discrimination at all is untested; docs/GATE_CONTRASTIVE_PROTOCOL_V1.md section 10.6 names this as a live failure mode.",
+    "The engineering contrastive labels are programmatic and not human-reviewed; the acceptance endpoints therefore measure agreement with a synthetic oracle, not with human engineering judgement."
+  ]
+}
