@@ -1,0 +1,1739 @@
+{
+  "schema_version": "nanojev-tool-history-fixture-manifest-v1",
+  "status": "frozen_before_shadow_materialization",
+  "purpose": "Fresh tool-transcript fixtures for the A4 shadow experiment. Contract only; no active filtering.",
+  "seed": 20260919,
+  "provenance": {
+    "source": "self_authored_synthetic_tool_transcript",
+    "license": "CC0-1.0",
+    "contains_real_user_data": false,
+    "contains_real_credentials": false,
+    "contains_real_tool_output": false,
+    "reuses_frozen_relevance_corpus": false,
+    "note": "Every transcript, id, value, and credential literal is authored for this manifest. Nothing is sampled from real traffic, results/, data/, or the frozen relevance corpus."
+  },
+  "tag_contract": {
+    "placeholder": "@SYNTH_TAG@",
+    "derivation": "synthetic_tag(case_id, seed) = 'tg-' + sha256('nanojev-tool-history:{seed}:{case_id}')[:12]",
+    "note": "The builder substitutes the placeholder; the frozen manifest stores it unsubstituted so the same manifest can be materialized under a caller-chosen seed."
+  },
+  "gate_contract": {
+    "core": "scripts/context_gate_v1.py",
+    "entrypoint": "shadow_request",
+    "threshold": 0.99,
+    "threshold_frozen": true,
+    "probabilities_calibrated": false,
+    "active_filtering": false,
+    "applied": false,
+    "outcomes": [
+      "keep_both",
+      "keep_call_bounded_result",
+      "remove_pair_atomically"
+    ],
+    "pairing_note": "call and result are one indivisible unit; a result never survives without its call and a call never survives without its result. Outcomes listed in allowed_outcomes are the only shadow proposals permitted for this pair; none of them are applied by this experiment."
+  },
+  "source_groups": [
+    {
+      "group_id": "cec940f6ca0c807f7c9b93d2152da8a7ba268e56e54f765991cc71aa86846fbe",
+      "fixture_id": "success",
+      "entity_tokens": [
+        "zqa"
+      ],
+      "isolation_unit": "single_fixture",
+      "note": "Synthetic world confined to this one fixture; never shared, split, or reused from the frozen relevance corpus."
+    },
+    {
+      "group_id": "9b9917a2dd4344ba58c82e4156aa8d59bc4a7d087992117e736a972e3ed1e2de",
+      "fixture_id": "error",
+      "entity_tokens": [
+        "zqb"
+      ],
+      "isolation_unit": "single_fixture",
+      "note": "Synthetic world confined to this one fixture; never shared, split, or reused from the frozen relevance corpus."
+    },
+    {
+      "group_id": "2ce7f288645e21fedd030139b90615bba0d2be6145fb62d0c92b2b5e374a7cfa",
+      "fixture_id": "parallel_calls",
+      "entity_tokens": [
+        "zqc",
+        "zqd"
+      ],
+      "isolation_unit": "single_fixture",
+      "note": "Synthetic world confined to this one fixture; never shared, split, or reused from the frozen relevance corpus."
+    },
+    {
+      "group_id": "45bee28aed75f193f6570013c8567ee07e6712229ae43d4f72d88e9d1abb0721",
+      "fixture_id": "duplicate_ids",
+      "entity_tokens": [
+        "zqe"
+      ],
+      "isolation_unit": "single_fixture",
+      "note": "Synthetic world confined to this one fixture; never shared, split, or reused from the frozen relevance corpus."
+    },
+    {
+      "group_id": "2767e5f46f0ca0b45a43f9fc9a0167f79e4e096d3a60445f696d7d309d7b67eb",
+      "fixture_id": "orphan_result",
+      "entity_tokens": [
+        "zqf"
+      ],
+      "isolation_unit": "single_fixture",
+      "note": "Synthetic world confined to this one fixture; never shared, split, or reused from the frozen relevance corpus."
+    },
+    {
+      "group_id": "64d6418ae1408f665c1d722a070fdd7cff5e3abd290a785484c49c8d9213078d",
+      "fixture_id": "pending_call",
+      "entity_tokens": [
+        "zqg"
+      ],
+      "isolation_unit": "single_fixture",
+      "note": "Synthetic world confined to this one fixture; never shared, split, or reused from the frozen relevance corpus."
+    },
+    {
+      "group_id": "6a754c5b4361a754ebb240596fdbef94a5b383ae9b9990eaeb6da17d915bfd97",
+      "fixture_id": "non_repeatable_result",
+      "entity_tokens": [
+        "zqh"
+      ],
+      "isolation_unit": "single_fixture",
+      "note": "Synthetic world confined to this one fixture; never shared, split, or reused from the frozen relevance corpus."
+    },
+    {
+      "group_id": "71dc970b5cd50ae7d018434d4878eb358c20924f282357fef8f49b653e7fa545",
+      "fixture_id": "mutable_file_read",
+      "entity_tokens": [
+        "zqi"
+      ],
+      "isolation_unit": "single_fixture",
+      "note": "Synthetic world confined to this one fixture; never shared, split, or reused from the frozen relevance corpus."
+    },
+    {
+      "group_id": "110f9219d66c079b341e2c4ef06a77ad0a75948c40d274f0d84cabdec09b3cce",
+      "fixture_id": "stale_output",
+      "entity_tokens": [
+        "zqj"
+      ],
+      "isolation_unit": "single_fixture",
+      "note": "Synthetic world confined to this one fixture; never shared, split, or reused from the frozen relevance corpus."
+    },
+    {
+      "group_id": "ca512070980153b579de29449db9fef9d43fe86f767f718b1f33c6ed8f393d74",
+      "fixture_id": "user_correction",
+      "entity_tokens": [
+        "zqk"
+      ],
+      "isolation_unit": "single_fixture",
+      "note": "Synthetic world confined to this one fixture; never shared, split, or reused from the frozen relevance corpus."
+    },
+    {
+      "group_id": "f4e68d324fc5d1332dae78cbc9a318a71e783857db5267dd24969806b026f4cd",
+      "fixture_id": "secrets_credentials",
+      "entity_tokens": [
+        "zql"
+      ],
+      "isolation_unit": "single_fixture",
+      "note": "Synthetic world confined to this one fixture; never shared, split, or reused from the frozen relevance corpus."
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "success",
+      "kind": "success",
+      "wire_format": "openai_chat",
+      "description": "A successful read where the call and its result form one repeatable, non-volatile pair.",
+      "source_world": {
+        "entity": "zqa",
+        "value": "41",
+        "operation": "lookup"
+      },
+      "pairing_resolved": true,
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Synthetic harness (@SYNTH_TAG@). Never invent values."
+          },
+          {
+            "role": "assistant",
+            "content": "Old draft @SYNTH_TAG@ zqa note the answer does not need."
+          },
+          {
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "id": "call-@SYNTH_TAG@-ok",
+                "type": "function",
+                "function": {
+                  "name": "synthetic_zqa_lookup",
+                  "arguments": "{\"key\":\"zqa-alpha\"}"
+                }
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "content": "zqa-value:41",
+            "tool_call_id": "call-@SYNTH_TAG@-ok"
+          },
+          {
+            "role": "user",
+            "content": "What is the @SYNTH_TAG@ zqa value? Use the recorded tool result."
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {
+          "/messages/1/content": {
+            "eligible": true
+          }
+        }
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/content",
+          "role": "assistant",
+          "expected_status": "eligible",
+          "expected_suggestion": "drop",
+          "expected_reason_code": "high_irrelevance_score"
+        },
+        {
+          "pointer": "/messages/2/tool_calls",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/3/tool_call_id",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/3/content",
+          "role": "tool",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/4/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "pairing": [
+        {
+          "pair_id": "call-@SYNTH_TAG@-ok",
+          "call_segment": "/messages/2/tool_calls",
+          "result_segments": [
+            "/messages/3/tool_call_id",
+            "/messages/3/content"
+          ],
+          "atomic": true,
+          "repeatable": true,
+          "volatile_source": false,
+          "non_repeatable": false,
+          "contains_error": false,
+          "credential_bearing": false,
+          "stale_evidence": false,
+          "correction_dependent": false,
+          "allowed_outcomes": [
+            "keep_both",
+            "keep_call_bounded_result",
+            "remove_pair_atomically"
+          ]
+        }
+      ],
+      "expected_gate": {
+        "status": "scored",
+        "reason": "shadow_only",
+        "segments_observed": true,
+        "all_retain": false
+      },
+      "leak_tokens": [
+        "zqa"
+      ],
+      "notes": "Baseline case: all three shadow outcomes are permitted because the read is repeatable and the value is not an error, credential, correction, or snapshot of a volatile source.",
+      "source_group_id": "cec940f6ca0c807f7c9b93d2152da8a7ba268e56e54f765991cc71aa86846fbe"
+    },
+    {
+      "case_id": "error",
+      "kind": "error",
+      "wire_format": "openai_chat",
+      "description": "A tool result that carries the only record of a failure.",
+      "source_world": {
+        "entity": "zqb",
+        "value": "503",
+        "operation": "read"
+      },
+      "pairing_resolved": true,
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Synthetic harness (@SYNTH_TAG@). Report tool failures honestly."
+          },
+          {
+            "role": "assistant",
+            "content": "Unrelated planning note without a provenance marker."
+          },
+          {
+            "role": "assistant",
+            "content": "Earlier scratch draft the answer does not need."
+          },
+          {
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "id": "call-@SYNTH_TAG@-err",
+                "type": "function",
+                "function": {
+                  "name": "synthetic_zqb_read",
+                  "arguments": "{}"
+                }
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "content": "ERROR: zqb source unavailable (retryable). No value returned.",
+            "tool_call_id": "call-@SYNTH_TAG@-err"
+          },
+          {
+            "role": "user",
+            "content": "Explain why the @SYNTH_TAG@ zqb read failed."
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {
+          "/messages/2/content": {
+            "eligible": true
+          }
+        }
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/content",
+          "role": "assistant",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "not_explicitly_eligible"
+        },
+        {
+          "pointer": "/messages/2/content",
+          "role": "assistant",
+          "expected_status": "eligible",
+          "expected_suggestion": "drop",
+          "expected_reason_code": "high_irrelevance_score"
+        },
+        {
+          "pointer": "/messages/3/tool_calls",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/4/tool_call_id",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/4/content",
+          "role": "tool",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/5/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "pairing": [
+        {
+          "pair_id": "call-@SYNTH_TAG@-err",
+          "call_segment": "/messages/3/tool_calls",
+          "result_segments": [
+            "/messages/4/tool_call_id",
+            "/messages/4/content"
+          ],
+          "atomic": true,
+          "repeatable": true,
+          "volatile_source": false,
+          "non_repeatable": false,
+          "contains_error": true,
+          "credential_bearing": false,
+          "stale_evidence": false,
+          "correction_dependent": false,
+          "allowed_outcomes": [
+            "keep_both"
+          ]
+        }
+      ],
+      "expected_gate": {
+        "status": "scored",
+        "reason": "shadow_only",
+        "segments_observed": true,
+        "all_retain": false
+      },
+      "leak_tokens": [
+        "zqb"
+      ],
+      "notes": "The error text is the only evidence of the failure, so the pair allows keep_both only. /messages/1/content is retained because it is not explicitly eligible.",
+      "source_group_id": "9b9917a2dd4344ba58c82e4156aa8d59bc4a7d087992117e736a972e3ed1e2de"
+    },
+    {
+      "case_id": "parallel_calls",
+      "kind": "parallel_calls",
+      "wire_format": "anthropic_messages",
+      "description": "Two parallel tool_use blocks with two matching tool_result blocks.",
+      "source_world": {
+        "entity": "zqc",
+        "entity_secondary": "zqd",
+        "value": "1|2",
+        "operation": "counter"
+      },
+      "pairing_resolved": true,
+      "body": {
+        "model": "synthetic",
+        "system": "Synthetic harness (@SYNTH_TAG@). Report both counters.",
+        "max_tokens": 32,
+        "messages": [
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Checking both @SYNTH_TAG@ zqc counters."
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu-@SYNTH_TAG@-a",
+                "name": "synthetic_zqc_counter",
+                "input": {
+                  "key": "zqc-alpha"
+                }
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu-@SYNTH_TAG@-b",
+                "name": "synthetic_zqd_counter",
+                "input": {
+                  "key": "zqd-beta"
+                }
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "content": "Earlier scratch draft the answer does not need."
+          },
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "tool_result",
+                "tool_use_id": "toolu-@SYNTH_TAG@-a",
+                "content": "zqc-counter-alpha=1"
+              },
+              {
+                "type": "tool_result",
+                "tool_use_id": "toolu-@SYNTH_TAG@-b",
+                "content": "zqd-counter-beta=2"
+              }
+            ]
+          },
+          {
+            "role": "user",
+            "content": "Report both @SYNTH_TAG@ counter values."
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {
+          "/messages/1/content": {
+            "eligible": true
+          }
+        }
+      },
+      "segments": [
+        {
+          "pointer": "/system",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/0/content/0/text",
+          "role": "assistant",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/0/content/1",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/0/content/2",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/content",
+          "role": "assistant",
+          "expected_status": "eligible",
+          "expected_suggestion": "drop",
+          "expected_reason_code": "high_irrelevance_score"
+        },
+        {
+          "pointer": "/messages/2/content/0",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/2/content/1",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/3/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "pairing": [
+        {
+          "pair_id": "toolu-@SYNTH_TAG@-a",
+          "call_segment": "/messages/0/content/1",
+          "result_segments": [
+            "/messages/2/content/0"
+          ],
+          "atomic": true,
+          "repeatable": true,
+          "volatile_source": false,
+          "non_repeatable": false,
+          "contains_error": false,
+          "credential_bearing": false,
+          "stale_evidence": false,
+          "correction_dependent": false,
+          "allowed_outcomes": [
+            "keep_both",
+            "keep_call_bounded_result",
+            "remove_pair_atomically"
+          ]
+        },
+        {
+          "pair_id": "toolu-@SYNTH_TAG@-b",
+          "call_segment": "/messages/0/content/2",
+          "result_segments": [
+            "/messages/2/content/1"
+          ],
+          "atomic": true,
+          "repeatable": true,
+          "volatile_source": false,
+          "non_repeatable": false,
+          "contains_error": false,
+          "credential_bearing": false,
+          "stale_evidence": false,
+          "correction_dependent": false,
+          "allowed_outcomes": [
+            "keep_both",
+            "keep_call_bounded_result",
+            "remove_pair_atomically"
+          ]
+        }
+      ],
+      "expected_gate": {
+        "status": "scored",
+        "reason": "shadow_only",
+        "segments_observed": true,
+        "all_retain": false
+      },
+      "leak_tokens": [
+        "zqc",
+        "zqd"
+      ],
+      "notes": "Anthropic tool_use/tool_result parts are separate segments, so each parallel call keeps a true 1:1 pair. The assistant text adjacent to tool_use is pinned by the core.",
+      "source_group_id": "2ce7f288645e21fedd030139b90615bba0d2be6145fb62d0c92b2b5e374a7cfa"
+    },
+    {
+      "case_id": "duplicate_ids",
+      "kind": "duplicate_ids",
+      "wire_format": "openai_chat",
+      "description": "Two tool calls share one id, so no result can be attributed unambiguously.",
+      "source_world": {
+        "entity": "zqe",
+        "value": "7",
+        "operation": "dup_lookup"
+      },
+      "pairing_resolved": false,
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Synthetic harness (@SYNTH_TAG@). Resolve duplicate ids safely."
+          },
+          {
+            "role": "assistant",
+            "content": "Duplicate-call draft note without a provenance marker."
+          },
+          {
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "id": "call-@SYNTH_TAG@-dup",
+                "type": "function",
+                "function": {
+                  "name": "synthetic_zqe_lookup",
+                  "arguments": "{}"
+                }
+              },
+              {
+                "id": "call-@SYNTH_TAG@-dup",
+                "type": "function",
+                "function": {
+                  "name": "synthetic_zqe_lookup",
+                  "arguments": "{}"
+                }
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "content": "zqe-value:7",
+            "tool_call_id": "call-@SYNTH_TAG@-dup"
+          },
+          {
+            "role": "user",
+            "content": "Which @SYNTH_TAG@ zqe value did the duplicated call return?"
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {}
+      },
+      "ambiguity_probe": {
+        "description": "Distinguish the second duplicate id and add its own result; verification only, never materialized.",
+        "ops": [
+          {
+            "op": "set",
+            "path": [
+              "messages",
+              2,
+              "tool_calls",
+              1,
+              "id"
+            ],
+            "value": "call-@SYNTH_TAG@-dup-b"
+          },
+          {
+            "op": "append",
+            "path": [
+              "messages"
+            ],
+            "value": {
+              "role": "tool",
+              "content": "zqe-value-b:9",
+              "tool_call_id": "call-@SYNTH_TAG@-dup-b"
+            }
+          }
+        ]
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/content",
+          "role": "assistant",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "not_explicitly_eligible"
+        },
+        {
+          "pointer": "/messages/2/tool_calls",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/3/tool_call_id",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/3/content",
+          "role": "tool",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/4/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "pairing": [
+        {
+          "pair_id": "call-@SYNTH_TAG@-dup",
+          "call_segment": "/messages/2/tool_calls",
+          "result_segments": [
+            "/messages/3/tool_call_id",
+            "/messages/3/content"
+          ],
+          "atomic": true,
+          "repeatable": true,
+          "volatile_source": false,
+          "non_repeatable": false,
+          "contains_error": false,
+          "credential_bearing": false,
+          "stale_evidence": false,
+          "correction_dependent": false,
+          "allowed_outcomes": [
+            "keep_both"
+          ]
+        }
+      ],
+      "expected_gate": {
+        "status": "bypass",
+        "reason": "unresolved_tool_link",
+        "segments_observed": false,
+        "all_retain": true
+      },
+      "leak_tokens": [
+        "zqe"
+      ],
+      "notes": "The core refuses to analyze duplicate ids and forwards the request unchanged; the declared pair is the intended pairing only and must never be resolved by guessing.",
+      "source_group_id": "45bee28aed75f193f6570013c8567ee07e6712229ae43d4f72d88e9d1abb0721"
+    },
+    {
+      "case_id": "orphan_result",
+      "kind": "orphan_result",
+      "wire_format": "openai_chat",
+      "description": "A tool result whose call id does not match any issued call id.",
+      "source_world": {
+        "entity": "zqf",
+        "value": "13",
+        "operation": "orphan_read"
+      },
+      "pairing_resolved": false,
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Synthetic harness (@SYNTH_TAG@). Never guess an orphan result's origin."
+          },
+          {
+            "role": "assistant",
+            "content": "Stale draft note without a provenance marker."
+          },
+          {
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "id": "call-@SYNTH_TAG@-tpyo",
+                "type": "function",
+                "function": {
+                  "name": "synthetic_zqf_read",
+                  "arguments": "{}"
+                }
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "content": "zqf-value:13",
+            "tool_call_id": "call-@SYNTH_TAG@-typo"
+          },
+          {
+            "role": "user",
+            "content": "What is the orphaned @SYNTH_TAG@ zqf value?"
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {}
+      },
+      "ambiguity_probe": {
+        "description": "Repair the call-id typo so the declared structural contract can be enumerated; verification only.",
+        "ops": [
+          {
+            "op": "set",
+            "path": [
+              "messages",
+              2,
+              "tool_calls",
+              0,
+              "id"
+            ],
+            "value": "call-@SYNTH_TAG@-typo"
+          }
+        ]
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/content",
+          "role": "assistant",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "not_explicitly_eligible"
+        },
+        {
+          "pointer": "/messages/2/tool_calls",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/3/tool_call_id",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/3/content",
+          "role": "tool",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/4/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "pairing": [
+        {
+          "pair_id": "call-@SYNTH_TAG@-typo",
+          "call_segment": "/messages/2/tool_calls",
+          "result_segments": [
+            "/messages/3/tool_call_id",
+            "/messages/3/content"
+          ],
+          "atomic": true,
+          "repeatable": true,
+          "volatile_source": false,
+          "non_repeatable": false,
+          "contains_error": false,
+          "credential_bearing": false,
+          "stale_evidence": false,
+          "correction_dependent": false,
+          "allowed_outcomes": [
+            "keep_both"
+          ]
+        }
+      ],
+      "expected_gate": {
+        "status": "bypass",
+        "reason": "unresolved_tool_link",
+        "segments_observed": false,
+        "all_retain": true
+      },
+      "leak_tokens": [
+        "zqf"
+      ],
+      "notes": "The typo makes the result an orphan. The core bypasses instead of attaching the result to the mismatched call, which is the safe reading of the ambiguity.",
+      "source_group_id": "2767e5f46f0ca0b45a43f9fc9a0167f79e4e096d3a60445f696d7d309d7b67eb"
+    },
+    {
+      "case_id": "pending_call",
+      "kind": "pending_call",
+      "wire_format": "openai_chat",
+      "description": "A tool call that has not produced a result yet.",
+      "source_world": {
+        "entity": "zqg",
+        "value": "0",
+        "operation": "slow_read"
+      },
+      "pairing_resolved": false,
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Synthetic harness (@SYNTH_TAG@). A pending call has no result yet."
+          },
+          {
+            "role": "assistant",
+            "content": "Pending-call draft note without a provenance marker."
+          },
+          {
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "id": "call-@SYNTH_TAG@-pending",
+                "type": "function",
+                "function": {
+                  "name": "synthetic_zqg_slow",
+                  "arguments": "{}"
+                }
+              }
+            ]
+          },
+          {
+            "role": "user",
+            "content": "Continue after the pending @SYNTH_TAG@ zqg call."
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {}
+      },
+      "ambiguity_probe": {
+        "description": "Append the missing result so the declared structural contract can be enumerated; verification only.",
+        "ops": [
+          {
+            "op": "append",
+            "path": [
+              "messages"
+            ],
+            "value": {
+              "role": "tool",
+              "content": "zqg-value:0",
+              "tool_call_id": "call-@SYNTH_TAG@-pending"
+            }
+          }
+        ]
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/content",
+          "role": "assistant",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "not_explicitly_eligible"
+        },
+        {
+          "pointer": "/messages/2/tool_calls",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/3/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "pairing": [
+        {
+          "pair_id": "call-@SYNTH_TAG@-pending",
+          "call_segment": "/messages/2/tool_calls",
+          "result_segments": [],
+          "atomic": true,
+          "repeatable": true,
+          "volatile_source": false,
+          "non_repeatable": false,
+          "contains_error": false,
+          "credential_bearing": false,
+          "stale_evidence": false,
+          "correction_dependent": false,
+          "allowed_outcomes": [
+            "keep_both"
+          ]
+        }
+      ],
+      "expected_gate": {
+        "status": "bypass",
+        "reason": "unresolved_tool_link",
+        "segments_observed": false,
+        "all_retain": true
+      },
+      "leak_tokens": [
+        "zqg"
+      ],
+      "notes": "An unfinished call has no result segment, so the pair declares an empty result set and the core bypasses rather than treating the call as removable.",
+      "source_group_id": "64d6418ae1408f665c1d722a070fdd7cff5e3abd290a785484c49c8d9213078d"
+    },
+    {
+      "case_id": "non_repeatable_result",
+      "kind": "non_repeatable_result",
+      "wire_format": "openai_chat",
+      "description": "A committed side effect whose result can never be reproduced by re-running the tool.",
+      "source_world": {
+        "entity": "zqh",
+        "value": "TX-0001",
+        "operation": "submit"
+      },
+      "pairing_resolved": true,
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Synthetic harness (@SYNTH_TAG@). Never re-execute a side-effecting tool."
+          },
+          {
+            "role": "assistant",
+            "content": "Unrelated draft zqh note the answer does not need."
+          },
+          {
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "id": "call-@SYNTH_TAG@-once",
+                "type": "function",
+                "function": {
+                  "name": "synthetic_zqh_submit",
+                  "arguments": "{\"action\":\"zqh-commit\"}"
+                }
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "content": "zqh-transaction-id:TX-0001 (COMMITTED; side effect is irreversible)",
+            "tool_call_id": "call-@SYNTH_TAG@-once"
+          },
+          {
+            "role": "user",
+            "content": "Did the @SYNTH_TAG@ zqh commit succeed? Do not resubmit it."
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {
+          "/messages/1/content": {
+            "eligible": true
+          },
+          "/messages/2/tool_calls": {
+            "safety": true
+          },
+          "/messages/3/content": {
+            "safety": true
+          }
+        }
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/content",
+          "role": "assistant",
+          "expected_status": "eligible",
+          "expected_suggestion": "drop",
+          "expected_reason_code": "high_irrelevance_score"
+        },
+        {
+          "pointer": "/messages/2/tool_calls",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/3/tool_call_id",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/3/content",
+          "role": "tool",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/4/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "pairing": [
+        {
+          "pair_id": "call-@SYNTH_TAG@-once",
+          "call_segment": "/messages/2/tool_calls",
+          "result_segments": [
+            "/messages/3/tool_call_id",
+            "/messages/3/content"
+          ],
+          "atomic": true,
+          "repeatable": false,
+          "volatile_source": false,
+          "non_repeatable": true,
+          "contains_error": false,
+          "credential_bearing": false,
+          "stale_evidence": false,
+          "correction_dependent": false,
+          "allowed_outcomes": [
+            "keep_both"
+          ]
+        }
+      ],
+      "expected_gate": {
+        "status": "scored",
+        "reason": "shadow_only",
+        "segments_observed": true,
+        "all_retain": false
+      },
+      "leak_tokens": [
+        "zqh"
+      ],
+      "notes": "keep_both only. Re-running would repeat an irreversible side effect, and trimming the result could drop the transaction id.",
+      "source_group_id": "6a754c5b4361a754ebb240596fdbef94a5b383ae9b9990eaeb6da17d915bfd97"
+    },
+    {
+      "case_id": "mutable_file_read",
+      "kind": "mutable_file_read",
+      "wire_format": "openai_chat",
+      "description": "A read of a file whose contents may change after the snapshot.",
+      "source_world": {
+        "entity": "zqi",
+        "value": "v1",
+        "operation": "read_file"
+      },
+      "pairing_resolved": true,
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Synthetic harness (@SYNTH_TAG@). Tool reads are snapshots; never re-run them to refresh."
+          },
+          {
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "id": "call-@SYNTH_TAG@-read",
+                "type": "function",
+                "function": {
+                  "name": "synthetic_zqi_read_file",
+                  "arguments": "{\"path\":\"zqi/config.json\"}"
+                }
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "content": "{\"zqi_setting\":\"v1\"}",
+            "tool_call_id": "call-@SYNTH_TAG@-read"
+          },
+          {
+            "role": "assistant",
+            "content": "The @SYNTH_TAG@ zqi setting was v1 at read time."
+          },
+          {
+            "role": "user",
+            "content": "Report the @SYNTH_TAG@ zqi setting recorded by the tool."
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {
+          "/messages/3/content": {
+            "eligible": true
+          }
+        }
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/tool_calls",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/2/tool_call_id",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/2/content",
+          "role": "tool",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/3/content",
+          "role": "assistant",
+          "expected_status": "eligible",
+          "expected_suggestion": "drop",
+          "expected_reason_code": "high_irrelevance_score"
+        },
+        {
+          "pointer": "/messages/4/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "pairing": [
+        {
+          "pair_id": "call-@SYNTH_TAG@-read",
+          "call_segment": "/messages/1/tool_calls",
+          "result_segments": [
+            "/messages/2/tool_call_id",
+            "/messages/2/content"
+          ],
+          "atomic": true,
+          "repeatable": true,
+          "volatile_source": true,
+          "non_repeatable": false,
+          "contains_error": false,
+          "credential_bearing": false,
+          "stale_evidence": false,
+          "correction_dependent": false,
+          "allowed_outcomes": [
+            "keep_both",
+            "keep_call_bounded_result"
+          ]
+        }
+      ],
+      "expected_gate": {
+        "status": "scored",
+        "reason": "shadow_only",
+        "segments_observed": true,
+        "all_retain": false
+      },
+      "leak_tokens": [
+        "zqi"
+      ],
+      "notes": "A snapshot of a mutable source must not be removed or refreshed; a bounded result that keeps the recorded value is the narrowest permitted reduction.",
+      "source_group_id": "71dc970b5cd50ae7d018434d4878eb358c20924f282357fef8f49b653e7fa545"
+    },
+    {
+      "case_id": "stale_output",
+      "kind": "stale_output",
+      "wire_format": "openai_chat",
+      "description": "A stale tool value that a later user correction refers back to.",
+      "source_world": {
+        "entity": "zqj",
+        "value": "100",
+        "operation": "quote"
+      },
+      "pairing_resolved": true,
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Synthetic harness (@SYNTH_TAG@). Keep the recorded value to interpret corrections."
+          },
+          {
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "id": "call-@SYNTH_TAG@-quote",
+                "type": "function",
+                "function": {
+                  "name": "synthetic_zqj_quote",
+                  "arguments": "{\"symbol\":\"zqj-SYN\"}"
+                }
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "content": "zqj-SYN=100",
+            "tool_call_id": "call-@SYNTH_TAG@-quote"
+          },
+          {
+            "role": "user",
+            "content": "Correction: zqj-SYN is 105 now, not 100."
+          },
+          {
+            "role": "assistant",
+            "content": "The recorded @SYNTH_TAG@ zqj-SYN quote was 100."
+          },
+          {
+            "role": "assistant",
+            "content": "Superseded operational note retained by policy."
+          },
+          {
+            "role": "user",
+            "content": "What is the corrected @SYNTH_TAG@ zqj-SYN quote?"
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {
+          "/messages/4/content": {
+            "eligible": true
+          },
+          "/messages/5/content": {
+            "eligible": true,
+            "pinned": true
+          }
+        }
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/tool_calls",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/2/tool_call_id",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/2/content",
+          "role": "tool",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/3/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/4/content",
+          "role": "assistant",
+          "expected_status": "eligible",
+          "expected_suggestion": "drop",
+          "expected_reason_code": "high_irrelevance_score"
+        },
+        {
+          "pointer": "/messages/5/content",
+          "role": "assistant",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "caller_protected"
+        },
+        {
+          "pointer": "/messages/6/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "pairing": [
+        {
+          "pair_id": "call-@SYNTH_TAG@-quote",
+          "call_segment": "/messages/1/tool_calls",
+          "result_segments": [
+            "/messages/2/tool_call_id",
+            "/messages/2/content"
+          ],
+          "atomic": true,
+          "repeatable": true,
+          "volatile_source": false,
+          "non_repeatable": false,
+          "contains_error": false,
+          "credential_bearing": false,
+          "stale_evidence": true,
+          "correction_dependent": false,
+          "allowed_outcomes": [
+            "keep_both"
+          ]
+        }
+      ],
+      "expected_gate": {
+        "status": "scored",
+        "reason": "shadow_only",
+        "segments_observed": true,
+        "all_retain": false
+      },
+      "leak_tokens": [
+        "zqj"
+      ],
+      "notes": "The stale value is required to interpret the correction, so the pair allows keep_both only. A redundant assistant restatement of the stale value stays an eligible candidate.",
+      "source_group_id": "110f9219d66c079b341e2c4ef06a77ad0a75948c40d274f0d84cabdec09b3cce"
+    },
+    {
+      "case_id": "user_correction",
+      "kind": "user_correction",
+      "wire_format": "openai_chat",
+      "description": "A user correction that overrides an earlier tool value.",
+      "source_world": {
+        "entity": "zqk",
+        "value": "250",
+        "operation": "limit"
+      },
+      "pairing_resolved": true,
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Synthetic harness (@SYNTH_TAG@). User corrections are protected and never removed."
+          },
+          {
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "id": "call-@SYNTH_TAG@-limit",
+                "type": "function",
+                "function": {
+                  "name": "synthetic_zqk_limit",
+                  "arguments": "{\"account\":\"zqk-1\"}"
+                }
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "content": "zqk-limit=500",
+            "tool_call_id": "call-@SYNTH_TAG@-limit"
+          },
+          {
+            "role": "assistant",
+            "content": "Applied the @SYNTH_TAG@ zqk limit of 500."
+          },
+          {
+            "role": "user",
+            "content": "Correction: the @SYNTH_TAG@ zqk limit is 250, not 500. Use 250."
+          },
+          {
+            "role": "assistant",
+            "content": "Unrelated earlier zqk note the answer does not need."
+          },
+          {
+            "role": "user",
+            "content": "Restate the @SYNTH_TAG@ zqk limit to apply."
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {
+          "/messages/3/content": {
+            "eligible": true
+          },
+          "/messages/5/content": {
+            "eligible": true
+          },
+          "/messages/6/content": {
+            "depends_on": [
+              "/messages/3/content"
+            ]
+          }
+        }
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/tool_calls",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/2/tool_call_id",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/2/content",
+          "role": "tool",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/3/content",
+          "role": "assistant",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "required_dependency"
+        },
+        {
+          "pointer": "/messages/4/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/5/content",
+          "role": "assistant",
+          "expected_status": "eligible",
+          "expected_suggestion": "drop",
+          "expected_reason_code": "high_irrelevance_score"
+        },
+        {
+          "pointer": "/messages/6/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "pairing": [
+        {
+          "pair_id": "call-@SYNTH_TAG@-limit",
+          "call_segment": "/messages/1/tool_calls",
+          "result_segments": [
+            "/messages/2/tool_call_id",
+            "/messages/2/content"
+          ],
+          "atomic": true,
+          "repeatable": true,
+          "volatile_source": false,
+          "non_repeatable": false,
+          "contains_error": false,
+          "credential_bearing": false,
+          "stale_evidence": false,
+          "correction_dependent": true,
+          "allowed_outcomes": [
+            "keep_both"
+          ]
+        }
+      ],
+      "expected_gate": {
+        "status": "scored",
+        "reason": "shadow_only",
+        "segments_observed": true,
+        "all_retain": false
+      },
+      "leak_tokens": [
+        "zqk"
+      ],
+      "notes": "The final user request declares depends_on the pre-correction assistant restatement, so dependency closure retains it as required_dependency even though it is explicitly eligible.",
+      "source_group_id": "ca512070980153b579de29449db9fef9d43fe86f767f718b1f33c6ed8f393d74"
+    },
+    {
+      "case_id": "secrets_credentials",
+      "kind": "secrets_credentials",
+      "wire_format": "openai_chat",
+      "description": "A tool result that carries a synthetic credential placeholder.",
+      "source_world": {
+        "entity": "zql",
+        "value": "not-a-real-secret-0000",
+        "operation": "read_env"
+      },
+      "pairing_resolved": true,
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Synthetic harness (@SYNTH_TAG@). Never echo credentials."
+          },
+          {
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "id": "call-@SYNTH_TAG@-env",
+                "type": "function",
+                "function": {
+                  "name": "synthetic_zql_read_env",
+                  "arguments": "{}"
+                }
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "content": "SYNTHETIC_ZQL_API_KEY=not-a-real-secret-0000",
+            "tool_call_id": "call-@SYNTH_TAG@-env"
+          },
+          {
+            "role": "assistant",
+            "content": "Unrelated draft zql note the answer does not need."
+          },
+          {
+            "role": "user",
+            "content": "Confirm whether the synthetic @SYNTH_TAG@ zql credential was present without printing it."
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {
+          "/messages/2/content": {
+            "credential": true
+          },
+          "/messages/3/content": {
+            "eligible": true
+          }
+        }
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/tool_calls",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/2/tool_call_id",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/2/content",
+          "role": "tool",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/3/content",
+          "role": "assistant",
+          "expected_status": "eligible",
+          "expected_suggestion": "drop",
+          "expected_reason_code": "high_irrelevance_score"
+        },
+        {
+          "pointer": "/messages/4/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "pairing": [
+        {
+          "pair_id": "call-@SYNTH_TAG@-env",
+          "call_segment": "/messages/1/tool_calls",
+          "result_segments": [
+            "/messages/2/tool_call_id",
+            "/messages/2/content"
+          ],
+          "atomic": true,
+          "repeatable": true,
+          "volatile_source": false,
+          "non_repeatable": false,
+          "contains_error": false,
+          "credential_bearing": true,
+          "stale_evidence": false,
+          "correction_dependent": false,
+          "allowed_outcomes": [
+            "keep_both"
+          ]
+        }
+      ],
+      "expected_gate": {
+        "status": "scored",
+        "reason": "shadow_only",
+        "segments_observed": true,
+        "all_retain": false
+      },
+      "leak_tokens": [
+        "zql",
+        "not-a-real-secret-0000"
+      ],
+      "notes": "Placeholder only, never a real credential. keep_both only; the receipt must contain hashes, not the literal, and re-running the tool is forbidden.",
+      "source_group_id": "f4e68d324fc5d1332dae78cbc9a318a71e783857db5267dd24969806b026f4cd"
+    }
+  ]
+}

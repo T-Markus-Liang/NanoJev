@@ -1,0 +1,556 @@
+{
+  "schema_version": "nanojev-financial-experiment-protocol-v1",
+  "draft_pending_R1": true,
+  "status": "draft_pending_R1",
+  "created_utc": "2026-09-19",
+  "revised_utc": "2026-09-19",
+  "revision_note": "R1 scope change applied by user decision: the financial track covers crypto secondary-market PERPETUAL CONTRACT trading ONLY, never spot. Venue set: Binance, Bybit, Aster, Hyperliquid. The spot-era long-only assumption was removed and replaced by an explicit two-sided action space that is kept separate from the event probability.",
+  "review_gate": "R1",
+  "work_package": "P1",
+  "title": "Minimal structured binary-event prediction experiment over point-in-time crypto PERPETUAL CONTRACT data (no spot)",
+  "market_scope": {
+    "instrument_class": "crypto secondary-market perpetual contracts only",
+    "spot_excluded": true,
+    "spot_exclusion_note": "No spot pair may enter the universe, the feature set, the label, or any holdout group. A spot mid may be used only as an index/oracle input in the sense the venue itself defines, never as the traded instrument.",
+    "venue_set": ["Binance", "Bybit", "Aster", "Hyperliquid"],
+    "contract_types_in_scope": [
+      "USDT-margined linear perpetual (Binance USD-M, Bybit linear, Aster USDT perpetual)",
+      "coin-margined inverse perpetual (Binance COIN-M, Bybit inverse)",
+      "on-chain perpetual (Hyperliquid, USDC-margined)"
+    ],
+    "session_model": "24/7 continuous, no exchange calendar, no session close. Bar boundaries are UTC-aligned. This removes the equity-calendar mapping hazard but introduces venue-specific funding-time boundaries that every feature and the simulator must respect."
+  },
+  "companion_documents": [
+    "docs/FINANCIAL_DATA_PLAN_V1.md",
+    "research/financial_source_manifest_v1.json",
+    "docs/FINANCIAL_PIT_V1.md",
+    "docs/NANOJEV_V2_ROADMAP.md"
+  ],
+  "approval_state": {
+    "approved": false,
+    "approved_by": null,
+    "approval_note": "Unapproved draft. Nothing in this file authorizes data acquisition, model training, order submission, broker credentials, live trading, or any profitability claim. The perpetual-contract market scope, the venue set, the data rights, the event definition, the splits, and the holdouts must be confirmed at review gate R1 before any financial training begins.",
+    "freeze_rule": "No result may be produced under this protocol until it is frozen by recording the SHA-256 of this file in the R1 review record.",
+    "change_rule": "Any change to the event definition, label predicate, feature allowlist, universe rule, split geometry, purge/embargo rule, holdout plan, action space, or seed list invalidates the freeze and requires a new review, not an in-place edit."
+  },
+  "validator_compatibility": {
+    "validator_path": "scripts/financial_pit_v1.py",
+    "validator_contract": "The validator reads the protocol file and asserts that the top-level key set is exactly {\"folds\", \"embargo_ns\", \"asof_ns\"}, then calls walk_forward(rows, **protocol). It will also reject extra keys through that call signature.",
+    "core_object_key": "pit_validator_core",
+    "core_object_key_set_is_exact": true,
+    "core_object_key_set_must_not_grow": "pit_validator_core contains exactly the three keys folds, embargo_ns and asof_ns. No perpetual-specific key may be added to it, because the unmodified validator rejects any extra key. All perpetual semantics live in the sibling research_contract objects of this file, never in the projected core.",
+    "projection_rule": "Before invoking the validator, write pit_validator_core verbatim to a separate file, for example: python -c \"import json,pathlib; json.dump(json.loads(pathlib.Path('research/financial_experiment_protocol_v1.json').read_text())['pit_validator_core'], open('/tmp/frozen_protocol.json','w'), indent=2)\"",
+    "why_not_flat": "This protocol file carries event, label, feature, universe, holdout, seed and perpetual-semantics declarations that the current validator does not accept at the top level. Making the file directly validator-readable would require either adding keys the validator rejects or modifying a frozen script. Neither is done. scripts/financial_pit_v1.py is intentionally left unmodified.",
+    "compatibility_status": "measured_on_synthetic_perp_shaped_cohort_not_yet_measured_on_real_data",
+    "compatibility_evidence_required": "The R1 freeze commit must include a receipt showing that the projected pit_validator_core object is accepted by the unmodified validator and that all four phases are nonempty for every fold, produced against the real frozen cohort.",
+    "compatibility_evidence_obtained_during_drafting": {
+      "validator_exit_code": 0,
+      "command": ".venv/bin/python scripts/financial_pit_v1.py --input /tmp/perp_research/perp_synthetic_rows.jsonl --protocol /tmp/perp_research/projected_core.json --output /tmp/perp_research/perp_fold_audit.json",
+      "cohort": "40 synthetic perpetual instruments spread across four synthetic venue tags (binance_usdm, bybit_linear, aster_usdm, hyperliquid_perp), daily bars, cohort span [2023-01-01, 2026-11-26), 6 allowlisted perpetual features, 1-day horizon, 7-day label availability lag, 1-hour embargo. Every row conforms to nanojev-financial-pit-v1.",
+      "result": "Validator exited 0 with all four phases nonempty in all three folds. Retained counts were fold 1 train 31,000 / dev 960 / calibration 960 / test 7,240; fold 2 train 38,240 / dev 960 / calibration 960 / test 7,240; fold 3 train 45,480 / dev 960 / calibration 960 / test 7,200. Only exclusion reasons were label_unavailable_at_fit_cutoff and purged_overlap_or_embargo on non-test rows, plus rows outside all declared windows.",
+      "scope_warning": "This receipt proves that the split geometry and the projected core object are structurally accepted by the unmodified validator, and that the perpetual-shaped feature schema passes the record contract. It does NOT prove anything about real perpetual-market data, point-in-time authenticity, source licensing, funding-cost handling, feature lineage, or predictive performance. It was produced from constructed synthetic rows with a deliberately arbitrary outcome rule and must never be reported as financial evidence.",
+      "synthetic_row_note": "The synthetic cohort was generated by a throwaway script under /tmp. No market data was downloaded, purchased, or fetched to produce it.",
+      "status": "obtained"
+    }
+  },
+  "pit_validator_core": {
+    "folds": [
+      {"train": [1672531200000000000, 1740182400000000000], "dev": [1743033600000000000, 1745798400000000000], "calibration": [1745884800000000000, 1748649600000000000], "test": [1748736000000000000, 1764374400000000000]},
+      {"train": [1672531200000000000, 1755820800000000000], "dev": [1758672000000000000, 1761436800000000000], "calibration": [1761523200000000000, 1764288000000000000], "test": [1764374400000000000, 1780012800000000000]},
+      {"train": [1672531200000000000, 1771459200000000000], "dev": [1774310400000000000, 1777075200000000000], "calibration": [1777161600000000000, 1779926400000000000], "test": [1780012800000000000, 1795651200000000000]}
+    ],
+    "embargo_ns": 3600000000000,
+    "asof_ns": 1803859200000000000
+  },
+  "pit_validator_core_frozen_reason": "The core is unchanged from the reviewed draft and still contains exactly the three keys folds, embargo_ns and asof_ns. The perpetual-scope change does not require a new split geometry: the same calendar windows are valid for 24/7 perpetual markets, and re-deriving them would invalidate the already-verified validator receipt for no modelling gain.",
+  "split_geometry": {
+    "convention": "All windows are half-open [start_ns, end_ns) in nonnegative UTC Unix nanoseconds, matching scripts/financial_pit_v1.py.",
+    "readable_dates": [
+      {"fold": 1, "train": "2023-01-01 .. 2025-02-22", "dev": "2025-03-27 .. 2025-04-28", "calibration": "2025-04-29 .. 2025-05-31", "test": "2025-06-01 .. 2025-11-29"},
+      {"fold": 2, "train": "2023-01-01 .. 2025-08-22", "dev": "2025-09-24 .. 2025-10-26", "calibration": "2025-10-27 .. 2025-11-28", "test": "2025-11-29 .. 2026-05-29"},
+      {"fold": 3, "train": "2023-01-01 .. 2026-02-19", "dev": "2026-03-24 .. 2026-04-25", "calibration": "2026-04-26 .. 2026-05-28", "test": "2026-05-29 .. 2026-11-26"}
+    ],
+    "asof_readable": "2027-03-01",
+    "test_window_length_days": 181,
+    "dev_window_length_days": 32,
+    "calibration_window_length_days": 32,
+    "spacing_between_phase_starts_days": 33,
+    "expanding_train": true,
+    "embargo_semantics": "One-sided, strictly chronological, per the existing validator: a row is excluded when label.end_ns + embargo_ns >= the next phase's start. It is not bidirectional shuffled cross-validation.",
+    "label_availability_lag_ns": 604800000000000,
+    "label_availability_lag_days": 7,
+    "label_availability_lag_justification": "Declared conservative allowance for archive/API publication, retrieval, and a correction window. It applies unchanged to the perpetual sources: the Bulk archive is monthly and the venue APIs are near-real-time, so 7 days is conservative for both. The validator imposes a hard structural constraint (see below) that makes a 30-day lag produce an unusable split geometry.",
+    "purge_geometry_derivation": {
+      "horizon_ns": 86400000000000,
+      "embargo_ns": 3600000000000,
+      "rule_1_maturity": "The validator excludes a non-test row when label.available_ns > that phase's own end_ns. Because available_ns = decision_ns + horizon_ns + lag, a phase can retain only decisions with decision_ns <= phase_end - horizon_ns - lag. Every phase window must therefore be LONGER than the label lag plus the horizon, or it retains nothing. This is why the label lag cannot be 30 days while dev and calibration are only one month long: it would empty those phases entirely.",
+      "rule_2_purge": "The validator also excludes a row when label.end_ns + embargo_ns >= the next phase's start. Because end_ns = decision_ns + horizon_ns, this requires the gap between consecutive phase starts to exceed lag + horizon + embargo. With a 33-day spacing between phase starts this gap is satisfied with about 25 days of slack.",
+      "consequence": "Rule 1 necessarily purges the tail of every non-test phase, because a phase must end before the next begins and only the portion of the window at least horizon + lag before its end can mature in time. This is a bounded, predictable, and reported quantity rather than a defect: with 32-day dev and calibration windows it removes roughly the final 8 days, and with a 783-to-1145-day train window it removes roughly the final 8 days.",
+      "measured_expected_exclusions": "On the synthetic perpetual-shaped cohort described in validator_compatibility, fold 1 excluded 880 non-test rows as label_unavailable_at_fit_cutoff and 80 as purged_overlap_or_embargo against 31,000 + 960 + 960 = 32,920 retained non-test rows, i.e. about 2.9 percent boundary loss. These counts are a property of the synthetic decision grid, not a prediction about real data."
+    },
+    "test_maturity_check": "For every fold, test_end - 1 ns + horizon_ns + lag + embargo_ns <= asof_ns. All three folds satisfy this with at least 85 days of slack.",
+    "test_windows_disjoint": true,
+    "test_windows_chronological": true
+  },
+  "perp_semantics": {
+    "why_this_section_exists": "A perpetual contract is not a spot pair with leverage. Its observables, its price references, and its holding costs are different, and those differences must be named before a feature or a label is defined. This section states the vocabulary the rest of the file assumes.",
+    "price_references": {
+      "last_price": "The most recent traded price. Reflective but the noisiest of the three, and the one most vulnerable to a single thin print.",
+      "mark_price": "The venue's fair-price reference used for unrealized PnL, liquidations, and margin. Usually a composite of the index and the perpetual's own book, with venue-specific damping.",
+      "index_price": "The venue's underlying reference, built from an external basket. It is a spot-derived input and is the venue's oracle, not a tradable instrument.",
+      "premium_or_basis": "The signed gap between the perpetual and its index/oracle reference. This is the quantity that drives funding, and it is the mechanism by which a perpetual position pays or receives.",
+      "label_convention": "The V1 label is computed from MARK price at both ends. Mark price is the price at which unrealized PnL and liquidation are actually measured, so a mark-to-mark return is the quantity a leveraged position genuinely experiences. Last-price labels are permitted only as a separately declared robustness variant, never as the primary label.",
+      "feature_rule": "Whenever both a last price and a mark price exist, the feature must name which one it uses in its version string. A silently mixed series is a defect."
+    },
+    "funding_rate": {
+      "definition": "A periodic peer-to-peer transfer between the long and short sides, sized to pull the perpetual toward its index reference.",
+      "interval": "Venue-specific and not constant. Binance's Bulk funding archive carries an explicit funding_interval_hours column per row. Bybit exposes fundingInterval in the instruments-info response and states that each symbol has its own interval. Aster exposes fundingIntervalHours in a funding-rate-config endpoint. Hyperliquid pays funding every hour, at one eighth of the computed eight-hour rate. The interval is part of the data, not an assumption.",
+      "settlement_timestamp": "The funding timestamp is a discrete venue event. It must be carried as a feature with its own event_ns, and the simulator must apply it at that timestamp rather than pro-rating it from bar boundaries.",
+      "label_exclusion": "Funding is a holding cost of a leveraged position, not part of the gross price move. It belongs to the P2 simulator. Folding funding into the event label would make the label a net-return claim, which this protocol forbids."
+    },
+    "open_interest": {
+      "definition": "The total outstanding contract size. It is a level, not a flow, and its unit differs by contract type.",
+      "unit_rule": "For a USDT-margined linear contract the reported open interest is normally in base coin; for a coin-margined inverse contract it is normally in contracts or USD notional. The unit must be recorded with the feature and never assumed, because a unit confusion silently rescales the series.",
+      "double_counting_rule": "A venue may report open interest as the sum of both sides. Whether a given field is one-sided or two-sided must be recorded per source, because the two conventions differ by a factor of two."
+    },
+    "leverage_and_margin_mode": {
+      "margin_mode": "Isolated (losses confined to the position's own margin) versus cross (losses draw on the whole account).",
+      "leverage": "Per-instrument, user-selected, and bounded by venue risk tiers that are themselves a function of position size.",
+      "protocol_rule": "For V1, leverage and margin mode are SIMULATOR inputs from P2, not label inputs and not model targets. A label computed at 1x notional and a label computed at 20x isolated are the same gross price event; pretending otherwise would smuggle an execution assumption into the event definition. Liquidation and ADL consequences are therefore explicitly out of scope for the V1 label."
+    },
+    "liquidation_and_adl": {
+      "definition": "A liquidation is the forced reduction of an under-margined position. Auto-deleveraging (ADL) is the venue's mechanism for closing opposing positions when the insurance fund or the liquidation path cannot absorb the position.",
+      "gross_event_rule": "Liquidation events are features and simulator inputs, never label components. A row whose horizon spans a liquidation cascade is not thereby a different event; the excess return over that window is part of the outcome being predicted.",
+      "data_rule": "Liquidation and ADL availability differs sharply by venue and is usually WebSocket-only, i.e. not reconstructible historically. That is a first-class coverage gap, not a detail."
+    },
+    "contract_specifications": {
+      "tick_size": "Minimum price increment. Binance and Aster call it tickSize in exchangeInfo; Bybit calls it tickSize in instruments-info; Hyperliquid derives it from a five-significant-figure rule plus a decimals cap of 6 - szDecimals for perpetuals.",
+      "lot_size": "Minimum and step size for order quantity. Binance stepSize, Bybit qtyStep, Hyperliquid szDecimals rounding.",
+      "minimum_notional": "Minimum order value. Binance minNotional, Bybit minNotionalValue, Hyperliquid minTradeNtlRejected at order placement.",
+      "contract_multiplier": "The conversion from contract units to base-coin or USD notional. It is 1 for USDT-margined linear perpetuals but non-trivial for coin-margined inverse contracts and for venues that quote in contracts. It must be resolved per instrument before any size, notional, or open-interest series is compared across instruments.",
+      "usage_rule": "Contract specifications are simulator and universe-screening inputs. They are required to compute a realistic minimum tradeable size in P2 and to prove that a candidate instrument was actually tradeable at a decision time."
+    },
+    "usdt_margined_vs_coin_margined": {
+      "linear_usdt_margined": "Margin and PnL are denominated in USDT. The contract is linear in the base coin. Quantity is in base coin. This is the natural home for a single-notional V1 cohort.",
+      "inverse_coin_margined": "Margin and PnL are denominated in the base coin (for example BTC), and the contract is inverse: a fixed USD notional per contract. Quantity is in contracts or USD. The same economic exposure produces a return series with a different numeraire, so a cross-margined comparison against a USDT-margined outcome is not apples to apples.",
+      "protocol_rule": "V1 declares a single quote numeraire and therefore a single contract-type family. Instrument identity must encode venue, contract type, and symbol, so a linear and an inverse contract on the same underlying are two distinct instruments and can never be silently merged."
+    }
+  },
+  "event_definition": {
+    "event_name": "perp_forward_mark_return_up_25bps_1d_gross",
+    "kind": "realized_binary_event",
+    "task": "predict the probability of a fixed-horizon gross mark-price move, separately from any action policy",
+    "side_semantics": "This cohort predicts the LONG-side (upward) event. The short side is the complementary downward event over the same horizon with the same threshold; it is a policy decision derived from the same probability, not a second label in this cohort. The validator accepts exactly one event definition per cohort, so a symmetric two-label cohort is prohibited by contract.",
+    "two_sided_action_space": {
+      "actions": ["long", "flat", "short"],
+      "declaration": "The action space is two-sided. The spot-era long-only convention is REMOVED. No paragraph of this protocol may be read as implying that the only positions are long or absent.",
+      "separation_rule": "The event probability and the action policy are separate objects. The model emits P(up event). The policy maps that probability plus a declared cost and risk state to one of long/flat/short. A low P(up) is evidence for a short position, not automatically a flat.",
+      "no_threshold_collapse": "Choosing the long decision threshold and the short decision threshold is a calibration/policy task fitted on the calibration split only. Tuning either threshold on test outcomes is prohibited.",
+      "evaluation_rule": "Event quality (NLL, Brier, calibration) is reported on the probability. Action utility is reported separately and only after the P2 execution simulator exists with explicit funding, fee, spread and slippage assumptions."
+    },
+    "horizon": {"bars": 1, "bar_interval": "1d", "horizon_ns": 86400000000000},
+    "threshold_bps": 25.0,
+    "threshold_decimal": "0.0025",
+    "outcome_rule": "outcome = (10000 * ((exit_mark / entry_mark) - 1)) >= 25.0",
+    "price_convention": {
+      "entry_price": "Mark-price close of the decision bar",
+      "exit_price": "Mark-price close of the bar ending at label.end_ns",
+      "fees_included": false,
+      "spread_included": false,
+      "slippage_included": false,
+      "funding_included": false,
+      "leverage_included": false,
+      "note": "This is a GROSS PRICE-MOVE event label and is NOT a tradable net return. Fees, spread, slippage, funding, borrow, leverage, liquidation and ADL consequences belong to the execution simulator in work package P2 and must never be folded into this label. A model that predicts this event well has demonstrated event forecasting only and must not be described as profitable."
+    },
+    "rounding_rule": "Exact decimal arithmetic. The threshold is the half-open interval [25.0, +inf) with no tolerance band. No floating-point epsilon is applied, so a return of exactly 25.0000 bps is a positive event and 24.9999 bps is not.",
+    "bar_alignment": "UTC midnight bar boundaries computed from the venue's mark-price kline series. Unlike spot, perpetual bars are 24/7 and the venue's funding timestamps may fall inside a bar; funding is not part of this label, so no bar-boundary adjustment is required for the label itself.",
+    "missing_data_rule": "A bar that is absent, has zero volume, or has a non-positive mark price excludes the affected row. No forward fill, no interpolation, and no cross-gap carry. Missingness must be reported per instrument and per period, not silently dropped. A venue whose mark-price history is truncated (see venue coverage in the plan) cannot supply a V1 cohort for the affected period and the gap must be declared rather than bridged.",
+    "why_this_event": "It is a B2 calibrated-target event that a deterministic baseline, a logistic model, and a proper-scoring objective can all be compared on, and it requires no execution assumptions. Fill probability, adverse-selection probability, drawdown, liquidation, funding-cost and regime probabilities from B2 are explicitly deferred to later protocols rather than piled into this one."
+  },
+  "label_predicate": {
+    "label_object_fields": ["event", "definition_sha256", "end_ns", "available_ns", "outcome"],
+    "predicate": "outcome is true exactly when (mark_close(bar ending at end_ns) / mark_close(decision bar) - 1) * 10000 >= 25.0, evaluated in decimal arithmetic on the point-in-time mark-price bar values, with no adjustment, no fill, no funding accrual, and no look-ahead.",
+    "net_return_prohibition": "The predicate deliberately excludes fees, spread, slippage, funding and leverage. Any document, table or figure that presents this outcome as a return, a PnL, an edge or a tradable result is misreporting the protocol.",
+    "timing_rule": "decision_ns < end_ns <= available_ns, enforced by scripts/financial_pit_v1.py. end_ns = decision_ns + horizon_ns. available_ns = end_ns + declared_label_availability_lag_ns.",
+    "label_availability_lag_ns": 604800000000000,
+    "label_availability_lag_days": 7,
+    "availability_lag_status": "Declared conservative assumption, not a measured source latency. Bulk archive files appear monthly and venue APIs publish near-real-time; 7 days allows for publication, retrieval, and a correction window. If the true lag were longer than the phase window minus the horizon, the validator would exclude every row in the shorter phases, so any increase in this lag requires recomputing the split geometry rather than editing this number alone.",
+    "decision_ns_convention": "decision_ns = close time of the decision mark-price bar + 1 ns, the first instant at which the decision bar's outcome is knowable from the source feed.",
+    "label_spacing_rule": "Consecutive decisions for one instrument are spaced at least horizon_ns + embargo_ns apart. This keeps label intervals non-overlapping so the one-sided embargo is sufficient and the independence assumption behind the purge is not silently violated.",
+    "single_definition_rule": "A V1 cohort has exactly one event definition and one definition_sha256. The validator rejects a cohort containing more than one (event, definition_sha256) pair.",
+    "no_probability_labels": "Outcomes are realized Booleans. A model's probability argmax, a thresholded score, or a smoothed estimate is never an acceptable label.",
+    "definition_hash_convention": {
+      "algorithm": "SHA-256",
+      "encoding": "lowercase hexadecimal, 64 characters, as required by the validator",
+      "canonicalization": "json.dumps(definition_object, sort_keys=True, separators=(\",\", \":\"), ensure_ascii=True).encode(\"utf-8\"), then hexdigest()",
+      "hashed_scope": "The definition object contains only the frozen predicate semantics: event name, side semantics, asset scope, contract types, price convention with its fee/funding/spread/slippage flags, horizon in bars and nanoseconds, the threshold with its unit and decimal equivalent, the exact outcome rule, the rounding rule, the bar alignment, the missing-data rule, the decision spacing rule, the margin-mode rule and the quote numeraire. It contains no hash of itself and no path, timestamp, or environment string, so the digest is stable across machines and rename operations.",
+      "computed_value_for_this_draft": "8796b7f90a0f62f972f0f40e80e07b100f559f47342aece0bf5582fc27392ac9",
+      "computed_value_status": "Recomputed for this perpetual-scope revision, because the definition object changed (spot_pair replaced by perpetual_contract_only_no_spot, last-price convention replaced by mark-price convention, long_only replaced by an explicit two-sided action declaration). It is not yet frozen. The R1 freeze must recompute it from the frozen definition object and must confirm that the recorded value matches.",
+      "superseded_value": "The previous spot-era draft recorded a6f06667d2d05ee66091eb4d7b709f5e8a6bd941bbefbbb0d0a57632a89a4c6c. That value is void under this revision; any cohort or result carrying it is stale.",
+      "reproduction_command": ".venv/bin/python -c \"import hashlib,json; d=json.load(open('research/financial_experiment_protocol_v1.json'))['label_predicate']['definition_hash_convention']['frozen_definition_object']; print(hashlib.sha256(json.dumps(d, sort_keys=True, separators=(',',':'), ensure_ascii=True).encode()).hexdigest())\"",
+      "frozen_definition_object": {
+        "action_space": "two_sided_long_flat_short_declared_separately_from_the_event",
+        "asset_scope": "perpetual_contract_only_no_spot",
+        "bar_alignment": "UTC midnight bar boundaries; decision occurs at the venue mark-price bar close",
+        "contract_types": ["usdt_margined_linear_perpetual", "coin_margined_inverse_perpetual"],
+        "decision_spacing_rule": "consecutive decisions for one instrument are spaced at least horizon_ns plus embargo_ns apart so labels never overlap",
+        "event": "perp_forward_mark_return_up_25bps_1d_gross",
+        "horizon_bars": 1,
+        "horizon_ns": 86400000000000,
+        "margin_mode": "isolated_or_cross_is_a_simulator_input_not_a_label_input",
+        "missing_data_rule": "a bar that is absent, zero-volume, or non-positive in mark price excludes the row; no forward fill across a gap",
+        "outcome_rule": "outcome = (10000 * ((exit_mark / entry_mark) - 1)) >= 25.0",
+        "price_convention": {
+          "entry_price": "mark price close of the decision bar",
+          "exit_price": "mark price close of the bar ending at end_ns",
+          "fees_included": false,
+          "funding_included": false,
+          "slippage_included": false,
+          "spread_included": false
+        },
+        "quote_notional": "USDT for linear perpetuals; coin-margined instruments are excluded from the single-notional V1 cohort",
+        "rounding_rule": "exact decimal arithmetic; threshold is a half-open interval [25.0, +inf) with no tolerance band",
+        "side": "long_side_event_up; the short side is the complementary down event and a policy decision, not a second label in this cohort",
+        "threshold": {"decimal_equivalent": "0.0025", "unit": "basis_points", "value": 25.0}
+      }
+    }
+  },
+  "feature_allowlist": {
+    "rule": "The validator requires that every record in a cohort carry exactly the same feature-name set. The allowlist below is therefore closed and frozen: no feature may be added, removed, or conditionally omitted for any record, instrument, or period. A missing feature value is a missing-value policy question, not a schema change.",
+    "model_input_rule": "scripts/financial_pit_v1.py projects a predictor input containing only asset_id, venue, decision_ns, and the feature values. Labels, record IDs, split tags, definition hashes, holdout tags, and audit metadata are excluded. No model or encoder may receive the raw training row.",
+    "perpetual_specific_rule": "Every feature below is a perpetual-contract observable. No spot-only series (spot close, spot volume, spot taker flow) may be substituted. Where a spot index genuinely enters the pipeline it is consumed only through the venue's own index or oracle field and is labelled as such.",
+    "features": [
+      {
+        "name": "mark_price",
+        "value": "Mark-price close of the decision bar",
+        "event_ns": "Close time of the decision bar",
+        "available_ns": "Close time of the decision bar + 1 ns",
+        "fit_cutoff_ns": 0,
+        "source_id": "venue_mark_price_klines",
+        "version": "perp-1d-mark-price-close-v1",
+        "transform": "raw mark price; no fitted parameters"
+      },
+      {
+        "name": "index_price",
+        "value": "Index-price close of the decision bar, the venue's underlying reference",
+        "event_ns": "Close time of the decision bar",
+        "available_ns": "Close time of the decision bar + 1 ns",
+        "fit_cutoff_ns": 0,
+        "source_id": "venue_index_price_klines",
+        "version": "perp-1d-index-price-close-v1",
+        "transform": "raw index price; no fitted parameters"
+      },
+      {
+        "name": "mark_index_basis_bps",
+        "value": "10000 * (mark_price / index_price - 1) for the decision bar",
+        "event_ns": "Close time of the decision bar",
+        "available_ns": "Close time of the decision bar + 1 ns",
+        "fit_cutoff_ns": 0,
+        "source_id": "venue_mark_and_index_price_klines",
+        "version": "perp-mark-index-basis-bps-v1",
+        "transform": "deterministic ratio of two same-timestamp venue fields; no fitted parameters. Rows with a non-positive index price are excluded by the missing-data rule."
+      },
+      {
+        "name": "last_funding_rate",
+        "value": "Most recent settled funding rate at or before the decision time, in decimal (not percent)",
+        "event_ns": "The funding settlement timestamp of that rate",
+        "available_ns": "The funding settlement timestamp of that rate (publication is at settlement)",
+        "fit_cutoff_ns": 0,
+        "source_id": "venue_funding_rate_history",
+        "version": "perp-funding-rate-settled-v1",
+        "transform": "raw settled funding rate; no fitted parameters. Percent-versus-decimal unit errors are a live hazard and must be asserted at ingestion.",
+        "sign_convention_note": "Positive means longs pay shorts on the venues whose documentation states it; the convention must be recorded per source rather than assumed."
+      },
+      {
+        "name": "funding_interval_hours",
+        "value": "Declared funding interval in hours for the instrument at the decision time",
+        "event_ns": "Timestamp at which the interval was last published",
+        "available_ns": "Timestamp at which the interval was last published",
+        "fit_cutoff_ns": 0,
+        "source_id": "venue_instrument_or_funding_config",
+        "version": "perp-funding-interval-hours-v1",
+        "transform": "raw declared interval; no fitted parameters. This is a slow-moving reference fact, not a per-bar observation, but it is unknown to the model unless it is carried: a venue may change an instrument's funding interval, so the value must be the one in force at the decision time."
+      },
+      {
+        "name": "open_interest_level",
+        "value": "Open interest at the decision bar, in the venue's declared unit for that instrument",
+        "event_ns": "Timestamp of the open-interest observation",
+        "available_ns": "Timestamp of the open-interest observation",
+        "fit_cutoff_ns": 0,
+        "source_id": "venue_open_interest",
+        "version": "perp-open-interest-level-v1",
+        "transform": "raw level; no fitted parameters. The unit (base coin, contracts, or USD notional) and the one-sided-versus-two-sided convention must be recorded per source, because a unit or convention error rescales the series by a constant factor without producing any visible error."
+      },
+      {
+        "name": "open_interest_log_change_1d",
+        "value": "Natural log of the decision-bar open interest divided by the previous bar's open interest",
+        "event_ns": "Close time of the decision bar",
+        "available_ns": "Close time of the decision bar + 1 ns",
+        "fit_cutoff_ns": 0,
+        "source_id": "venue_open_interest",
+        "version": "perp-open-interest-log-change-1d-v1",
+        "transform": "deterministic; no fitted parameters. Requires the immediately preceding open-interest observation to exist; genesis rows and rows after a gap are excluded."
+      },
+      {
+        "name": "quote_volume",
+        "value": "Quote-denominated traded volume of the decision bar",
+        "event_ns": "Close time of the decision bar",
+        "available_ns": "Close time of the decision bar + 1 ns",
+        "fit_cutoff_ns": 0,
+        "source_id": "venue_perp_klines",
+        "version": "perp-1d-quote-volume-v1",
+        "transform": "raw quote volume; no fitted parameters"
+      },
+      {
+        "name": "trade_count",
+        "value": "Number of trades in the decision bar",
+        "event_ns": "Close time of the decision bar",
+        "available_ns": "Close time of the decision bar + 1 ns",
+        "fit_cutoff_ns": 0,
+        "source_id": "venue_perp_klines",
+        "version": "perp-1d-trade-count-v1",
+        "transform": "raw count; no fitted parameters"
+      },
+      {
+        "name": "taker_buy_ratio",
+        "value": "Taker buy volume divided by total volume for the decision bar",
+        "event_ns": "Close time of the decision bar",
+        "available_ns": "Close time of the decision bar + 1 ns",
+        "fit_cutoff_ns": 0,
+        "source_id": "venue_perp_klines",
+        "version": "perp-1d-taker-buy-ratio-v1",
+        "transform": "deterministic ratio; no fitted parameters. Rows with zero total volume are excluded by the missing-data rule rather than producing an undefined ratio."
+      },
+      {
+        "name": "realized_vol_24bar",
+        "value": "Population standard deviation of the trailing 24 one-day mark-price log returns, annualization disabled",
+        "event_ns": "Close time of the decision bar",
+        "available_ns": "Close time of the decision bar + 1 ns",
+        "fit_cutoff_ns": "Close time of the bar whose observation closes the trailing window, per row",
+        "source_id": "venue_mark_price_klines",
+        "version": "perp-mark-realized-vol-24bar-v1",
+        "transform": "Trailing-window statistic. The window contains only bars that close at or before the decision bar, so the statistic never sees a future observation.",
+        "fit_cutoff_note": "fit_cutoff_ns is per row and equals the close time of the last bar whose data enters the rolling window for that row. It is therefore at or before that row's available_ns, satisfying the validator's fit_cutoff_ns <= available_ns condition."
+      },
+      {
+        "name": "liquidation_intensity_1d",
+        "value": "Liquidated notional over the trailing 24 hours, normalized by trailing 24-hour quote volume, for venues that publish it",
+        "event_ns": "Timestamp of the last liquidation observation inside the trailing window",
+        "available_ns": "Timestamp of the last liquidation observation inside the trailing window",
+        "fit_cutoff_ns": "Timestamp of the last liquidation observation inside the trailing window, per row",
+        "source_id": "venue_liquidation_feed",
+        "version": "perp-liquidation-intensity-1d-v1",
+        "transform": "Trailing-window ratio; no fitted parameters.",
+        "availability_caveat": "Liquidation data is NOT uniformly available. Binance's public Bulk archive exposes no liquidation files at the probed paths, Bybit documents liquidation only as a real-time stream, Aster documents liquidation order streams and an authenticated force-orders endpoint, and Hyperliquid documents no public liquidation-event dataset. This feature is therefore a CONDITIONAL slot: for a cohort restricted to venues where it is genuinely reconstructible it is computed; otherwise it is removed from the allowlist and the removal is declared at the freeze. It must never be populated with zeros to keep the schema uniform, because a zero would be read as 'no liquidations' rather than 'not observed'."
+      }
+    ],
+    "feature_count": 12,
+    "conditional_feature_policy": "If liquidation_intensity_1d cannot be reconstructed for every instrument in the frozen universe, the freeze must either drop it entirely or restrict the universe to venues that publish it. A partially populated feature with substituted zeros is prohibited.",
+    "fit_cutoff_ns_convention": "fit_cutoff_ns is greater than zero only for a feature whose value depends on fitted or trailing-window observations, and it names the latest observation timestamp that entered that fit for that specific row. It is zero for a transform that requires no fitted observations. A single cohort-wide constant is deliberately NOT used, because for any row occurring after the cohort's first bar a constant equal to the cohort start would still satisfy the validator while a constant set to the end of history would falsely claim to have fitted on data that did not yet exist. Per-row semantics are both the honest reading and the only one that holds for every row. Note that scripts/financial_pit_v1.py enforces the weaker condition fit_cutoff_ns <= available_ns, so a per-row value must be supplied by the feature builder and independently audited rather than assumed to be validated by the script.",
+    "warmup_rule": "Features requiring a trailing window of 24 bars require that window to be fully populated. The warm-up region is excluded from the cohort rather than padded, so the cohort's first decision is the first UTC midnight bar for which all allowlisted features are computable from contiguous history. This is why the cohort start is stated as 2023-01-01 while the venue histories may begin earlier.",
+    "missing_value_policy": "Missing values are never imputed, never forward filled, and never replaced by a sentinel. A row with any missing feature is excluded before the cohort is written, and exclusion counts are reported per feature, per instrument, and per period. The validator requires finite numeric or Boolean feature values, so an explicit upstream exclusion policy is mandatory rather than optional.",
+    "forbidden_features": [
+      "Any feature whose available_ns is after the decision_ns.",
+      "Any feature computed from a restated or currently adjusted series rather than the point-in-time value.",
+      "Any spot-only series used as a substitute for a perpetual observable.",
+      "Any feature that mixes last price and mark price without declaring which one it uses in its version string.",
+      "Any open-interest or funding series whose unit or sign convention is not recorded.",
+      "Any future calendar fact presented as an observation. A known future funding timestamp may be a feature value, but its source observation and publication timestamps cannot be in the future.",
+      "Any cross-sectional rank or normalization computed using the same period's full cross-section, which leaks the future composition of the universe.",
+      "Any label-derived quantity, including the outcome itself, a future mark return, a forward volatility, a funding accrual, or a liquidation outcome computed after the decision time.",
+      "Any universe membership flag whose availability timestamp is later than the decision time.",
+      "Any leverage, margin-mode or position-sizing variable. Those are P2 simulator inputs."
+    ]
+  },
+  "universe_construction": {
+    "universe_id": "crypto_perp_secondary_market_v1",
+    "venue_scope": ["Binance", "Bybit", "Aster", "Hyperliquid"],
+    "instrument_type": "perpetual contracts only",
+    "quote_numeraire": "USDT for the V1 cohort. Coin-margined inverse perpetuals are in scope for the venue survey but excluded from the single-notional V1 cohort because their PnL numeraire is the base coin.",
+    "selection_is_point_in_time": true,
+    "eligibility_rule": "An instrument is eligible for a decision at time t only if it is listed and trading as a perpetual at t, has a fully populated trailing feature window ending at t, and satisfies the liquidity screen evaluated on data available at or before t. A delisted or settled instrument remains in the cohort for the periods in which it was eligible and is then removed going forward, never retroactively.",
+    "liquidity_screen": {
+      "metric": "Trailing 30-bar median quote volume",
+      "rule": "median trailing 30-bar quote volume >= 1000000 USDT-equivalent",
+      "evaluated_at": "the decision timestamp using only bars closing at or before it",
+      "refresh": "re-evaluated every bar so membership can change over time",
+      "normalization_caveat": "For coin-margined instruments the raw volume is not USDT-denominated. The USDT-equivalent conversion must use a point-in-time price with its own event/availability timestamps, or the instrument must be excluded from the liquidity screen. A conversion that uses a later price silently leaks."
+    },
+    "universe_available_ns_rule": "universe_available_ns is the earliest timestamp at which the membership decision could genuinely have been made, which is the close of the last bar used in the liquidity screen plus 1 ns. The validator rejects any record where universe_available_ns > decision_ns. Setting this field does not by itself prove that the membership decision was actually made at that time.",
+    "survivorship_control": "Instruments that stop trading after a decision period are retained in the cohort for all periods in which they were eligible. Removing them retroactively would create survivorship bias. Hyperliquid's meta response carries an isDelisted flag, which is a genuine advantage; Binance's Bulk archive keeps inactive symbols addressable; Bybit and Aster expose symbol status and delivery/delisting timestamps in their instrument metadata. Whether any venue's full historical symbol list is complete is an open question recorded in the manifest.",
+    "target_size": {"target_eligible_instruments": 40, "venues": 4, "status": "design target, not yet measured against source data"},
+    "instrument_identity_rule": "asset_id must encode venue, contract type (linear or inverse) and symbol, because the same underlying on two venues is two instruments and a linear and an inverse contract are two instruments. A silent remap or merge would corrupt both the universe and the label.",
+    "cross_venue_comparability_warning": "Funding intervals, tick sizes, fee schedules, oracle construction, and liquidation mechanics differ across the four venues. A cohort that pools them assumes the event label is comparable; the label is a gross mark-price move so it is comparable in units, but no cost or execution statement is. Any cross-venue aggregate must be reported per venue as well as pooled.",
+    "stablecoin_peg_caveat": "A USDT-quoted linear perpetual and a USDC-margined on-chain perpetual introduce different stablecoin-peg assumptions into the numeraire. Hyperliquid's perpetuals are USDC-margined, so a pooled cohort has two numeraire bases. This must be reported as a data-integrity consideration rather than smoothed away, and it is a reason to treat any single-period result with suspicion."
+  },
+  "instrument_holdout_plan": {
+    "rule": "Instrument holdout is a partition of the cross-section, not a partition of time, so held-out instruments still exist during the training period and the model must never be shown them.",
+    "perpetual_adaptation": "Because the venue set is part of the scope decision, holdout is declared at two levels: a VENUE holdout and an INSTRUMENT holdout within the remaining venues. Both are pre-declared and both are evaluated per group rather than averaged.",
+    "venue_holdout": {
+      "status": "open question for R1",
+      "candidate_rule": "Hold out one or two of the four venues entirely from fitting and report generalization to that venue separately. This is the strongest available test of cross-venue generalization, but it also removes data mass and may not survive the coverage gaps documented in the manifest (for example a venue whose mark-price history is too short).",
+      "must_be_frozen_before_results": true
+    },
+    "partition_rule": "Within the fitting venues, eligible instruments are assigned to exactly one of three disjoint groups by a deterministic, pre-declared rule applied before any result is inspected. The recommended rule is: sort instrument identifiers by SHA-256 of the full identifier string (venue + contract type + symbol), then assign the first third to holdout group A, the second third to group B, and the remaining third to the primary group. Using a hash rather than market capitalization, open interest or volume prevents the partition from correlating with size, leverage cap or volatility, which would confound the generalization claim.",
+    "groups": [
+      {"group_id": "primary", "role": "training, development, calibration, and in-sample test evaluation", "approx_share": "1/3 of eligible instruments"},
+      {"group_id": "holdout_instrument_A", "role": "out-of-sample instrument generalization only; never used for fitting, feature selection, threshold selection, early stopping, or calibration", "approx_share": "1/3 of eligible instruments"},
+      {"group_id": "holdout_instrument_B", "role": "out-of-sample instrument generalization only; never used for any selection decision", "approx_share": "1/3 of eligible instruments"}
+    ],
+    "reporting_rule": "Instrument-holdout metrics must be reported separately for each group and for each held-out venue, with uncertainty intervals, and must never be averaged into a single headline number. A model that performs well only on the primary group has demonstrated cross-sectional overfitting and must be reported as such.",
+    "leakage_guard": "Because the same calendar periods appear in both primary and holdout instrument groups, any cross-sectional feature must be computed strictly within the decision time and must not be normalized using statistics that include held-out instruments' future data. If a feature cannot be computed without cross-sectional contamination, it is removed from the allowlist rather than used with a caveat.",
+    "correlated_instrument_warning": "Perpetual instruments on the same underlying across venues are near-duplicates of each other. A hash partition will scatter BTC-perp contracts across primary and holdout groups, which overstates cross-sectional generalization. An underlying-clustered partition is the candidate refinement, and it must be decided at R1 rather than after results are seen."
+  },
+  "regime_holdout_plan": {
+    "rule": "Regime holdout identifies contiguous calendar periods or point-in-time states that are excluded from fitting so that performance under a distinct market state can be reported separately.",
+    "purge_warning": "A regime holdout window that falls inside the decision span is not merely withheld, it must be purged. Under this protocol any row whose label interval overlaps a holdout window is removed from training, development, calibration, and any selection decision, because its label depends on prices realized inside the held-out period. Withholding a period while still training on labels that resolve inside it is a leakage bug, not a holdout.",
+    "declared_regime_holdouts": [
+      {
+        "regime_id": "regime_high_realized_volatility",
+        "definition": "Trailing 24-bar mark-price realized volatility in the top decile of its expanding point-in-time distribution across the eligible universe",
+        "definition_is_point_in_time": true,
+        "labeling_rule": "The regime label for a bar uses only trailing data ending at that bar, so the regime assignment itself never looks forward.",
+        "purpose": "test whether calibrated probabilities and abstention behavior degrade gracefully under stress"
+      },
+      {
+        "regime_id": "regime_funding_extreme",
+        "definition": "The cross-sectional absolute settled funding rate for the instrument over the trailing day in the top decile of its expanding point-in-time distribution",
+        "definition_is_point_in_time": true,
+        "perpetual_specific": true,
+        "purpose": "isolate the state in which carry is most expensive, which is the state a two-sided policy is most likely to be wrong about. This regime exists only for perpetuals and has no spot analogue."
+      },
+      {
+        "regime_id": "regime_basis_blowout",
+        "definition": "The absolute mark-minus-index basis in basis points in the top decile of its expanding point-in-time distribution",
+        "definition_is_point_in_time": true,
+        "perpetual_specific": true,
+        "purpose": "isolate dislocation between the perpetual and its index, where mark price and last price diverge most and where liquidation cascades cluster."
+      },
+      {
+        "regime_id": "regime_thin_liquidity",
+        "definition": "Trailing 30-bar median quote volume in the bottom quintile of its expanding point-in-time distribution across the eligible universe",
+        "definition_is_point_in_time": true,
+        "purpose": "test whether the model abstains rather than emitting confident probabilities when the market is thin"
+      }
+    ],
+    "candidate_calendar_stress_windows": [
+      {"label": "2023-03 banking-sector stress", "window": "2023-03-01 .. 2023-04-15", "status": "candidate; must be frozen or dropped at R1, never chosen after seeing results"},
+      {"label": "2023-10 to 2023-11 crypto risk-asset rally", "window": "2023-10-01 .. 2023-11-30", "status": "candidate; must be frozen or dropped at R1, never chosen after seeing results"},
+      {"label": "2024-01 US spot bitcoin ETP launches", "window": "2024-01-05 .. 2024-02-15", "status": "candidate; must be frozen or dropped at R1, never chosen after seeing results"},
+      {"label": "2024-04 bitcoin halving", "window": "2024-04-15 .. 2024-05-15", "status": "candidate; must be frozen or dropped at R1, never chosen after seeing results"},
+      {"label": "2025-02 to 2025-04 tariff-driven risk-off", "window": "2025-02-15 .. 2025-04-30", "status": "candidate; must be frozen or dropped at R1, never chosen after seeing results"}
+    ],
+    "calendar_stress_warning": "Naming stress windows after the fact is itself a selection risk. Every candidate window must be accepted or deleted at R1 before any model result exists. Deleting a window after seeing that the model did poorly in it is prohibited.",
+    "reporting_rule": "Report each declared regime separately with calibration, selective risk, and coverage, alongside the unconditional aggregate. A good aggregate that hides a badly miscalibrated stress regime must be reported as a failure of the aggregate, not smoothed into it.",
+    "perp_specific_note": "Funding-extreme and basis-blowout regimes are close to deterministic functions of allowlisted features. That is acceptable for a holdout partition, but it must be disclosed that a model given those features may already encode the regime. The regime holdout tests conditional performance, not regime novelty."
+  },
+  "seed_plan": {
+    "declaration_rule": "All training seeds are declared in advance in this file. Seeds may not be added, removed, or reordered after any result is inspected. Selecting the best of several seeds after seeing test performance is prohibited.",
+    "training_seeds": [1729, 2718, 3141],
+    "seed_count": 3,
+    "minimum_required": 3,
+    "all_seeds_reported": true,
+    "primary_aggregation": "Report every seed individually, including any seed that fails or diverges. The headline result is the distribution across seeds with its spread, not the best seed. Reporting only the best seed, or dropping a seed because it regressed, is prohibited.",
+    "data_seed": 20260919,
+    "data_seed_role": "Governs any stochastic step in cohort assembly. It is recorded so that a cohort can be rebuilt identically, and it must not be changed to improve a result.",
+    "split_seed": null,
+    "split_seed_note": "Splits are deterministic calendar windows and require no random seed. A null value is deliberate rather than missing.",
+    "initialization_seed_policy": "All seeds start from the identical frozen initialization, and the unchanged initialization is evaluated as step zero so that any improvement over the initialization is visible. This mirrors the existing NanoJev relevance protocol convention.",
+    "tie_breaking_rule": "When two candidates have equal dev loss, retain the earlier checkpoint. When two seeds produce identical metrics, report both rather than resolving the tie by preference.",
+    "candidate_selection_rule": "Candidate selection uses the dev split only. Calibration parameters use the calibration split only. Test outcomes must never enter parameter fitting, feature selection, early stopping, threshold selection, model selection, or seed selection.",
+    "status": "declared_as_required_parameter_grid_placeholder; no training is authorized before R1"
+  },
+  "evaluation_plan": {
+    "separate_metric_families": [
+      "Event prediction quality: NLL, Brier score, and exact-Brier objective value, reported separately rather than combined into one score.",
+      "Calibration quality: reliability curve and expected calibration error, fitted on the calibration split only.",
+      "Selective risk: risk as a function of coverage, so that abstention is measured rather than assumed.",
+      "Action utility: deferred to P2 and P3, and reported only after an execution simulator exists with explicit funding, fee, spread, slippage and leverage assumptions."
+    ],
+    "gross_versus_net_separation": "Every event-quality number is a gross price-move metric. Any table that reports a strategy return must state that it came from the P2 simulator with named cost assumptions and must never be presented as an outcome of this protocol.",
+    "baselines_required_before_any_rlcd_like_experiment": [
+      "always-no-trade / always-pass",
+      "always-long (the naive two-sided counterpart that the long-only era made implicit)",
+      "always-predict-the-base-rate",
+      "random prediction at the observed base rate with a declared seed",
+      "random long/flat/short action at the observed base rate with a declared seed",
+      "simple deterministic rule on a single allowlisted feature",
+      "L2-regularized logistic regression",
+      "gradient-boosted trees"
+    ],
+    "cross_entropy_and_brier": "Exact cross-entropy and exact Brier objectives are compared under matched data, seeds, initialization, and training budget. Neither objective may be silently replaced by a surrogate.",
+    "prohibited_practices": [
+      "Test-period threshold tuning, feature selection, early stopping, or strategy selection.",
+      "Reporting a selective-risk or coverage figure without the corresponding coverage level.",
+      "Reporting gross results without stating that they are gross and excluding execution, funding and leverage costs.",
+      "Presenting event-prediction quality as evidence of trading profitability.",
+      "Averaging across instrument, venue or regime holdouts so that a weak subgroup disappears into a headline number.",
+      "Dropping or hiding a failing seed, fold, instrument group, venue, or regime.",
+      "Describing a flat-only or long-only policy as the two-sided action space."
+    ],
+    "required_reporting_dimensions": [
+      "per fold",
+      "per seed",
+      "per venue",
+      "per instrument holdout group",
+      "per regime holdout",
+      "per instrument",
+      "per contract type where both types are present",
+      "with uncertainty intervals rather than point estimates alone"
+    ],
+    "frontier_warning": "Venue frontiers differ. The Bulk archive is monthly and appears on the first Monday of the following month; venue REST endpoints publish near-real-time. Any evaluation near the frontier of available data must state the frontier timestamp per venue explicitly, and results must not be extended into a period whose data was not yet published at the stated as-of time.",
+    "funding_cost_warning": "A perpetual position that is held across a funding settlement pays or receives carry. That cash flow is excluded from this protocol's label by design and must be introduced only in the P2 simulator. A gross event metric and a net strategy return are different objects and must never be reported in the same column."
+  },
+  "risk_and_scope_controls": {
+    "no_live_execution": true,
+    "no_broker_credentials": true,
+    "no_order_submission": true,
+    "no_paid_data_purchase_authorized": true,
+    "no_account_or_api_key_authorized": true,
+    "no_profitability_claim": true,
+    "spot_excluded": true,
+    "abstention_is_first_class": true,
+    "model_external_risk_controls_deferred_to": "work package P2",
+    "note": "This protocol defines a prediction experiment only. Position sizing, exposure limits, leverage choice, turnover limits, margin mode, funding-cost accounting, kill switches, stale-data checks, and clock-drift checks are P2 deliverables and are not simulated here. No result produced under this protocol may be described as a strategy return, and no live or paper trading is authorized."
+  },
+  "known_limitations": [
+    "Point-in-time authenticity is not established for any venue. The Bulk archive publishes no as-of vintages, and the venue APIs serve current history. Merely writing available_ns into a record proves that this protocol declared a time; it does not prove that the source data existed in that form at that time.",
+    "The recommended Bulk-archive source is licensed CC BY-NC-SA 4.0 (non-commercial) and its section 4.2 prohibits live proprietary trading execution. Any execution phase therefore requires a different data right, which must be resolved before such a phase is planned.",
+    "The label is a gross mark-price move and ignores fees, spread, slippage, funding, leverage, liquidation and ADL. It cannot support any profitability claim.",
+    "The two-sided action space is declared but not yet evaluated. No policy has been fitted, and the long/flat/short thresholds are a calibration-split task that does not exist yet.",
+    "Liquidation and ADL event history is generally unavailable historically: Binance's Bulk archive exposes no liquidation files at the probed paths, Bybit documents liquidations as a stream, Aster exposes a stream plus an authenticated force-orders endpoint, and Hyperliquid documents no public liquidation-event dataset. The liquidation_intensity_1d feature is therefore conditional and may have to be dropped.",
+    "Hyperliquid's documented candle endpoint returns only the most recent 5000 candles, and its public S3 archive publishes L2 book snapshots and asset contexts roughly monthly with explicit no-timeliness and possible-missing-data caveats. A Hyperliquid cohort may therefore have a shorter usable span than the Binance cohort, which forces an explicit coverage decision at R1.",
+    "Open-interest units and one-sided-versus-two-sided conventions differ across venues, and coin-margined metrics can carry empty long/short fields. A unit error rescales a series silently and must be asserted at ingestion.",
+    "A 1-day horizon over a 40-instrument cross-section produces a small effective sample for regime holdouts, and cross-venue duplication of the same underlying inflates apparent sample size. Regime and cross-sectional results will have wide intervals and must be reported as such rather than as strong conclusions.",
+    "The 7-day label availability lag is a declared conservative assumption, not a measured source latency. The validator imposes a hard structural constraint here: a non-test phase retains only decisions whose labels mature by that phase's own end, so the lag must stay shorter than the dev and calibration windows. Raising the lag without also lengthening those windows would empty the phases. Any change to the lag requires recomputing the split geometry, not editing the number.",
+    "The maturity rule necessarily purges the tail of every non-test phase, measured on the synthetic perpetual cohort at about 2.9 percent of retained non-test rows. This is expected and reported rather than eliminated, but the effective train/dev/calibration windows are each roughly 8 days shorter than their nominal spans.",
+    "Instrument holdout by hashed identifier can scatter near-identical cross-venue contracts across groups, which would overstate cross-sectional generalization. Underlying-clustered or venue-based partitioning is a candidate refinement that must be decided at R1, not after results.",
+    "The definition hash recorded here was recomputed for the perpetual revision and is not yet frozen. It must be recomputed from the frozen definition object at the R1 freeze and must match. The superseded spot-era hash is void.",
+    "Validator compatibility is measured on a synthetic perpetual-shaped cohort and is not yet measured on real data. The receipt proves structural acceptance by the unmodified validator, nothing more.",
+    "No dataset has been downloaded, no model has been trained, and no result exists. This file describes an intended protocol only."
+  ],
+  "open_questions": [
+    {"id": "P1", "question": "Is a 25 basis point gross mark-price threshold over a 1-day horizon acceptable for perpetual contracts, or should the threshold and horizon change before freezing?", "blocking": false},
+    {"id": "P2", "question": "Is a 7-day label availability lag an acceptable conservative declaration, given that it is also constrained from above by the dev and calibration window lengths?", "blocking": false},
+    {"id": "P3", "question": "Which permanent instrument universe is accepted, per venue and per contract type, and who confirms the final list before the freeze?", "blocking": true},
+    {"id": "P4", "question": "Is mark-price labelling accepted as the primary convention, with last-price labelling permitted only as a declared robustness variant?", "blocking": false},
+    {"id": "P5", "question": "Which calendar stress windows are accepted, and which are deleted, before any result exists?", "blocking": false},
+    {"id": "P6", "question": "Are the three declared training seeds 1729, 2718, and 3141 final?", "blocking": false},
+    {"id": "P7", "question": "Who produces the receipt showing the projected pit_validator_core accepted by the unmodified validator ON REAL DATA rather than on the synthetic cohort?", "blocking": true},
+    {"id": "P8", "question": "Does the reviewer accept that this protocol yields pipeline-validation evidence rather than financial evidence, given the absence of point-in-time vintages?", "blocking": true},
+    {"id": "P9", "question": "Is a venue holdout (one or two of Binance, Bybit, Aster, Hyperliquid withheld entirely from fitting) required, or is an instrument-only holdout sufficient?", "blocking": false},
+    {"id": "P10", "question": "Is liquidation_intensity_1d kept under a restricted venue set, or dropped from the allowlist entirely?", "blocking": false},
+    {"id": "P11", "question": "Is a single-numeraire USDT-margined cohort accepted for V1, with coin-margined inverse and USDC-margined on-chain perpetuals deferred to a separately pre-registered extension?", "blocking": false},
+    {"id": "P12", "question": "Given that the non-commercial Bulk-archive license prohibits live proprietary trading execution, is offline research without any execution path an acceptable permanent scope for this data source, or must a licensable alternative be selected now?", "blocking": true}
+  ],
+  "deliberate_non_actions": [
+    "No dataset was downloaded, purchased, or subscribed to.",
+    "No account, API key, or credential was created.",
+    "No broker, exchange trading endpoint, or order-submission path was contacted.",
+    "No model was trained and no financial result of any kind was produced.",
+    "No profitability, edge, or performance claim is made.",
+    "scripts/financial_pit_v1.py was read but not modified.",
+    "No spot instrument appears anywhere in this revision; the track is perpetual-contract only.",
+    "No file other than docs/FINANCIAL_DATA_PLAN_V1.md, research/financial_source_manifest_v1.json, and research/financial_experiment_protocol_v1.json was created or modified, and no git commit or push was performed."
+  ]
+}

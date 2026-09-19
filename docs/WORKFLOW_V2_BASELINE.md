@@ -85,7 +85,9 @@ Validation at this milestone: unittest reports 126 tests with two skips (optiona
 ## Remaining evidence
 
 - Human-reviewed and genuinely new task-family challenges are still missing.
-- Three matched training seeds, calibration-only threshold fitting, and production-style task success are still required.
+- Three matched training seeds for a V2.1 baseline/candidate comparison, calibration-only threshold fitting, and production-style task success are still required. (The three seeds in the separate [context-relevance experiment](CONTEXT_RELEVANCE_V1.md) are task-specific fine-tunes of one frozen initialization, not this baseline/candidate comparison.)
 - Provider-neutral shadow gating and paired main-model token/quality measurements remain unimplemented.
 - No financial point-in-time cohort, simulator, live execution, or profitable strategy is established by this work.
 - Next implementation should preserve the original request in shadow mode and keep all protected instructions outside any learned deletion policy.
+
+Current sequencing, work-package boundaries, and review gates live in [the progress and handoff plan](CURRENT_PROGRESS_AND_HANDOFF.md).

@@ -11,6 +11,81 @@ Neither goal is a current capability claim. Token reduction, financial utility, 
 
 The official Jev API is proprietary and its public latency and cost claims are workload-specific. NanoJev therefore uses explicit contracts, public cohorts, benchmark receipts, and acceptance gates instead of claiming architectural equivalence or reproducing marketing numbers.
 
+## Current execution handoff
+
+The [current progress and AI handoff plan](CURRENT_PROGRESS_AND_HANDOFF.md) is the execution entry point: it records worktree status, bounded work packages, acceptance evidence, and mandatory review checkpoints. The [review log](EXECUTION_REVIEW_LOG.md) holds the per-work-package verification record and the reviewer's findings. The [three-seed relevance result](CONTEXT_RELEVANCE_V1.md) is documented: training and receipts exist, independent implementation/evidence review remains pending, and **no candidate is promoted**. This does not close Phase 0 or authorize active filtering.
+
+**Delivered since the last roadmap revision** (all independently re-verified by the reviewer):
+
+| Package | Delivered | Evidence |
+|---|---|---|
+| P0 | Evidence closure and review log | frozen-artifact hashes MATCH; independent report rebuild is semantically identical |
+| P1 / P1b | Financial data, rights, PIT, and experiment contract draft, **stopped at R1** | 14 sources surveyed; perpetual-only scope; validator projection key-set verified |
+| P2 / P2b | Perpetual execution simulator plus paper-trading backtest | **80 tests**; conservation, determinism, funding monotonicity, liquidation and margin-sufficiency checks pass |
+| A4 | Tool-history shadow fixtures | 11 fixtures, 13 tests, **11/11 semantics match through the real gateway** |
+| G1 | Main-model workflow gateway | 42 tests; shadow, active, real-scorer, and `actual` token-accounting paths verified end to end |
+| G2 | Reversible filtering | 65 restore tests; byte-identical round-trip through the real gateway; one reviewer-found contract violation fixed |
+| E1 | Mac-local read-only measurement of the community references | laya runs on `mps:0`; readouts are diagnostics only, not a controlled comparison |
+| W1 | **Real-data paper trading across four venues** | 6,554-record real PIT cohort accepted by the unmodified validator at exit 0; three venue receipts |
+
+Full suite: **380 tests OK (2 skipped)**. Nothing was purchased; no broker, account, key, or order
+was ever touched. `HEAD` remained at `be0303c` throughout the work; this revision is the first
+commit of that work.
+
+**User directive (2026-09-19): the local decision model must be integrated into the main-model workflow to increase speed and reduce token consumption.** The concrete missing deliverable is the G1 provider gateway (work package G1 in the handoff plan): a loopback gateway exposing OpenAI- and Anthropic-compatible pass-through endpoints, defaulting to byte-preserving shadow mode, failing open on every error path, with a documented measured-versus-estimated token accounting rule. Building and testing that gateway is authorized now. **Enabling active pruning in production is not**: it still requires every Track A acceptance gate below plus paired downstream-quality and net-token-cost evidence across at least three main-model families and a zero-deletion protected-segment stress suite.
+
+**User scope decision (2026-09-19) for Track B: perpetual-contract crypto trading only, never spot**, across **Binance, Bybit, Aster, and Hyperliquid**, with RLCD training and a paper-trading backtest as explicit deliverables. Live capital remains out of scope. Consequences that must be visible in every plan: the spot-era draft (long-only, gross price-move label) must become two-sided with leverage, margin, funding, and liquidation semantics; the existing simulator refuses short sales and models no margin or funding, which is a hard blocker for perp backtesting; and the previously recommended Binance Vision archive is CC BY-NC-SA 4.0 (non-commercial) with a §4.2 clause prohibiting live proprietary trading execution, so it can never support an execution phase and must be re-assessed per venue.
+
+**User directive (2026-09-19): advance real-data simulated (paper) trading first — it is the cheaper path.** This reordered the financial track: the data/simulator/backtest plumbing was delivered end to end on **real** venue data before any RLCD training. See [Real-data paper trading V1](PAPER_TRADE_REAL_DATA_V1.md) and [Venue data licensing audit V1](VENUE_DATA_LICENSING_V1.md).
+
+**User directive (2026-09-19): authorise Bybit/Aster/Hyperliquid as data sources and connect them.** All four venues are now connected. Two of them were blocked purely by **egress**, not by the venues: `api.bybit.com` is DNS-poisoned in this environment and `fapi.asterdex.com` refuses direct connections; routing through the local egress proxy reaches both. **This was a reviewer oversight** — the first pass tested direct connections only and wrongly concluded Aster was unreachable.
+
+**User directive (2026-09-19): update progress and forward plan in the docs, and commit/sync important material to git.** This revision records the delivered work packages, the negative results, and the re-ordered plan below.
+
+### The single most important V2 result so far is a negative one
+
+Over real data the same reference strategy produced **four mutually contradictory** results:
+
+| Run | Data | Net PnL |
+|---|---|---:|
+| A | Binance, before a 3-day index fix | −49,920.90 |
+| B | Binance, after the fix | +21,173.77 |
+| C | Bybit, same period and instruments | −77,919.27 |
+| D | Aster, same period and instruments | +194,025.96 |
+
+The cross-venue spread is **271,945 on 100,000 of initial capital — 2.7× the capital** — while the
+venues' mark prices agree to within **1–2 basis points** (Aster vs Bybit mean absolute deviation
+0.0199%, Aster vs Binance 0.0122%). Runs A and B differ by three days and one rejected order;
+that single order flips the sign.
+
+So the divergence is **not** data quality. The reference strategy is **chaotic with respect to its
+input**, and three amplifiers are identified and must be fixed before any financial number can
+carry meaning:
+
+1. a **rejected or partially filled** order silently breaks the intended position path, and the
+   strategy then compounds from a position it does not hold;
+2. the order quantity is **recomputed from current price** each time, so position size compounds
+   with the path rather than staying fixed;
+3. the **capacity policy interacts with venue-reported volume** (Aster's median daily BTCUSDT bar
+   volume is 9,959 vs Binance's 128,882), so the same strategy receives different position sizes
+   per venue.
+
+This is why the financial track still has **no** utility, edge, or profitability claim, and why
+Track B's first acceptance gate is now measurement integrity rather than model quality.
+
+## Community references and adoption plan
+
+Reviewed 2026-09-19. See [the pinned reference review](JEV_COMMUNITY_REFERENCES.md) for evidence, limits, and executable follow-up gates.
+
+| Reference | Role in this roadmap | First deliverable | Adoption boundary |
+|---|---|---|---|
+| [tamaratran/fast-jev-compaction](https://github.com/tamaratran/fast-jev-compaction) | Track A: verbatim retention, paired tool-call/result pruning, bounded scoring requests | A4 tool-history shadow corpus and paired compression benchmark | Do not inherit its 0.5 keep threshold, character-based savings claim, or result-omission policy without validation |
+| [hr98w/jev-visual](https://github.com/hr98w/jev-visual) | Track B and shared runtime: shared context, direct candidate scoring, independent-forward parity | B8 structured-versus-visual state ablation plus runtime parity specification | This is an educational visual inference project, not a financial strategy, RLCD trainer, or proof of millisecond trading |
+| [NandhaKishorM/laya](https://github.com/NandhaKishorM/laya) | Shared runtime and Track B recipe: 421M ModernBERT encoder decision engine, proper-scoring GRPO-style training, script-detection routing | Read-only local install on this Mac laptop (MPS/CPU latency and memory receipt) plus zero-shot probe on frozen workflow samples | T4 latency and Jev comparison are non-local/third-party numbers; base checkpoints are near-chance zero-shot by its own disclosure; 512/1024-token context does not cover Track A long-context loads; its GRPO-style recipe is an RLCD candidate, not the definition |
+| [kshetrajna12/reflex](https://github.com/kshetrajna12/reflex) | Shared runtime and model quality: Qwen3.5 direct-logits readout without trained heads, packed/batched branch isolation with numerical-equivalence tests, calibration protocol, TypeSafe-compatible API shape | WebGPU demo verification on this Mac (Safari 18+), then a reviewed direct-logits-versus-trained-heads ablation spec on frozen cohorts | Direct-logits caps Choice at 26 candidates versus our 255 contract; MMLU/Jev ECE figures are cross-source comparisons; supervised proper-scoring LoRA is not RLCD; GB10/WebGPU timings do not transfer to our MPS service |
+
+Financial calibrated decisions remain the highest strategic priority. The already-running Track A relevance experiment is closed and reported (no promotion); advance financial data/simulator foundations next. Visual demos, plugin packaging, and the laya/reflex Mac-local exploratory checks must not displace that work. No reference changes the frozen training protocol or authorizes provider reconfiguration, external transcript uploads, active pruning, or trading.
+
 ## Baseline: V1.0
 
 Current reference checkpoint: `variants/local_atomic_seed17`.
@@ -43,8 +118,11 @@ Status: **in progress**
 - [x] Add a benchmark manifest containing dataset, checkpoint, dependency, and hardware hashes.
 - [x] Add the broad workflow baseline covering Boolean, Choice, Score, rule-based tasks, and known probability distributions, with committed metric receipts and reproduction commands.
 - [x] Run a four-variant, 3,264-question robustness challenge with paired source-group intervals and complete failure reporting.
+- [x] Add a reversible-filtering round-trip property with a content-free restore manifest, verified byte-identical through the real gateway.
+- [x] Verify the gateway's token accounting distinguishes `estimate` from provider-paired `actual` savings.
 - [ ] Add human-reviewed challenges and genuinely held-out task families beyond synthetic rendering variants.
 - [ ] Evaluate the first V2.1 candidate and its baseline with at least three matched training seeds.
+- [ ] **[NEW] Add a mandatory sensitivity/spread report** to every financial result so no point estimate can be published alone (see B0).
 
 Exit gate: every model change reports accuracy, NLL, Brier, ECE, invalid-output count, abstention, cold start, warm p50/p95/p99, throughput, and peak memory on the same frozen cohort. Product-specific evaluations add token savings or financial utility without replacing these shared metrics.
 
@@ -65,7 +143,22 @@ NanoJev will run before a main model as a provider-neutral context gate. It will
 
 ### A2. Shadow mode and adapters
 
-Status: **initial text-request shadow library and loopback adapter implemented**; not globally installed or actively filtering. See [Context shadow V1](CONTEXT_SHADOW_V1.md). Three thousand deterministic guardrail checks and 24 real-checkpoint HTTP requests passed integration checks, but all real scores abstained under the provisional threshold, so actual token savings remain zero. Main-model quality comparisons, broader provenance adapters, and calibrated relevance learning remain open.
+Status: **shadow library, loopback adapter, main-model forwarding gateway, and reversible filtering are implemented and independently verified**; not globally installed, and active filtering stays **disabled by default**. See [Context shadow V1](CONTEXT_SHADOW_V1.md), [Main-model gateway V1](MAIN_MODEL_GATEWAY_V1.md), and [Reversible filtering V1](REVERSIBLE_FILTERING_V1.md).
+
+Delivered and verified at five levels — library tests (42), CLI entry point, real-scorer end to end, process-level `active` reduction, and the `actual` token-accounting path:
+
+- **Shadow** forwards the original bytes, passes opaque credentials through untouched, leaks no `x-nanojev-*` header upstream, and writes a content-free receipt.
+- **Active** reduction works end to end and preserves system instructions, user intent, and protected segments.
+- **Token accounting is honest by construction.** Savings are reported as `estimate` unless the caller supplies a provider-reported paired baseline; with one, the claim becomes `actual` and equals `baseline − provider_prompt_tokens` (verified: 412 − 300 = 112). A reduction that was genuinely sent still refuses to claim `actual` without that baseline.
+- **Reversible filtering** returns a content-free restore manifest in `x-nanojev-restore-manifest`. Independent verification confirms byte-identical round-trip restoration through the real gateway and rejects tampering (`removed_segment_hash_mismatch`).
+- **A reviewer-found contract violation was fixed**: the gateway could forward a reduction the caller could not restore, because its guard checked only that the manifest *built*, not that restoration *succeeded*. The gateway now performs a real round-trip against the caller's own bytes before sending, and fails open on any mismatch.
+
+Two measured limits now bound what this can claim:
+
+- **`MAX_SCORED = 32`.** Requests with more than 32 scorable candidates bypass entirely with `scoring_budget_exceeded` and zero reduction. Long coding-agent histories — the case the gate exists for — are the most likely to hit this. Serviceability of long contexts is therefore an **open design question**, not a solved one.
+- **Real-checkpoint proposals remain zero**, so actual token savings are still zero. Every Track A gate below is unmet.
+
+Also open: main-model quality comparisons, broader provenance adapters, calibrated threshold fitting on calibration data, and independent challenge families.
 
 - Build a canonical request envelope and adapters for the major chat, coding-agent, and tool-use message formats.
 - Start in shadow mode: score and log proposed removals while sending the original unfiltered request to the main model.
@@ -86,6 +179,27 @@ Evaluation cohorts must include:
 - adversarial dependency cases where an early detail changes a late answer
 - unsupported tasks that must bypass filtering
 
+### A4. Tool-history compaction reference experiment
+
+Status: **implemented and independently verified, including through the gateway.** 11 deterministic fixtures (8 scored + 3 bypass), 13 unit tests, and a build script; see [Tool history shadow V1](TOOL_HISTORY_SHADOW_V1.md).
+
+The A4 fixtures were built against the shadow core while the gateway was built separately, so a reviewer closed the gap by replaying **all 11 fixtures through the real gateway process** in `active` mode with a deliberately maximal always-drop scorer:
+
+| Check | Result |
+|---|---|
+| gate `status` matches each fixture's declaration | **11/11** |
+| gate `reason` matches | **11/11** |
+| retain semantics match | **11/11** |
+| receipts containing leak tokens | **0** |
+
+The three tool-linkage ambiguity cases (`duplicate_ids`, `orphan_result`, `pending_call`) **bypass wholesale** at the gateway layer — no attribution guessing — which is the core safety property A4 was designed for. Auditing what was actually dropped showed only assistant drafts or restatements of a tool value were removed, with the authoritative tool result, system instructions, and user intent always retained; the leak tokens were present in the forwarded bytes and absent from the receipts.
+
+- Keep first/current intent, recent context, pinned evidence, and pending calls protected.
+- Retain retained text verbatim. Never imply that deletion is lossless merely because the surviving text was not rewritten.
+- Unsupported or ambiguous histories must pass through unchanged.
+- Measure provider-tokenizer or API-reported input counts, gate overhead, tool re-execution, downstream failures, and total cost. Character reduction alone is not token or money savings.
+- Ship only shadow receipts until Track A acceptance gates pass. Do not tune the 0.99 gate using held-out outcomes or copy upstream's 0.5 threshold.
+
 ### Track A acceptance gates
 
 Targets are release gates, not current results:
@@ -102,11 +216,62 @@ Targets are release gates, not current results:
 
 Priority: **highest strategic priority**
 
-The initial target is a bounded decision engine, not free-form market commentary and not an autonomous live-trading system. The model should emit complete probability distributions and an abstain/no-trade decision for clearly defined horizons and market states.
+The initial target is a bounded decision engine, not free-form market commentary and not an autonomous live-trading system. The model should emit complete probability distributions and an abstain/no-trade decision for clearly defined horizons and market states. Per the user scope decision recorded above, the instrument class is **perpetual contracts only** (Binance, Bybit, Aster, Hyperliquid), so the action space is two-sided and the state contract must carry margin, leverage, funding, and liquidation state; spot is out of scope.
+
+### B0. Measurement integrity — now the first gate
+
+Status: **NOT met; blocking every other financial claim.**
+
+The real-data result recorded at the top of this document shows a 2.7×-of-capital spread across
+three venues whose prices agree to 1–2 bps. Until that is fixed, no financial number — including
+any future RLCD result — can be distinguished from path noise. This gate precedes B1–B8.
+
+Required before any further financial measurement:
+
+- **A fill divergence must be an error, not a silent state change.** When an order is rejected,
+  partially filled, or expires, the harness must either raise or explicitly reconcile the
+  intended position with the actual one. Continuing from an assumed position is forbidden.
+- **Position sizing must be declared and path-independent by default.** Compounding a size off
+  current equity inside a signal path turns a 1 bp input difference into a 2.7× output
+  difference, which destroys measurability. Compounding may be an explicit, separately reported
+  option, never the silent default.
+- **Capacity and cost parameters must not be coupled to venue-reported volume** unless that
+  coupling is the object of study, because it makes cross-venue comparison meaningless.
+- **A sensitivity report is mandatory** for every financial result: the same run under
+  perturbed seeds, day-sets, and venues, reported together, with the spread stated. A single
+  number with no spread must not be presented as a result.
+- **Determinism is not robustness.** Byte-identical re-runs were verified and are necessary but
+  insufficient; the receipt must state both.
+
+Exit gate: the same strategy on the same period across at least three venues produces results
+whose spread is small enough to be interpretable, **or** the harness explicitly reports that it
+cannot and declines to emit a headline number.
 
 ### B1. Decision and state contract
 
-Status: **initial executable PIT binary-event contract and chronological split validator implemented**. See [Financial PIT V1](FINANCIAL_PIT_V1.md): 12,000 synthetic records, three walk-forward folds, 1,000 rejected timing mutations and 1,000 label-isolation checks. This is not a sourced financial dataset, simulator, trained trading model, or completed B1 state/action contract.
+Status: **PIT validator, perpetual execution simulator, real multi-venue data, and an end-to-end paper backtest are implemented; the state/action contract is still incomplete.**
+
+- [Financial PIT V1](FINANCIAL_PIT_V1.md): 12,000 synthetic records, three walk-forward folds, 1,000 rejected timing mutations, 1,000 label-isolation checks.
+- [Financial data plan V1](FINANCIAL_DATA_PLAN_V1.md) + [venue licensing audit V1](VENUE_DATA_LICENSING_V1.md): 14 sources surveyed, perpetual-only scope, four venues, per-venue licence verdicts.
+- [Financial simulator V1](FINANCIAL_SIMULATOR_V1.md): perpetual layer with margin sufficiency, funding, and liquidation; 80 tests; **71 policy parameters explicitly provisional pending R1**.
+- [Real-data paper trading V1](PAPER_TRADE_REAL_DATA_V1.md): **real** venue data end to end.
+
+**Real data is now in place.** 925 public archive/API files were fetched with per-file provenance and SHA-256 in three manifests, and **nothing was purchased**; all sources are public read-only endpoints, no key, no account, no order.
+
+| Venue | Files | Bytes |
+|---|---:|---:|
+| Binance (bulk archive) | 880 | 1,185,364 |
+| Bybit (v5 API via proxy) | 30 | 3,734,654 |
+| Hyperliquid (`/info`) | 15 | 14,131,517 |
+| Aster (v3 API via proxy) | 35 | 4,032,704 |
+
+Build results: a **6,554-record real PIT cohort** (45.03% positive base rate) that the **unmodified** `financial_pit_v1.py` accepts at exit 0 against the frozen protocol core, with all four phases nonempty in all three folds (test 905 / 905 / 465, dev and calibration 120 each).
+
+**What is still missing from B1:**
+
+- The cohort is a **PILOT**, not the R1 cohort. The R1 feature allowlist is a **closed 12-feature set**, and three features cannot be built: `open_interest_level` and `open_interest_log_change_1d` need Binance's daily metrics archive (obtainable), while **`liquidation_intensity_1d` is published historically by no venue in the set** (not obtainable). The pilot therefore declares a documented 9-feature subset and must not be presented as the R1 cohort.
+- **No order-book or microstructure features**, no position/inventory state, no borrow or capacity state. The state contract below is still aspirational.
+- **No real-data receipt for the risk gate**, and the execution-cost parameters remain declared guesses (the archive has no order book, so bid/ask equal the mark close and all spread cost is one parameter).
 
 Start with finite actions whose outcomes can be labeled and simulated:
 
@@ -182,16 +347,36 @@ An action distribution is not automatically a calibrated success probability. Ev
 
 Optimize only after correctness and leakage controls are in place. Candidate techniques include compact feature encoders, fixed-shape batches, preallocated buffers, persistent services, quantization, compiled kernels, prefix sharing, and asynchronous feature updates.
 
+### B8. Shared scoring and optional visual financial states
+
+Status: **planned; inference reference reviewed, financial transfer unverified**.
+
+- Use `jev-visual` as a systems reference for shared state prefill, batched bounded candidates, selective output projection, and comparison with independent full forwards. Its normalized candidate scores are not calibrated financial event probabilities.
+- Start with timestamped structured market features. Test chart images only as an optional ablation against the same source observations, instruments, horizons, and chronological splits; do not make a vision model a prerequisite for financial research.
+- Render each chart strictly from point-in-time data with fixed trailing windows, axis rules, and transformations. No future candles, future-dependent scaling, revised indicators, or post-event annotations. Rendering and image encoding count toward end-to-end latency.
+- Compare structured-only, image-only, and combined states using identical labels and budgets. Require incremental held-out calibration/utility or a justified operational benefit before retaining visual complexity.
+- Preserve an independent scoring path; test cache isolation, candidate permutations, padding, mixed lengths, overlapping token sequences, multilingual candidates, and recurrent state where applicable. Architecture-specific cache code is not portable by assumption.
+- Do not transplant the reported M4 visual timings to NanoJev or financial workloads. Record model compute, feature/image preparation, queueing, and complete validated paper-decision latency separately.
+- Keep CE/exact-Brier baselines ahead of RLCD-like experiments. This reference contributes inference engineering, not evidence of an RLCD training reproduction.
+
 ### Track B initial acceptance gates
 
 Targets are provisional and must be revisited after the first frozen dataset and simulator:
 
+- **[NEW, first] measurement integrity (B0)**: cross-venue and cross-perturbation spread of the same strategy is reported and small enough to interpret, or the harness declines to emit a headline number
 - warm local model compute p50 below 5 ms and p99 below 20 ms for bounded state/candidate workloads on declared hardware
 - end-to-end paper-decision p99 below 50 ms, with feature freshness and validation included
 - better calibration and selective-risk curves than the deterministic baseline on frozen holdouts
 - positive net performance after realistic costs across multiple purged walk-forward periods, with uncertainty intervals and no single-period dependency
 - stable behavior across instrument and regime holdouts, with explicit abstention under distribution shift
 - zero live trading until offline, shadow, and paper-trading gates pass
+
+### Data-rights gates
+
+- **[NEW] Every venue used must have a read verdict recorded** before its data drives a result. Read so far: **Binance** (CC BY-NC-SA 4.0, research permitted §4.1, live execution prohibited §4.2) and **Aster** (Terms of 2026-02-25; §6.1(b) requires prior written consent to download their material and §6.2(e) requires express permission for automated access, with **no research carve-out** — the project's own authorisation is not the venue's permission). **Not read: Bybit** (JS SPA; the headless browser cannot use the egress proxy) and **Hyperliquid** (no terms page exists in its public docs; the main site returns 403).
+- Aster is the only **read, concrete, unresolved** prohibition. Closing it requires written permission from Aster, an authenticated API key under whatever terms accompany it, or an explicit recorded decision to accept the risk.
+- Unread venues stay labelled **unverified** in every artifact; they must never be described as cleared.
+- Live execution is a separate question from data rights and is blocked for Binance by §4.2 independently.
 
 ## Shared model-quality program
 
@@ -248,6 +433,12 @@ The previous M5 Max targets remain useful for the general runtime, but they do n
 - Never call a recorded Jev trajectory an independent fresh API measurement.
 - Never claim token savings without paired downstream-quality results.
 - Never claim profitable trading from gross returns, one period, one instrument set, or a tuned test period.
+- Never present a financial point estimate without its cross-venue and cross-perturbation spread; a bare number from one data set is not a result.
+- Never treat determinism as robustness. A byte-identical re-run of a wrong-sign number is still a wrong-sign number.
+- Never let a rejected, partial, or expired fill pass silently as an assumed position.
+- Never describe a data source as licensed or cleared when its terms were not read; "unread" and "unverified" must appear in every artifact that uses it.
+- Never treat the project owner's authorisation as the venue's permission where a clause requires the venue's consent.
+- Never connect a data source whose terms prohibit the access method without recording the conflict explicitly.
 - Never enable active context removal without fail-open fallback and protected-segment tests.
 - Never enable live trading as part of model research or benchmark automation.
 - Every speed optimization needs a numerical-equivalence or task-quality report.
@@ -255,15 +446,80 @@ The previous M5 Max targets remain useful for the general runtime, but they do n
 
 ## Current development slice
 
-Work proceeds in this order:
+Re-ordered 2026-09-19 after the real-data results. The governing principle: **do not build a
+model on top of a measurement that cannot yet be trusted.** Work proceeds in this order, mapped
+to the [handoff work packages](CURRENT_PROGRESS_AND_HANDOFF.md).
 
-1. Preserve the completed broad baseline and synthetic challenge receipts; extend coverage with independently reviewed tasks without training or tuning on the frozen test/OOD records.
-2. Extend the implemented text-only shadow adapter with provenance-aware eligible context; build a separate relevance training/development/calibration corpus because the current checkpoint abstains on all 24 smoke cases. Never tune its threshold on frozen test/OOD results.
-3. Establish a paired token-savings and downstream-quality benchmark across multiple main-model families.
-4. Build on the implemented financial PIT validator: acquire and audit licensed point-in-time data, freeze instrument/regime holdouts, and implement the execution simulator and risk controls. Synthetic schema checks alone cannot establish data authenticity.
-5. Establish deterministic, cross-entropy, and exact-Brier financial baselines before any policy-gradient experiment.
-6. Begin RLCD-like estimator comparisons only after the supervised baselines and simulator pass their integrity checks.
-7. Optimize model, feature, and end-to-end latency only on frozen tasks, without weakening calibration, risk, or leakage gates.
+### Now — measurement integrity (Track B, blocks everything financial)
+
+1. **[B0] Fix the three amplifiers** identified in the real-data paper run and re-run the same
+   strategy across Binance, Bybit, and Aster:
+   - make a rejected/partial/expired fill an **explicit error** (or reconcile it) instead of a
+     silent position change;
+   - make position sizing **declared and path-independent by default**;
+   - **decouple capacity from venue-reported volume**, or make that coupling the object of study.
+   Then add the **mandatory sensitivity report** (seeds × day-sets × venues, with the spread
+   stated) so no future financial number can be published as a bare point estimate.
+   *Exit:* the cross-venue spread becomes interpretable, or the harness explicitly declines to
+   emit a headline number.
+2. **[R1 rulings]** Freeze the financial protocol. Specifically:
+   - the **PILOT 9-feature cohort versus the closed 12-feature R1 allowlist** — decide whether to
+     fetch Binance's daily metrics archive to recover the two open-interest features and accept
+     losing `liquidation_intensity_1d` permanently (no venue publishes historical liquidations),
+     or amend the allowlist;
+   - the **71 provisional simulator parameters** (48 simulator + 23 risk) plus 19 backtest
+     construction values;
+   - the **single-numeraire** decision (USDT-margined linear only versus including coin-margined
+     inverse and USDC-margined on-chain perps).
+3. **[Data rights] Resolve Aster.** It is the only venue where a **read** clause
+   (§6.1(b), §6.2(e)) describes this project's automated fetching and grants no research
+   carve-out. Options: request written permission, use an authenticated API key under its own
+   terms, stop using Aster, or record an explicit accepted-risk decision. Re-attempt Bybit and
+   Hyperliquid with a proxy-capable browser; until read, both stay **unverified**.
+
+### Next — financial foundations
+
+4. **[B3 / R3] Build the baselines** on the frozen cohort: deterministic rules, logistic
+   regression, gradient boosting, then cross-entropy and exact-Brier objectives under matched
+   data, seeds, initialization, and budget. These come before any RLCD-like estimator.
+5. **[B5] Complete the validation protocol on real data**: purged walk-forward with embargo,
+   complete-regime and instrument holdouts reported separately, realistic costs, and gross/net,
+   turnover, drawdown, tail loss, exposure, calibration, abstention coverage, and uncertainty
+   intervals. Wire the real data into `financial_backtest_v1.py` so the equity curve, drawdown,
+   and per-regime analytics come from the harness rather than a bespoke driver.
+6. **[B6] Put the risk gate on real data** and produce the first real-data risk receipt.
+
+### Then — RLCD
+
+7. **[B4] RLCD-like estimator comparisons**, only after baselines and simulator integrity pass.
+   Report calibration, selective risk, costs, and regime stability rather than action accuracy or
+   gross return. Note the environment constraint already measured: `training_runtime()`
+   explicitly refuses `paired_brier_pg` on MPS, so RLCD-style sampled policy-gradient work cannot
+   run on this Mac's MPS — it needs CPU or CUDA.
+
+### Track A, in parallel
+
+8. **[A2 blocker] A gate model that actually proposes drops.** The gateway is complete and
+   verified, but the real checkpoint proposes **zero** removals, so token savings are exactly
+   zero and every Track A gate is unmet. Decide the path: a newly pre-registered relevance
+   protocol with fresh confirmation splits, a laya-encoder fine-tune, or batching. Do **not**
+   re-tune the 0.99 threshold on the existing test/OOD to manufacture a winner.
+9. **[A2 limit] Resolve the `MAX_SCORED = 32` serviceability question.** Requests with more than
+   32 scorable candidates bypass entirely, which excludes exactly the long-context case the gate
+   exists for. Either batch the scoring and merge the removal plans, or accept and document the
+   boundary. This determines what "reduces token consumption" can ever mean here.
+10. **[A3] Paired downstream-quality and net-token-cost comparison** across at least three
+    materially different main-model families, with the protected-segment zero-deletion stress
+    suite. This needs a real main-model family and credentials — neither is available yet.
+
+### Housekeeping
+
+11. **Independent review** of P0's three-seed relevance result, and version-control closure for
+    the delivered work packages.
+12. **[B8 / visual] Optional only.** The B8 shared-scoring parity experiment informed by
+    `jev-visual` and any visual financial state stay behind a structured financial baseline. The
+    reflex browser timing check remains deferred.
+13. **Latency work last**, on frozen tasks, without weakening calibration, risk, or leakage gates.
 
 ## Codex local skill and telemetry
 
