@@ -1,0 +1,33 @@
+{
+ "schema_version": "nanojev-financial-signal-conditional-protocol-v1",
+ "created_utc": "2026-09-24T06:00:00Z",
+ "purpose": "T71 regime-gated conditional policy replay. Global ridge is temporally unstable across folds (fold1 reverses), so test the sparse conditional alternative: long only inside the joint high-funding x high-basis (/ high-rv) regime found in T66/T70. Honest net replay on real cohort, NOT a tradability claim.",
+ "cohort": {
+  "path": "data/perp_pit_v1/records.jsonl",
+  "records": 6554
+ },
+ "strategy": {
+  "tri_gate": "funding_pct>=0.80 AND basis_pct>=0.66 AND rv_pct>=0.66 -> long 5 bars",
+  "double_gate": "funding_pct>=0.80 AND basis_pct>=0.66 -> long 5 bars (vol-gate ablation)",
+  "percentiles": "trailing-180 mid-rank per feature per asset, PIT-safe",
+  "overlap": "non-overlapping per asset",
+  "entry_exit": "mark close"
+ },
+ "costs": {
+  "taker_fee_bps_per_side": 5,
+  "funding_accrual": "direction * last_funding_rate * (24/funding_interval_hours) per held day — approximation flagged; fallback 8h -> 3/day"
+ },
+ "evaluation": {
+  "slices": ["pooled", "per-asset", "per frozen test fold (folds[].test, half-open [start,end))"],
+  "folds_path": "research/financial_r1_pit_validator_core_v2.json",
+  "metrics": ["n trades", "mean/median net bps", "win rate", "per-trade equity max drawdown", "Sharpe-per-trade", "total net bps"],
+  "baselines": ["always-long matched cadence"]
+ },
+ "expected_limitation": "gate trades are sparse by construction; fold-level n will be tiny; per-trade advantage does not imply deployable edge",
+ "forbidden": [
+  "fitting",
+  "trading",
+  "profitability claims",
+  "protocol edits post-run"
+ ]
+}

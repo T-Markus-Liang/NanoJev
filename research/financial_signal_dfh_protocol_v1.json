@@ -1,0 +1,54 @@
+{
+ "schema_version": "nanojev-financial-signal-dfh-protocol-v1",
+ "created_utc": "2026-09-24T09:08:00Z",
+ "purpose": "T101: replay the two top-ranked literature arms from the T100 round-3 survey on the daily 5-asset PIT cohort. Arm 1 = distance-from-high momentum (Prague WP: distance-from-1wk-high positive on large/liquid coins, t=+4.93; direction prior POSITIVE: near-high -> continuation). Arm 2 = liquidity-conditioned momentum/reversal flip (Zaremba IRFA 2021: illiquid coins reverse, liquid coins continue). Measurement only - no fitting, no trading, no profitability claims.",
+ "cohort": {
+  "path": "data/perp_pit_v1/records.jsonl",
+  "records": 6554,
+  "assets": ["BNBUSDT-PERP", "BTCUSDT-PERP", "ETHUSDT-PERP", "SOLUSDT-PERP", "XRPUSDT-PERP"],
+  "span_utc": "2023-01-25T23:59:59.999 .. 2026-08-30T23:59:59.999",
+  "grid": "per-asset daily decision_ns rows (1309-1312 per asset)",
+  "features_used": ["mark_price", "quote_volume", "last_funding_rate", "mark_index_basis_bps"],
+  "targets": "forward log(mark) returns recomputed per asset: primary 5d (mark[i+5]/mark[i]), secondary 1d (mark[i+1]/mark[i]); PIT-safe (targets strictly after decision bar)"
+ },
+ "definitions": {
+  "dfh20": "mark[i] / max(mark[i-20:i]) - 1 (trailing 20d high over strictly prior bars); dfh10 variant uses max(mark[i-10:i])",
+  "dfh_pct": "trailing-180-record mid-rank percentile of dfh20 within the asset's own history",
+  "f2b2_cell": "confirmed cell from T79/financial_signal_regime_v1: funding_pct >= 0.80 AND basis_pct >= 0.66, each a trailing-180 mid-rank pct",
+  "amihud": "|ret_1d_i| / quote_volume_i where ret_1d_i = mark[i]/mark[i-1] - 1; amihud_pct = trailing-180 mid-rank pct; tercile split at pct < 1/3 (liquid) / 1/3..2/3 / >= 2/3 (illiquid)",
+  "lag5_ret": "log(mark[i]/mark[i-5]) - the completed trailing 5d return"
+ },
+ "arms": {
+  "A1a_spearman": "Spearman(dfh20, fwd_5d_log_ret) pooled across assets + per-asset table; dfh10 variant; secondary Spearman(dfh20, fwd_1d_log_ret) pooled. Direction prior POSITIVE (near-high -> continue up).",
+  "A1b_quintile": "top (dfh_pct>=0.80) vs bottom (dfh_pct<=0.20) quintile -> fwd 5d ret, Welch two-sample t, pooled across assets",
+  "A1c_conditioned": "within the f2b2 cell: Spearman(dfh20, fwd_5d) plus Welch of high-dfh (dfh_pct>=0.50) vs low-dfh (<0.50) - does distance-from-high add inside the confirmed cell",
+  "A2_flip": "per amihud_pct tercile: Spearman(lag5_ret, fwd_5d_ret). Expect reversal (negative rho) in the high-illiquidity tercile, momentum (positive rho) in the low (liquid) tercile. Flip contrast = Fisher-z difference atanh(rho_low)-atanh(rho_high), expected positive."
+ },
+ "contrast_family": [
+  "arm1_spearman_dfh20_ret5_pooled",
+  "arm1_spearman_dfh10_ret5_pooled",
+  "arm1_welch_quintile_dfh20_ret5",
+  "arm1_f2b2_spearman_dfh20_ret5",
+  "arm1_f2b2_welch_highdfh_vs_lowdfh_ret5",
+  "arm2_spearman_lag5_ret5_tercile_liquid",
+  "arm2_spearman_lag5_ret5_tercile_illiquid",
+  "arm2_flip_fisherz_liquid_minus_illiquid"
+ ],
+ "statistics": {
+  "test": "Spearman rank correlation (mid-rank ties), t-approx normal two-sided p (same convention as financial_signal_leadlag_v1 / crossvenue); Welch two-sample t with normal-approx two-sided p; min n=10 per side; flip contrast via Fisher atanh difference with normal-approx p (nominal - tercile cells share timestamps)",
+  "multiple_testing": "BH-FDR alpha=0.05 over the fixed 8-cell family above; per-asset tables, mid tercile, secondary 1d Spearman, and per-test-fold sign counts are reported outside the family",
+  "reported_per_cell": ["n", "rho or means_bps", "t/z", "p"],
+  "caveats": [
+   "5d forward labels on daily bars overlap ~5x -> positive autocorrelation; Spearman/Welch p-values are nominal/optimistic",
+   "pooled rows across 5 assets share the market factor through common timestamps; pooled cells overstate effective n",
+   "amihud tercile membership is per-asset trailing-rank, so terciles are roughly balanced per asset by construction",
+   "treat p<0.01 as suggestive, not decisive"
+  ]
+ },
+ "forbidden": [
+  "fitting",
+  "trading",
+  "profitability claims",
+  "protocol edits post-run"
+ ]
+}

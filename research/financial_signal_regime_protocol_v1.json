@@ -1,0 +1,23 @@
+{
+ "schema_version": "nanojev-financial-signal-regime-protocol-v1",
+ "created_utc": "2026-09-24T00:00:00Z",
+ "purpose": "T79: regime gates on confirmed f2b2 cell. Arms A (own-asset 20d trend), B (BTC 20d trend), C (vol×trend panic-state), D (funding streak>=3d), E (funding>=0.95 vs 0.80-0.95 non-monotone diagnostic). Per literature round-2 ranking.",
+ "cohort": {
+  "path": "data/perp_pit_v1/records.jsonl"
+ },
+ "lookback_days": 180,
+ "hold_bars": 5,
+ "fdr_family": [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E contrasts"
+ ],
+ "forbidden": [
+  "fitting",
+  "trading",
+  "claims",
+  "protocol edits post-run"
+ ]
+}

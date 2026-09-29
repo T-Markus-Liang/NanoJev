@@ -1,0 +1,91 @@
+{
+  "schema_version": "nanojev-data-quarantine-manifest-v1",
+  "manifest_id": "data-quarantine-manifest-v1",
+  "created_utc": "2026-09-22",
+  "purpose": "Single registry of external data sources and their permitted uses inside NanoJev. Every external source defaults to evaluation-only: no training rows, no calibration-fit rows, no per-item-failure-driven tuning. A source may graduate only through an explicit protocol amendment and owner action; this file is the audit anchor.",
+  "global_rule": "External model outputs — answers, probabilities, distributions, per-task records — must never enter any NanoJev training, calibration-fitting, distillation or teacher-label path. Aggregate leaderboard/topic statistics may inform only the planning of independently authored new item families; copying, paraphrasing or relabeling external items is prohibited.",
+  "sources": [
+    {
+      "id": "jevbench_public_tasks",
+      "description": "JevBench public task records (datasets/public/*.jsonl at the pinned revision)",
+      "upstream": {"repo": "https://github.com/fstandhartinger/jevbench", "revision": "83831807458d7df424a1e53e5724f3a3ffe2cf89", "tag": "v1.2.4", "license": "MIT"},
+      "evaluation_only": true,
+      "training_allowed": false,
+      "calibration_fit_allowed": false,
+      "per_item_failure_tuning_allowed": false,
+      "read_gate": "rows may be fetched only by the gated milestone path after the adapter contract hash (research/jevbench_adapter_contract_v1.json, a3cb3579...) is recorded and a frozen candidate is authorized; consumed exactly once per frozen candidate",
+      "local_copy": "none yet — no rows fetched or read as of this manifest"
+    },
+    {
+      "id": "jevbench_private_tasks",
+      "description": "JevBench maintainer-held-out task records (109 hard-tier items)",
+      "upstream": {"repo": "https://github.com/fstandhartinger/jevbench", "revision": "83831807458d7df424a1e53e5724f3a3ffe2cf89", "tag": "v1.2.4", "license": "MIT"},
+      "evaluation_only": true,
+      "training_allowed": false,
+      "calibration_fit_allowed": false,
+      "per_item_failure_tuning_allowed": false,
+      "read_gate": "never fetched by NanoJev; maintainer-held-out evaluation runs upstream",
+      "local_copy": "none — held out by the maintainer by design"
+    },
+    {
+      "id": "benchmark_heaven_results",
+      "description": "Benchmark Heaven leaderboard data: results API rows, per-task outcomes of other systems, composite scores",
+      "upstream": {"api": "https://benchmarkheaven.com/api/jevbench/v1.2", "site": "https://benchmarkheaven.com/jev-models"},
+      "evaluation_only": true,
+      "training_allowed": false,
+      "calibration_fit_allowed": false,
+      "per_item_failure_tuning_allowed": false,
+      "read_gate": "aggregates may be read for reporting context; other systems' per-task outputs and probabilities must not be vendored into this repository",
+      "local_copy": "none"
+    },
+    {
+      "id": "typesafe_jev_outputs",
+      "description": "TypeSafe Jev API responses, published probabilities, official evaluation outputs, saved Jev records from any source",
+      "upstream": {"site": "https://docs.typesafe.ai", "evals": "https://evals.typesafe.ai"},
+      "evaluation_only": true,
+      "training_allowed": false,
+      "calibration_fit_allowed": false,
+      "per_item_failure_tuning_allowed": false,
+      "read_gate": "TypeSafe MCA §2.3(b) boundaries apply: no distillation, imitation training or competitive development use; private sanity checks only when owner-reviewed",
+      "local_copy": "none in tracked paths; any private receipts stay under gitignored local paths"
+    },
+    {
+      "id": "semif_records",
+      "description": "SemIf benchmark bundles, evidence manifests and any referenced TypeSafe records",
+      "upstream": {"repo": "https://github.com/TheoLeeCJ/SemIf", "revision": "ca3ba65f142967030ecb453346e94d6f476a69df", "license": "MIT code; upstream terms for model/data"},
+      "evaluation_only": true,
+      "training_allowed": false,
+      "calibration_fit_allowed": false,
+      "per_item_failure_tuning_allowed": false,
+      "read_gate": "SemIf-owned fixtures may be used per license after provenance review; TypeSafe public records referenced by SemIf remain evaluation-only",
+      "local_copy": "none"
+    },
+    {
+      "id": "community_system_outputs",
+      "description": "Outputs/probabilities/per-task records of any other benchmarked system (laya, reflex, nimble, djev, jeff, GLiNER2, classifier.dev, openJev-verdict, system-one-open, Needle 3, open-alternative-jev)",
+      "upstream": {"note": "enumerated in docs/JEV_COMMUNITY_REFERENCES.md"},
+      "evaluation_only": true,
+      "training_allowed": false,
+      "calibration_fit_allowed": false,
+      "per_item_failure_tuning_allowed": false,
+      "read_gate": "author-reported numbers are external claims, not NanoJev evidence; per-task outputs never enter the repository",
+      "local_copy": "none"
+    },
+    {
+      "id": "nanojev_jevbench_fixtures",
+      "description": "Hand-authored synthetic JevBench-schema fixtures used to validate the adapter (research/jevbench_fixtures_v1)",
+      "upstream": {"repo": "this repository", "license": "same as repository"},
+      "evaluation_only": true,
+      "training_allowed": false,
+      "calibration_fit_allowed": false,
+      "per_item_failure_tuning_allowed": false,
+      "read_gate": "not quarantined (NanoJev-authored), but reserved for adapter validation; kept out of training by the same discipline to preserve its role as an independent check",
+      "local_copy": "research/jevbench_fixtures_v1/items.jsonl sha256 995f0785dbfc6c183dbedad76cbf09373c712ea73a16e93825c96cbdc9157de8"
+    }
+  ],
+  "enforcement": {
+    "adapter": "scripts/jevbench_adapter_v1.py enforces split=synthetic-only in the validation path and gates the fetch/milestone path behind BenchmarkFetchGated",
+    "contract": "research/jevbench_adapter_contract_v1.json contract_sha256 a3cb357964898ee706ff5695b72968bf28707ac0d4ecd13d9972da5855a7ba06 records the frozen mapping, timing/cost scope and quarantine flags",
+    "publication": "provider outputs, private comparison receipts and benchmark rows live only under gitignored local paths (results/, logs/); tracked files carry NanoJev's own measurements only"
+  }
+}

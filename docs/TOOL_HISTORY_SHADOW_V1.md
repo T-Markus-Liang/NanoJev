@@ -3,8 +3,8 @@
 Status: **fixtures and shadow-only tooling implemented; no active filtering, no receipt run, no token savings.**
 
 This document specifies work package **A4** ("tool-history compaction shadow experiment") from
-[CURRENT_PROGRESS_AND_HANDOFF.md](CURRENT_PROGRESS_AND_HANDOFF.md). It builds the fresh, source-group-isolated
-fixture manifest that [JEV_COMMUNITY_REFERENCES.md](JEV_COMMUNITY_REFERENCES.md) (Track A:
+the internal handoff plan `CURRENT_PROGRESS_AND_HANDOFF.md` (local-only, not published). It builds the fresh, source-group-isolated
+fixture manifest that the internal note `JEV_COMMUNITY_REFERENCES.md` (local-only, not published; Track A:
 `fast-jev-compaction`) calls for, and it exercises the existing byte-preserving shadow core without forking it.
 It does not change the [shadow integration V1](CONTEXT_SHADOW_V1.md) contract, any production request path, or
 any frozen artifact.
@@ -271,5 +271,5 @@ Open items for a future, separately reviewed package:
 5. Independent review of the manifest's outcome assignments, especially that `success` and `parallel_calls`
    are the only pairs where atomic removal is declared permissible.
 
-See [CURRENT_PROGRESS_AND_HANDOFF.md](CURRENT_PROGRESS_AND_HANDOFF.md) and
-[JEV_COMMUNITY_REFERENCES.md](JEV_COMMUNITY_REFERENCES.md) for the surrounding boundaries.
+See the internal notes `CURRENT_PROGRESS_AND_HANDOFF.md` and
+`JEV_COMMUNITY_REFERENCES.md` (local-only, not published) for the surrounding boundaries.

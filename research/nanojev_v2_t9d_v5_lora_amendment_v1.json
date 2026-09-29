@@ -1,0 +1,192 @@
+{
+  "schema_version": "nanojev-v2-t9d-v5-lora-amendment-v1",
+  "amendment_id": "nanojev-v2-t9d-domain-adaptation-v5-lora-corpus-v4-amendment",
+  "amendment_version": "v1",
+  "status": "versioned_amendment_single_arm_research_run",
+  "recorded_utc": "2026-09-20T15:15Z",
+  "purpose": "Amendment to the frozen T9d FP32/MPS protocol v2 (via the v3 two-arm amendment and the v4 LoRA amendment): retrain the winning W45 arm — LoRA r16 on a frozen backbone — on engineering-judgment corpus v4 (4320 items / 2376 train / 36 families / 720 source groups, including high-cardinality 32- and 255-candidate choice families). The corpus-v4 manifest status is 'training_data_prerequisite_no_training_authorized'; this amendment is the required new authorization-binding protocol. Everything else (warm start, optimizer, objective, loss, selection rule, reporting rule) is inherited verbatim.",
+  "bound_protocol": {
+    "documents": [
+      {
+        "document": "research/nanojev_v2_t9d_fp32_mps_protocol_v2.json",
+        "protocol_sha256": "7d687325040159241d7c92df1103cbdf04f4e85f0e3654e8576c41f8aed02b1a",
+        "relationship": "base frozen protocol; selection/reporting rules inherited verbatim"
+      },
+      {
+        "document": "research/nanojev_v2_t9d_v3_amendment_v1.json",
+        "protocol_sha256": "2f57ac65df4a24e3a2f9a74e5a44330664715ad7d3e0c554746e5a17c4e8f42a",
+        "relationship": "establishes this amendment lineage and the seeds {17,18,19} / MPS / FP32 / dev-only-selection contract"
+      },
+      {
+        "document": "research/nanojev_v2_t9d_v4_lora_amendment_v1.json",
+        "protocol_sha256": "053dfb5b1892414c66f31040e25b0343d48014e8c152fafa90fc10c7ebe30a8b",
+        "relationship": "establishes the LoRA r16 arm, the merged-checkpoint serialization and the trainer used here verbatim; this amendment changes only (a) the training corpus version, (b) the step budget, and (c) the per-microbatch token budget required by the 255-candidate family"
+      }
+    ]
+  },
+  "evidence_receipts": {
+    "w45_lora_wins_at_v3_scale": {
+      "source": "results/t9d_v4_lora_summary.json, docs/EXECUTION_REVIEW_LOG.md W45-B, checkpoints/domain_adaptation_v4_lora_seed{17,18,19}",
+      "finding": "LoRA r16 a32 lr5e-5 on frozen backbone + head lr 2e-4, warm-start local_atomic_seed17, corpus v3: heldout_v1 0.507/0.580/0.522 (mean 0.536) > head-only 0.522 > full 0.473 > atomic baseline 0.464. seed18 0.580 is the best single checkpoint to date."
+    },
+    "x2_readout_not_binding": {
+      "source": "results/x2_semif_transfer/receipt.json, docs/EXECUTION_REVIEW_LOG.md W47",
+      "finding": "Zero-parameter base native readout matches the trained head on heldout (0.536-0.623 canonical but position-bound); LoRA+pointer head honest negative (mean 0.415). Readout is not the binding constraint; corpus scale/diversity is the higher-value axis (motivates X4 corpus v4 and this retrain)."
+    },
+    "x4_corpus_v4_built": {
+      "source": "research/engineering_judgment_corpus_v4/manifest.json, results/engineering_corpus_v4_audit_receipt.json",
+      "finding": "Corpus v4 built: 4320 items / 720 source groups / 36 families (18 v3 rule sets re-rendered + 18 new families incl. wide_dispatch_32 and batch_grid_255), splits 2376/756/432/756, status preflight_passed_not_training_authorized; exclusion wall preserved (no evaluation-corpus source, no reserved tokens)."
+    },
+    "heldout_v2_built": {
+      "source": "research/engineering_heldout_v2/manifest.json, results/engineering_heldout_v2_manifest_receipt.json",
+      "finding": "Independent heldout v2: 312 items / 104 groups / 13 fresh families, 4 heldout-specific surface templates unused by any corpus; excludes all corpora v1-v4 and heldout_v1; golds computed by frozen local oracles."
+    },
+    "merge_verify_fix": {
+      "source": "docs/EXECUTION_REVIEW_LOG.md W45-B, scripts/train_pipeline_decisions_v4.py save_best/merge-check tail, scripts/finalize_v4_lora_run.py",
+      "finding": "The mid-run merge-verify bug (final-step adapter vs best-step merged comparison) is fixed in the pinned trainer: best-step adapter weights are snapshotted at save_best and restored into the live model before the merged-checkpoint logit comparison (max |dz| <= 1e-4)."
+    }
+  },
+  "design": {
+    "type": "single_arm_replication_at_new_corpus_scale",
+    "arm": "lora_r16_frozen_backbone",
+    "model": "Qwen/Qwen3-0.6B",
+    "trainer": "scripts/train_pipeline_decisions_v4.py",
+    "trainer_sha256": "1946bd4acfac0ecd26b9af8c410bcd1839a202913510bee4ad9cea2f7bc9a7da",
+    "predictor": "scripts/predict_toy_decisions.py",
+    "predictor_sha256": "aad0d4e53a7c9c20eb11eefcbbd628f765ac3d646ffef60febc9179e864aa7c4",
+    "predictor_pin_note": "This pins the CURRENT predictor file; the 701851b pin in older frozen protocols is stale after the X2 readout changes and is not re-pinned here.",
+    "initial_checkpoint": "checkpoints/local_atomic_seed17/variants/local_atomic_seed17",
+    "initial_checkpoint_weights_sha256": "2b06e4423861f47da7ca53ad9c23a26aebdbfe79de3a238b36c2954ae9c6abf0",
+    "training_seeds": [
+      17,
+      18,
+      19
+    ],
+    "objective": "gold_distribution",
+    "loss": "ce",
+    "lora": {
+      "rank": 16,
+      "alpha": 32.0,
+      "dropout": 0.05,
+      "lr": 5e-05,
+      "targets": "all attention+MLP projections (q/k/v/o/gate/up/down; kev-faithful, in-repo LoRALinear, peft not a dependency)",
+      "merge": "best.safetensors stores the merged plain-DecisionModel keyspace (base W + (alpha/r) B A); predict_toy_decisions.py loads unmodified; post-training merge check compares merged checkpoint vs best-step-restored adapter logits at 1e-4 tolerance"
+    },
+    "backbone_lr": 0.0,
+    "freeze_backbone": "via --lora-rank (base weights never require grad; --backbone-lr 0 required and accepted)",
+    "steps": 600,
+    "steps_justification": "Corpus v4 train is 2376 rows vs v3's 1080 (2.2x). At --batch-questions 16, 300 steps = 4800 question-draws = only ~2.0 epochs at v4 scale vs ~4.4 epochs in the proven v3 run — keeping 300 would confound 'more data' with 'half the training exposure'. The three v3 dev minima occurred at steps 150/200/250 = 2.2/3.0/3.7 epochs of v3 exposure. 600 steps = 9600 draws = ~4.0 epochs at v4 scale, bracketing the epoch range where all v3 minima occurred plus margin, while dev-minimum selection makes excess budget self-correcting and the inherited last-point rule honestly reports budget exhaustion if the minimum lands on the final evaluation point.",
+    "eval_every": 50,
+    "eval_every_justification": "Unchanged from protocol v2/W45: at v4 scale a dev evaluation (756 questions, packed forward passes on MPS) costs ~10-20s against ~45-60s of training per 50-step block, so a finer cadence is cheap; keeping the identical cadence preserves comparability with the v3 LoRA arm's evaluation lattice and gives 12 registered evaluation points for min localization.",
+    "head_steps": 0,
+    "batch_questions": 16,
+    "microbatch_questions": 4,
+    "max_microbatch_tokens": 32768,
+    "max_microbatch_tokens_justification": "REQUIRED change vs protocol v2's 16384: corpus v4's batch_grid_255 family emits 255-candidate choice questions whose complete-question footprint is 255 padded paths x ~110 tokens = up to 29070 tokens, exceeding 16384. The trainer's contract forbids splitting a question's softmax across microbatches (pack_complete_questions raises rather than splits), and its pre-flight pack check over all splits fails closed. 32768 is the smallest power-of-two budget covering the measured maximum (29070) with ~13% headroom; it changes only the memory envelope and packing granularity, never the loss, normalization or update rule. 255-path questions always pack alone (2 x 29070 > 32768); all other questions pack as before under microbatch_questions=4.",
+    "max_length": 2048,
+    "head_lr": 0.0002,
+    "device": "mps",
+    "precision": "fp32",
+    "parameter_storage": "float32",
+    "autocast": "disabled",
+    "output_dirs": [
+      "checkpoints/t9d_v5_lora_seed17",
+      "checkpoints/t9d_v5_lora_seed18",
+      "checkpoints/t9d_v5_lora_seed19"
+    ],
+    "cli": "scripts/train_pipeline_decisions_v4.py --input research/engineering_judgment_corpus_v4/trainer_view --output-dir checkpoints/t9d_v5_lora_seed{N} --init-checkpoint checkpoints/local_atomic_seed17/variants/local_atomic_seed17 --objective gold_distribution --loss ce --steps 600 --head-steps 0 --batch-questions 16 --microbatch-questions 4 --max-microbatch-tokens 32768 --eval-every 50 --max-length 2048 --seed {N} --lora-rank 16 --lora-alpha 32 --lora-dropout 0.05 --lora-lr 5e-5 --backbone-lr 0 --head-lr 2e-4 --device mps --precision fp32"
+  },
+  "data_contract": {
+    "corpus": "research/engineering_judgment_corpus_v4",
+    "trainer_input": "research/engineering_judgment_corpus_v4/trainer_view",
+    "catalog_version": "engineering-judgment-catalog-v4-scaled",
+    "manifest_sha256": "66ad3da85db54998cd1944e31639321db2046819830849c601db48284352fa98",
+    "manifest_content_sha256": "6a62432d8c932fd591d46df79da4d91aebf65c04d8661bbaf03656b14beb79bb",
+    "trainer_view_sha256": {
+      "train.jsonl": "bdca7aca9b805b9f99047d5be225b0a187bb9f795dcfb8ea1490b5edcbb23c2e",
+      "dev.jsonl": "53af6e6016b2f2deff13300bd45c5cdd4518ec2477fd11d8f1baaeb738e3f566",
+      "calibration.jsonl": "0cc596c494803a6d642c3ed69b4b9f59adaaaaf5fb1278f38ceeba923417725a",
+      "test.jsonl": "70cf16f250628979af7441b7e06482ddb1ee335687392531383fe706e08610a5"
+    },
+    "questions_by_split": {
+      "train": 2376,
+      "dev": 756,
+      "calibration": 432,
+      "test": 756
+    },
+    "validated_by": "train_pipeline_decisions_v4.py --validate-only: 4320 records, all 4320 questions eligible for gold_distribution (run 2026-09-20)",
+    "no_external_model_outputs": "Corpus v4 contains NO external model outputs: every gold/gold_probs is computed by the family's frozen programmatic oracle (deterministic_truth one-hot or programmatic_conditional_distribution); the manifest records provenance.derived_from_any_existing_evaluation_record=false, uses_evaluation_corpus_as_source=false, refused_path_marker_count=23 and reserved_token_count=30 enforced at build; Jev outputs from any source never enter training data per AGENTS.md publication discipline. There is no teacher arm in this run and no teacher field is consumed.",
+    "heldout_v1": {
+      "items": "research/engineering_heldout_v1/items.jsonl",
+      "items_sha256": "4b29ac0a0bc79051965c7c2a02bde633323aa1c2540817c9ee7b2bfd9f7c8b47",
+      "predict_input": "research/engineering_heldout_v1/predict_input.json",
+      "predict_input_sha256": "120f02ee49446bb154bba496768a521dd4c600048c576158029117875680b23b",
+      "role": "independent heldout; evaluation only, never trained on; comparability anchor to all prior arms"
+    },
+    "heldout_v2": {
+      "items": "research/engineering_heldout_v2/items.jsonl",
+      "items_sha256": "36cf1a00f3843ab665c2b5d911dbb69d0c25af3021e99517be40663e38bc9319",
+      "predict_input": "research/engineering_heldout_v2/predict_input.json",
+      "predict_input_sha256": "9da0824c6ae73ed71f64f98017d35a1f1f3abfa2b05b8f411bf07b999acd53fa",
+      "predict_input_derivation": "deterministic view derived once from items.jsonl: states = [{id, state, questions}] per row; written before any checkpoint read of this heldout",
+      "role": "independent heldout; evaluation only, never trained on; larger (312q / 104 groups / 13 families) honest check vs the 69q v1 noise band"
+    },
+    "heldout_read_once_rule": "Each heldout file is read for inference exactly ONCE per selected checkpoint (per seed), plus once for the atomic warm-start checkpoint as the heldout_v2 reference baseline. No heldout file is read during training, for selection, or iteratively for tuning; a failed/interrupted predict call may be retried but no metric-driven re-evaluation is permitted."
+  },
+  "selection_and_reporting": {
+    "selection_split": "dev",
+    "selection_metric": "target cross-entropy (inherited from protocol v2, unchanged)",
+    "include_step_zero": true,
+    "tie_break": "earliest step",
+    "last_point_rule": "If the minimum is the final registered evaluation point, report budget exhaustion and lack of convergence; do not add steps after observing results.",
+    "all_seeds_reported": true,
+    "temperature": 1.0,
+    "threshold": 0.9,
+    "post_hoc_threshold_fit": false,
+    "post_run_evaluation": [
+      "heldout_v1 predict per seed via scripts/predict_toy_decisions.py (fp32/mps, batch-questions 8, max-length 2048) -> results/heldout_v1_post_v5_lora_seed{N}.json; accuracy, coverage@0.9, per-type breakdown, mean confidence vs the 0.464 G4 baseline (results/heldout_v1_g4_baseline.json) and the v3 LoRA arm (mean 0.536, best 0.580)",
+      "heldout_v2 predict per seed via the same harness -> results/heldout_v2_post_v5_lora_seed{N}.json; same metrics; reference = atomic warm-start checkpoint scored once on heldout_v2 -> results/heldout_v2_atomic_seed17.json",
+      "corpus v4 test accuracy per question type from predictions_test.jsonl in each run dir",
+      "receipt: results/t9d_v5_lora_summary.json"
+    ],
+    "baseline_comparisons": {
+      "heldout_v1_atomic_seed17": 0.4638,
+      "heldout_v1_v3_lora_mean": 0.5362,
+      "heldout_v1_v3_lora_best": 0.5797,
+      "heldout_v1_v3_headonly_mean": 0.522,
+      "heldout_v1_v3_full_mean": 0.473,
+      "heldout_v2_atomic_seed17": "measured this run (one read, same harness)"
+    },
+    "mps_contention_rule": "No predict or lifecycle calls while a training run occupies MPS; evaluations run strictly after each arm completes. Lifecycle timeouts during training are a known phenomenon, not a failure."
+  },
+  "honest_prior": {
+    "statement": "W45 showed LoRA r16 is the best arm at v3 scale (heldout 0.536 mean) but within the n=69 noise band of head-only. Corpus v4 is 2.2x larger with 2x the families and the first wide-cardinality coverage (32/255 candidates); heldout_v2 (312q) halves the noise band vs v1. Prior belief: a modest improvement over the v3 arm is plausible but not assured — v4 adds harder family types (negation, lotteries, wide grids) that may lower absolute scores even while generalization improves; a flat or negative result is an honest outcome and does not invalidate the corpus.",
+    "preregistered_interpretation": {
+      "v5_beats_v3_on_both_heldouts": "corpus scale/diversity was the binding constraint (X2 prediction confirmed); next lever is J-C selective-risk machinery on this checkpoint and/or rank/step sweep",
+      "v5_flat_vs_v3": "corpus scale alone does not move heldout at this capacity; next levers are LoRA rank, steps, or representation-level approaches",
+      "v5_below_v3": "v4's harder families hurt transfer or the wider token budget changed effective training; inspect per-type/per-family dev and test metrics before any conclusion; do not retrain on observation",
+      "any_result": "no promotion; deployment authorization unchanged (false)"
+    }
+  },
+  "authorization": {
+    "scope": "research training run of exactly the one arm and three seeds declared above, plus the listed post-run measurements",
+    "training_authorized_for_declared_arms": true,
+    "by": "owner directive (task T9d-v5 per docs/NANOJEV_V2_ROADMAP.md task board; standing local-experiment authorization recorded W32/W35; corpus v4 requires this amendment because its manifest status is training_data_prerequisite_no_training_authorized)",
+    "checkpoint_promotion_authorized": false,
+    "deployment_authorized": false,
+    "active_context_removal_authorized": false,
+    "live_trading_authorized": false,
+    "overwrite_existing_outputs": false,
+    "prior_run_dirs_preserved": "checkpoints/domain_adaptation_v4_lora_seed{17,18,19} and all earlier runs are not overwritten; new output dirs are checkpoints/t9d_v5_lora_seed{17,18,19}",
+    "shared_docs_modified_by_this_amendment": false
+  },
+  "nanojev_lifecycle_receipt": {
+    "stage": "development",
+    "event_id": "2cc2e478-5153-4439-b978-651fbbdf2c12",
+    "outcome": "abstained (confidence 0.375 < 0.9 gate); proceeded deterministically per AGENTS.md; advisory only, no authorization taken from the local model"
+  },
+  "document_sha256": {
+    "convention": "sha256 of this file with document_sha256.value set to null",
+    "value": "7c6aafcdabc0f80428806470ae3c8ee00bd8bbc672f2a1383dc904b353c7e0ec"
+  }
+}

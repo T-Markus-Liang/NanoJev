@@ -90,4 +90,4 @@ Validation at this milestone: unittest reports 126 tests with two skips (optiona
 - No financial point-in-time cohort, simulator, live execution, or profitable strategy is established by this work.
 - Next implementation should preserve the original request in shadow mode and keep all protected instructions outside any learned deletion policy.
 
-Current sequencing, work-package boundaries, and review gates live in [the progress and handoff plan](CURRENT_PROGRESS_AND_HANDOFF.md).
+Current sequencing, work-package boundaries, and review gates live in the internal progress and handoff plan (`CURRENT_PROGRESS_AND_HANDOFF.md`, local-only, not published).

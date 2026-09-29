@@ -1,0 +1,154 @@
+{
+  "schema_version": "nanojev-engineering-adapter-contract-v1",
+  "contract_id": "engineering-adapter-contract-v1",
+  "status": "frozen_contract_pending_remaining_review_conditions",
+  "purpose": "Freeze the corpus-to-trainer adapter mapping, the model-visible question renderer rules, split usage roles, heldout composition and output/checkpoint naming for the T9d FP32/MPS domain-adaptation protocol v2. This satisfies review condition W35-C.1 (adapter mapping, gate renderer, heldout composition frozen). It authorizes nothing: training, measurement beyond the pre-registered baseline, checkpoint promotion, serving and deployment remain closed.",
+  "review_context": {
+    "protocol": "research/nanojev_v2_t9d_fp32_mps_protocol_v2.json",
+    "review_decision": "EXECUTION_REVIEW_LOG W35-C ACCEPT_WITH_CONDITIONS",
+    "conditions_addressed": [
+      "adapter source-to-output mapping frozen (this document + corpus trainer_view contract)",
+      "gate/question renderer semantics frozen (renderer_rules below, bound to the pinned predictor implementation)",
+      "heldout composition frozen (research/engineering_heldout_v1/items.jsonl, independently authored, isolation receipt results/heldout_v1_isolation_receipt.json)",
+      "training outputs use a new directory and cannot overwrite production (output_naming below)"
+    ],
+    "conditions_not_in_this_contract": [
+      "independent reviewer sign-off on this contract itself",
+      "training authorization (remains false in the bound protocol)"
+    ]
+  },
+  "bound_artifacts": {
+    "corpus_v2": {
+      "path": "research/engineering_judgment_corpus_v2",
+      "manifest_schema": "nanojev-engineering-judgment-manifest-v2",
+      "content_sha256": "a84b99c8ce119249827d3e5255290ecd26f979557bb9554f0f85b91a934106c2",
+      "item_count": 228,
+      "counts_by_split": {"train": 102, "dev": 36, "calibration": 6, "test": 84},
+      "trainer_view": "trainer_view/{train,dev,calibration,test}.jsonl",
+      "audit_receipt": "results/heldout_v1_isolation_receipt.json (embeds audit_engineering_corpus_v2 in-process audit)"
+    },
+    "heldout_v1": {
+      "path": "research/engineering_heldout_v1/items.jsonl",
+      "sha256": "4b29ac0a0bc79051965c7c2a02bde633323aa1c2540817c9ee7b2bfd9f7c8b47",
+      "builder": "scripts/build_engineering_heldout_v1.py",
+      "items": 69,
+      "questions": 69,
+      "source_groups": 23,
+      "role": "independent held-out engineering cohort for the G1/G2/G3 abstention endpoints; all rows carry split=test and are never a training, dev, calibration or selection source",
+      "isolation_receipt": "results/heldout_v1_isolation_receipt.json"
+    },
+    "protocol_v2": {
+      "path": "research/nanojev_v2_t9d_fp32_mps_protocol_v2.json",
+      "sha256": "7d687325040159241d7c92df1103cbdf04f4e85f0e3654e8576c41f8aed02b1a"
+    },
+    "trainer": {
+      "path": "scripts/train_pipeline_decisions.py",
+      "sha256": "d1942528411bf9ad6d762ef1660f7bac3003cb8f9191f160c4cc07ec2746dd0a",
+      "validator": "validate_training_row",
+      "loader": "read_training_records"
+    },
+    "predictor": {
+      "path": "scripts/predict_toy_decisions.py",
+      "sha256": "701851b421eeca7611eb3241c47c06db779645a9771abf5f0074704b49c23514",
+      "validator": "validate_request",
+      "renderer": "prepare_examples (shared verbatim with the trainer)"
+    }
+  },
+  "row_mapping": {
+    "trainer_record_schema": {
+      "required_keys": ["id", "state_id", "family_id", "split", "state", "questions"],
+      "optional_target_keys": ["gold", "gold_probs", "gold_probs_kind", "gold_label_kind", "teacher", "metadata", "schema_version", "provenance"],
+      "split_enum": ["train", "dev", "calibration", "test", "ood"],
+      "row_source": "corpus v2 trainer_view rows are already in this schema (produced by build_engineering_corpus_v1.trainer_row, bound in the corpus manifest); heldout_v1 rows use the identical schema authored directly",
+      "per_field_mapping": {
+        "id": "unique nonempty row id (corpus: item_id; heldout: eh1-<slug>-<qtype>)",
+        "state_id": "state grouping id; one state_id may back several rows/questions but never crosses splits",
+        "family_id": "corpus family or heldout eh1_* family label",
+        "split": "one of the enum; corpus rows keep their manifest split; heldout rows are always test",
+        "state": "model-visible state text (string; predictor also accepts object/array, this contract uses strings)",
+        "questions": "{qid: {type, instructions, criteria?}} — one qid per row in both cohorts",
+        "gold": "{qid: hard label} — bool for boolean, candidate key for choice, zero-based int for score",
+        "gold_probs": "{qid: {candidate_id: probability}} — keys must exactly equal the candidate id set; sums to 1 within 1e-8",
+        "gold_probs_kind": "{qid: kind} — deterministic_truth (one-hot) in both bound cohorts",
+        "gold_label_kind": "{qid: kind} — deterministic_truth in both bound cohorts",
+        "teacher": "absent in both bound cohorts; when present it is quarantined per-row without touching gold",
+        "metadata.source_group_id": "required for the cluster bootstrap and split-identity audit; disjoint namespaces ejc-v2-* (corpus) and eh1-* (heldout)"
+      },
+      "candidate_id_derivation": "boolean -> [\"false\",\"true\"]; choice -> criteria keys in JSON order; score -> [\"0\"..\"k-1\"] positional strings"
+    },
+    "predict_projection": {
+      "shape": "{\"states\": [{\"id\": row.id, \"state\": row.state, \"questions\": row.questions}]}",
+      "note": "gold/gold_probs/metadata never enter predict input; validate_request requires exactly {id,state,questions} per state and nothing else at top level besides \"states\""
+    },
+    "merged_input_rule": "T9d merged input is a directory of per-split jsonl files: maze corpus rows plus engineering corpus v2 trainer_view rows concatenated per matching split name. Heldout_v1 is NEVER merged into any split. The trainer's read_training_records enforces that no state_id or metadata.source_group_id crosses splits in the merged directory."
+  },
+  "renderer_rules": {
+    "implementation": "scripts/predict_toy_decisions.py:prepare_examples, imported unchanged by train_pipeline_decisions.load_training_examples; byte-level agreement between train and predict is therefore structural, not re-stated",
+    "prefix": [
+      "segment 0: \"State:\\n\" + row.state + \"\\n\"",
+      "segment 1: \"Question type: \" + question.type + \"\\nQuestion:\\n\" + question.instructions + \"\\n\"",
+      "boolean only, when question.criteria is present: for key \"false\" append \"False criterion: \" + criteria.false + \"\\n\"; for key \"true\" append \"True criterion: \" + criteria.true + \"\\n\" (fixed false-then-true order; only keys present are rendered)"
+    ],
+    "candidate_paths": {
+      "boolean": "candidate_ids [\"false\",\"true\"]; ONE candidate text \"The proposition is true.\" — a single semantic leaf whose scalar logit is read as logits [0, z]; the false criterion text (when present) informs the prefix only",
+      "choice": "one leaf per criteria key in JSON order; candidate text is key + \": \" + criteria[key]",
+      "score": "one leaf per criteria entry; candidate ids are positional strings \"0\"..\"k-1\"; candidate text is the criteria string verbatim — ordinal index is never injected into the text"
+    },
+    "leaf_suffix": "each leaf = prefix tokens + encode(\"Candidate:\\n\" + candidate_text + \"\\nDecision:\") + [eos_token_id]",
+    "truncation": "none: any leaf exceeding max_length raises; protocol max_length = 2048",
+    "tokenization": "checkpoint tokenizer at <checkpoint>/tokenizer, encode(add_special_tokens=False), EOS appended once per leaf",
+    "answer_decoding": "softmax over the question's candidate logits at temperature 1.0; boolean reads probabilities [p_false, p_true]; choice argmax returns the criteria key; score returns sum(i * p_i) with level = argmax index"
+  },
+  "split_usage": {
+    "train": "gradient updates only (objective gold_distribution, loss ce, per protocol v2)",
+    "dev": "checkpoint selection only: minimum dev target cross-entropy over the merged dev set; step 0 is the incumbent; earliest-step tie break; last-point exhaustion is reported, never extended",
+    "calibration": "reserved for post-selection threshold/temperature fitting only if separately authorized; protocol v2 fits no temperature (T=1.0) and tunes no threshold",
+    "test_corpus_v2": "never read during the run; post-hoc reporting only after selection is frozen",
+    "heldout_v1": "independent endpoint cohort (69 questions, 23 source groups): baseline answered@0.90 / fixed-answer accuracy / confident-wrong measured on the unmodified seed17 checkpoint BEFORE any candidate training (results/heldout_v1_g4_baseline.json), then the same measurement on each candidate; never a gradient, selection or fitting source",
+    "maze_test_ood": "G4 regression cohorts at dataset/games_v4/data/local_maze_v1/{test,ood}.jsonl; frozen baseline results/nanojev_v2_baseline_seed17.json (test acc 0.7784090909090909, ood acc 0.765625)"
+  },
+  "endpoint_identities": {
+    "confidence": "max(answer.probabilities.values())",
+    "answered": "confidence >= 0.90 (threshold frozen; never re-fit)",
+    "correct": "argmax(probabilities) == gold_index under the row's own candidate ordering",
+    "confident_wrong": "answered AND not correct; G2/M4 require the candidate count not to exceed the baseline's (baseline: 0)",
+    "cluster_unit": "metadata.source_group_id for bootstrap intervals",
+    "gates": {
+      "G1": "heldout answered@0.90 rate >= 0.50 and 95% source-group cluster-bootstrap lower bound >= 0.30",
+      "G1b": "original 13-question survey replayed at 0.90 is no longer 13/13 abstained (survey is a separate artifact, not part of heldout_v1)",
+      "G2": "answered-subset fixed-answer accuracy >= 0.80; zero confident-wrong decisions in total",
+      "G3": "Spearman(confidence, correctness) > 0 with 95% source-group cluster-bootstrap CI excluding 0",
+      "G4": "maze test accuracy >= 0.773409 and ood >= 0.760625; no NLL/Brier/ECE point estimate worse than baseline whose paired source-group bootstrap CI excludes zero",
+      "G5": "all gates hold at the minimum across seeds 17/18/19; every seed reported"
+    },
+    "note": "the 'six fixed-answer items' wording in the runbook refers to the pre-registered survey; on heldout_v1 every item carries deterministic_truth gold so the fixed-answer subset is the full cohort"
+  },
+  "output_naming": {
+    "control_runs": "runs/domain_adaptation_v1_control_seed{17,18,19} (maze-only refit control)",
+    "candidate_runs": "checkpoints/domain_adaptation_v1_seed{17,18,19}",
+    "merged_input_dir": "research/domain_adaptation_v1/merged/{train,dev,calibration,test}.jsonl",
+    "heldout_input_dir": "research/domain_adaptation_v1/heldout/test.jsonl is expected by the runbook's benchmark invocation; it must be a byte-identical copy of research/engineering_heldout_v1/items.jsonl (sha256 pinned above), staged only after this contract is accepted",
+    "result_files": "results/domain_adaptation_v1_seed{N}_maze.json, results/domain_adaptation_v1_seed{N}_engineering.json, results/domain_adaptation_v1_seed{N}_compare.json",
+    "overwrite_rule": "every output dir must be new: the trainer refuses an existing non-empty output directory; nothing may be written under checkpoints/local_atomic_seed17; no existing checkpoint, corpus file or receipt is overwritten",
+    "baseline_file": "results/heldout_v1_g4_baseline.json (this contract's pre-training heldout measurement on the unmodified production checkpoint)"
+  },
+  "self_check": {
+    "script": "scripts/adapter_contract_check_v1.py",
+    "verifies": [
+      "contract_sha256 recomputes over the contract excluding the hash field",
+      "bound artifact hashes match on disk (corpus manifest content_sha256, heldout sha256, trainer/predictor sha256, protocol sha256)",
+      "every corpus v2 trainer_view row and every heldout row passes validate_training_row and the {id,state,questions} predict projection passes validate_request",
+      "deterministic_truth gold is the argmax of gold_probs in every row",
+      "with the checkpoint tokenizer available, every rendered candidate leaf fits within max_length=2048 (no silent truncation)"
+    ]
+  },
+  "authorization": {
+    "training_authorized": false,
+    "measurement_authorized": false,
+    "checkpoint_promotion_authorized": false,
+    "serving_change_authorized": false,
+    "deployment_authorized": false,
+    "note": "the heldout baseline measurement is the protocol's own 'baseline is measured before candidate training' review requirement; this contract's flags remain false and change only by owner/orchestrator action"
+  },
+  "contract_sha256": "f6607806cfc9cac06fe7e5b99c6a47e4ab9882faa2576e19fccfa4be2947d552"
+}

@@ -62,8 +62,10 @@ STUB_CHECKPOINT = {"model": "synthetic-tool-history-stub", "revision": "tool-his
 def deterministic_scorer(payload):
     """Fixed high-irrelevance stub. It never inspects or replays any tool."""
     return {"checkpoint": dict(STUB_CHECKPOINT), "states": [
-        {"id": state["id"], "answers": {"irrelevant": {"type": "boolean",
-                                                       "probabilities": {"false": 0.001, "true": 0.999}}}}
+        {"id": state["id"], "answers": {
+            name: {"type": "boolean",
+                   "probabilities": {"false": 0.001, "true": 0.999}}
+            for name in (state.get("questions") or {})}}
         for state in payload["states"]]}
 
 

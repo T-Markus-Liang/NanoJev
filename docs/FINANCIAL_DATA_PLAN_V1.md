@@ -4,7 +4,7 @@ Status: **DRAFT — pending human review at gate R1. Not approved. No data has b
 
 **Revision 2 (2026-09-19): R1-level scope change applied by user decision.** The financial track covers **crypto secondary-market PERPETUAL CONTRACT trading ONLY, never spot**. The venue set is exactly **Binance, Bybit, Aster, Hyperliquid**. The spot-era long-only assumption is removed. Revision 1's recommendation of Binance Vision *spot* data is withdrawn.
 
-Work package: [P1 of the handoff plan](CURRENT_PROGRESS_AND_HANDOFF.md). Read with [Track B of the V2 roadmap](NANOJEV_V2_ROADMAP.md) (B1 state contract, B2 calibrated targets, B3 baselines, B5 validation protocol) and the executable contract in [Financial PIT V1](FINANCIAL_PIT_V1.md) / [`scripts/financial_pit_v1.py`](../scripts/financial_pit_v1.py).
+Work package: P1 of the internal handoff plan (`CURRENT_PROGRESS_AND_HANDOFF.md`, local-only, not published). Read with [Track B of the V2 roadmap](NANOJEV_V2_ROADMAP.md) (B1 state contract, B2 calibrated targets, B3 baselines, B5 validation protocol) and the executable contract in [Financial PIT V1](FINANCIAL_PIT_V1.md) / [`scripts/financial_pit_v1.py`](../scripts/financial_pit_v1.py).
 
 Companion machine-readable deliverables:
 

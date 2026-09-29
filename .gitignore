@@ -7,25 +7,72 @@ node_modules/
 .cache/
 __pycache__/
 *.pyc
-research/private*
-research/claude_review_raw.json
-research/claude_review_prompt.md
-research/*_stderr.log
-research/official_*
-runs/
-checkpoints/
-weights/
+.DS_Store
+
+# Local data, weights, and runs — never shipped
 data/
 dataset/
+checkpoints/
+weights/
+runs/
 artifacts/
 publish/
 *.safetensors
 *.pt
 *.pth
-.DS_Store
+
+# New measurement receipts, logs, rendered media, and private comparison pages
+# are internal evidence. Existing explicitly tracked NanoJev-only release receipts
+# and the minimal web shell remain tracked; ignore prevents accidental additions.
+results/
+logs/
+assets/
+web/
+
+# Private research notes
+research/private*
+research/claude_review_raw.json
+research/claude_review_prompt.md
+research/*_stderr.log
+research/official_*
+
+# Jev comparison data — internal evidence only per owner discipline:
+# public docs must carry NanoJev-only numbers (TypeSafe MCA §2.3).
+docs/JEV_SIDEBYSIDE_2026_V1.md
+results/jev_*/
+results/*jev*.json
+results/*jev*.jsonl
+research/nanojev_comparison_api_receipts.jsonl
+research/nanojev_comparison_public.json
+research/nanojev_comparison_verification.json
+research/nanojev_comparison_zh.md
+research/nanojev_showcase.md
+research/nanojev_showcase_selection.json
+research/navigation_v3_jev_*.json
 
 # Local Apple Silicon reproduction outputs.
 local_test_input.json
 local_test_output.json
 toy_inference_output.json
-composed_maze_mps_report.json
+
+# Internal working docs that now contain Jev comparison numbers —
+# TypeSafe MCA §2.3(b) prohibits publishing benchmarks of the Interfaces.
+# Keep private until a scrubbed public version exists.
+docs/EXECUTION_REVIEW_LOG.md
+docs/CURRENT_PROGRESS_AND_HANDOFF.md
+docs/JEV_COMMUNITY_REFERENCES.md
+docs/AUTONOMOUS_EXECUTION_LOOP_V1.md
+docs/ATOMIC_PLANNING.md
+docs/DEVELOPMENT_RESULTS.md
+docs/GAME_RELEASE.md
+docs/LAYA_REFLEX_MAC_STUDY_V1.md
+docs/MODEL_EDGE_RESULTS.md
+docs/ROADMAP_V2_COMPLETION_AUDIT_V1.md
+docs/SCALED_GAMES.md
+docs/T9B_ARCHITECTURE_OPTIONS_V1.md
+
+# Local agent/tool config
+AGENTS.md
+.agents/
+.claude/
+agent/

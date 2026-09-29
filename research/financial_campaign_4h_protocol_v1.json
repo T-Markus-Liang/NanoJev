@@ -1,0 +1,50 @@
+{
+  "arms": {
+    "btc_hold": "BTC 4h buy-and-hold over the master calendar",
+    "our_state_flat": "our entry, identical engine, rolls disabled \u2014 isolates roll value",
+    "our_state_roll": "our entry + their roll mechanics",
+    "sibling_e1_flat": "their E1 entry, rolls disabled",
+    "sibling_e1_roll": "their E1 entry + their roll mechanics"
+  },
+  "caveats": [
+    "4h granularity: stops/triggers resolve at bar open/low/high \u2014 intrabar path unknown; stop-before-roll ordering is the conservative choice",
+    "liquidation NOT modeled: at 3x margin cap a gap can take the margin account negative; the sibling paper warns ~8% adverse moves approach maintenance margin \u2014 hence the 0.92 initial stop; returns are accounting-basis only",
+    "leverage 3x amplifies both tails; campaign return can be <-100% in principle (ruined count reported, geo-mult then null)",
+    "funding cashflows skipped (positioning signal only); second-hand archive copy, not an as-of vintage"
+  ],
+  "created_utc": "2026-09-24T16:05:42Z",
+  "definitions": {
+    "btc_gate": "BTC close > SMA(120 4h bars) \u2014 the 4h analog of the 20d trend gate; gate-off exits at close and blocks entries",
+    "concurrency": "max 2 campaigns; alloc = cash/free_slots so the book deploys evenly across slots",
+    "costs": "5bps per fill (entry, roll add, exit); safe-pool sweep is a collateral transfer (no fee); funding carry NOT modeled",
+    "entry_our_state": "XS dfh30 mid-rank pct>=0.8 (>=30 ranked) AND dfh30 in [-0.12,-0.03] AND close>prev_close AND (funding_pct<0.8 if computable). dfh30 = close/max(prior 30 closes)-1. funding_pct = mid-rank of last funding rate vs trailing 540 obs. Rank: highest pct, tie by symbol.",
+    "entry_sibling_e1": "30-bar window incl current: hh=max(high), plow=min(low) since last hh bar, depth=(hh-plow)/hh in [0.05,0.12], mid=(hh+plow)/2, reclaim=prev_close<=mid<close, atrp=ATR84/close<0.02 (mean TR, 84 bars). Rank: shallowest depth, tie by symbol.",
+    "roll_engine": "alloc A=free_cash/free_slots posted as margin; notional=1.0xA at entry close (qty=A/px); leverage cap L=3. On high>=vwap*1.2: free=M-qP/L where M=margin_cash+q(P-vwap); add 0.6*free*3 notional at trigger, sweep 0.4*free to safe pool, vwap blends, stop ratchets to max(stop,vwap), roll timer resets. Initial stop=0.92*entry (8% disaster stop). Intrabar stop fill: open<=stop->open, else low<=stop->stop. Exits: data_end > stop > btc_gate_off > 120-bar no-roll time stop (stop checked before same-bar rolls)."
+  },
+  "forbidden": [
+    "fitting",
+    "trading",
+    "profitability claims",
+    "protocol edits post-run",
+    "network"
+  ],
+  "metrics": [
+    "n campaigns",
+    "win rate",
+    "geo-mean campaign mult",
+    "final equity",
+    "maxDD (4h equity)",
+    "per-year by exit year",
+    "roll-count distribution",
+    "exit-reason histogram",
+    "time-in-market",
+    "determinism double-run"
+  ],
+  "purpose": "T121: port the sibling project's rolling-compounding engine to our 4h mega data and run OUR entry selection vs THEIR E1 entry on identical roll mechanics; flat no-roll siblings isolate the roll engine's value.",
+  "schema_version": "nanojev-financial-campaign-4h-protocol-v1",
+  "universe": {
+    "choice": "the 52 funding-covered symbols of data/rc_futures_v1 (every {SYM}/funding.csv with a {SYM}USDT_4h.csv) \u2014 chosen over top-50 quote_volume because our-entry carries the funding stealth filter (needs funding.csv) and a full-sample volume ranking is lookahead",
+    "master_clock": "BTC 4h bar timestamps (data/rc_futures_v1/BTC/BTCUSDT_4h.csv)",
+    "span": "2021-01-01 -> 2025-12-31 4h bars; EOS delists 2025-05-21 (data_end exit)"
+  }
+}

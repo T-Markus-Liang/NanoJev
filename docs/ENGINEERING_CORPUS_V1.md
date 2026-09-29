@@ -1,5 +1,17 @@
 # Engineering-judgment corpus V1
 
+> **2026-09-20 correction — NOT TRAINING-READY.** The read-only [T8g audit](T8G_ADAPTER_REVIEW_V1.md)
+> supersedes this document's original claims of independent sources, seed isolation and
+> no evaluation reuse. There are **37 catalog rules/base tables → 41 pairs**, not 41
+> independent base tables. All 246 rows pass the real trainer's schema/ID checks, yet
+> **27 canonical state/question groups cross splits (63 records)**, and **18 records**
+> declare facts derived from the existing abstention survey. Seed 20260920 has zero
+> common declared source IDs but **129 common inputs** with seed 20260919.
+> These are data/provenance blockers, not a missing format wrapper. Original corpus,
+> builder, labels and split bytes are retained for review; no merge or training is allowed
+> before a new reviewed version resolves them. The sections below preserve the original
+> authoring account as historical evidence, not a current isolation guarantee.
+
 **What this is.** A deterministic, contrastive, provenance-carrying engineering-judgment
 training corpus in the exact served request contract of
 `scripts/predict_toy_decisions.py`, emitted together with a second view in the row
@@ -69,8 +81,9 @@ types, and the train:dev:calibration:test item ratio is 108:42:42:54.
 contrastive pairs**. Each pair carries all three question types for both members, so
 there are **123 pair-by-question-type contrastive instances** (82 of which are the
 declared flip question; the rest are co-questions whose answers are computed from the
-same facts but do not flip). "41 pairs" is the honest unit: 41 base states each paired
-with a one-fact variant.
+same facts but do not flip). **Correction:** 41 pair records come from 37 catalog base
+rules; some bases recur with different one-fact variants. Pair count is not independent
+source count, and those repeated bases can cross splits (T8g).
 
 ## How correctness provenance is recorded
 
@@ -135,7 +148,8 @@ cannot move an item across the train/test boundary. `validate_manifest` fails if
 test split shares no source group with train/dev/calibration.
 
 `source_group_id` is a hash over `{seed, family, pair_id}`; a different seed yields
-disjoint source groups with an unchanged skeleton (asserted by the test suite).
+disjoint **identifiers**, not independent content. The original test only asserts the
+identifier property; T8g demonstrates content leakage both across splits and seeds.
 
 ## Refusals: no evaluation-corpus reuse
 
@@ -186,9 +200,9 @@ The builder suite reports **25 tests, OK**.
 
 Stated plainly, because it bounds what this corpus can be claimed to be:
 
-* **Hand-authored**: 41 base fact tables (one per source group) and their 41 declared
+* **Hand-authored (count corrected by T8g)**: 37 base fact tables and 41 declared
   one-fact mutations, across 7 decision families — the catalog in
-  `scripts/build_engineering_corpus_v1.py` (`CATALOG`, 41 `_rule` entries). Each carries a
+  `scripts/build_engineering_corpus_v1.py` (`CATALOG`, 37 `_rule` entries). Each carries a
   written justification (`why`) naming the fact and the project rule that makes the
   answer correct.
 * **Programmatic**: the contract rendering (state prose, question bodies and criteria),
@@ -197,9 +211,10 @@ Stated plainly, because it bounds what this corpus can be claimed to be:
   deterministic jitter of free fields, both output views, and every hash. 205 of the 246
   items are variant-derived; all 246 have machine-computed labels.
 * Numeric free fields (`changed_lines`, `candidate_segments`, `scoring_budget`,
-  `token_savings`) are jittered deterministically per source group so no two groups are
-  near-duplicates. A field that is exactly zero stays zero; the build rejects any jitter
-  that would change a rule's answer.
+  `token_savings`) are jittered deterministically per source group. **The former claim
+  that this prevents near-duplicates is withdrawn:** T8g finds exact duplicates.
+  A field that is exactly zero stays zero; the build rejects any jitter that would change
+  a rule's answer.
 
 ## Limits (explicit)
 

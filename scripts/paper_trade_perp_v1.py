@@ -41,6 +41,7 @@ from financial_simulator_v1 import (  # noqa: E402
 from paper_trade_protocol_v1 import (  # noqa: E402
     ProtocolError, input_manifest_sha256, load_protocol,
 )
+from paper_trade_attribution_v1 import attribute, evidence_from_replay  # noqa: E402
 
 MS = 1_000_000
 # Declared constant quote volume used in --capacity fixed mode, so the capacity cap
@@ -266,6 +267,8 @@ def main():
                              "comparable); venue_volume: capacity from reported bar volume; "
                              "off: no participation cap")
     args = parser.parse_args()
+    if args.output.exists():
+        parser.error(f"refusing to overwrite existing evidence: {args.output}")
 
     protocol, protocol_evidence, input_manifest = None, None, None
     # An empty --protocol means "run without a frozen protocol". pathlib normalises "" to ".",
@@ -330,6 +333,7 @@ def main():
     reference_rows = []
     regime_reference = symbols[0]
     for symbol in symbols:
+        quotes_before, decisions_before = len(quotes), len(decisions)
         marks, lasts, indexes, funding = load_source(args.source, args.archive_root,
                                                      args.venue_root, symbol)
         days = sorted(set(marks) & set(lasts) & set(indexes))
@@ -388,7 +392,13 @@ def main():
                     marks[day]["close_time"] * MS + 1, statistics.stdev(returns),
                     math.log(max(quote_volume_logs[index], 1e-9)), abs_funding[index],
                     abs_basis[index]))
-        per_symbol[symbol] = {"quotes": len(quotes), "decisions": len(decisions)}
+        per_symbol[symbol] = {
+            "quotes": len(quotes) - quotes_before, "decisions": len(decisions) - decisions_before,
+            "observed_first_day": dt.datetime.fromtimestamp(taken[0] / 1000, dt.timezone.utc).date().isoformat() if taken else None,
+            "observed_last_day": dt.datetime.fromtimestamp(taken[-1] / 1000, dt.timezone.utc).date().isoformat() if taken else None,
+            "missing_days": [dt.datetime.fromtimestamp(day / 1000, dt.timezone.utc).date().isoformat()
+                             for day in sorted(set(range(window_start_ms, window_end_ms, 86_400_000)) - set(taken))],
+        }
     regime_buckets = build_regime_windows(reference_rows)
     regimes = collapse_windows(regime_buckets)
     regime_labels = {}
@@ -407,10 +417,13 @@ def main():
 
     counts = result["counts"]
     ledger = result.get("ledger", {})
+    accounting_evidence = evidence_from_replay(result)
+    attribution = attribute(ledger, accounting_evidence)
     divergences = find_divergences(result)
     divergence_error = bool(divergences and args.on_divergence == "error")
     receipt = {
         "schema_version": "nanojev-paper-trade-perp-v1",
+        "receipt_revision": "t5-executed-path-v1",
         "mode": "PAPER / SIMULATED. No order was placed and no venue was contacted.",
         "reproducibility": {
             "protocol_sha256": (protocol_evidence or {}).get("protocol_sha256"),
@@ -425,14 +438,25 @@ def main():
                            "on_divergence": args.on_divergence,
                            "participation_fraction": participation,
                            "reference_notional_volume": reference_notional},
+        "execution_policy": result["policy"],
+        "contracts": result["contracts"],
+        "accounting_evidence": accounting_evidence,
+        "attribution": attribution,
         "divergences": divergences,
         "divergence_count": len(divergences),
         "divergence_error": divergence_error,
-        "data": {"source": ("Binance public archive" if args.source == "binance"
-                            else "Bybit public v5 market API (api.bybit.nl mirror)")
+        "data": {"source": {"binance": "Binance public archive",
+                            "bybit": "Bybit public v5 market API",
+                            "aster": "Aster public market API"}[args.source]
                          + " USDT-M perpetual daily bars",
-                 "venue": "binance_um" if args.source == "binance" else "bybit_linear",
+                 "source_key": args.source,
+                 "venue": {"binance": "binance_um", "bybit": "bybit_linear", "aster": "aster_perp"}[args.source],
+                 "simulation_template_venue": "binance_um",
+                 "template_caveat": "all sources use the same provisional contract/policy template; not venue-fidelity simulation",
                  "symbols": symbols,
+                 "per_symbol": per_symbol, "quote_count": len(quotes),
+                 "observed_event_ns": {"first": min(q.event_ns for q in quotes),
+                                       "last": max(q.event_ns for q in quotes)},
                  "first_day": args.first_day, "last_day": args.last_day,
                  "point_in_time": "current snapshot of history, NOT an as-of vintage"},
         "strategy": {"name": "reference_ma_crossover", "fast": args.fast, "slow": args.slow,
@@ -495,16 +519,15 @@ def main():
             "funding_convention": "each funding boundary charges the most recent SETTLED rate known "
                                   "at that instant; strictly the boundary should use the rate that "
                                   "settles at it. Declared approximation pending R1.",
-            "equity_curve": "this driver reports ledger totals; the equity-curve, drawdown and "
-                            "per-regime breakdown analytics live in financial_backtest_v1.py and "
-                            "are not yet wired to real data",
+            "equity_curve": "drawdown and descriptive regimes use the real-data replay curve; "
+                            "the curve is not an independent experiment",
             "recorded_caveat": "every quantity here is simulated; treat as an internal "
                                "consistency and plumbing check",
         },
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(receipt, indent=2, sort_keys=True, default=str) + "\n",
-                           encoding="utf-8")
+    with args.output.open("x", encoding="utf-8") as stream:
+        stream.write(json.dumps(receipt, indent=2, sort_keys=True, default=str) + "\n")
     print(json.dumps({"output": str(args.output), "quotes": len(quotes),
                       "decisions": len(decisions), "counts": counts,
                       "net_pnl": receipt["ledger"]["net_pnl"],

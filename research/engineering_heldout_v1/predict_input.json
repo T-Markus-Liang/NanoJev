@@ -1,0 +1,1058 @@
+{
+  "states": [
+    {
+      "id": "eh1-pg-replica-promotion-boolean",
+      "state": "INC-4417 timeline (UTC):\n14:02 primary pg-01 reports disk latency 800ms p99\n14:05 orchestrator flags pg-01 unhealthy, proposes promoting pg-02\n14:05 replica pg-02 replay lag measured at 41 seconds\n14:06 writes still accepted on pg-01 at reduced rate\nRunbook DB-FAILOVER-3: promote only when replay lag is under 10 seconds or primary is unreachable. pg-01 remains reachable.",
+      "questions": {
+        "promote_replica_now": {
+          "criteria": {
+            "false": "promotion is not permitted under DB-FAILOVER-3 given the stated lag",
+            "true": "promotion is permitted under DB-FAILOVER-3 right now"
+          },
+          "instructions": "Does the runbook permit promoting pg-02 to primary at this point in the timeline?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-pg-replica-promotion-choice",
+      "state": "INC-4417 timeline (UTC):\n14:02 primary pg-01 reports disk latency 800ms p99\n14:05 orchestrator flags pg-01 unhealthy, proposes promoting pg-02\n14:05 replica pg-02 replay lag measured at 41 seconds\n14:06 writes still accepted on pg-01 at reduced rate\nRunbook DB-FAILOVER-3: promote only when replay lag is under 10 seconds or primary is unreachable. pg-01 remains reachable.",
+      "questions": {
+        "best_next_action": {
+          "criteria": {
+            "promote_now": "promote pg-02 immediately despite the lag",
+            "rollback_deploy": "roll back the most recent application deploy",
+            "shutdown_writes": "stop all writes and freeze the cluster",
+            "wait_for_lag": "keep pg-01 writable, recheck lag, promote once under 10 s"
+          },
+          "instructions": "Which next action best follows DB-FAILOVER-3?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-pg-replica-promotion-score",
+      "state": "INC-4417 timeline (UTC):\n14:02 primary pg-01 reports disk latency 800ms p99\n14:05 orchestrator flags pg-01 unhealthy, proposes promoting pg-02\n14:05 replica pg-02 replay lag measured at 41 seconds\n14:06 writes still accepted on pg-01 at reduced rate\nRunbook DB-FAILOVER-3: promote only when replay lag is under 10 seconds or primary is unreachable. pg-01 remains reachable.",
+      "questions": {
+        "response_urgency": {
+          "criteria": [
+            "no action needed",
+            "monitor or schedule routinely",
+            "act soon, within hours",
+            "act immediately"
+          ],
+          "instructions": "Rate the urgency of acting on the failover decision.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-django-major-upgrade-boolean",
+      "state": "Ticket PLAT-882: bump Django 4.2 LTS -> 5.1 in the billing service.\nNotes from the spike:\n* 3 direct uses of APIs removed in 5.0 found by codemod\n* postgres-backed sessions: no change required\n* staging suite green on 5.1rc; canary stage not yet run\n* billing freeze for quarter-end starts in 6 days\nPolicy: no framework majors land inside a revenue freeze window.",
+      "questions": {
+        "land_inside_freeze": {
+          "instructions": "May the Django 5.1 upgrade land inside the quarter-end freeze window?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-django-major-upgrade-choice",
+      "state": "Ticket PLAT-882: bump Django 4.2 LTS -> 5.1 in the billing service.\nNotes from the spike:\n* 3 direct uses of APIs removed in 5.0 found by codemod\n* postgres-backed sessions: no change required\n* staging suite green on 5.1rc; canary stage not yet run\n* billing freeze for quarter-end starts in 6 days\nPolicy: no framework majors land inside a revenue freeze window.",
+      "questions": {
+        "upgrade_path": {
+          "criteria": {
+            "land_after_freeze": "finish canary verification, then land once the freeze lifts",
+            "land_now": "merge to main and deploy before the freeze",
+            "pin_42_forever": "stay on 4.2 permanently",
+            "rewrite_billing": "rewrite the billing service to avoid the upgrade"
+          },
+          "instructions": "What is the correct path for this upgrade?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-django-major-upgrade-score",
+      "state": "Ticket PLAT-882: bump Django 4.2 LTS -> 5.1 in the billing service.\nNotes from the spike:\n* 3 direct uses of APIs removed in 5.0 found by codemod\n* postgres-backed sessions: no change required\n* staging suite green on 5.1rc; canary stage not yet run\n* billing freeze for quarter-end starts in 6 days\nPolicy: no framework majors land inside a revenue freeze window.",
+      "questions": {
+        "upgrade_risk": {
+          "criteria": [
+            "negligible risk",
+            "low risk, acceptable anytime",
+            "moderate risk, needs canary first",
+            "high risk, blocked by policy"
+          ],
+          "instructions": "Rate the risk of shipping this upgrade inside the freeze window.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-orders-column-drop-boolean",
+      "state": "Migration plan M-209 (orders service):\n  step 1: deploy code that stops reading orders.legacy_total\n  step 2: wait one full release cycle (7 days)\n  step 3: ALTER TABLE orders DROP COLUMN legacy_total\nCurrent state: step 1 deployed yesterday; step 2 has 6 days remaining.\nA reviewer proposes running step 3 today 'to save time'.",
+      "questions": {
+        "drop_column_today": {
+          "criteria": {
+            "false": "step 2's full release cycle has not elapsed",
+            "true": "the column may be dropped today"
+          },
+          "instructions": "Is dropping orders.legacy_total today consistent with migration plan M-209?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-orders-column-drop-choice",
+      "state": "Migration plan M-209 (orders service):\n  step 1: deploy code that stops reading orders.legacy_total\n  step 2: wait one full release cycle (7 days)\n  step 3: ALTER TABLE orders DROP COLUMN legacy_total\nCurrent state: step 1 deployed yesterday; step 2 has 6 days remaining.\nA reviewer proposes running step 3 today 'to save time'.",
+      "questions": {
+        "migration_safety": {
+          "criteria": {
+            "audit_compliance": "regulators require a 7-day notice period",
+            "disk_space": "the table must shrink before the drop",
+            "replication": "replicas need time to copy the new schema",
+            "rollback_window": "a rollback to the previous code version still reads the column"
+          },
+          "instructions": "Which property does the 7-day wait in step 2 primarily protect?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-orders-column-drop-score",
+      "state": "Migration plan M-209 (orders service):\n  step 1: deploy code that stops reading orders.legacy_total\n  step 2: wait one full release cycle (7 days)\n  step 3: ALTER TABLE orders DROP COLUMN legacy_total\nCurrent state: step 1 deployed yesterday; step 2 has 6 days remaining.\nA reviewer proposes running step 3 today 'to save time'.",
+      "questions": {
+        "proposal_risk": {
+          "criteria": [
+            "safe",
+            "minor risk only",
+            "risky but recoverable",
+            "unsafe: defeats the rollback window"
+          ],
+          "instructions": "Rate the risk of running step 3 today as the reviewer proposes.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-v1-charges-endpoint-boolean",
+      "state": "Deprecation record DEP-31 for GET /v1/charges:\n  announced: 2026-03-01, sunset date: 2026-09-01\n  today: 2026-08-20 (12 days to sunset)\n  last-7-day traffic: 41,200 calls from 17 distinct API keys\n  migration guide sent to all key owners on 2026-08-01\n  policy: endpoints may be hard-disabled only after sunset date AND after traffic drops below 1,000 calls/week.",
+      "questions": {
+        "disable_now": {
+          "criteria": {
+            "false": "sunset date has not passed and traffic is above the threshold",
+            "true": "the endpoint may be hard-disabled today"
+          },
+          "instructions": "May GET /v1/charges be hard-disabled today under the stated policy?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-v1-charges-endpoint-choice",
+      "state": "Deprecation record DEP-31 for GET /v1/charges:\n  announced: 2026-03-01, sunset date: 2026-09-01\n  today: 2026-08-20 (12 days to sunset)\n  last-7-day traffic: 41,200 calls from 17 distinct API keys\n  migration guide sent to all key owners on 2026-08-01\n  policy: endpoints may be hard-disabled only after sunset date AND after traffic drops below 1,000 calls/week.",
+      "questions": {
+        "correct_step": {
+          "criteria": {
+            "disable_endpoint": "return 410 Gone for all callers now",
+            "extend_sunset": "push the sunset date out by one quarter",
+            "nudge_and_wait": "remind remaining key owners, re-evaluate after sunset and below threshold",
+            "silence_alerts": "turn off the deprecation traffic monitor"
+          },
+          "instructions": "What is the correct next step for DEP-31?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-v1-charges-endpoint-score",
+      "state": "Deprecation record DEP-31 for GET /v1/charges:\n  announced: 2026-03-01, sunset date: 2026-09-01\n  today: 2026-08-20 (12 days to sunset)\n  last-7-day traffic: 41,200 calls from 17 distinct API keys\n  migration guide sent to all key owners on 2026-08-01\n  policy: endpoints may be hard-disabled only after sunset date AND after traffic drops below 1,000 calls/week.",
+      "questions": {
+        "remaining_work": {
+          "criteria": [
+            "complete, no work left",
+            "nearly done, routine follow-up",
+            "significant work remains",
+            "not started"
+          ],
+          "instructions": "Rate how close this deprecation is to completion.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-checkout-pool-saturation-boolean",
+      "state": "Capacity board, checkout-api (30-day lookback):\n| week | p95 CPU | p95 conns | errors |\n| W30  | 41%     | 38%       | 0      |\n| W31  | 55%     | 52%       | 0      |\n| W32  | 71%     | 69%       | 2      |\n| W33  | 84%     | 81%       | 19     |\nForecast: same growth rate continues; autoscale ceiling is 90% CPU.",
+      "questions": {
+        "breach_next_week": {
+          "criteria": {
+            "false": "the trend stays below the ceiling next week",
+            "true": "the trend crosses the 90% ceiling next week"
+          },
+          "instructions": "Does the trend imply checkout-api will hit its autoscale ceiling within the next week?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-checkout-pool-saturation-choice",
+      "state": "Capacity board, checkout-api (30-day lookback):\n| week | p95 CPU | p95 conns | errors |\n| W30  | 41%     | 38%       | 0      |\n| W31  | 55%     | 52%       | 0      |\n| W32  | 71%     | 69%       | 2      |\n| W33  | 84%     | 81%       | 19     |\nForecast: same growth rate continues; autoscale ceiling is 90% CPU.",
+      "questions": {
+        "capacity_response": {
+          "criteria": {
+            "halve_traffic": "reject half of checkout requests",
+            "ignore": "no action; weekly numbers are noisy",
+            "raise_ceiling": "raise the autoscale ceiling and add headroom before next week",
+            "rewrite_service": "rewrite checkout-api for efficiency this week"
+          },
+          "instructions": "What is the proportionate capacity response?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-checkout-pool-saturation-score",
+      "state": "Capacity board, checkout-api (30-day lookback):\n| week | p95 CPU | p95 conns | errors |\n| W30  | 41%     | 38%       | 0      |\n| W31  | 55%     | 52%       | 0      |\n| W32  | 71%     | 69%       | 2      |\n| W33  | 84%     | 81%       | 19     |\nForecast: same growth rate continues; autoscale ceiling is 90% CPU.",
+      "questions": {
+        "planning_urgency": {
+          "criteria": [
+            "no action needed",
+            "monitor or schedule routinely",
+            "act soon, within hours",
+            "act immediately"
+          ],
+          "instructions": "Rate the urgency of the capacity decision.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-openssl-cve-3412-boolean",
+      "state": "Security bulletin SEC-2026-091:\n  CVE-2026-3412 (openssl): CVSS 9.8, remote code execution, public exploit observed\n  exposure scan of our fleet:\n    edge-proxy-01..04: openssl 3.0.13 (vulnerable), internet-facing\n    internal batch workers: openssl 3.0.13 (vulnerable), no inbound network\n  fixed version: 3.0.15, available in our mirror\n  change policy: emergency patches to internet-facing hosts bypass the weekly window.",
+      "questions": {
+        "emergency_patch_edges": {
+          "criteria": {
+            "false": "the weekly change window must still be honoured",
+            "true": "emergency patching is permitted for these hosts"
+          },
+          "instructions": "Does policy permit emergency-patching the edge proxies outside the weekly window?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-openssl-cve-3412-choice",
+      "state": "Security bulletin SEC-2026-091:\n  CVE-2026-3412 (openssl): CVSS 9.8, remote code execution, public exploit observed\n  exposure scan of our fleet:\n    edge-proxy-01..04: openssl 3.0.13 (vulnerable), internet-facing\n    internal batch workers: openssl 3.0.13 (vulnerable), no inbound network\n  fixed version: 3.0.15, available in our mirror\n  change policy: emergency patches to internet-facing hosts bypass the weekly window.",
+      "questions": {
+        "patch_scope": {
+          "criteria": {
+            "all_never": "do not patch; wait for the vendor's next release",
+            "edges_first": "patch internet-facing edges first, then internal workers on the normal cadence",
+            "edges_only_ever": "patch the edges and leave internal workers vulnerable permanently",
+            "internal_first": "patch batch workers first because there are more of them"
+          },
+          "instructions": "What is the correct patching scope order?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-openssl-cve-3412-score",
+      "state": "Security bulletin SEC-2026-091:\n  CVE-2026-3412 (openssl): CVSS 9.8, remote code execution, public exploit observed\n  exposure scan of our fleet:\n    edge-proxy-01..04: openssl 3.0.13 (vulnerable), internet-facing\n    internal batch workers: openssl 3.0.13 (vulnerable), no inbound network\n  fixed version: 3.0.15, available in our mirror\n  change policy: emergency patches to internet-facing hosts bypass the weekly window.",
+      "questions": {
+        "patch_urgency": {
+          "criteria": [
+            "no action needed",
+            "monitor or schedule routinely",
+            "act soon, within hours",
+            "act immediately"
+          ],
+          "instructions": "Rate the urgency of patching the edge proxies.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-chat-logs-retention-boolean",
+      "state": "Retention ticket DATA-77:\n  dataset: support chat transcripts, includes customer email addresses\n  current retention: kept indefinitely in analytics bucket\n  privacy standard P-4: transcripts with personal identifiers expire after 400 days\n  oldest record age: 1,180 days\n  proposal: apply a 400-day TTL job to the bucket this sprint.",
+      "questions": {
+        "ttl_required": {
+          "criteria": {
+            "false": "indefinite retention is allowed for transcripts",
+            "true": "records older than 400 days must be expired"
+          },
+          "instructions": "Does standard P-4 require expiring part of this dataset?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-chat-logs-retention-choice",
+      "state": "Retention ticket DATA-77:\n  dataset: support chat transcripts, includes customer email addresses\n  current retention: kept indefinitely in analytics bucket\n  privacy standard P-4: transcripts with personal identifiers expire after 400 days\n  oldest record age: 1,180 days\n  proposal: apply a 400-day TTL job to the bucket this sprint.",
+      "questions": {
+        "retention_fix": {
+          "criteria": {
+            "delete_all": "delete the entire analytics bucket",
+            "export_to_csv": "export transcripts to CSV and keep the CSV instead",
+            "rename_bucket": "rename the bucket so the policy does not match",
+            "ttl_job": "apply the 400-day TTL and purge the overdue records"
+          },
+          "instructions": "Which remediation matches P-4?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-chat-logs-retention-score",
+      "state": "Retention ticket DATA-77:\n  dataset: support chat transcripts, includes customer email addresses\n  current retention: kept indefinitely in analytics bucket\n  privacy standard P-4: transcripts with personal identifiers expire after 400 days\n  oldest record age: 1,180 days\n  proposal: apply a 400-day TTL job to the bucket this sprint.",
+      "questions": {
+        "compliance_gap": {
+          "criteria": [
+            "compliant",
+            "minor documentation gap",
+            "real violation needing scheduled work",
+            "severe violation needing immediate work"
+          ],
+          "instructions": "Rate the severity of the current retention posture.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-holiday-release-window-boolean",
+      "state": "Release calendar note:\n  freeze window: Dec 20 00:00 - Jan 3 00:00 (all deploys except sev-1 hotfixes)\n  pending: feature-flag rollout 'new-recommendations', scheduled Dec 22\n  the flag targets 5% of users and is fully reversible\n  on-call asked whether the rollout may proceed inside the window.",
+      "questions": {
+        "rollout_allowed": {
+          "criteria": {
+            "false": "the freeze permits only sev-1 hotfixes",
+            "true": "any reversible change may ship during the freeze"
+          },
+          "instructions": "May the new-recommendations rollout proceed on Dec 22 under the freeze rule?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-holiday-release-window-choice",
+      "state": "Release calendar note:\n  freeze window: Dec 20 00:00 - Jan 3 00:00 (all deploys except sev-1 hotfixes)\n  pending: feature-flag rollout 'new-recommendations', scheduled Dec 22\n  the flag targets 5% of users and is fully reversible\n  on-call asked whether the rollout may proceed inside the window.",
+      "questions": {
+        "freeze_options": {
+          "criteria": {
+            "cancel_rollout": "cancel the feature permanently",
+            "rename_hotfix": "label the rollout a sev-1 hotfix",
+            "ship_anyway": "proceed because the flag is reversible",
+            "wait_or_exception": "wait until Jan 3, or request a formal freeze exception"
+          },
+          "instructions": "What are the team's compliant options?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-holiday-release-window-score",
+      "state": "Release calendar note:\n  freeze window: Dec 20 00:00 - Jan 3 00:00 (all deploys except sev-1 hotfixes)\n  pending: feature-flag rollout 'new-recommendations', scheduled Dec 22\n  the flag targets 5% of users and is fully reversible\n  on-call asked whether the rollout may proceed inside the window.",
+      "questions": {
+        "exception_bar": {
+          "criteria": [
+            "no justification needed",
+            "a brief note suffices",
+            "a solid business case",
+            "an emergency-level justification"
+          ],
+          "instructions": "Rate how strong a justification a freeze exception would need.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-p95-latency-alert-boolean",
+      "state": "Alert review for search-api p95 latency:\n  current page threshold: 900 ms; alert fired 26 times last week\n  on-call acknowledged all 26; 0 led to any action (all benign spikes)\n  SLO for the service: p95 < 1200 ms; last-week actual p95 max: 1180 ms\n  proposal A: raise the page threshold to 1250 ms\n  proposal B: keep 900 ms and ask on-call to be more careful",
+      "questions": {
+        "alert_is_noisy": {
+          "criteria": {
+            "false": "26 pages that all resolve to no action are healthy",
+            "true": "26 no-action pages in a week is a noisy alert"
+          },
+          "instructions": "Is the current 900 ms page threshold producing alert fatigue?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-p95-latency-alert-choice",
+      "state": "Alert review for search-api p95 latency:\n  current page threshold: 900 ms; alert fired 26 times last week\n  on-call acknowledged all 26; 0 led to any action (all benign spikes)\n  SLO for the service: p95 < 1200 ms; last-week actual p95 max: 1180 ms\n  proposal A: raise the page threshold to 1250 ms\n  proposal B: keep 900 ms and ask on-call to be more careful",
+      "questions": {
+        "threshold_choice": {
+          "criteria": {
+            "delete_alert": "remove the latency alert entirely",
+            "keep_threshold": "proposal B: keep paging at 900 ms",
+            "page_everything": "page on every p95 measurement",
+            "raise_threshold": "proposal A: page above the SLO line, watch trends on a dashboard"
+          },
+          "instructions": "Which proposal better fits alerting practice?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-p95-latency-alert-score",
+      "state": "Alert review for search-api p95 latency:\n  current page threshold: 900 ms; alert fired 26 times last week\n  on-call acknowledged all 26; 0 led to any action (all benign spikes)\n  SLO for the service: p95 < 1200 ms; last-week actual p95 max: 1180 ms\n  proposal A: raise the page threshold to 1250 ms\n  proposal B: keep 900 ms and ask on-call to be more careful",
+      "questions": {
+        "alert_quality": {
+          "criteria": [
+            "excellent signal",
+            "mostly useful",
+            "mostly noise",
+            "pure noise, actively harmful"
+          ],
+          "instructions": "Rate the current alert's signal quality.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-payments-canary-boolean",
+      "state": "Deploy plan for payments-service v2.31:\n  change: new retry layer around the card processor client\n  canary stage: 2% of traffic for 30 minutes, error budget 0.1%\n  observed at minute 12: error rate 0.6%, all retries to the same processor\n  the deploy pipeline offers: continue / pause / rollback",
+      "questions": {
+        "continue_rollout": {
+          "criteria": {
+            "false": "the observed error rate exceeds the canary budget",
+            "true": "0.6% errors are acceptable for a payments canary"
+          },
+          "instructions": "May the canary proceed to full rollout on these observations?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-payments-canary-choice",
+      "state": "Deploy plan for payments-service v2.31:\n  change: new retry layer around the card processor client\n  canary stage: 2% of traffic for 30 minutes, error budget 0.1%\n  observed at minute 12: error rate 0.6%, all retries to the same processor\n  the deploy pipeline offers: continue / pause / rollback",
+      "questions": {
+        "canary_action": {
+          "criteria": {
+            "continue": "promote to 100% now",
+            "pause": "hold at 2% and keep watching for another hour",
+            "rollback": "roll back to v2.30 and investigate the retry layer",
+            "silence_metrics": "mute the error metric and continue"
+          },
+          "instructions": "What should the pipeline operator select?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-payments-canary-score",
+      "state": "Deploy plan for payments-service v2.31:\n  change: new retry layer around the card processor client\n  canary stage: 2% of traffic for 30 minutes, error budget 0.1%\n  observed at minute 12: error rate 0.6%, all retries to the same processor\n  the deploy pipeline offers: continue / pause / rollback",
+      "questions": {
+        "signal_strength": {
+          "criteria": [
+            "no signal",
+            "weak hint",
+            "moderate evidence",
+            "clear budget breach"
+          ],
+          "instructions": "Rate the strength of the signal that the canary is unhealthy.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-nightly-backup-verify-boolean",
+      "state": "Backup report, orders-db (nightly full dumps):\n  last 30 dumps: all completed, checksums clean\n  restore drills performed in the last 12 months: 0\n  last attempted restore (11 months ago): FAILED on missing WAL segment\n  runbook requirement: quarterly restore drills must pass before the\n  backup set is called 'verified'.",
+      "questions": {
+        "backups_verified": {
+          "criteria": {
+            "false": "verification requires passing restore drills, not just clean dumps",
+            "true": "clean checksums alone verify the set"
+          },
+          "instructions": "Do the 30 clean dumps make this backup set 'verified' under the runbook?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-nightly-backup-verify-choice",
+      "state": "Backup report, orders-db (nightly full dumps):\n  last 30 dumps: all completed, checksums clean\n  restore drills performed in the last 12 months: 0\n  last attempted restore (11 months ago): FAILED on missing WAL segment\n  runbook requirement: quarterly restore drills must pass before the\n  backup set is called 'verified'.",
+      "questions": {
+        "backup_next_step": {
+          "criteria": {
+            "declare_verified": "mark the backup set verified",
+            "increase_frequency": "take dumps twice nightly instead",
+            "run_restore_drill": "run a restore drill and fix the WAL gap it reproduces",
+            "stop_dumps": "stop dumps until the drill passes"
+          },
+          "instructions": "What is the correct next step?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-nightly-backup-verify-score",
+      "state": "Backup report, orders-db (nightly full dumps):\n  last 30 dumps: all completed, checksums clean\n  restore drills performed in the last 12 months: 0\n  last attempted restore (11 months ago): FAILED on missing WAL segment\n  runbook requirement: quarterly restore drills must pass before the\n  backup set is called 'verified'.",
+      "questions": {
+        "drill_debt": {
+          "criteria": [
+            "none",
+            "cosmetic gap",
+            "material assurance gap",
+            "critical assurance gap"
+          ],
+          "instructions": "Rate the severity of the missing restore-drill coverage.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-crypto-pr-review-boolean",
+      "state": "PR #5571 summary:\n  author: external contributor (first PR)\n  change: new token-signing helper in security/crypto.py\n  CI: green; two automated reviewers approved (lint + coverage bots)\n  security-reviewer queue: untouched for 3 days\n  repo rule: changes under security/ require a human SECURITY-owner approval.",
+      "questions": {
+        "mergeable_now": {
+          "criteria": {
+            "false": "a human SECURITY-owner approval is still required",
+            "true": "green CI plus bot approvals satisfy the rule"
+          },
+          "instructions": "Is PR #5571 mergeable in its current state?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-crypto-pr-review-choice",
+      "state": "PR #5571 summary:\n  author: external contributor (first PR)\n  change: new token-signing helper in security/crypto.py\n  CI: green; two automated reviewers approved (lint + coverage bots)\n  security-reviewer queue: untouched for 3 days\n  repo rule: changes under security/ require a human SECURITY-owner approval.",
+      "questions": {
+        "review_path": {
+          "criteria": {
+            "close_pr": "close the PR because external PRs are not allowed",
+            "merge_now": "merge; the bots already approved",
+            "move_file": "move the helper out of security/ to dodge the rule",
+            "request_owner": "wait for or explicitly request a SECURITY-owner review"
+          },
+          "instructions": "What is the correct escalation path?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-crypto-pr-review-score",
+      "state": "PR #5571 summary:\n  author: external contributor (first PR)\n  change: new token-signing helper in security/crypto.py\n  CI: green; two automated reviewers approved (lint + coverage bots)\n  security-reviewer queue: untouched for 3 days\n  repo rule: changes under security/ require a human SECURITY-owner approval.",
+      "questions": {
+        "bypass_risk": {
+          "criteria": [
+            "none",
+            "process nit only",
+            "meaningful risk",
+            "serious risk on a security boundary"
+          ],
+          "instructions": "Rate the risk of merging without the owner review.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-runtime-flags-drift-boolean",
+      "state": "Config drift report, fleet feature flags:\n  desired (flags.yaml @ main): checkout_v2=true, search_cache=true, ml_rank=false\n  observed live:             checkout_v2=true, search_cache=false, ml_rank=true\n  last config apply job: 19 days ago; it failed silently (exit 0, no diff emitted)\n  two incidents this month traced to operators 'fixing' flags by hand.",
+      "questions": {
+        "drift_present": {
+          "criteria": {
+            "false": "live flags match flags.yaml",
+            "true": "two of three flags diverge from desired"
+          },
+          "instructions": "Does the report show live configuration drifted from the desired state?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-runtime-flags-drift-choice",
+      "state": "Config drift report, fleet feature flags:\n  desired (flags.yaml @ main): checkout_v2=true, search_cache=true, ml_rank=false\n  observed live:             checkout_v2=true, search_cache=false, ml_rank=true\n  last config apply job: 19 days ago; it failed silently (exit 0, no diff emitted)\n  two incidents this month traced to operators 'fixing' flags by hand.",
+      "questions": {
+        "drift_response": {
+          "criteria": {
+            "disable_flags": "turn every flag off until next quarter",
+            "edit_yaml": "edit flags.yaml to match whatever is live",
+            "ignore": "drift is expected and harmless",
+            "reconcile_and_fix_job": "re-apply flags.yaml and fix the silent-failure path in the apply job"
+          },
+          "instructions": "What is the correct response to this drift?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-runtime-flags-drift-score",
+      "state": "Config drift report, fleet feature flags:\n  desired (flags.yaml @ main): checkout_v2=true, search_cache=true, ml_rank=false\n  observed live:             checkout_v2=true, search_cache=false, ml_rank=true\n  last config apply job: 19 days ago; it failed silently (exit 0, no diff emitted)\n  two incidents this month traced to operators 'fixing' flags by hand.",
+      "questions": {
+        "drift_severity": {
+          "criteria": [
+            "harmless",
+            "minor hygiene issue",
+            "real operational risk",
+            "severe: desired and actual state can diverge unnoticed"
+          ],
+          "instructions": "Rate the severity of a silently-failing config apply loop.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-vendor-analytics-boolean",
+      "state": "Vendor assessment, 'Metricly' analytics SDK:\n  proposed use: client-side event counters in the mobile app\n  SDK behaviour (from vendor docs + our proxy capture): batches events\n    hourly; payload includes device_id and coarse location\n  our data policy: coarse location may leave the device only with\n    explicit user consent; the app has no consent flow today\n  legal review: scheduled, not yet completed",
+      "questions": {
+        "adopt_now": {
+          "criteria": {
+            "false": "consent flow and legal review are both unfinished",
+            "true": "vendor documentation alone clears adoption"
+          },
+          "instructions": "May the Metricly SDK ship in the app today?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-vendor-analytics-choice",
+      "state": "Vendor assessment, 'Metricly' analytics SDK:\n  proposed use: client-side event counters in the mobile app\n  SDK behaviour (from vendor docs + our proxy capture): batches events\n    hourly; payload includes device_id and coarse location\n  our data policy: coarse location may leave the device only with\n    explicit user consent; the app has no consent flow today\n  legal review: scheduled, not yet completed",
+      "questions": {
+        "adoption_path": {
+          "criteria": {
+            "consent_then_legal": "add the consent flow and complete legal review first",
+            "proxy_strip": "strip the location fields in our proxy and skip consent",
+            "self_host": "self-host the vendor backend and skip review",
+            "ship_then_fix": "ship now and add consent in a follow-up"
+          },
+          "instructions": "What sequence is required before shipping?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-vendor-analytics-score",
+      "state": "Vendor assessment, 'Metricly' analytics SDK:\n  proposed use: client-side event counters in the mobile app\n  SDK behaviour (from vendor docs + our proxy capture): batches events\n    hourly; payload includes device_id and coarse location\n  our data policy: coarse location may leave the device only with\n    explicit user consent; the app has no consent flow today\n  legal review: scheduled, not yet completed",
+      "questions": {
+        "privacy_risk": {
+          "criteria": [
+            "none",
+            "low",
+            "moderate",
+            "high: policy violation by default"
+          ],
+          "instructions": "Rate the privacy risk of shipping without the consent flow.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-dark-launch-coverage-boolean",
+      "state": "Launch checklist, recommendations-service dark launch:\n  [x] service deployed to prod, receiving mirrored traffic\n  [x] request/error/latency dashboards live\n  [ ] business metric (click-through on recommendations) instrumented\n  [ ] per-tenant cost attribution wired\n  launch gate L-5: dark launches may not graduate without business metrics.",
+      "questions": {
+        "graduate_allowed": {
+          "criteria": {
+            "false": "business metrics are not instrumented",
+            "true": "technical dashboards are sufficient"
+          },
+          "instructions": "May the service graduate from dark launch today under gate L-5?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-dark-launch-coverage-choice",
+      "state": "Launch checklist, recommendations-service dark launch:\n  [x] service deployed to prod, receiving mirrored traffic\n  [x] request/error/latency dashboards live\n  [ ] business metric (click-through on recommendations) instrumented\n  [ ] per-tenant cost attribution wired\n  launch gate L-5: dark launches may not graduate without business metrics.",
+      "questions": {
+        "obs_next_step": {
+          "criteria": {
+            "drop_metric": "remove the business-metric requirement from L-5",
+            "graduate_anyway": "graduate now; dashboards look clean",
+            "instrument_metric": "instrument the click-through metric, then re-review",
+            "turn_off_mirror": "stop mirrored traffic to save cost"
+          },
+          "instructions": "What is the correct next step?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-dark-launch-coverage-score",
+      "state": "Launch checklist, recommendations-service dark launch:\n  [x] service deployed to prod, receiving mirrored traffic\n  [x] request/error/latency dashboards live\n  [ ] business metric (click-through on recommendations) instrumented\n  [ ] per-tenant cost attribution wired\n  launch gate L-5: dark launches may not graduate without business metrics.",
+      "questions": {
+        "blindness_risk": {
+          "criteria": [
+            "none",
+            "minor",
+            "moderate",
+            "high: success is unmeasurable"
+          ],
+          "instructions": "Rate the risk of graduating without the business metric.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-hotfix-vs-release-boolean",
+      "state": "Bug triage note, INV-220:\n  defect: invoice PDF renders tax line with wrong currency symbol\n  impact: cosmetic only; amounts and totals are correct\n  affected: ~2% of invoices, EU tenants only\n  options: (a) hotfix to prod today, (b) fix in next weekly release in 4 days\n  hotfix policy: reserved for data corruption, security, or outage-class bugs.",
+      "questions": {
+        "hotfix_warranted": {
+          "criteria": {
+            "false": "a cosmetic defect is not hotfix-class",
+            "true": "any customer-visible defect may be hotfixed"
+          },
+          "instructions": "Does INV-220 qualify for a hotfix under the stated policy?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-hotfix-vs-release-choice",
+      "state": "Bug triage note, INV-220:\n  defect: invoice PDF renders tax line with wrong currency symbol\n  impact: cosmetic only; amounts and totals are correct\n  affected: ~2% of invoices, EU tenants only\n  options: (a) hotfix to prod today, (b) fix in next weekly release in 4 days\n  hotfix policy: reserved for data corruption, security, or outage-class bugs.",
+      "questions": {
+        "triage_choice": {
+          "criteria": {
+            "hotfix_today": "hotfix to production today",
+            "revert_invoices": "stop sending invoices until fixed",
+            "weekly_release": "fix in the next weekly release",
+            "wontfix": "close as won't-fix; cosmetics do not matter"
+          },
+          "instructions": "Which resolution is correct?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-hotfix-vs-release-score",
+      "state": "Bug triage note, INV-220:\n  defect: invoice PDF renders tax line with wrong currency symbol\n  impact: cosmetic only; amounts and totals are correct\n  affected: ~2% of invoices, EU tenants only\n  options: (a) hotfix to prod today, (b) fix in next weekly release in 4 days\n  hotfix policy: reserved for data corruption, security, or outage-class bugs.",
+      "questions": {
+        "defect_severity": {
+          "criteria": [
+            "cosmetic/minor",
+            "annoying but bounded",
+            "major functional impact",
+            "critical/outage-class"
+          ],
+          "instructions": "Rate the defect's severity.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-edge-traffic-shed-boolean",
+      "state": "Load event, edge tier (ongoing):\n  inbound RPS: 3.1x capacity; upstream provider degraded\n  request classes by share: search 55%, recommendations 30%, checkout 15%\n  shed policy P-9: shed lowest-revenue-criticality traffic first;\n    checkout traffic must never be shed while the tier is alive\n  proposal on the incident call: shed search first, then recommendations.",
+      "questions": {
+        "shed_checkout": {
+          "criteria": {
+            "false": "checkout is never shed while the tier is alive",
+            "true": "checkout may be shed once search is exhausted"
+          },
+          "instructions": "Does policy P-9 ever permit shedding checkout traffic in this event?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-edge-traffic-shed-choice",
+      "state": "Load event, edge tier (ongoing):\n  inbound RPS: 3.1x capacity; upstream provider degraded\n  request classes by share: search 55%, recommendations 30%, checkout 15%\n  shed policy P-9: shed lowest-revenue-criticality traffic first;\n    checkout traffic must never be shed while the tier is alive\n  proposal on the incident call: shed search first, then recommendations.",
+      "questions": {
+        "shed_order": {
+          "criteria": {
+            "checkout_first": "checkout first because it is the smallest share",
+            "none": "shed nothing; let the tier fall over",
+            "proportional": "shed all three classes proportionally",
+            "search_then_recs": "search, then recommendations; checkout stays served"
+          },
+          "instructions": "Which shedding order follows P-9?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-edge-traffic-shed-score",
+      "state": "Load event, edge tier (ongoing):\n  inbound RPS: 3.1x capacity; upstream provider degraded\n  request classes by share: search 55%, recommendations 30%, checkout 15%\n  shed policy P-9: shed lowest-revenue-criticality traffic first;\n    checkout traffic must never be shed while the tier is alive\n  proposal on the incident call: shed search first, then recommendations.",
+      "questions": {
+        "event_urgency": {
+          "criteria": [
+            "no action needed",
+            "monitor or schedule routinely",
+            "act soon, within hours",
+            "act immediately"
+          ],
+          "instructions": "Rate the urgency of the shedding decision.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-orders-backfill-boolean",
+      "state": "Backfill plan BF-118, orders pipeline:\n  defect window: events between Aug 2-9 missing the region field\n  fix: re-emit ~4.1M events through the corrected transformer\n  constraint C-2: backfill traffic must stay under 15% of the topic's\n    consumer capacity so live traffic is never starved\n  computed safe rate: 480 events/s; plan proposes 2,000 events/s\n  at 480 events/s the backfill finishes in about 2.4 hours.",
+      "questions": {
+        "rate_compliant": {
+          "criteria": {
+            "false": "2,000/s exceeds the computed 480/s safe rate",
+            "true": "any rate is fine for a one-off backfill"
+          },
+          "instructions": "Is the proposed 2,000 events/s rate compliant with constraint C-2?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-orders-backfill-choice",
+      "state": "Backfill plan BF-118, orders pipeline:\n  defect window: events between Aug 2-9 missing the region field\n  fix: re-emit ~4.1M events through the corrected transformer\n  constraint C-2: backfill traffic must stay under 15% of the topic's\n    consumer capacity so live traffic is never starved\n  computed safe rate: 480 events/s; plan proposes 2,000 events/s\n  at 480 events/s the backfill finishes in about 2.4 hours.",
+      "questions": {
+        "backfill_plan": {
+          "criteria": {
+            "run_2000": "run at 2,000 events/s to finish faster",
+            "run_480": "run at 480 events/s for ~2.4 hours within C-2",
+            "run_batched_night": "drop live consumers at night and run unbounded",
+            "skip_backfill": "leave the region field missing permanently"
+          },
+          "instructions": "What is the correct backfill plan?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-orders-backfill-score",
+      "state": "Backfill plan BF-118, orders pipeline:\n  defect window: events between Aug 2-9 missing the region field\n  fix: re-emit ~4.1M events through the corrected transformer\n  constraint C-2: backfill traffic must stay under 15% of the topic's\n    consumer capacity so live traffic is never starved\n  computed safe rate: 480 events/s; plan proposes 2,000 events/s\n  at 480 events/s the backfill finishes in about 2.4 hours.",
+      "questions": {
+        "starvation_risk": {
+          "criteria": [
+            "none",
+            "minor slowdown",
+            "live-traffic starvation risk",
+            "guaranteed outage"
+          ],
+          "instructions": "Rate the risk of running the proposed 2,000 events/s.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-billing-oncall-owner-boolean",
+      "state": "Ownership registry excerpt:\n  service: invoice-renderer   owner: team-billing   oncall: billing-primary\n  service: pdf-lib            owner: team-platform  oncall: platform-primary\nAlert at 03:10: invoice-renderer error rate 12%, pdf-lib healthy.\nEscalation rule E-1: page the owning team's oncall for the failing service;\npage the platform oncall only if a shared dependency is also failing.",
+      "questions": {
+        "page_platform": {
+          "criteria": {
+            "false": "the failing service is owned by team-billing",
+            "true": "the platform oncall owns all PDF rendering"
+          },
+          "instructions": "Does rule E-1 direct a page to platform-primary for this alert?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-billing-oncall-owner-choice",
+      "state": "Ownership registry excerpt:\n  service: invoice-renderer   owner: team-billing   oncall: billing-primary\n  service: pdf-lib            owner: team-platform  oncall: platform-primary\nAlert at 03:10: invoice-renderer error rate 12%, pdf-lib healthy.\nEscalation rule E-1: page the owning team's oncall for the failing service;\npage the platform oncall only if a shared dependency is also failing.",
+      "questions": {
+        "correct_page": {
+          "criteria": {
+            "billing_oncall": "billing-primary, owner of the failing service",
+            "both": "page both oncalls simultaneously",
+            "neither": "wait for the morning standup",
+            "platform_oncall": "platform-primary, owner of pdf-lib"
+          },
+          "instructions": "Who should be paged under E-1?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-billing-oncall-owner-score",
+      "state": "Ownership registry excerpt:\n  service: invoice-renderer   owner: team-billing   oncall: billing-primary\n  service: pdf-lib            owner: team-platform  oncall: platform-primary\nAlert at 03:10: invoice-renderer error rate 12%, pdf-lib healthy.\nEscalation rule E-1: page the owning team's oncall for the failing service;\npage the platform oncall only if a shared dependency is also failing.",
+      "questions": {
+        "misroute_cost": {
+          "criteria": [
+            "free",
+            "minor annoyance",
+            "delays the fix and burns another team",
+            "catastrophic"
+          ],
+          "instructions": "Rate the cost of paging the wrong oncall here.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-ab-checkout-button-boolean",
+      "state": "Experiment readout EXP-90, checkout button copy test:\n  arms: control 48,102 sessions; variant 47,960 sessions\n  conversion: control 3.41%, variant 3.55%\n  pre-registered primary metric: conversion; min detectable effect 0.3pp\n  observed lift +0.14pp, 95% CI [-0.21pp, +0.49pp]; test ran full 14 days\n  a PM proposes shipping the variant 'because the point estimate is up'.",
+      "questions": {
+        "ship_on_readout": {
+          "criteria": {
+            "false": "the CI includes zero and the lift is below the MDE",
+            "true": "a positive point estimate is enough"
+          },
+          "instructions": "Does the readout support shipping the variant on the primary metric?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-ab-checkout-button-choice",
+      "state": "Experiment readout EXP-90, checkout button copy test:\n  arms: control 48,102 sessions; variant 47,960 sessions\n  conversion: control 3.41%, variant 3.55%\n  pre-registered primary metric: conversion; min detectable effect 0.3pp\n  observed lift +0.14pp, 95% CI [-0.21pp, +0.49pp]; test ran full 14 days\n  a PM proposes shipping the variant 'because the point estimate is up'.",
+      "questions": {
+        "correct_read": {
+          "criteria": {
+            "extend_forever": "keep the test running until the CI excludes zero",
+            "inconclusive": "inconclusive on the primary metric; ship decision needs more evidence or a business call",
+            "kill_variant": "the variant is proven harmful",
+            "ship_now": "ship the variant"
+          },
+          "instructions": "What is the correct interpretation?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-ab-checkout-button-score",
+      "state": "Experiment readout EXP-90, checkout button copy test:\n  arms: control 48,102 sessions; variant 47,960 sessions\n  conversion: control 3.41%, variant 3.55%\n  pre-registered primary metric: conversion; min detectable effect 0.3pp\n  observed lift +0.14pp, 95% CI [-0.21pp, +0.49pp]; test ran full 14 days\n  a PM proposes shipping the variant 'because the point estimate is up'.",
+      "questions": {
+        "proposal_risk": {
+          "criteria": [
+            "sound practice",
+            "minor sloppiness",
+            "p-hacking-adjacent decision risk",
+            "directly contradicts the pre-registered rule"
+          ],
+          "instructions": "Rate the methodological risk of the PM's proposal.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-sessions-cache-stampede-boolean",
+      "state": "Cache design note, session store:\n  current: all session entries share TTL=3600s, written in one nightly batch\n  symptom: every night at batch+3600s, ~90% of keys expire simultaneously;\n    origin DB spikes to 4x normal read load for ~8 minutes\n  proposal: keep TTL=3600s but add uniform jitter +/-600s per key.",
+      "questions": {
+        "jitter_helps": {
+          "criteria": {
+            "false": "jitter cannot change expiry timing",
+            "true": "jitter spreads expiries across ~20 minutes instead of one instant"
+          },
+          "instructions": "Does per-key TTL jitter address the nightly stampede?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-sessions-cache-stampede-choice",
+      "state": "Cache design note, session store:\n  current: all session entries share TTL=3600s, written in one nightly batch\n  symptom: every night at batch+3600s, ~90% of keys expire simultaneously;\n    origin DB spikes to 4x normal read load for ~8 minutes\n  proposal: keep TTL=3600s but add uniform jitter +/-600s per key.",
+      "questions": {
+        "stampede_cause": {
+          "criteria": {
+            "cache_too_small": "the cache cluster is undersized",
+            "db_bug": "the database has a nightly maintenance bug",
+            "shared_expiry": "one batch write time plus one shared TTL collapses all expiries together",
+            "ttl_too_long": "3600 seconds is simply too long a TTL"
+          },
+          "instructions": "What is the root cause of the stampede?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-sessions-cache-stampede-score",
+      "state": "Cache design note, session store:\n  current: all session entries share TTL=3600s, written in one nightly batch\n  symptom: every night at batch+3600s, ~90% of keys expire simultaneously;\n    origin DB spikes to 4x normal read load for ~8 minutes\n  proposal: keep TTL=3600s but add uniform jitter +/-600s per key.",
+      "questions": {
+        "residual_risk": {
+          "criteria": [
+            "none",
+            "low: load spreads but peak still occurs nightly",
+            "moderate",
+            "high: jitter makes things worse"
+          ],
+          "instructions": "Rate the residual risk after adding jitter.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-celery-backlog-drain-boolean",
+      "state": "Queue monitor, emails queue (celery):\n  backlog: 182,000 jobs, growing ~400/minute\n  workers: 12 online, consuming ~900/minute combined\n  job type: transactional receipts (idempotent, must eventually send)\n  scaling constraint: broker memory limit reached at ~250,000 queued jobs\n  options: add 12 workers now, or drop jobs older than 24h",
+      "questions": {
+        "drop_old_jobs": {
+          "criteria": {
+            "false": "receipts are must-send; dropping loses customer email",
+            "true": "old jobs may be discarded freely"
+          },
+          "instructions": "May receipt jobs older than 24h be dropped to relieve the backlog?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-celery-backlog-drain-choice",
+      "state": "Queue monitor, emails queue (celery):\n  backlog: 182,000 jobs, growing ~400/minute\n  workers: 12 online, consuming ~900/minute combined\n  job type: transactional receipts (idempotent, must eventually send)\n  scaling constraint: broker memory limit reached at ~250,000 queued jobs\n  options: add 12 workers now, or drop jobs older than 24h",
+      "questions": {
+        "drain_plan": {
+          "criteria": {
+            "add_workers": "add the 12 workers; consumption doubles while arrivals stay 400/min",
+            "drop_jobs": "drop jobs older than 24h",
+            "pause_producers": "halt email producers indefinitely",
+            "restart_broker": "restart the broker to clear memory"
+          },
+          "instructions": "What is the correct drain plan?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-celery-backlog-drain-score",
+      "state": "Queue monitor, emails queue (celery):\n  backlog: 182,000 jobs, growing ~400/minute\n  workers: 12 online, consuming ~900/minute combined\n  job type: transactional receipts (idempotent, must eventually send)\n  scaling constraint: broker memory limit reached at ~250,000 queued jobs\n  options: add 12 workers now, or drop jobs older than 24h",
+      "questions": {
+        "backlog_urgency": {
+          "criteria": [
+            "no rush",
+            "routine",
+            "urgent: broker limit approaches",
+            "critical: memory limit imminent within hours"
+          ],
+          "instructions": "Rate the urgency of acting on this backlog.",
+          "type": "score"
+        }
+      }
+    },
+    {
+      "id": "eh1-kms-key-rotation-boolean",
+      "state": "KMS rotation record, key k-payments:\n  policy: rotate every 365 days; last rotation 402 days ago (overdue)\n  rotation type: symmetric data-encryption key; old material retained\n    for decrypt-only after rotation (envelope encryption)\n  blocker noted: rotation job requires a maintenance token that\n    expires during the weekend freeze; next token window is Monday",
+      "questions": {
+        "rotation_overdue": {
+          "criteria": {
+            "false": "402 days is within policy",
+            "true": "402 days exceeds the 365-day interval"
+          },
+          "instructions": "Is k-payments overdue for rotation under the stated policy?",
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "id": "eh1-kms-key-rotation-choice",
+      "state": "KMS rotation record, key k-payments:\n  policy: rotate every 365 days; last rotation 402 days ago (overdue)\n  rotation type: symmetric data-encryption key; old material retained\n    for decrypt-only after rotation (envelope encryption)\n  blocker noted: rotation job requires a maintenance token that\n    expires during the weekend freeze; next token window is Monday",
+      "questions": {
+        "rotation_plan": {
+          "criteria": {
+            "never_rotate": "retire the rotation policy",
+            "reencrypt_now": "re-encrypt all data this weekend",
+            "rotate_monday": "rotate in the Monday token window; envelope crypto keeps old ciphertext readable",
+            "rotate_now": "force rotation this weekend without a valid token"
+          },
+          "instructions": "What is the correct rotation plan?",
+          "type": "choice"
+        }
+      }
+    },
+    {
+      "id": "eh1-kms-key-rotation-score",
+      "state": "KMS rotation record, key k-payments:\n  policy: rotate every 365 days; last rotation 402 days ago (overdue)\n  rotation type: symmetric data-encryption key; old material retained\n    for decrypt-only after rotation (envelope encryption)\n  blocker noted: rotation job requires a maintenance token that\n    expires during the weekend freeze; next token window is Monday",
+      "questions": {
+        "overdue_severity": {
+          "criteria": [
+            "none",
+            "policy hygiene issue",
+            "material compliance gap",
+            "immediate cryptographic compromise"
+          ],
+          "instructions": "Rate the severity of a 37-day-overdue key rotation.",
+          "type": "score"
+        }
+      }
+    }
+  ]
+}

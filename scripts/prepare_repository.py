@@ -10,7 +10,7 @@ from package_source import (NANOJEV_COMPARISON, collect, json_bytes, provenance,
 
 
 PUBLIC_DOTFILES = {
-    '.env.example': b'AI_GATEWAY_API_KEY=\n',
+    '.env.example': b'TYPESAFE_API_KEY=\n',
     '.gitignore': b'''# Local credentials and generated private data
 .env
 .env.*

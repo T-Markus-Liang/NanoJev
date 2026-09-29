@@ -1,0 +1,155 @@
+{
+  "schema_version": "nanojev-jfast-modernbert-base-marker-after-amendment-v1",
+  "status": "draft_pending_owner_authorization",
+  "created_utc": "2026-09-21T22:40:00Z",
+  "purpose": "Controlled ablation for J-FAST seed30: keep ModernBERT-base, corpus v5, LoRA recipe and optimizer settings fixed, changing only marker serialization from '[MASK] label: text' to 'label: text [MASK]'. The seed30 root-cause probe showed marker_before representations are near-duplicates while marker_after representations are substantially differentiated.",
+  "prior_result": {
+    "candidate": "t9j_v1_modernbert_base_seed30_cuda",
+    "dev_ce": 1.2836526036262512,
+    "dev_accuracy": 0.4145021645021645,
+    "public_231_diagnostic_accuracy": 0.2813852813852814,
+    "public_231_wall_s": 24.63715329200204,
+    "root_cause_receipt": "results/jfast_seed30_root_cause_analysis.json",
+    "root_cause_sha256": "9ae452043d6421f335a189152755694cd6b2349469cd6aa6d8f3da34982161aa"
+  },
+  "model": {
+    "model_id": "answerdotai/ModernBERT-base",
+    "revision": "8949b909ec900327062f0ebf497f51aef5e6f0c8",
+    "license": "apache-2.0",
+    "architecture": "ModernBertModel",
+    "hidden_size": 768,
+    "num_hidden_layers": 22,
+    "max_position_embeddings": 8192
+  },
+  "decision_head": {
+    "type": "marker_head",
+    "marker_placement": "after",
+    "construction": "for each label, encode ' label: text\\n' then append one [MASK] marker; score = linear(hidden[marker_position]); softmax over labels",
+    "rationale": "marker_before hidden vectors had mean pairwise cosine 0.937 on dev choice probes versus 0.416 for marker_after"
+  },
+  "training": {
+    "corpus": "research/engineering_judgment_corpus_v5/trainer_view/train.jsonl",
+    "dev": "research/engineering_judgment_corpus_v5/trainer_view/dev.jsonl",
+    "train_rows": 2904,
+    "dev_rows": 924,
+    "objective": "gold_distribution cross-entropy over marker logits",
+    "temperature": 1.0,
+    "seed": 31,
+    "max_steps": 600,
+    "head_warmup_steps": 20,
+    "eval_every_steps": 50,
+    "batch_questions": 16,
+    "max_tokens_per_microbatch": 32768,
+    "optimizer": "AdamW",
+    "lr": 3e-05,
+    "head_lr": 0.0003,
+    "weight_decay": 0.01,
+    "lora": {
+      "rank": 16,
+      "alpha": 32,
+      "dropout": 0.05,
+      "target_modules": [
+        "Wqkv",
+        "Wo",
+        "Wi",
+        "Wo"
+      ],
+      "note": "same controlled recipe as seed30"
+    },
+    "checkpoint_selection": "lowest dev gold_distribution CE",
+    "output_dir": "/root/gpufree-data/nanojev/checkpoints/t9j_v1_modernbert_base_marker_after_seed31_cuda"
+  },
+  "runtime": {
+    "training_device": "cuda",
+    "training_precision": "bf16_autocast_fp32_parameters",
+    "local_eval_device": "mps",
+    "local_eval_precision": "fp32",
+    "batch_questions_eval": 8,
+    "max_length": 8192
+  },
+  "required_gates_before_training": [
+    "marker_after encoding path implemented and unit-tested",
+    "local one-step owned smoke for marker_after passed",
+    "remote workspace hashes match",
+    "remote one-step CUDA smoke passed",
+    "owner explicitly authorizes server startup and this training amendment"
+  ],
+  "required_gates_after_training": [
+    "dev-only best checkpoint selection",
+    "checkpoint manifest hashes verified",
+    "local MPS FP32 parity on owned fixture",
+    "public diagnostic may be run as non-promotion evidence",
+    "heldout_v1/v2 remain locked unless separately authorized after stronger evidence"
+  ],
+  "success_criteria": {
+    "mechanical": [
+      "all marker-head outputs finite and normalized over exact labels",
+      "no truncated states",
+      "CUDA→MPS owned parity max probability delta <= 1e-5"
+    ],
+    "capability": [
+      "dev CE materially below seed30's 1.2837",
+      "choice accuracy materially above seed30's 0.208",
+      "public 231 diagnostic materially above seed30's 0.2814"
+    ],
+    "speed": [
+      "local MPS serial latency remains materially below MiniCPM5-2B serial shared-prefix baseline"
+    ]
+  },
+  "explicit_non_goals": [
+    "no heldout read in this amendment",
+    "no deployment or promotion",
+    "no benchmark rows in training or calibration fitting",
+    "no claim that marker_after is better until trained and evaluated"
+  ],
+  "authorization": {
+    "design_document_authorized": true,
+    "implementation_authorized": true,
+    "local_weight_probe_authorized": true,
+    "local_one_step_smoke_authorized": true,
+    "remote_server_start_authorized": false,
+    "remote_sync_authorized": false,
+    "training_authorized": false,
+    "heldout_read_authorized": false,
+    "public_diagnostic_authorized_after_build": true,
+    "deployment_authorized": false,
+    "official_jevbench_milestone_authorized": false
+  },
+  "artifacts": {
+    "trainer": {
+      "path": "scripts/train_jfast_modernbert.py",
+      "sha256": "e3a30027cde0e70a79cf574316d20effc5fc6554fc34d7c60485e7ffcf5a7a23"
+    },
+    "trainer_tests": {
+      "path": "scripts/test_jfast_modernbert.py",
+      "sha256": "52b3309ffed23707355703f594e953cee2dd02fcd606d594ac4467e967014333",
+      "tests": "7/7 pass after marker_after test"
+    },
+    "marker_encoder": {
+      "path": "scripts/jfast_modernbert_decision_v1.py",
+      "sha256": "ba25d44bbdf704c3f2f8d9c10e91757f114744bd34fc4b894b7fc88ec798a292"
+    },
+    "marker_predictor": {
+      "path": "scripts/predict_jfast_modernbert.py",
+      "sha256": "564ccf8c6b3e2062dc9df8601ddb2cbbe2afd8fbc855735f0128d01973847ea3"
+    },
+    "marker_after_smoke": {
+      "path": "results/jfast_modernbert_base_marker_after_smoke_mps.json",
+      "sha256": "64d4c2de72fe0b60d7c21b97942be14bad101cc5d40ba99ac83e85840e660305",
+      "passed": true
+    },
+    "root_cause_analysis": {
+      "path": "results/jfast_seed30_root_cause_analysis.json",
+      "sha256": "9ae452043d6421f335a189152755694cd6b2349469cd6aa6d8f3da34982161aa"
+    },
+    "offline_bundle_comparison": {
+      "path": "results/offline_bundle_seed20_vs_seed30_scorecard.json",
+      "sha256": "f164835eea1e701816c4512bb2831191ee2a827eacc99be0984570cc56f16802"
+    },
+    "offline_bundle_runner": {
+      "path": "scripts/run_offline_benchmark_bundle_v1.py",
+      "sha256": "56500464da612423c750266daf3d7bd85e4c3f5d5daaaedfdd674cb1a4d0d47d"
+    }
+  },
+  "next_owner_decision": "Approve powering on A100 to sync updated scripts, run remote marker_after smoke, and train seed31 marker_after; or reject and keep J-FAST local-only."
+}

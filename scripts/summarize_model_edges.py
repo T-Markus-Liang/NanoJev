@@ -88,7 +88,7 @@ class RecordedEngine:
                         raise ValueError("Embedded native sum disagrees")
                     # Match the worker's insertion-order JSON input hash. The
                     # documented local renderer produces ordinary ASCII text.
-                    api_input = {"model": "typesafe-ai/jev", "state": request["state"], "questions": request["questions"]}
+                    api_input = {"model": "jev-latest", "state": request["state"], "questions": request["questions"]}
                     api_sha = hashlib.sha256(json.dumps(api_input, ensure_ascii=False, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
                     if receipt["source_input_sha256"] != api_sha or not isinstance(receipt["source_api_call_id"], str):
                         raise ValueError("Embedded API input identity disagrees with the visible request")

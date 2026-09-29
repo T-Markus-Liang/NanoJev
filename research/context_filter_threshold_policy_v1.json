@@ -1,0 +1,67 @@
+{
+  "schema_version": "nanojev-context-filter-threshold-policy-v1",
+  "policy_id": "diagnostic-context-filter-thresholds-2026-09-23",
+  "status": "diagnostic_only_not_production",
+  "purpose": "Bind diagnostic scorer-threshold sweeps to explicit evidence semantics and prevent an exploratory threshold from becoming a production operating point by accident.",
+  "threshold_semantics": {
+    "field": "threshold",
+    "meaning": "minimum p_irrelevant required before a scorer suggestion may be converted into a hypothetical reduction",
+    "direction": "higher is more conservative",
+    "confidence_is_calibrated": false
+  },
+  "declared_thresholds": [
+    {
+      "value": 0.99,
+      "role": "frozen_shadow_control",
+      "production_candidate": false,
+      "note": "default conservative control; currently produces zero removal on value fixtures"
+    },
+    {
+      "value": 0.95,
+      "role": "diagnostic_sweep_point",
+      "production_candidate": false,
+      "note": "allowed for evidence collection only"
+    },
+    {
+      "value": 0.90,
+      "role": "diagnostic_sweep_point",
+      "production_candidate": false,
+      "note": "measured hypothetical reduction on synthetic fixtures; not a production threshold"
+    },
+    {
+      "value": 0.85,
+      "role": "diagnostic_sweep_point",
+      "production_candidate": false,
+      "note": "allowed only for boundary exploration on synthetic fixtures"
+    }
+  ],
+  "review_mode": {
+    "enabled_by": "--review-mode",
+    "requires_policy_file": true,
+    "allowed_threshold_values": [0.99, 0.95, 0.9, 0.85],
+    "allowed_cascade_threshold_values": [0.95, 0.9, 0.8],
+    "undeclared_threshold_action": "fail_closed"
+  },
+  "protected_family_veto": {
+    "required": true,
+    "conditions": [
+      "protected drop count equals zero",
+      "required evidence failures equal zero",
+      "paired answer regressions equal zero",
+      "restore attempts round-trip byte-identically",
+      "unsupported and unresolved requests bypass before scoring"
+    ]
+  },
+  "selection_rule": {
+    "production_trial_threshold": null,
+    "rule": "A future production trial threshold may only be proposed on a declared development cohort before held-out review. It must preserve every protected-family veto condition, and the observed outcome data from evaluation-only fixtures must not be used to tune it.",
+    "current_status": "no production trial threshold selected"
+  },
+  "evaluation_boundary": {
+    "fixture_data": "synthetic_self_authored_only",
+    "benchmark_outputs_training_allowed": false,
+    "benchmark_outputs_calibration_fit_allowed": false,
+    "provider_calls_allowed": false,
+    "active_filtering_authorized": false
+  }
+}

@@ -1,0 +1,45 @@
+{
+ "schema_version": "nanojev-financial-signal-leadlag-protocol-v1",
+ "created_utc": "2026-09-24T08:17:00Z",
+ "purpose": "T95 BTC->alt hourly lead-lag measurement on the expanded hourly PIT cohort: does the BTC 1h mark return predict each alt's NEXT-hour return and next-4h return beyond contemporaneous correlation (shared market beta). Measurement only - no fitting, no trading, no profitability claims.",
+ "cohort": {
+  "path": "data/perp_pit_intraday_v1/records.jsonl",
+  "records": 17960,
+  "assets": ["BNBUSDT-PERP", "BTCUSDT-PERP", "ETHUSDT-PERP", "SOLUSDT-PERP", "XRPUSDT-PERP"],
+  "span_utc": "2026-04-02T00:59:59.999 .. 2026-08-31T19:59:59.999",
+  "grid": "all 5 assets share the identical 3592-bar hourly decision_ns grid (one 53h gap); mark_price present on every record",
+  "label": "label.forward_return_bps (perp_forward_mark_return_up_25bps_4h_gross; numeric bps present on all 17960 records)",
+  "returns": "1h mark returns recomputed per asset as mark[t]/mark[t-1h]-1 from features.mark_price (PIT-stamped at decision bar)"
+ },
+ "arms": {
+  "L1_next_hour": "per alt in {ETH,BNB,SOL,XRP}: Spearman(btc_ret_1h[t], alt_ret_1h[t+1h]) on aligned timestamps; baseline Spearman(btc_ret_1h[t], alt_ret_1h[t]) contemporaneous; sanity Spearman(alt_ret_1h[t], btc_ret_1h[t+1h]) reverse direction",
+  "L2_next_4h": "per alt: Spearman(btc_ret_1h[t], alt label.forward_return_bps[t]) — last completed BTC hour vs alt's next-4h label; baseline Spearman(btc label[t], alt label[t]) contemporaneous 4h co-movement",
+  "C_conditioned": "BTC bars split by trailing-90-record mid-rank pct of |btc_ret_1h|: big (pct>=0.9) up/down by sign vs small; per-cell alt next-1h and next-4h mean/median bps (pooled across alts + per-alt table); does follow-through require big BTC moves",
+  "D_beta_decay": "per alt: rho_contemporaneous - rho_lagged_1h drop and rho_lag/rho_contemp ratio (beta decay), plus BTC own lag-1 autocorrelation as context; honest verdict on tradability vs ~10bps round-trip taker cost"
+ },
+ "contrast_family": [
+  "L1_{ETH,BNB,SOL,XRP}_btc1h_to_alt_next1h",
+  "L2_{ETH,BNB,SOL,XRP}_btc1h_to_alt_fwd4h",
+  "C1_alt_next1h_bigup_vs_bigdown",
+  "C2_alt_fwd4h_bigup_vs_bigdown",
+  "C3_abs_alt_next1h_big_vs_small",
+  "C4_abs_alt_fwd4h_big_vs_small"
+ ],
+ "statistics": {
+  "test": "Spearman rank correlation (mid-rank ties), t-approx normal two-sided p (same convention as financial_signal_crossvenue_v1); Welch two-sample t for conditioned cells, normal-approx two-sided p; min n=10 per side",
+  "multiple_testing": "BH-FDR alpha=0.05 over the evaluated family (<=12: 8 predictive Spearman cells + 4 conditioned Welch contrasts); contemporaneous/reverse baselines are reported outside the family",
+  "reported_per_cell": ["n", "rho or mean_bps", "median_bps where applicable", "p"],
+  "caveats": [
+   "cross-asset bars sharing a timestamp are correlated through the common market factor; pooled conditioned cells overstate effective sample size",
+   "4h forward labels on 1h bars overlap ~4x -> positive autocorrelation; Spearman/Welch p-values nominal/optimistic",
+   "1h returns are non-overlapping but serially/cross-sectionally dependent; treat p<0.01 as suggestive, not decisive",
+   "first 90 bars of the BTC series lack a trailing pct and drop out of the conditioned arm only"
+  ]
+ },
+ "forbidden": [
+  "fitting",
+  "trading",
+  "profitability claims",
+  "protocol edits post-run"
+ ]
+}

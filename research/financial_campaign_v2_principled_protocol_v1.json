@@ -1,0 +1,68 @@
+{
+  "arms": {
+    "btc_hold": "buy-and-hold BTC over the sim calendar, also normalized ex-2021 for the headline comparison",
+    "no_filter": "sibling: entry = gate-on AND top-quintile only (T119 convention); identical v2 exits at k=3",
+    "primary": "k=3, band [-3sd,-0.5sd] \u2014 full metrics incl. per-year table and LOYO"
+  },
+  "caveats": [
+    "in-sample 2021-2025 calendar again \u2014 a flat cell neighbourhood is still the same regime, not a held-out market",
+    "close basis + daily bars: the vol-scaled trail can gap well beyond k*vol20 on a gap day",
+    "vol20/sigma20d use the same close series as everything else \u2014 no new data, but a new derived column",
+    "band units: a +1sd shift makes the band top +0.5sd, i.e. dfh20<=+0.5*sigma20d \u2014 since dfh20<=0 by construction this side is effectively unbounded for that cell",
+    "clamps [0.02,0.60] on k*vol20 are safety rails, not tuning dims (they bind only at vol20<0.67% or >20% daily)"
+  ],
+  "cohort": {
+    "assets": "277 USDT-M perps, 2021-01-01 -> 2025-12-30, close basis; includes delisted/renamed early-stoppers",
+    "btc_gate_source": "data/rc_futures_v1/BTC/BTCUSDT_1d.csv close/close[t-20]-1",
+    "path": "data/perp_pit_mega_v1/records.jsonl"
+  },
+  "created_utc": "2026-09-24T16:14:36Z",
+  "definitions": {
+    "concurrency": "MAX_CONCURRENT=1 \u2014 one campaign at a time, full equity deployed at entry",
+    "costs": "5bps per fill; funding carry skipped (signal dropped entirely in v2)",
+    "dropped_vs_t119": [
+      "fixed 8% trail -> k*vol20 (k=3)",
+      "fixed [-0.12,-0.03] band -> sigma20d multiples",
+      "funding_pct<0.8 entry filter",
+      "funding_pct>=0.95 euphoria exit"
+    ],
+    "entry": "BTC ret20>0 AND dfh20 XS mid-rank pct>=0.8 (top quintile, >=30 ranked) AND close>prev_close AND dfh20 in [band_lo*sigma20d, band_hi*sigma20d] (primary [-3sd, -0.5sd]; requires dfh20 and vol20 non-None). NO funding filter (T122 showed it adds nothing). Highest rank wins; fill at signal-day close.",
+    "exit_order": [
+      "data_end (no bar -> last close)",
+      "btc_regime_off (BTC ret20<=0)",
+      "vol_trail (close < max_close*(1-clip(k*vol20, 0.02, 0.60)); skipped when vol20 missing)",
+      "time_stop_30d (>=30 calendar days held)",
+      "rank_below_median (dfh20 pct<0.5/unranked)",
+      "end_of_sample (force-close at tail)"
+    ],
+    "fills": "all at day-t close on day-t PIT features",
+    "pyramid": "unrealized>=+3% vs vwap AND gate-on AND still top-quintile -> add 50% of position, max 2 adds, margined perp-style (implicit leverage <= ~1.75x)"
+  },
+  "forbidden": [
+    "fitting",
+    "trading",
+    "profitability claims",
+    "protocol edits post-run",
+    "network"
+  ],
+  "headline": "ex-2021 equity \u2014 does the principled config beat BTC hold once the 2021 mania is removed?",
+  "purpose": "T123: rebuild the T119 rolling-campaign simulator with PRINCIPLED (vol-scaled, non-hand-tuned) parameters after T122 judged the 34.4x composite parameter-lucky (median grid cell 0.65x, default rank 2/36, ex-2021 equity 0.22x). Check whether the conclusion stabilizes: flat across the 9-cell neighbourhood = robust, peaked = lucky.",
+  "robustness_cells": {
+    "judgment": "flat = primary not rank-1 AND >=7/9 cells on the primary's side of BTC hold on both full sample and ex-2021; peaked otherwise",
+    "per_cell": [
+      "final equity",
+      "ex-2021 compounded equity (prod(1+r) over campaigns exiting >=2022-01-01, T122 LOYO convention)",
+      "n campaigns",
+      "win rate",
+      "maxDD",
+      "exit histogram"
+    ],
+    "primary": "k=3, shift 0 -> band [-3sd, -0.5sd]",
+    "shape": "3x3 = 9 cells: trail k in {2,3,4} x band shift in {-1sd,0,+1sd} (lo=-3+s, hi=-0.5+s)"
+  },
+  "schema_version": "nanojev-financial-campaign-v2-principled-protocol-v1",
+  "volatility_basis": {
+    "sigma20d": "vol20*sqrt(20) \u2014 20-bar dispersion, the same scale dfh20 (distance from 20-bar high, fraction) is measured on",
+    "vol20": "per-asset sample std (ddof=1) of the trailing 20 daily log returns; needs 21 closes; None in warmup"
+  }
+}

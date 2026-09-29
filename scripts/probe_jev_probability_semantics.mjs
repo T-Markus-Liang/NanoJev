@@ -30,8 +30,8 @@ if (!process.argv.includes('--live')) {
   try {
     for (const row of cases) {
       if (cost+0.02>0.25) throw new Error('BUDGET_GUARD');
-      const teacher=await evaluateTeacher({teacher:'jev',model:'typesafe-ai/jev',state:row.state,questions:row.questions});
-      const actual=Number(teacher.provider_metadata?.gateway?.cost);
+      const teacher=await evaluateTeacher({teacher:'jev',model:'jev-latest',state:row.state,questions:row.questions});
+      const actual=Number(teacher.provider_metadata?.gateway?.cost ?? teacher.estimated_cost_usd);
       if (!Number.isFinite(actual)) throw new Error('MISSING_COST');
       cost+=actual;
       await handle.write(JSON.stringify({...row,teacher,cost_usd:actual})+'\n');

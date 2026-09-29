@@ -103,8 +103,8 @@ def make_record(family, world, kind, split, wire, rng):
     prepared = scoring_payload(segments, [candidate_segment])["states"][0]
     uid = f"context:{group}:{kind}"
     row = {"id": uid, "state_id": uid, "family_id": f"context_{family}", "split": split,
-           "state": prepared["state"], "questions": prepared["questions"], "gold": {"irrelevant": irrelevant},
-           "gold_probs": {"irrelevant": {"false": float(not irrelevant), "true": float(irrelevant)}},
+           "state": prepared["state"], "questions": prepared["questions"], "gold": {"irrelevant_0": irrelevant},
+           "gold_probs": {"irrelevant_0": {"false": float(not irrelevant), "true": float(irrelevant)}},
            "gold_probs_kind": "deterministic_truth", "gold_label_kind": "deterministic_truth",
            "metadata": {"source_group_id": group, "world": list(world), "scenario_family": family,
                         "candidate_kind": kind, "wire_format": wire, "source": "self_authored_oracle_lookup",
@@ -132,7 +132,7 @@ def validate_cohort(rows):
         inputs[key] = row["gold"]
         facts, index, query = metadata["facts"], metadata["candidate_index"], metadata["query"]
         expected = oracle(facts, **query) == oracle(facts[:index] + facts[index+1:], **query)
-        if row["gold"]["irrelevant"] != expected:
+        if row["gold"]["irrelevant_0"] != expected:
             raise ValueError("gold does not match deletion oracle")
 
 
@@ -172,7 +172,7 @@ def build(output, seed=20260919):
         manifest["splits"][split] = {"records": len(items), "source_groups": len({r["metadata"]["source_group_id"] for r in items}),
                                      "families": dict(Counter(r["family_id"] for r in items)),
                                      "kinds": dict(Counter(r["metadata"]["candidate_kind"] for r in items)),
-                                     "labels": dict(Counter(str(r["gold"]["irrelevant"]) for r in items)),
+                                     "labels": dict(Counter(str(r["gold"]["irrelevant_0"]) for r in items)),
                                      "sha256": hashlib.sha256(content.encode()).hexdigest()}
     (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     return manifest

@@ -1,0 +1,53 @@
+{
+ "schema_version": "nanojev-financial-signal-hyperliquid-protocol-v1",
+ "created_utc": "2026-09-24T00:00:00Z",
+ "task": "T99",
+ "purpose": "Off-Binance external-validity check of the confirmed daily funding-following signal: does trailing-180 mid-rank funding_pct predict the 5d forward log close return on Hyperliquid perps (local pinned data only). Reference on Binance: rho=+0.0422, p=0.001537, FDR-pass on n=5629 (results/financial_signal_labels_v4.json l3:funding), gated by BTC 20d trend in research/financial_signal_spec_v1.json. Measurement only - no fitting, no trading, no profitability claims.",
+ "cohorts": {
+  "hyperliquid": {
+   "path": "data/venue_perp_v1/hyperliquid/{BTC,ETH,SOL,BNB,XRP}.{candles,funding}.json",
+   "fetch_manifest": "data/venue_perp_v1/hyperliquid/fetch_manifest.json (hash-pinned fetch, licence UNVERIFIED; offline research only)",
+   "candles": "1d bars, t=open ms, c=close; ~1358 bars/coin 2023-01-01..2026-09-19 UTC; close used as the price series (no historical mark/index available; volume field is 0.0 on early bars and is unused)",
+   "funding": "fundingHistory rows (coin, fundingRate, premium, time ms); hourly grid from ~2023-05-12 (XRP 2023-06-18) through 2026-09-18 23:00 UTC; the first ~4 weeks of BTC/ETH/SOL/BNB history are on an 8h settlement grid"
+  },
+  "binance_reference": {
+   "path": "data/perp_pit_v1/records.jsonl",
+   "use": "arm B only: last_funding_rate per asset_id per UTC decision day for the HL-vs-Binance funding spread; also the published reference signal values"
+  }
+ },
+ "construction": {
+  "decision_bar": "UTC day d; signal uses only settlements timestamped inside day d (last settlement ~23:00 UTC, before the daily close at 23:59:59.999); label needs close of day d+5",
+  "hl_daily_funding_last": "fundingRate of the last settlement row inside UTC day d (Binance-equivalent semantics: last settled rate at decision day)",
+  "hl_daily_funding_8h": "sum of fundingRate rows timestamped in [16:00, 24:00) UTC of day d - an 8h-rate magnitude comparable to Binance last_funding_rate (8 hourly settlements in the hourly era; the single 16:00 settlement in the early 8h-grid era)",
+  "funding_pct": "trailing-180-row mid-rank percentile of hl_daily_funding_last, per coin, window excludes the decision row (repo convention pct()); robustness variant computes the pct on hl_daily_funding_8h",
+  "forward_return": "log(close[d+5] / close[d]) on the merged candle+funding day series",
+  "btc_trend_gate": "BTC merged-series close[i]/close[i-20]-1 > 0, applied market-wide by decision day (spec gate)"
+ },
+ "arms": {
+  "A1_spearman": "Spearman(funding_pct, 5d fwd log close) per coin + pooled; primary replication test vs Binance rho=+0.0422",
+  "A2_top_decile": "Welch mean fwd bps: funding_pct>=0.90 vs rest, per coin + pooled",
+  "A3_btc_trend_gated": "A1/A2 pooled cells restricted to rows where BTC 20d trend is up (the frozen spec gate)",
+  "A4_rate_definition_robustness": "pooled Spearman with funding_pct computed on the 8h-sum daily rate instead of the daily-last hourly rate",
+  "B_funding_spread": "spread = hl_daily_funding_8h - binance last_funding_rate on aligned UTC days; trailing-180 mid-rank spread_pct (window = non-null spreads in trailing 180 merged rows, min 100) -> Spearman per coin + pooled + pooled top-decile Welch. Does the venue funding premium predict HL returns?"
+ },
+ "contrast_family": {
+  "replication_spearman": ["BTC", "ETH", "SOL", "BNB", "XRP", "pooled"],
+  "gated_cells": ["gated_pooled_spearman", "gated_top_decile_vs_rest", "ungated_top_decile_vs_rest"],
+  "spread_spearman": ["BTC", "ETH", "SOL", "BNB", "XRP", "pooled"]
+ },
+ "statistics": {
+  "spearman": "mid-rank rho + normal-approx t/p (repo convention, same as financial_signal_funding_regime_v1); min n=10",
+  "welch": "Welch two-sample t on forward returns in bps, normal-approx two-sided p; min n=10 per side",
+  "multiple_testing": "BH-FDR alpha=0.05 per family listed in contrast_family",
+  "caveats": [
+   "5d labels on 1d bars overlap ~5x -> positive autocorrelation; normal-approx p nominal/optimistic",
+   "per-coin cells (~660 rows) are underpowered for rho~0.04 (|rho|>~0.075 needed for nominal p<0.05 at n~680); the pooled cell is the powered comparison",
+   "HL funding is hourly (Binance 8h): the percentile transform is scale-free so funding_pct construction matches, but raw rate magnitudes differ ~8x; the spread arm uses the 8h-sum for like-for-like units",
+   "HL eval span (~2023-11 onward) is shorter than and only partly overlaps the Binance reference window (2023-01-25..2026-08-30)",
+   "candle close is a last-trade close, not mark price; fundingRate is the settled hourly rate, premium field unused",
+   "gross moves only - no fees, spread, slippage, funding cashflows"
+  ]
+ },
+ "verdict_rule": "per cell: replicated iff sign(rho)=+ and BH-FDR pass; cells with n below the count needed to detect the reference rho=0.0422 at nominal p<0.05 (n~2160) are labelled low_power rather than not_replicated; powered cells with sign agreement but FDR fail are powered_null; headline replication is judged on the pooled cell AND the BTC-trend-gated pooled cell (the spec signal is gated); honest negative reporting",
+ "forbidden": ["fitting", "trading", "profitability claims", "protocol edits post-run", "network access"]
+}

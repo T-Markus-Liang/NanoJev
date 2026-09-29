@@ -1,0 +1,46 @@
+{
+ "schema_version": "nanojev-financial-signal-hypotheses-protocol-v1",
+ "created_utc": "2026-09-24T00:00:00Z",
+ "purpose": "T63 review-gate protocol: replay H1-H3 signal hypotheses from docs/TRACK_B_SIGNAL_HYPOTHESES_V1.md on the real PIT cohort. Measurement only — no fitting, no trading.",
+ "cohort": {
+  "path": "data/perp_pit_v1/records.jsonl",
+  "records": 6554,
+  "venue": "binance_um",
+  "label": "perp_forward_mark_return_up_25bps_1d_gross"
+ },
+ "lookback_days": 180,
+ "arms": {
+  "h1_tail": {
+   "rule": "last_funding_rate in bottom trailing-180d mid-rank decile",
+   "expect": "P(up>25bps) above cohort base",
+   "external_evidence": "AIJMR 2026 extreme-funding study"
+  },
+  "h2_fade_long": {
+   "rule": "funding z <= -2 trailing 180d",
+   "expect": "contrarian long: P(up) above rest"
+  },
+  "h2_fade_short": {
+   "rule": "funding z >= +2 trailing 180d",
+   "expect": "contrarian fade: P(up) below rest"
+  },
+  "h3_basis_extreme": {
+   "rule": "|mark_index_basis_bps| in top trailing decile",
+   "expect": "next-day |basis| converges (P>0.5)"
+  }
+ },
+ "statistics": [
+  "outcome rates",
+  "Wilson 95% CI",
+  "two-proportion z",
+  "binomial sign test",
+  "BH-FDR across arms",
+  "per frozen test-fold readout"
+ ],
+ "pit_safety": "trailing windows only; no forward data in feature construction",
+ "forbidden": [
+  "fitting",
+  "trading",
+  "promotion claims",
+  "protocol edits post-measurement"
+ ]
+}

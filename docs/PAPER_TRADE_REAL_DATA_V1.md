@@ -1,298 +1,207 @@
-# Real-data paper trading V1 (Binance USDT-M perpetuals)
+# Real-data paper trading V1 — T5 attributed sensitivity report
 
-Status: **real venue data, simulated execution, complete and conserving — and explicitly NOT a result.**
+Status (2026-09-20): **T5 implementation and verification complete / READY_FOR_REVIEW**.
+The harness now refuses a financial headline: `headline_allowed: false`.
+This is offline measurement/accounting evidence, not a return, model edge, or trading approval.
 
-**⚠️ SUPERSEDED NUMBERS (2026-09-19).** Every net-PnL figure on this page was computed while
-`--first-day`/`--last-day` were recorded but **never applied**, so the runs silently used the whole
-archive (2023-01-01 … 2026-08-31) while claiming 2024-01-01 … 2026-08-31; Aster additionally ran
-with the participation cap coupled to venue-reported volume. With both defects fixed the same
-strategy over the same period returns **Binance −34,080.29 / Bybit −37,597.40 / Aster −38,044.85**
-— a spread of 3,964 (≈4% of capital) instead of 271,945, all three venues agreeing in sign. The
-narrative below is retained as the record of how the defects were found and is **not** the current
-state. See [B0 window defect V1](B0_WINDOW_DEFECT_V1.md).
+Authoritative output: [B0 report](../results/paper_trade_b0_report_v1.json);
+[study declaration](../research/paper_trade_t5_sensitivity_v1.json).
+Raw final evidence: `results/paper_trade_t5_v1_run2/`.
+The first 36-cell run in `results/paper_trade_t5_v1/` is preserved, superseded by
+the hardened run2 (additional cash/order checks and explicit missing-day lists).
 
-## Corrected B0 baselines
+## Scope and accounting
 
-Protocol-frozen (`research/paper_trade_b0_protocol.json`), window enforced, capacity decoupled,
-zero divergences at every venue:
+Frozen base: `research/paper_trade_b0_protocol.json`, unchanged.
+BTCUSDT/ETHUSDT/SOLUSDT, 20/60 MA crossover, initial cash 100,000, 3× leverage,
+5 bps fee, 1 bps half-spread, fixed-notional sizing, fixed reference capacity.
+The mechanical reference strategy exercises the execution path; no NanoJev trading policy
+or financial training was used.
 
-| Venue | Decisions | Net PnL | Receipt |
-|---|---:|---:|---|
-| Binance | 61 | −34,080.29 | `results/paper_trade_b0_baseline_binance_v1.json` |
-| Bybit | 61 | −37,597.40 | `results/paper_trade_b0_baseline_bybit_v1.json` |
-| Aster | 61 | −38,044.85 | `results/paper_trade_b0_baseline_aster_v1.json` |
+For each actual fill, with buy sign +1 and sell sign −1:
 
-These are still **not results**: costs are declared provisional guesses, the strategy is a
-mechanical crossover with no claimed edge, and ≈4% of capital in cross-venue dispersion means no
-single-venue number may be quoted. Aster's data-rights conflict remains open (T7), so its figures
-belong in an appendix rather than a headline table.
+- Price/signal on the **executed path** = terminal marked inventory − sum(sign × quantity × multiplier × mid).
+- Execution shortfall = sum(sign × quantity × multiplier × (execution price − mid)).
+- Shortfall splits into spread, slippage, and tick rounding. The simulator's stored spread/
+  slippage amounts exclude the contract multiplier; the report applies it.
+- Subtract explicit fees, signed funding cost, and liquidation fees. Funding income contributes positively.
+- Independently reconcile to reported net PnL and equity minus initial cash within absolute **1e−6**.
+  Fill fees/notional/counts, terminal quantities, order fill totals, funding sums and cash also reconcile.
 
-This page records the first end-to-end paper-trading run over real perpetual-contract data
-instead of a constructed path. Read the honesty section before quoting any number from it.
+**This is not a cost-free strategy counterfactual.** Removing costs could alter later margin,
+fills and positions. The old field `net_pnl_excluding_all_costs` adds back fees/funding but
+still contains execution shortfall; it must not be called gross price/signal PnL.
 
-**Licence.** The Binance data used here is the public Binance Vision archive, whose Dataset
-Terms v1.0 place it under **CC BY-NC-SA 4.0 — non-commercial**. Research use is permitted
-(§4.1); **live proprietary trading execution and automated commercial order generation are
-prohibited** (§4.2), and commercial licensing is excluded entirely (§3.4). Everything on this
-page is offline, non-commercial research.
+Unfilled submitted-order quantities are reported by asset, with booked cash effect **0** and
+counterfactual/opportunity PnL **null (not measured)**. Rejections are not automatically
+attributed to capacity. All 36 actual cells have zero order divergences/remainders; synthetic
+tests exercise partial/unfilled cases. Pre-submission rejections are not inferred from order remainders.
 
-For the other three venues, see the [venue data licensing audit](VENUE_DATA_LICENSING_V1.md):
-**Aster's terms were read in full** and §6.1(b)/§6.2(e) require prior written consent to
-download their material and express permission for automated access, with **no research
-carve-out** — so using Aster data here is a recorded, unresolved conflict, not a clearance.
-**Bybit and Hyperliquid terms could not be read** and remain **unverified**. Data from those
-venues is used only under the project owner's explicit research authorisation, which settles the
-project's decision but is not the venue's permission.
+Reconciliation verifies internal arithmetic, not authenticity of quoted mids or market fills.
+Source/input hashes make the run auditable; a forged, consistently rewritten receipt is not
+cryptographically authenticated by an accounting identity.
 
-**No profitability claim.** Nothing on this page is evidence of profit, edge, skill or
-tradability, and no figure here may be presented as a return. See "What this does NOT
-establish" — the headline result is that the number is not stable enough to be a result at
-all.
+## Full-window attribution — primary diagnostic sources
 
-## What was actually done
+2024-01-01..2026-08-31, seed 20260919. Every value is simulated quote-currency PnL,
+not a return. The other two seeds give identical values and are not independent evidence.
 
-| Step | Artifact | Result |
-|---|---|---|
-| Bounded archive fetch | `scripts/fetch_binance_vision_v1.py` → `data/binance_vision_v1/` | 880 files, 1,185,364 B, 5 symbols, 2023-01..2026-08 |
-| Multi-venue fetch | `scripts/fetch_venue_perp_v1.py` → `data/venue_perp_v1/` | Bybit 30 files / 3,734,650 B; Hyperliquid 15 files / 14,131,314 B; **Aster 35 files / 4,032,704 B** (all via egress proxy) |
-| PIT cohort build | `scripts/build_perp_pit_v1.py` → `data/perp_pit_v1/records.jsonl` | 6,554 records, 2,951 positives (45.03%) |
-| Point-in-time audit | unmodified `scripts/financial_pit_v1.py` + the FROZEN protocol core | exit 0; all four phases nonempty in all three folds |
-| Paper trading (Binance) | `scripts/paper_trade_perp_v1.py --source binance` → `results/paper_trade_perp_binance_v1.json` | 83 fills, 10,251 funding payments, 0 liquidations, conservation OK |
-| Paper trading (Bybit) | `scripts/paper_trade_perp_v1.py --source bybit` → `results/paper_trade_perp_bybit_v1.json` | 81 fills, 9,123 funding payments, 0 liquidations |
-
-The validator used in step 4 is **unmodified**, and the protocol core is projected verbatim
-from the R1 draft; no frozen artifact was edited.
-
-### A pagination bug found and fixed while connecting Bybit
-
-The first Bybit fetch returned exactly **1,000 days per series**. Bybit's v5 kline endpoints
-return the **most recent** `limit` rows inside the requested window, so paging forward by
-`start` silently truncates history at one page. The fetcher now pages **backward** by moving
-`end` to just before the oldest row received. The refetch grew from 1,165,457 to **3,734,650
-bytes (3.2×)**, and the Bybit-sourced run went from 61 to 83 decisions, matching Binance's
-trigger count. Any earlier cross-venue comparison would have been made on unequal ranges.
-
-## Venue connectivity (the honest status)
-
-| Venue | Status | Detail |
-|---|---|---|
-| **Binance** | Connected | Public bulk archive, no key. Licence read in full. |
-| **Bybit** | Connected | `api.bybit.com` is **DNS-poisoned in this environment** (resolves to 179.60.193.16, an unrelated address, and never connects). Via the local egress proxy the **official** host works. |
-| **Hyperliquid** | Connected | `POST api.hyperliquid.xyz/info` (`metaAndAssetCtxs`, `candleSnapshot`, `fundingHistory`). Reachable directly. |
-| **Aster** | **Connected (via proxy)** | `fapi.asterdex.com` refuses **direct** connections from this environment on every probed host. Through the local egress proxy it returns real data: klines, mark/index klines, funding, `fundingInfo`, `premiumIndex`, `exchangeInfo` (602 symbols). |
-
-### The proxy is what unblocked Bybit and Aster
-
-Both blockers were **egress problems in this environment, not venue-side blocks**:
-
-| Host | Direct | Via `http://127.0.0.1:7890` |
-|---|---|---|
-| `api.bybit.com` | HTTP 000 (DNS-poisoned to an unrelated address) | **HTTP 200** |
-| `fapi.asterdex.com` | HTTP 000 (connection refused) | **HTTP 200** |
-| `api.hyperliquid.xyz` | HTTP 200 | HTTP 200 |
-
-The fetcher therefore routes through a local egress proxy by default
-(`NANOJEV_PROXY`, default `http://127.0.0.1:7890`, overridable with `--proxy`, and
-`--proxy ""` forces direct connections). The proxy used is recorded in every fetch manifest
-as `egress_proxy`, so a fetch is repeatable.
-
-**Limits of this claim:** the proxy solves *reachability*. It does **not** verify that any
-venue's terms permit the use — those terms pages remain unread from here, so Bybit, Aster and
-Hyperliquid permissions stay **unverified**, and the project owner's authorisation remains a
-project decision rather than a legal determination. Commercial and live-execution use stays
-unlicensed and out of scope.
-
-## PIT audit on real data
-
-The frozen protocol core (asof 2027-03-01, 3 folds, one-sided embargo) accepted the real
-cohort:
-
-| Fold | train | dev | calibration | test |
-|---|---:|---:|---:|---:|
-| 1 | 3,744 | 120 | 120 | 905 |
-| 2 | 4,649 | 120 | 120 | 905 |
-| 3 | 5,554 | 120 | 120 | 465 |
-
-Fold 3's test window extends past the last available bar, which is why it retains fewer
-rows. Exclusions are reported per fold (`outside_windows`, `label_unavailable_at_fit_cutoff`,
-`purged_overlap_or_embargo`).
-
-Reproduce:
-
-```bash
-.venv/bin/python -c "import json,pathlib; json.dump(json.loads(pathlib.Path('research/financial_experiment_protocol_v1.json').read_text())['pit_validator_core'], open('/tmp/frozen_core.json','w'))"
-.venv/bin/python scripts/financial_pit_v1.py --input data/perp_pit_v1/records.jsonl --protocol /tmp/frozen_core.json --output /tmp/fold_audit.json
-```
-
-## The pilot cohort is not the R1 cohort
-
-The R1 feature allowlist is a **closed 12-feature set**: "no feature may be added, removed,
-or conditionally omitted for any record". Three of those features cannot be built from this
-archive:
-
-| Omitted feature | Why |
-|---|---|
-| `open_interest_level` | needs the daily metrics archive, not downloaded in this slice |
-| `open_interest_log_change_1d` | same |
-| `liquidation_intensity_1d` | **no venue in the reviewed set publishes historical liquidations** |
-
-So this cohort declares a documented **9-feature subset** and is labelled a PILOT. It must
-not be presented as the frozen R1 cohort. Resolving which way to go (download metrics and
-drop only the liquidation feature, or amend the allowlist at R1) is a gate decision.
-
-## Paper-trading run
-
-Reference strategy: mechanical 20/60 moving-average crossover, two-sided (long and short),
-3× declared leverage, cross margin, 5 bps fee, 1 bps half-spread, 2024-01-01..2026-08-31,
-BTCUSDT/ETHUSDT/SOLUSDT, 100,000 initial cash.
-
-### The headline is that this is NOT a result
-
-The same strategy over the same period and instruments produced **four mutually
-contradictory numbers** depending on data set and venue:
-
-| Run | Data | Fills | Net PnL | Max drawdown |
-|---|---|---:|---:|---:|
-| A | Binance, before a 3-day index-data fix | 82 | **−49,920.90** | — |
-| B | Binance, after the fix | 83 | **+21,173.77** | 78.86% |
-| C | Bybit (same period, same instruments) | 81 (2 rejected) | **−77,919.27** | 94.22% |
-| D | Aster (same period, same instruments) | 83 (27 partial) | **+194,025.96** | 64.79% |
-
-**The spread of net PnL across venues is 271,945 on 100,000 of initial capital — 2.7× the
-capital itself.** Runs A and B differ only by three BTCUSDT days (2023-02-13, 2023-04-07,
-2023-04-08) and by exactly one decision that was rejected in A and executed in B: **that
-single decision flips the sign.**
-
-### The divergence is NOT a data-quality problem
-
-Before blaming the venues, their mark prices were cross-checked directly:
-
-| Comparison | Common days | Mean absolute deviation |
+| Signed component | Binance | Bybit |
 |---|---:|---:|
-| Aster vs Bybit mark close | 1,358 | **0.0199%** (≈2 bps) |
-| Aster vs Binance mark close | 1,337 | **0.0122%** (≈1.2 bps) |
-| Worst single day (Aster vs Bybit, 2024-10-13) | — | 0.199% (≈20 bps) |
+| Price/signal, executed path | −15,878.45 | −19,337.41 |
+| Fees | −2,587.89 | −2,587.31 |
+| Funding | −15,084.79 | −15,142.84 |
+| Spread | −517.58 | −517.46 |
+| Tick rounding | −11.57 | −12.39 |
+| Slippage / liquidation fees / unfilled booked effect | 0 / 0 / 0 | 0 / 0 / 0 |
+| **Net, shown only with dispersion below** | **−34,080.29** | **−37,597.40** |
 
-The venues agree to within roughly **one to two basis points**. Yet the same strategy on
-those three price series returns +194,026, +21,174 and −77,919. **The strategy is chaotic with
-respect to its input** — a one-basis-point difference in the price path compounds through
-position sizing and the reject/partial-fill path into a 2.7× swing in final PnL.
+Primary full-window min/median/max = **−37,597.40 / −35,838.85 / −34,080.29**;
+spread **3,517.11**, 3.5171% of initial cash.
+Most of the Binance–Bybit difference lies in the executed-path price term
+(about 3,458.95), not explicit fee differences. This is an accounting attribution,
+not a causal explanation of venue economics.
 
-So the ~2 bps of genuine cross-venue basis is not the cause of a 271,945 spread; it is the
-trigger. **No number on this page may be quoted as a return, a loss, an edge or a result.**
+**Coverage warning:** Binance has **973** usable days per symbol; Bybit has **974**.
+On **2026-06-29**, all three Binance symbols have last-price bars but lack mark/index
+observations. The requested date interval is correct, but the actual calendars differ.
+Therefore these are source-data sensitivity diagnostics, **not a matched-calendar venue effect**.
+No missing observation was fabricated, dropped from the other sources, or refetched.
 
-### The mechanism to fix
+## Mandatory sensitivity matrix
 
-The strategy issues `long`/`short` **target-position** orders, and the simulator sizes each
-order as the delta from the ledger's **actual** position — so position *level* self-heals. What
-does not heal is the size and timing of each trade: a **rejected or partially filled** order
-silently changes the path of fees, funding, and PnL. Across the three venues that produced 0, 2
-and 27 such events respectively. A robust harness must make any divergence between the requested
-and actual order outcome explicit (the B0-A `--on-divergence` audit) before any inference is
-possible.
+36 cells = 3 sources × seeds 20260917/18/19 × full / calendar 2024 / calendar 2025 /
+2026 YTD through August 31. Each window starts with fresh cash and flat positions,
+with MA warmup **inside that window**. Full overlaps all subwindows.
+These are neither additive slices of one equity curve nor equal-duration returns;
+no annualization or pooled “best strategy” estimate is made.
 
-*Correction (2026-09-19): an earlier version of this section claimed the quantity is recomputed
-from current equity each time ("0.25 × equity × leverage / price"), making position size compound
-with the path. Code inspection shows sizing uses **initial** cash (`0.25 × initial_cash ×
-leverage / close`) — path-independent notional. That claim was wrong; the property is now locked
-by a test under B0-B.*
+Primary sources only; each row holds window and seed fixed while varying source.
+All three seed copies give the same row:
 
-A third, venue-specific amplifier explains Aster's 27 partial fills. Aster reports far lower
-daily volume than the other two venues:
+| Window | Min net | Median net | Max net | Spread | % of initial cash |
+|---|---:|---:|---:|---:|---:|
+| Full | −37,597.40 | −35,838.85 | −34,080.29 | 3,517.11 | 3.5171% |
+| 2024 | −53,913.71 | −53,750.64 | −53,587.58 | 326.13 | 0.3261% |
+| 2025 | 109,242.67 | 110,052.73 | 110,862.79 | 1,620.13 | 1.6201% |
+| 2026 YTD | 10,205.76 | 13,432.95 | 16,660.13 | **6,454.37** | **6.4544%** |
 
-| Venue | Median daily bar volume (last 30 bars, BTCUSDT) |
-|---|---:|
-| Binance | 128,881.6 |
-| Bybit | 57,314.3 |
-| **Aster** | **9,959.5** |
+Seed-axis spread is **0 in every source/window** because fill probability is 1 and rejection
+probability is 0. This checks deterministic equivalence, not stochastic robustness.
 
-The capacity policy caps a fill at a fraction of the observed bar volume, so on Aster the cap
-bites and orders fill partially. That is a modelling interaction, not a data error — but it
-means **the same strategy receives different position sizes on each venue**, a third
-independent reason the per-venue results are not comparable.
+Window-axis min/median/max/spread (descriptive, unequal durations/overlap):
+Binance −53,587.58 / −8,710.08 / 110,862.79 / 164,450.37;
+Bybit −53,913.71 / −13,695.82 / 109,242.67 / 163,156.38.
+Full period and independently restarted windows must not be summed or treated as replications.
 
-### Full ledger for run B (Binance)
+### Why a headline is refused
 
-| Measure | Value |
-|---|---:|
-| Quotes / decisions / fills | 4,008 / 83 / 83 |
-| Funding payments | 10,251 |
-| Liquidations | 0 |
-| Initial cash → final equity | 100,000.00 → 121,173.77 |
-| Net PnL | +21,173.77 |
-| Fees paid | 4,722.50 |
-| Funding cost | 27,167.86 |
-| Gross traded notional | 9,445,009.73 |
-| Max drawdown | 117,970.85 (78.86% of peak) |
-| Longest drawdown | 529,632 s ≈ 6.1 days of curve time |
-| Conservation check | **ok** |
+The exploratory threshold was fixed **before the new matrix** at spread > **5% of initial cash**.
+Historical corrected full-period baselines were already known: this is **not blind preregistration**
+and not an established economic or statistical robustness criterion. Equality does not exceed it.
 
-Cost decomposition again: funding (27,167.86) is **5.8×** the explicit fees (4,722.50). The
-gross move before costs is therefore strongly positive in this run and costs consume a large
-share of it — but per the section above, none of that should be believed.
+The report computes refusal reasons, including:
 
-### Per-regime breakdown (run B)
+- 2026 YTD source spread exceeds 5%; window dispersion also exceeds it.
+- Incomplete Binance calendar coverage confounds source comparisons.
+- Fewer than three non-appendix sources; Aster cannot satisfy a primary result gate.
+- Costs, contract templates, fill/funding conventions remain provisional pending R1.
+- Current history snapshot is not an as-of vintage; Bybit terms remain unverified.
+- A mechanical reference strategy is not evidence about a model.
 
-Regimes are **causal**: expanding quantiles over trailing observations only, nearest-rank, no
-interpolation, with a 48-bar minimum history. Priority order: basis blowout → funding extreme
-→ high vol → low liquidity → normal. The schedule is keyed off one reference instrument
-(BTCUSDT) and is descriptive, not an independent experiment.
+This deliberately satisfies B0's **explicit refusal** branch, not its robust-economic-result branch.
 
-| Regime | Observations | Equity change | Funding | Fees | Fills | Max DD |
-|---|---:|---:|---:|---:|---:|---:|
-| basis_blowout | 476 | +67,939.98 | 11,096.48 | 196.66 | 4 | 113,514.16 |
-| vol_high | 832 | −58,539.96 | 3,488.59 | 706.43 | 11 | 117,106.13 |
-| normal | 2,727 | +33,180.07 | 7,015.57 | 2,779.51 | 47 | 117,970.85 |
-| liquidity_low | 955 | +1,920.64 | 1,769.86 | 967.31 | 19 | 114,514.21 |
-| funding_extreme | 120 | −32,822.14 | 3,797.35 | 0.00 | 0 | 87,118.72 |
-| unlabeled | 2 | +3,979.57 | 0.00 | 0.00 | 0 | 55,102.12 |
+## Data identity, venue identity and rights
 
-**Attribution is coherent**: the regime equity changes sum to the curve's total equity change
-with a residual of −2.18e-11 (float noise). Note the attribution is relative to the first
-curve point, not to the initial cash.
+Before and after both matrix runs, all manifest-listed files were hash-checked:
+Binance **880**, Bybit **30**, Aster **35**, all match. Loader inputs are covered by those
+manifests; undeclared Binance zip inputs are rejected. The replay makes **zero network data calls**.
 
-The two regimes that carry most of the loss (`vol_high`, `funding_extreme`) are exactly the
-conditions a cost-blind backtest would ignore — but with only 11 and 0 fills respectively,
-these buckets are far too thin to support any inference.
+Data source and simulation template are now separate receipt fields. Previously Aster's
+receipt was incorrectly labelled Bybit; new receipts correctly say `aster_perp`.
+All sources still use a **shared provisional `binance_um` simulation template** for
+contracts/quotes/decisions. This is not per-venue execution fidelity; economics are unchanged.
 
-## What this does NOT establish
+Binance research permission is CC BY-NC-SA; §4.2 separately prohibits live proprietary
+execution/commercial order generation. Bybit/Hyperliquid terms remain unverified.
+Aster has a concrete unresolved permission conflict, not a clearance.
+See [licensing audit](VENUE_DATA_LICENSING_V1.md). No new fetching, licence-risk acceptance,
+live trading, training, provider switch, checkpoint promotion, or active context pruning occurred.
 
-- **Not a result at all.** The sign flips across a three-day data difference and across two
-  venues. Any number on this page is a plumbing artefact.
-- **Not a return.** Execution costs are declared provisional guesses pending R1. The archive
-  has no order book, so bid/ask equal the mark close and the entire spread cost is one
-  declared parameter.
-- **Not predictive.** The reference strategy is a mechanical execution-path exerciser. Its
-  loss is not evidence about any model, and a profit would not have been evidence either.
-- **Not an as-of vintage.** The archive is a current snapshot; Binance documents in-place
-  file replacement. Point-in-time authenticity is not proven.
-- **Not live-ready.** No fill authenticity, queue position, capacity, insurance fund, ADL,
-  partial liquidation or venue-parameter fidelity is modelled.
-- **Fill and funding conventions are approximations**: a decision at bar `d`'s close fills at
-  bar `d`'s mark price (the newest available observation), and each funding boundary charges
-  the most recent *settled* rate rather than the rate settling at that instant.
-- **Regime buckets are descriptive, not experiments.** The schedule is keyed off one
-  reference instrument and several buckets hold under 20 fills.
-- **The rejected-order path is a known harness weakness**, described above; it must be fixed
-  before any result could carry meaning.
-- **No public claim of any kind** should be derived from this page.
+## Appendix — Aster only, unresolved licence and provenance metadata conflict
 
-## Reproduction
+Excluded from every primary table and headline. Aster's original fetch manifest declares
+`venue: aster` but incorrectly records `base_url: https://api.hyperliquid.xyz/info`.
+File hashes match, but that does **not** repair the source attestation.
+The manifest is preserved unchanged; no legal/source clearance is inferred.
+
+Full-window signed attribution:
+price −14,579.34; fees −2,599.10; funding −20,334.06; spread −519.82;
+rounding −12.54; slippage/liquidation/unfilled booked effect 0;
+net **−38,044.85**. Full-window three-source diagnostic min/median/max =
+−38,044.85 / −37,597.40 / −34,080.29, spread **3,964.56** (3.9646% of initial cash).
+This corrects earlier approximate text of 3,964.51; see machine-readable exact values.
+
+Aster window net diagnostics: 2024 −52,966.26; 2025 110,496.31; 2026 YTD 10,890.74.
+Each belongs alongside the all-source dispersion rows in the report's labelled appendix,
+not as a standalone performance number. Aster full-window funding cost is about 5,249.27
+greater than Binance while its price term is about 1,299.12 less negative; no causal or
+trading inference follows.
+
+## Verification and provenance
+
+- **75 new tests**: 22 accounting, 53 report/real-evidence tests.
+- Full suite: **651 tests OK, 2 skipped**, 56.801 s. Existing unclosed-file ResourceWarning remains.
+- 36 final cells reconcile; maximum absolute residual **3.6307028494775295e−9**.
+- Seed-20260919 full-window ledger, counts and `replay_sha256` equal each of the three
+  corrected frozen baselines exactly: instrumentation did not change replay economics.
+- Repeated Binance/full/20260917 receipt is byte-identical. Seeds are not independent trials.
+- Standalone report CLI reconstructs the matrix; source and input hashes remain unchanged.
+- Final report SHA-256: `f8f2a6010677a65c6ee68135f5bc415cb85b41927cc857d55c3055f125f3e76a`.
+- Study SHA-256: `7a0a4241e271e753f37090c70177b33fef23d99451e36d16d62f10497319f6d3`.
+
+Local NanoJev advisory inference used MPS/FP32, temperature 1, no remote model calls:
+development `363ea8f9-9dfa-4412-95ce-855b5d2ce839`;
+testing `575b04c5-d838-4a7b-9102-2f5c22c73263`;
+new-evidence testing `beba315c-c42e-430d-84f3-72fc92312678`.
+All abstained; main-model/deterministic checks decided and fallback feedback was recorded.
+No optimization/deployment phase took place.
+
+Official DeepSeek V4.1 Flash only:
+audit `1789837095-1ba19b172e3c` (static, no executed test);
+accounting tests `1789837679-b0a2f6f71f09`;
+report tests `1789837976-0a05d65554a0`.
+Both test jobs were isolated, changed only their permitted test file, and returned success.
+Main reviewed actual files, removed the staging-only dependency stub, strengthened tests and
+reran locally. Accounting tests do not prove market authenticity.
+Report mutation tests mock protocol/hash I/O; separate real-matrix tests exercise actual files.
+
+## Reproduction and historical correction
+
+Use **fresh output paths**; the driver/runner/report refuse to overwrite evidence:
 
 ```bash
-.venv/bin/python scripts/fetch_binance_vision_v1.py --first-month 2023-01 --last-month 2026-08
-.venv/bin/python scripts/fetch_venue_perp_v1.py --venue bybit --start 2023-01-01 --end 2026-09-19
-.venv/bin/python scripts/fetch_venue_perp_v1.py --venue aster --start 2023-01-01 --end 2026-09-19
-.venv/bin/python scripts/build_perp_pit_v1.py
-.venv/bin/python scripts/paper_trade_perp_v1.py --source binance --output results/paper_trade_perp_binance_v1.json
-.venv/bin/python scripts/paper_trade_perp_v1.py --source bybit   --output results/paper_trade_perp_bybit_v1.json
-.venv/bin/python scripts/paper_trade_perp_v1.py --source aster   --output results/paper_trade_perp_aster_v1.json
+.venv/bin/python scripts/run_paper_trade_t5_v1.py \
+  --output-dir results/paper_trade_t5_review_run \
+  --report-output results/paper_trade_t5_review_report.json
+.venv/bin/python scripts/paper_trade_report_v1.py \
+  --receipts results/paper_trade_t5_v1_run2/receipts \
+  --output /tmp/paper_trade_t5_reconstructed_report.json
+.venv/bin/python -m unittest discover -s scripts -p 'test_paper_trade*py' -v
 ```
 
-All fetches are public read-only data calls. The replay is fully offline; it contacts no
-venue, opens no socket, and can never place an order or read an account. Re-running the same
-command twice produces a **byte-identical receipt** (verified: `replay_sha256`, `net_pnl` and
-the entire receipt compare equal).
+Raw `data/` is ignored and must already exist; do not turn this reproduction into an
+automatic fetch. Protocol/receipt paths record the original machine's locations.
+The original study runner is rooted at this checkout; a relocated evidence bundle needs
+an explicitly reviewed path relocation rather than silently ignoring hashes.
 
-Determinism is verified; **robustness is not** — see the three-run table above. A pipeline
-that reproduces the same wrong-sign number exactly is still not evidence.
+Earlier “four contradictory numbers” (+21k/−78k/+194k) used a broken window and mixed
+capacity policies. **The claim of strategy chaos is withdrawn**, not retold as a current
+finding. Old receipts remain as evidence; see [window defect record](B0_WINDOW_DEFECT_V1.md).
+The former un-attributed tables are replaced by this report.
+
+Historical infrastructure remains: Binance/Bybit/Aster/Hyperliquid fetchers, the 6,554-row
+PIT pilot and its unchanged validator. That **9-feature pilot is not the closed 12-feature
+R1 dataset**. Three omitted features (OI level/change, liquidation intensity) and the
+71 provisional parameters/19 construction values/numeraire require owner decisions.
+Next task: **T6 R1 decision package**, not training or live deployment.

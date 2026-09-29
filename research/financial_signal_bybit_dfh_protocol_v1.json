@@ -1,0 +1,58 @@
+{
+  "arms": {
+    "A_time_series": "pooled + per-asset Spearman(dfh_pct, ret5); raw-dfh20 pooled Spearman (T101 comp); Welch dfh_pct>=0.90 vs rest and >=0.80 vs <=0.20 (T101 comp)",
+    "B_cross_section": "per day (all 5 symbols) rank by raw dfh20; spread fwd_5d(top1)-fwd_5d(bot1) bps; top2/bot2 variant alongside; mean daily spread t + pooled Welch + per-year folds. THIN: 5 assets, half the T104 cohort",
+    "C_spec_gate": "funding_pct>=0.80 AND basis_pct>=0.66 AND BTC-up: gate-on vs gate-off Welch + inside-gate Spearman(dfh20,ret5) + median-split dfh_pct Welch (T101 A1c analog)"
+  },
+  "cohort": {
+    "fetch_manifest": "data/venue_perp_v1/bybit/fetch_manifest.json (hash-pinned fetch, licence UNVERIFIED; offline non-commercial research only)",
+    "path": "data/venue_perp_v1/bybit/{BTC,ETH,BNB,SOL,XRP}USDT.{kline,mark,index,funding}.json",
+    "series": "kline daily close (price series for dfh + labels); mark daily close (basis + robustness cell); index daily close (basis); funding 8h settlements, last of UTC day = f_last",
+    "span": "2023-01-01..2026-09-19 UTC, 1358 merged days/symbol"
+  },
+  "contrast_family": [
+    "armA_spearman_dfh_pct_pooled",
+    "armA_spearman_dfh20_raw_pooled",
+    "armA_welch_top_decile",
+    "armA_welch_quintile",
+    "armB_daily_spread_top1",
+    "armB_daily_spread_top2",
+    "armC_gate_on_vs_off_welch",
+    "armC_inside_gate_spearman_dfh20"
+  ],
+  "created_utc": "2026-09-24T09:59:12Z",
+  "definitions": {
+    "basis_pct": "trailing-180 mid-rank pct of (mark/index-1)*1e4 \u2014 full basis-equivalent available, no funding+trend-only deviation needed",
+    "btc_up": "BTC close[i]/close[i-20]-1 > 0, market-wide by day",
+    "dfh20": "close[i] / max(close[i-20:i]) - 1, strictly-prior 20 contiguous bars",
+    "dfh_pct": "trailing-180 mid-rank pct of dfh20 per symbol, window excludes decision row",
+    "eval_range": "i in [180, n-5) per symbol, all inputs non-null",
+    "funding_pct": "trailing-180 mid-rank pct of f_last",
+    "ret5": "log(close[i+5]/close[i])"
+  },
+  "forbidden": [
+    "fitting",
+    "trading",
+    "profitability claims",
+    "protocol edits post-run",
+    "network access"
+  ],
+  "purpose": "External replication of the dfh effects on a second venue (Bybit), same play as T99 on Hyperliquid. References: T101 time-series pooled rho=+0.031 (FDR-pass) and T104 10-asset XS top2-bot2 +54.06bps/day (t=3.344), both Binance. Measurement only \u2014 no fitting, no trading, no profitability claims.",
+  "schema_version": "nanojev-financial-signal-bybit-dfh-protocol-v1",
+  "statistics": {
+    "caveats": [
+      "5d labels on 1d bars overlap ~5x; pooled rows share the market factor across assets \u2014 p-values nominal/optimistic",
+      "5-asset cross-section is VERY thin: top1-vs-bot1 = 2 effective obs/day; top2-vs-bot2 covers 80% of the cohort and is not a real extremes contrast",
+      "Bybit eval span (~2023-07 onward after the 180d warm-up) only partly overlaps the Binance reference window (2023-01-25..2026-08-30)",
+      "kline close is last-trade close, not mark; quantified by the mark-series robustness cell",
+      "Bybit licence UNVERIFIED in fetch_manifest",
+      "gross moves only \u2014 no fees, spread, slippage, funding cashflows"
+    ],
+    "daily_t": "mean/sd/t across decision days + normal-approx p (nominal \u2014 overlapping labels)",
+    "multiple_testing": "BH-FDR alpha=0.05 over contrast_family",
+    "spearman": "mid-rank rho + normal-approx t/p, min n=10",
+    "welch": "Welch t on fwd log returns in bps, normal-approx two-sided p, min n=10 per side"
+  },
+  "task": "T107",
+  "verdict_rule": "per cell: replicated iff sign agrees with the Binance reference AND BH-FDR pass; cells below the n needed to detect the reference rho at nominal p<0.05 are labelled low_power rather than not_replicated; honest negative reporting"
+}

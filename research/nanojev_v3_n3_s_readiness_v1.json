@@ -1,0 +1,105 @@
+{
+  "schema_version": "nanojev-v3-n3-s-readiness-v1",
+  "protocol_id": "nanojev-v3-n3-s-real-measurement-readiness-v1",
+  "status": "frozen_readiness_contract",
+  "purpose": "Read-only gate for the prerequisites of real paired N3-S readout measurement; it never authorizes measurement, training, deployment or promotion.",
+  "mode": "read_only_preflight",
+  "workspace_root": ".",
+  "required_evidence": [
+    {
+      "evidence_id": "n2_domain_pack_preflight",
+      "kind": "domain_pack_preflight",
+      "path": "results/nanojev_v3_n2_domain_pack_preflight_20260920.json",
+      "expected_status": "preflight_passed_not_training_authorized",
+      "expected_sha256": "",
+      "required_values": {
+        "schema_version": "nanojev-v3-domain-pack-preflight-v1",
+        "input_files_changed": false,
+        "manifest_errors": [],
+        "violations": [],
+        "block_reasons": [],
+        "training_authorized": false,
+        "training_performed": false,
+        "merged_rows_written": 0
+      }
+    },
+    {
+      "evidence_id": "n3_protocol_preflight",
+      "kind": "readout_protocol_preflight",
+      "path": "results/nanojev_v3_n3_protocol_preflight_20260920.json",
+      "expected_status": "protocol_valid_not_authorized",
+      "expected_sha256": "df13deb5b93edccb464d099b6943ceaef34a64a871634125239d988358fee811",
+      "required_values": {
+        "report_version": "nanojev-v3-n3-readout-protocol-report-v1",
+        "schema_version": "nanojev-v3-n3-readout-protocol-v1",
+        "valid": true,
+        "training_authorized": false,
+        "deployment_authorized": false,
+        "production_pruning_authorized": false,
+        "training_performed": false,
+        "deployment_performed": false,
+        "model_loaded": false,
+        "network_model_calls": 0
+      }
+    },
+    {
+      "evidence_id": "n3_synthetic_controls",
+      "kind": "synthetic_controls",
+      "path": "results/nanojev_v3_n3_synthetic_smoke_20260920.json",
+      "expected_status": "synthetic_controls_passed_not_model_evidence",
+      "expected_sha256": "e6c5edfe2190dc9165e66faacac1ef744c85768d08ad27a12de62e6c15bbcfb9",
+      "required_values": {
+        "report_version": "nanojev-v3-n3-synthetic-report-v1",
+        "protocol_schema_version": "nanojev-v3-n3-readout-protocol-v1",
+        "synthetic_only": true,
+        "training_authorized": false,
+        "deployment_authorized": false,
+        "production_pruning_authorized": false,
+        "training_performed": false,
+        "deployment_performed": false,
+        "model_loaded": false,
+        "network_model_calls": 0
+      }
+    }
+  ],
+  "review_requirements": [
+    {
+      "review_id": "n2_domain_pack_independent_review",
+      "status": "pending",
+      "required": true
+    },
+    {
+      "review_id": "n3_protocol_and_controls_independent_review",
+      "status": "pending",
+      "required": true
+    },
+    {
+      "review_id": "labels_holdout_and_protected_cases_review",
+      "status": "pending",
+      "required": true
+    },
+    {
+      "review_id": "data_license_and_provenance_review",
+      "status": "pending",
+      "required": true
+    }
+  ],
+  "boundaries": {
+    "read_only": true,
+    "network_allowed": false,
+    "model_loaded": false,
+    "measurement_performed": false,
+    "training_authorized": false,
+    "deployment_authorized": false,
+    "production_pruning_authorized": false,
+    "promotion_authorized": false,
+    "real_n3_measurement_authorized": false,
+    "authorizes_execution": false
+  },
+  "decision_rule": "Readiness is true only when every pinned evidence receipt exists with its expected hash and safe status, and every required independent review is explicitly approved. Readiness never authorizes real inference, training, quantization, deployment or promotion; a caller must obtain separate human authority and run the deterministic protocol.",
+  "limitations": [
+    "A passing readiness report is a prerequisite check, not a model-quality, latency, footprint or deployment result.",
+    "Synthetic N3 controls cannot substitute for an audited N2 domain pack, labels, holdout, protected cases or data rights.",
+    "This contract does not load a model, artifact, tokenizer or dataset and never accesses the network."
+  ]
+}

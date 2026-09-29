@@ -1,0 +1,85 @@
+{
+  "schema_version": "nanojev-financial-signal-spec-v1",
+  "status": "spec_candidate_pending_review",
+  "created_utc": "2026-09-25T00:00:00Z",
+  "frozen_by": "project-owner",
+  "signal_name": "xs_dfh_carry_v1",
+  "definition": {
+    "universe": "perp_pit_xs_v1 cohort, binance_um, 10 USDT-M perps (ADA/BNB/BTC/DOGE/DOT/ETH/LINK/LTC/SOL/XRP USDT-PERP), daily decision bars, 2023-01-01..2026-08-30; extendable: the cohort builder supports adding symbols, but the 2-vs-2 edge and >=8-asset day gate were measured on ~10 assets (~4-5 effective XS dof/day) — a larger universe changes the edge geometry and must be re-measured",
+    "direction": "dollar_neutral_long_short",
+    "entry_condition": {
+      "rank_score": "dfh20 = close / max(close, 20 strictly-prior daily bars) - 1; the RAW value is ranked cross-sectionally per decision day — the trailing-180 mid-rank pct transform used by the time-series dfh cells is NOT applied to the XS rank",
+      "rank_rule": "each decision day with >=8 scored assets (score AND forward return present): sort by raw dfh20; long top-2 (highest = nearest its own 20d high, momentum/continuation direction), short bottom-2 (lowest = furthest below its 20d high)",
+      "weights": "equal weight; each leg 1/4 of book; dollar-neutral; gross leverage 1.0",
+      "mandatory_regime_gate": "ACTIVE only when BTCUSDT close / close[t-20] - 1 > 0 (strictly-prior 20 daily bars, same close basis as the cohort); FLAT otherwise. Non-optional: measured uptrend days +111.4bps (t=4.54, n=708) vs downtrend days -13.8bps (t=-0.69, n=605) — ungated the signal does not survive"
+    },
+    "exit_condition": {
+      "time_stop": "daily rebalance — membership is re-ranked every decision day; no fixed holding period; ~27% of leg slots turn over per day (measured 0.269)",
+      "regime_off": "flat when the BTC 20d trend gate reads <= 0",
+      "reporting_horizon": "5d forward close return is the headline evaluation horizon (1d/3d/10d also positive: +14.8/+32.4/+111.3bps per horizon)"
+    },
+    "not_a_component": [
+      "trailing-180 mid-rank pct of dfh20 (time-series convention; the XS rank uses the raw value)",
+      "XS funding_pct rank (T104/T108: +5.3bps/day, t=0.33 — null, as the post-2020 carry literature predicts)",
+      "mom20 XS rank as primary score (T108: +44.8bps but 3/4 folds — weaker than dfh20)",
+      "freshness/decay timing — lag-3 ranks earn as much as fresh (63.5 vs 53.7bps): the score is a slow characteristic, no fast-refresh requirement",
+      "literal quintile-of-book portfolio — on ~10 assets quintile degenerates to a 1-2 asset edge; adaptive-depth check only"
+    ]
+  },
+  "evidence": {
+    "discovery_t104": {"ref": "results/financial_signal_xs_v1.json",
+                       "mean_daily_spread_bps": 54.06, "t": 3.344, "n_days": 1314,
+                       "yearly_folds_same_sign": "4/4 (2023/2024/2025/2026)",
+                       "within_asset_spearman": "~0 — purely cross-sectional effect"},
+    "robustness_t106": {"ref": "results/financial_signal_xs_dfh_robust_v1.json",
+                        "net_mean_daily_bps": 13.467, "net_sharpe_annualized": 0.986,
+                        "gross_mean_daily_bps": 14.813, "gross_sharpe": 1.085,
+                        "mean_daily_turnover_frac_of_legs": 0.269,
+                        "mean_daily_cost_bps": 1.346,
+                        "hard_gates_passed": "6/6",
+                        "rank_depths": "top1 +71.0 / top2 +53.7 / top3 +43.5 bps, all 4/4 folds",
+                        "placebo": "collapsed: seed means -19.3/-42.2/+1.1bps, mean-of-means -20.1"},
+    "regime_gate_t106": {"ref": "results/financial_signal_xs_dfh_robust_v1.json",
+                         "btc_20d_trend_up": {"mean_bps": 111.435, "t": 4.54, "days": 708},
+                         "btc_20d_trend_down": {"mean_bps": -13.777, "t": -0.694, "days": 605}},
+    "bybit_replication_t107": {"ref": "results/financial_signal_bybit_dfh_v1.json",
+                              "xs_top2_vs_bottom2_bps": 54.484, "t": 3.599, "p": 0.00032,
+                              "n_days": 1173, "folds_same_sign": "4/4",
+                              "fdr_pass": true, "verdict": "replicated",
+                              "note": "5-asset Bybit cohort; top2-vs-bot2 uses 80% of that cross-section"},
+    "benchmark_t108": {"ref": "results/financial_signal_benchmark_v3.json",
+                       "xs_dfh20_cell": "PASS (mean +54.06bps, t=3.34, p=8.3e-4, placebo max |spread| 29.4bps)",
+                       "cross_scale": "replicated_both_scales — daily dfh20_pct rho +0.028 PASS plus XS rank PASS"},
+    "close_vs_mark_basis": {"ref": "data/perp_pit_xs_v1/build_summary.json",
+                            "max_deviation_bps": 26.281, "measured_on": "5 legacy symbols only",
+                            "note": "close is the mark proxy for all 10 symbols; the Bybit mark-series robustness cell (rho +0.0256) confirms the dfh effect is not a close-basis artifact"}
+  },
+  "residual_risks": {
+    "thin_cross_section": "~4-5 effective XS dof/day on a 2-vs-2 edge over ~10 assets; one asset's jump swings a daily spread",
+    "overlapping_labels": "5d labels on daily bars overlap ~80%; all t-stats are nominal (iid assumption) and overstate effective n",
+    "close_price_basis": "klines close used as mark proxy for all 10 symbols; |mark/close-1| measured <= 26.3bps max on the 5 legacy symbols; the 5 expanded symbols have no mark archives in the bounded slice (unmeasured)",
+    "score_identity_confound": "lag-3 staleness test loses nothing (63.5 vs 53.7bps) — dfh20-rank may partly proxy persistent asset identity rather than a per-day signal",
+    "lookback_selection": "dfh20 was literature-suggested, not found by a lookback search on this data; dfh10 (+22bps, 3/4 folds) and dfh60 (+53bps, 3/4) neighbours soften but do not cure selection risk",
+    "regime_gate_single_point_of_failure": "the entire edge sits behind one estimated quantity — the BTC 20d trend; estimation error or regime misclassification gates the whole book",
+    "period_effects_inside_gate": "pooled yearly folds are all-positive but fold-level period effects may persist inside the gated subpopulation (gated per-year cells not separately verified)",
+    "net_sim_simplifications": "no funding cashflows, no borrow cost on shorts, fills at decision close, linear 5bps cost, no market-impact model"
+  },
+  "forbidden_interpretations": [
+    "not a standalone trading strategy",
+    "not a profitability or live-trading claim",
+    "not authorization to train RLCD or trade",
+    "not evidence the signal persists beyond the measured window"
+  ],
+  "relationship_to_spec_v1": {
+    "portfolio_role": "orthogonal sleeve: a dollar-neutral long-short XS book vs spec v1's long-only conditional entries — no shared positions by construction",
+    "shared_master_gate": "both sleeves are conditioned by the SAME market-wide gate — BTC 20d trend > 0 (spec v1: mark_price 20-bar log return on perp_pit_v1; this spec: close/close[t-20]-1 on perp_pit_xs_v1 — identical construction, close basis). Track-B structural finding (T79/T99/T106/T107): one market-level state variable gates every daily-frequency signal",
+    "signal_family": "same underlying dfh20 feature as the T101 time-series cell and spec v1's descriptive overlay, but a different contrast geometry — cross-sectional rank here vs within-asset trailing percentile there (T108 cross_scale: replicated_both_scales)"
+  },
+  "next_gate": "OOS forward evidence on post-freeze decision days (same path as spec v1) is required before any freeze-for-use; status remains spec_candidate_pending_review — NOT frozen for trading. RLCD use (XS rank state feature / book-level policy) requires a new protocol + owner authorization",
+  "receipt_hashes": {
+    "xs_v1_t104": "61a45b0d1356302fbdcfa0e750a3e288ac04072d6e61295c8c69bcaa73b32af3",
+    "xs_dfh_robust_v1_t106": "df060a25a33ceb3750ff3453d0c93082377c43cb73bb58a3a3cb68510a420447",
+    "bybit_dfh_v1_t107": "837ea9eb04edacc6f0bcc1ebfd5536c92003328b5bf71e3c372a8d75ba15bc5e",
+    "benchmark_v3_t108": "8daf907e952421544de557a964329b608a0140a775fe40fa2d4b1c237fba9f9b"
+  }
+}

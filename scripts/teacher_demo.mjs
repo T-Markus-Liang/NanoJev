@@ -36,7 +36,7 @@ async function main() {
     throw new TeacherError('INVALID_ARGUMENTS', '命令行参数无效；使用 --help 查看用法。');
   }
   if (values.help) {
-    console.log('默认离线：node scripts/teacher_demo.mjs\n单次调用：node scripts/teacher_demo.mjs --live --teacher llm --model 提供方/模型\n可替换为 --teacher jev --model typesafe-ai/jev。脚本不读取 .env，凭据由调用者配置。');
+    console.log('默认离线：node scripts/teacher_demo.mjs\n单次调用：node scripts/teacher_demo.mjs --live --teacher llm --model 提供方/模型\n可替换为 --teacher jev --model jev-latest。脚本不读取 .env，凭据由调用者配置。');
     return;
   }
   if (!['jev', 'llm'].includes(values.teacher)) throw new TeacherError('INVALID_ARGUMENTS', 'teacher 只能是 jev 或 llm。');

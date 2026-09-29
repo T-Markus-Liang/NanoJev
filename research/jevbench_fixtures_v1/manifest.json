@@ -1,0 +1,32 @@
+{
+  "schema_version": "nanojev-jevbench-fixtures-v1",
+  "task_schema": "jevbench::v1.2",
+  "task_schema_source": {
+    "repo": "https://github.com/fstandhartinger/jevbench",
+    "revision": "83831807458d7df424a1e53e5724f3a3ffe2cf89",
+    "file": "jevbench/tasks.py",
+    "note": "record shape mirrored from the pinned harness; no task rows were read or copied"
+  },
+  "path": "research/jevbench_fixtures_v1/items.jsonl",
+  "sha256": "995f0785dbfc6c183dbedad76cbf09373c712ea73a16e93825c96cbdc9157de8",
+  "items": 12,
+  "counts_by_type": {
+    "noul": 4,
+    "choice": 5,
+    "score": 3
+  },
+  "min_labels": 2,
+  "max_labels": 255,
+  "groups": [
+    "syn-grp-freezer"
+  ],
+  "unmeasured": 1,
+  "quarantine": {
+    "evaluation_only": true,
+    "training_allowed": false,
+    "calibration_fit_allowed": false,
+    "per_item_failure_tuning_allowed": false,
+    "contains_benchmark_rows": false
+  },
+  "builder": "scripts/build_jevbench_fixtures_v1.py"
+}

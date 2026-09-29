@@ -1,0 +1,23 @@
+{
+  "schema_version": "nanojev-predictor-repin-v1",
+  "status": "active_repin_chain_link",
+  "recorded_utc": "2026-09-29T00:00Z",
+  "purpose": "predict_toy_decisions.py evolved again after repin v1 (v4-era edits). This link chains repin_v1's new_sha256 to the current file hash, keeping the frozen T9d protocol v2 pin unmodified.",
+  "repinned_file": "scripts/predict_toy_decisions.py",
+  "old_sha256": "701851b421eeca7611eb3241c47c06db779645a9771abf5f0074704b49c23514",
+  "new_sha256": "701b192915f82ce684999bdb6d26219a26e5fbb18cacb8ede62b3e75f3d429ce",
+  "evidence": {
+    "prior_link": "research/nanojev_predictor_repin_v1.json",
+    "drift_cause": "v4 workstream edits"
+  },
+  "frozen_documents_unchanged": [
+    "research/nanojev_v2_t9d_fp32_mps_protocol_v2.json",
+    "research/jevbench_adapter_contract_v1.json",
+    "research/nanojev_predictor_repin_v1.json"
+  ],
+  "authorization": {
+    "training_authorized": false,
+    "deployment_authorized": false
+  },
+  "supersedes": "research/nanojev_predictor_repin_v1.json"
+}

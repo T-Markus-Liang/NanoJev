@@ -1,7 +1,19 @@
 # Domain adaptation runbook V1 — retraining the decision model to fix the abstention
 
-**Status: runbook only. This document authorises nothing.** It records how a retraining run
-*would* be executed, gated and rolled back. Nothing was trained while writing it, no checkpoint
+> **2026-09-20 superseding preflight: BLOCKED.** The engineering builder now exists and
+> its `trainer_view` passes the real trainer (246 rows), so the historical missing-builder/
+> format-only diagnosis below is no longer current. However, [T8g](T8G_ADAPTER_REVIEW_V1.md)
+> found **27 identical-input groups across splits (63 rows)**, **18 survey-derived
+> provenance conflicts**, and **129 shared inputs across two seeds** despite disjoint IDs.
+> Do not merge, relabel, repartition or train on V1 pending review. A new reviewed version
+> must resolve content-connected source groups and fresh holdout provenance, §5's missing
+> gate-oracle mapping, §3.3/§5/§5b's merged versus heldout/OOD contract, and G2's survey
+> versus engineering endpoint identities. T9d's LoRA/BF16 → full-backbone FP32 amendment
+> is owner-approved in this experimental project, but still requires an independent protocol
+> review before any run. The dated feasibility record below is retained, not new permission.
+
+**Status: owner-approved amendment, independent-review and data gates still open.** This document
+records how a retraining run *would* be executed, gated and rolled back. Nothing was trained while writing it, no checkpoint
 or corpus was written, and no accuracy, abstention or readiness result is claimed. The current
 production reference checkpoint remains
 `checkpoints/local_atomic_seed17/variants/local_atomic_seed17`.
@@ -166,7 +178,7 @@ The pre-registered protocol `docs/GATE_CONTRASTIVE_PROTOCOL_V1.md` **[READ]** is
 
 This runbook does not invent a replacement protocol and does not restate those clauses as its own.
 
-### 3.2 The amendment that must be reviewed (the only proposed delta) **[ASSUMED until approved]**
+### 3.2 The owner-approved amendment that still must be independently reviewed (the only delta) **[OWNER-APPROVED; REVIEW REQUIRED]**
 
 Because of Blocker C, this runbook proposes to execute the domain adaptation with the **existing
 runtime**, not with §7's LoRA recipe:
@@ -180,7 +192,9 @@ runtime**, not with §7's LoRA recipe:
 | CE over allowed answer tokens | unchanged (`--objective gold_distribution --loss ce`) | Already the documented objective |
 | 2,048-token cap | unchanged (`--max-length 2048`) | Identical to §7 |
 
-**This substitution is a protocol change and therefore requires the §8 review before any run.**
+**This substitution is a protocol change. The repository owner approved using it for this
+experimental project on 2026-09-20, but the §8 independent review is still required before any
+run.**
 The reviewer may instead require a CUDA host or a new LoRA implementation; in that case this
 runbook's Steps 3–5 are unchanged in structure and only the command lines change.
 

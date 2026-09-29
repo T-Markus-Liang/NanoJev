@@ -1,0 +1,23 @@
+{
+  "schema_version": "nanojev-predictor-repin-v1",
+  "status": "superseded_repin_chain_link",
+  "recorded_utc": "2026-09-21T00:00Z",
+  "purpose": "scripts/predict_toy_decisions.py legitimately evolved after the frozen T9d protocol v2 pin (X2: question_prefix_segments, anchor_tokens, pointer head; X3: shared-prefix packed planner). Frozen documents are never edited; this repin record is the chain link that lets validators apply the current accepted hash without modifying the frozen protocol.",
+  "repinned_file": "scripts/predict_toy_decisions.py",
+  "old_sha256": "701851b421eeca7611eb3241c47c06db779645a9771abf5f0074704b49c23514",
+  "new_sha256": "aad0d4e53a7c9c20eb11eefcbbd628f765ac3d646ffef60febc9179e864aa7c4",
+  "evidence": {
+    "x2_receipt": "results/x2_semif_transfer/receipt.json \u2014 readout/anchor/pointer additions",
+    "x3_receipt": "results/x3_shared_prefix_v1.json \u2014 shared-prefix planner + _shared_prefix_logits (parity gate passed, max|dp| 7.75e-7, zero flips)",
+    "v5_amendment_note": "research/nanojev_v2_t9d_v5_lora_amendment_v1.json predictor_pin_note already records the stale pin"
+  },
+  "frozen_documents_unchanged": [
+    "research/nanojev_v2_t9d_fp32_mps_protocol_v2.json",
+    "research/jevbench_adapter_contract_v1.json"
+  ],
+  "authorization": {
+    "training_authorized": false,
+    "deployment_authorized": false
+  },
+  "superseded_by": "research/nanojev_predictor_repin_v2.json"
+}

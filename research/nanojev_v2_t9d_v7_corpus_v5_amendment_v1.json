@@ -1,0 +1,116 @@
+{
+  "schema_version": "nanojev-v2-t9d-v7-corpus-v5-amendment-v1",
+  "status": "seed20_completed_hash_verified_mps_parity_passed_not_promoted",
+  "recorded_utc": "2026-09-22T00:00Z",
+  "purpose": "Prepare the J-CV5 corpus-repair arm after MiniCPM5-2B capacity testing showed stable gains but persistent choice/score failures. Corpus v5 is a byte-identical v4 base plus eight independently authored repair families for choice k=6/12, ordinal score semantics, and Boolean risk boundaries. This document plans the remote training path but does not authorize GPU startup or training.",
+  "basis": {
+    "capacity_stability_summary": "research/private_t9d_v6_minicpm_seed17_19_stability_summary.json",
+    "capacity_stability_sha256": "51cc3a81d68393ca53a03f04f1ebe81f3b31f9d6d17bbc0f02cc90aeb1126a7a",
+    "shift_diagnosis_heldout_v2": "results/t9d_v6_minicpm_shift_diagnosis_v1.json",
+    "shift_diagnosis_heldout_v1": "results/t9d_v6_minicpm_shift_diagnosis_v1_heldout_v1.json",
+    "root_cause": "capacity is no longer the first binding constraint; heldout_v2 still degrades by candidate cardinality and score semantics, while high-coverage Boolean errors remain nonzero"
+  },
+  "corpus": {
+    "path": "research/engineering_judgment_corpus_v5",
+    "builder": "scripts/build_engineering_corpus_v5.py",
+    "builder_sha256": "79676c874bc7ba651ce85e9a14eb2cd98bacda435dbcb25b539bd5db34533344",
+    "manifest_sha256": "ede9ea12b9159bd1f6007e833ac96359eae117ec6f71cc642f1a1ebade655297",
+    "content_sha256": "2f4ff71ab4f010b1073c3dd98d88ee1f55123ede2ca44c73cc21575f138f83d0",
+    "audit_receipt": "results/engineering_corpus_v5_audit_receipt.json",
+    "audit_receipt_sha256": "0f94a20a5d946e13c3ec813dedd3463e13d6fe7de8a3980bf101c839098a2d75",
+    "base_corpus": "research/engineering_judgment_corpus_v4",
+    "base_manifest_sha256": "66ad3da85db54998cd1944e31639321db2046819830849c601db48284352fa98",
+    "items": 5280,
+    "pairs": 880,
+    "families": 44,
+    "repair_families": 8,
+    "split_counts": {"train": 2904, "dev": 924, "calibration": 528, "test": 924},
+    "heldout_v1_overlap": 0,
+    "heldout_v2_overlap": 0,
+    "unexpected_repair_overlap_with_v1_v2_v3_v4": 0
+  },
+  "remote_smoke_result": {
+    "output_dir": "/tmp/t9d_v7_minicpm2b_smoke_retry1",
+    "status": "passed",
+    "best_step": 7,
+    "final_dev_target_ce": 1.3097922371150659,
+    "merge_max_abs_logit_delta": 1.0922551155090332e-05,
+    "max_gpu_allocated_gb": 25.072524288,
+    "offline_model_cache": true
+  },
+  "seed20_result": {
+    "status": "completed_hash_verified_mps_parity_passed_heldout_read_once",
+    "remote_output_dir": "/root/gpufree-data/nanojev/checkpoints/t9d_v7_minicpm2b_seed20_cuda",
+    "local_checkpoint": "checkpoints/t9d_v7_minicpm2b_seed20_cuda",
+    "best_step": 462,
+    "best_dev_target_ce_during_training": 0.7979767116149762,
+    "final_loaded_checkpoint_dev_target_ce": 0.7979454373872168,
+    "calibration_target_ce": 0.81300487651584,
+    "test_target_ce": 0.8340220069364117,
+    "training_seconds": 2200.8691812716424,
+    "max_gpu_allocated_gb": 25.984014848,
+    "merge_max_abs_logit_delta": 1.8715858459472656e-05,
+    "local_checkpoint_best_safetensors_sha256": "22ed7a020e70aaf4cfdfa115046deb7337382a131fe30e0c9603e558b4ddab13",
+    "remote_manifest": "research/private_t9d_v7_minicpm2b_seed20_cuda_manifest.json",
+    "remote_manifest_sha256": "3d0429f36bbd8212ac2297adeb08e67dc238fc93f0e6e9229893ad61fc57aaff",
+    "cuda_mps_owned_parity": {
+      "passed": true,
+      "questions": 3,
+      "max_abs_probability_delta": 9.275972843170166e-07,
+      "argmax_flips": 0
+    },
+    "one_shot_heldout": {
+      "heldout_v1": {"questions": 69, "accuracy": 0.7536231884057971, "cov_at_0.9": 0.3333333333333333, "confident_wrong_at_0.9": 0},
+      "heldout_v2": {"questions": 312, "accuracy": 0.5224358974358975, "cov_at_0.9": 0.22115384615384615, "confident_wrong_at_0.9": 15},
+      "summary": "results/t9d_v7_minicpm_seed20_summary.json"
+    },
+    "shift_diagnosis": {
+      "heldout_v1": "results/t9d_v7_minicpm_seed20_shift_diagnosis_heldout_v1.json",
+      "heldout_v2": "results/t9d_v7_minicpm_seed20_shift_diagnosis_heldout_v2.json"
+    }
+  },
+  "planned_remote_execution": {
+    "requires_owner_gpu_start_approval": true,
+    "owner_gpu_start_approval": "approved in session after corpus-v5 build and before seed20",
+    "server": "existing migrated A100 workspace at SSH port 30282; password is not stored",
+    "stage_0": [
+      "restart server only after owner approval",
+      "verify SSH key access and workspace hash",
+      "run GPU preflight",
+      "upload corpus v5 builder/test/manifest/trainer_view and verify SHA-256",
+      "run trainer validate-only on corpus v5"
+    ],
+    "stage_1_seed20": [
+      "run a 5-step MiniCPM5-2B CUDA smoke on corpus v5",
+      "run seed20 600-step LoRA training only if smoke passes",
+      "generate remote checkpoint manifest and download locally",
+      "verify local checkpoint SHA-256",
+      "run CUDA-to-MPS FP32 owned parity",
+      "only then read heldout_v1/v2 once locally"
+    ],
+    "stage_2_seed21_22": "not authorized by this draft; requires separate review after seed20",
+    "training_command": ".venv/bin/python scripts/train_pipeline_decisions_v4.py --input research/engineering_judgment_corpus_v5/trainer_view --output-dir checkpoints/t9d_v7_minicpm2b_seed20_cuda --model openbmb/MiniCPM5-2B --revision 12a3808a956f869c767195e9266b59c4d21d92e2 --objective gold_distribution --loss ce --steps 600 --head-steps 12 --batch-questions 16 --microbatch-questions 4 --max-microbatch-tokens 32768 --eval-every 50 --max-length 2048 --seed 20 --lora-rank 16 --lora-alpha 32 --lora-dropout 0.05 --lora-lr 5e-5 --backbone-lr 0 --head-lr 2e-4 --head-warmup-lr 2e-3 --device cuda --precision bf16 --gradient-checkpointing"
+  },
+  "gates": {
+    "finite_losses": true,
+    "dev_only_selection": true,
+    "merge_max_abs_logit_delta": 0.0001,
+    "checkpoint_manifest_sha256_required": true,
+    "cuda_to_mps_owned_parity_argmax_flips": 0,
+    "heldout_read": "one local read per completed seed after download/hash/parity only",
+    "no_heldout_on_remote": true,
+    "no_public_benchmark_before_internal_freeze": true
+  },
+  "authorization": {
+    "gpu_start_authorized_for_seed20": true,
+    "remote_sync_completed": true,
+    "smoke_training_completed": true,
+    "seed20_training_completed": true,
+    "additional_gpu_actions_authorized": false,
+    "seed21_22_authorized": false,
+    "candidate_promotion": false,
+    "deployment": false,
+    "jevbench": false,
+    "commit_or_push": false
+  }
+}

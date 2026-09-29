@@ -1,0 +1,366 @@
+{
+  "created_utc": "2026-09-24T17:17:12.451264+00:00",
+  "new_symbols_vs_xs_v1": [
+    "PEPEUSDT",
+    "SUIUSDT",
+    "WIFUSDT",
+    "FARTCOINUSDT",
+    "ENAUSDT",
+    "TRUMPUSDT",
+    "AVAXUSDT",
+    "WLDUSDT",
+    "ORDIUSDT",
+    "BCHUSDT",
+    "AAVEUSDT",
+    "NEARUSDT",
+    "PENGUUSDT",
+    "FILUSDT",
+    "SHIBUSDT",
+    "BONKUSDT",
+    "TIAUSDT",
+    "ARBUSDT",
+    "NEIROUSDT",
+    "ONDOUSDT"
+  ],
+  "per_symbol": {
+    "AAVEUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 154293918.35,
+      "quote_volume_days_in_window": 731,
+      "rank": 20,
+      "rc_futures_first_bar": "2021-01-01",
+      "rc_futures_has_funding_csv": true,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "ADAUSDT": {
+      "in_xs_v1": true,
+      "median_quote_volume_2024_2025": 341730161.9,
+      "quote_volume_days_in_window": 731,
+      "rank": 11,
+      "rc_futures_first_bar": "2021-01-01",
+      "rc_futures_has_funding_csv": true,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "ARBUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 135123753.31,
+      "quote_volume_days_in_window": 731,
+      "rank": 28,
+      "rc_futures_first_bar": "2023-03-23",
+      "rc_futures_has_funding_csv": true,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "AVAXUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 283361984.9,
+      "quote_volume_days_in_window": 731,
+      "rank": 14,
+      "rc_futures_first_bar": "2021-01-01",
+      "rc_futures_has_funding_csv": true,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "BCHUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 164472693.43,
+      "quote_volume_days_in_window": 731,
+      "rank": 19,
+      "rc_futures_first_bar": "2021-01-01",
+      "rc_futures_has_funding_csv": true,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "BNBUSDT": {
+      "in_xs_v1": true,
+      "median_quote_volume_2024_2025": 472359279.85,
+      "quote_volume_days_in_window": 731,
+      "rank": 8,
+      "rc_futures_first_bar": "2021-01-01",
+      "rc_futures_has_funding_csv": true,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "BONKUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 140207148.65,
+      "quote_volume_days_in_window": 731,
+      "rank": 26,
+      "rc_futures_first_bar": "2023-11-22",
+      "rc_futures_has_funding_csv": false,
+      "rc_futures_last_bar": "2025-12-31",
+      "venue_symbol_2026": "1000BONKUSDT"
+    },
+    "BTCUSDT": {
+      "in_xs_v1": true,
+      "median_quote_volume_2024_2025": 15866317033.63,
+      "quote_volume_days_in_window": 731,
+      "rank": 1,
+      "rc_futures_first_bar": "2021-01-01",
+      "rc_futures_has_funding_csv": true,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "DOGEUSDT": {
+      "in_xs_v1": true,
+      "median_quote_volume_2024_2025": 981932430.92,
+      "quote_volume_days_in_window": 731,
+      "rank": 5,
+      "rc_futures_first_bar": "2021-01-01",
+      "rc_futures_has_funding_csv": true,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "DOTUSDT": {
+      "in_xs_v1": true,
+      "median_quote_volume_2024_2025": 144516526.43,
+      "quote_volume_days_in_window": 731,
+      "rank": 25,
+      "rc_futures_first_bar": "2021-01-01",
+      "rc_futures_has_funding_csv": true,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "ENAUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 315836700.47,
+      "quote_volume_days_in_window": 639,
+      "rank": 12,
+      "rc_futures_first_bar": "2024-04-02",
+      "rc_futures_has_funding_csv": false,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "ETHUSDT": {
+      "in_xs_v1": true,
+      "median_quote_volume_2024_2025": 9833909791.78,
+      "quote_volume_days_in_window": 731,
+      "rank": 2,
+      "rc_futures_first_bar": "2021-01-01",
+      "rc_futures_has_funding_csv": true,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "FARTCOINUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 367414163.58,
+      "quote_volume_days_in_window": 377,
+      "rank": 10,
+      "rc_futures_first_bar": "2024-12-20",
+      "rc_futures_has_funding_csv": false,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "FILUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 148347135.14,
+      "quote_volume_days_in_window": 731,
+      "rank": 23,
+      "rc_futures_first_bar": "2021-01-01",
+      "rc_futures_has_funding_csv": true,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "LINKUSDT": {
+      "in_xs_v1": true,
+      "median_quote_volume_2024_2025": 279929162.72,
+      "quote_volume_days_in_window": 731,
+      "rank": 15,
+      "rc_futures_first_bar": "2021-01-01",
+      "rc_futures_has_funding_csv": true,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "LTCUSDT": {
+      "in_xs_v1": true,
+      "median_quote_volume_2024_2025": 206111524.95,
+      "quote_volume_days_in_window": 731,
+      "rank": 17,
+      "rc_futures_first_bar": "2021-01-01",
+      "rc_futures_has_funding_csv": true,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "NEARUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 153664537.83,
+      "quote_volume_days_in_window": 731,
+      "rank": 21,
+      "rc_futures_first_bar": "2021-01-01",
+      "rc_futures_has_funding_csv": true,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "NEIROUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 134139824.94,
+      "quote_volume_days_in_window": 472,
+      "rank": 29,
+      "rc_futures_first_bar": "2024-09-16",
+      "rc_futures_has_funding_csv": false,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "ONDOUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 124411769.93,
+      "quote_volume_days_in_window": 712,
+      "rank": 30,
+      "rc_futures_first_bar": "2024-01-20",
+      "rc_futures_has_funding_csv": false,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "ORDIUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 169421897.89,
+      "quote_volume_days_in_window": 731,
+      "rank": 18,
+      "rc_futures_first_bar": "2023-11-07",
+      "rc_futures_has_funding_csv": false,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "PENGUUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 148931173.25,
+      "quote_volume_days_in_window": 380,
+      "rank": 22,
+      "rc_futures_first_bar": "2024-12-17",
+      "rc_futures_has_funding_csv": false,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "PEPEUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 806241120.66,
+      "quote_volume_days_in_window": 578,
+      "rank": 6,
+      "rc_futures_first_bar": "2023-05-05",
+      "rc_futures_has_funding_csv": true,
+      "rc_futures_last_bar": "2025-12-31",
+      "venue_symbol_2026": "1000PEPEUSDT"
+    },
+    "SHIBUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 145827482.43,
+      "quote_volume_days_in_window": 731,
+      "rank": 24,
+      "rc_futures_first_bar": "2021-05-10",
+      "rc_futures_has_funding_csv": true,
+      "rc_futures_last_bar": "2025-12-31",
+      "venue_symbol_2026": "1000SHIBUSDT"
+    },
+    "SOLUSDT": {
+      "in_xs_v1": true,
+      "median_quote_volume_2024_2025": 3092433892.32,
+      "quote_volume_days_in_window": 731,
+      "rank": 3,
+      "rc_futures_first_bar": "2021-01-01",
+      "rc_futures_has_funding_csv": true,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "SUIUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 558907503.83,
+      "quote_volume_days_in_window": 731,
+      "rank": 7,
+      "rc_futures_first_bar": "2023-05-03",
+      "rc_futures_has_funding_csv": true,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "TIAUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 135331539.62,
+      "quote_volume_days_in_window": 731,
+      "rank": 27,
+      "rc_futures_first_bar": "2023-10-31",
+      "rc_futures_has_funding_csv": false,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "TRUMPUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 288343178.54,
+      "quote_volume_days_in_window": 348,
+      "rank": 13,
+      "rc_futures_first_bar": "2025-01-18",
+      "rc_futures_has_funding_csv": false,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "WIFUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 425736316.96,
+      "quote_volume_days_in_window": 714,
+      "rank": 9,
+      "rc_futures_first_bar": "2024-01-18",
+      "rc_futures_has_funding_csv": false,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "WLDUSDT": {
+      "in_xs_v1": false,
+      "median_quote_volume_2024_2025": 229056623.18,
+      "quote_volume_days_in_window": 731,
+      "rank": 16,
+      "rc_futures_first_bar": "2023-07-24",
+      "rc_futures_has_funding_csv": false,
+      "rc_futures_last_bar": "2025-12-31"
+    },
+    "XRPUSDT": {
+      "in_xs_v1": true,
+      "median_quote_volume_2024_2025": 1134325420.62,
+      "quote_volume_days_in_window": 731,
+      "rank": 4,
+      "rc_futures_first_bar": "2021-01-01",
+      "rc_futures_has_funding_csv": true,
+      "rc_futures_last_bar": "2025-12-31"
+    }
+  },
+  "schema_version": "nanojev-live-universe-v2",
+  "selection_criteria": {
+    "filters": [
+      "mega-cohort member (>=200 daily bars, build_perp_pit_mega_v1 inclusion floor)",
+      "listed=True proxy: series reaches the archive tail (within 31d of 2025-12-31) so a 2026+ refresh path is plausible",
+      "no stablecoin/fiat/peg pairs present in the ranked window (checked: no USDC/FDUSD/EUR/PAXG-style bases in top-30)",
+      "all 10 existing xs_v1 symbols rank inside the top-30 and are retained by construction"
+    ],
+    "note": "median (not mean) quote volume to resist single-day spike distortion; 12 of the 20 new symbols have no rc_futures funding.csv so pre-2026 funding features are null for them (funding comes from the fetched xs2 tail only).",
+    "rule": "top-30 by MEDIAN daily quote_volume over calendar days 2024-01-01..2025-12-31",
+    "source": "data/perp_pit_mega_v1 / data/rc_futures_v1 (277-symbol mega cohort, archive through 2025-12-31)"
+  },
+  "symbols": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "SOLUSDT",
+    "XRPUSDT",
+    "DOGEUSDT",
+    "PEPEUSDT",
+    "SUIUSDT",
+    "BNBUSDT",
+    "WIFUSDT",
+    "FARTCOINUSDT",
+    "ADAUSDT",
+    "ENAUSDT",
+    "TRUMPUSDT",
+    "AVAXUSDT",
+    "LINKUSDT",
+    "WLDUSDT",
+    "LTCUSDT",
+    "ORDIUSDT",
+    "BCHUSDT",
+    "AAVEUSDT",
+    "NEARUSDT",
+    "PENGUUSDT",
+    "FILUSDT",
+    "SHIBUSDT",
+    "DOTUSDT",
+    "BONKUSDT",
+    "TIAUSDT",
+    "ARBUSDT",
+    "NEIROUSDT",
+    "ONDOUSDT"
+  ],
+  "symbols_count": 30,
+  "task": "T129: expand the live ledger universe from 10 to ~30 assets",
+  "venue_aliases": {
+    "map": {
+      "BONKUSDT": "1000BONKUSDT",
+      "PEPEUSDT": "1000PEPEUSDT",
+      "SHIBUSDT": "1000SHIBUSDT"
+    },
+    "note": "verified 2026-09-24 against data.binance.vision: these symbols' 2026 monthly/daily zips only exist under the 1000- tickers; rc_futures csvs are already denominated in the same per-1000 units, so merged series are contiguous (checked at the 2025-12-31 -> 2026-01 seam). Records keep canonical names."
+  },
+  "xs_v1_symbols_retained": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "SOLUSDT",
+    "BNBUSDT",
+    "XRPUSDT",
+    "ADAUSDT",
+    "DOGEUSDT",
+    "LINKUSDT",
+    "LTCUSDT",
+    "DOTUSDT"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+ "schema_version": "nanojev-financial-signal-funding-timing-protocol-v1",
+ "created_utc": "2026-09-24T00:00:00Z",
+ "purpose": "T86 funding-timing measurement on the hourly PIT pilot cohort: does distance to the next 8h funding settlement, signed settled funding, post-settlement position, or hourly-scale funding extremity predict the 4h forward mark return. Measurement only — no fitting, no trading, no profitability claims.",
+ "cohort": {
+  "path": "data/perp_pit_intraday_v1/records.jsonl",
+  "records": 716,
+  "asset": "BTCUSDT-PERP",
+  "span_utc": "2026-08-02T00:59:59.999 .. 2026-08-31T19:59:59.999",
+  "label": "label.forward_return_bps (perp_forward_mark_return_up_25bps_4h_gross; numeric bps present on all 716 records)"
+ },
+ "arms": {
+  "A1_distance_buckets": "ns_until_next_funding_settlement bucketed {0-2h,2-4h,4-6h,6-8h} via floor(dist_h/2); mean/median fwd bps per bucket",
+  "A2_signed_funding_x_distance": "within each distance bucket, last_funding_rate >0 vs <0 (settled-positive vs settled-negative; longs-paying-crowd hypothesis)",
+  "A3_post_settlement": "decision_ms mod 28800000 < 7200000 (first two hourly bars after each settlement) vs all others",
+  "A4_funding_extreme": "trailing-90-record mid-rank pct of last_funding_rate; top quintile (pct>=0.80) vs bottom quintile (pct<=0.20)"
+ },
+ "contrast_family": [
+  "A1_dist_0-2h_vs_rest",
+  "A1_dist_6-8h_vs_rest",
+  "A2_0-2h_pos_vs_neg",
+  "A2_2-4h_pos_vs_neg",
+  "A2_4-6h_pos_vs_neg",
+  "A2_6-8h_pos_vs_neg",
+  "A3_post_0-2h_vs_rest",
+  "A4_top_vs_bottom_quintile"
+ ],
+ "statistics": {
+  "test": "Welch two-sample t, normal-approx two-sided p (same convention as financial_signal_regime_v1); min n=10 per side",
+  "multiple_testing": "BH-FDR alpha=0.05 over evaluated contrasts (<=8)",
+  "reported_per_arm": ["n", "mean_fwd_bps", "median_fwd_bps", "t", "p", "approx_mde80_bps"],
+  "caveats": [
+   "4h forward labels on 1h bars overlap ~4x -> positive autocorrelation; Welch t nominal, p-values optimistic",
+   "pilot n=716 low-power: approx 80%-power MDE ~20-25bps; nulls may be underpowered",
+   "A1 6-8h bucket and A3 post-settlement group are the same bars by construction (mod-4h-grid equivalence)"
+  ]
+ },
+ "forbidden": [
+  "fitting",
+  "trading",
+  "profitability claims",
+  "protocol edits post-run"
+ ]
+}

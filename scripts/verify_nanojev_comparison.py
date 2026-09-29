@@ -176,7 +176,10 @@ def check_jev_answer(answer, public, api_context):
     if identifier not in api_context['successes'] or identifier not in api_context['embedded_by_id']:
         raise ValueError('Jev action cannot be traced to this comparison ledger and its embedded successful call')
     receipt = api_context['successes'][identifier]
-    expected_input = {'model': 'typesafe-ai/jev', 'state': public['state'], 'questions': public['questions']}
+    expected_model = receipt['input'].get('model')
+    if expected_model not in {'typesafe-ai/jev', 'jev-latest'}:
+        raise ValueError('Jev source call has an unexpected model label')
+    expected_input = {'model': expected_model, 'state': public['state'], 'questions': public['questions']}
     if receipt['input'] != expected_input or receipt['input_sha256'] != js_digest(expected_input) or answer['source_input_sha256'] != receipt['input_sha256']:
         raise ValueError('Jev source call is for a different state/question/candidate input')
     native = answer['native_probabilities']

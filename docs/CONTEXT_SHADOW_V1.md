@@ -31,7 +31,22 @@ Sidecar metadata is supplied separately by the integration, never parsed from pr
 
 In this example, if message 2 is a protected user request, message 1 is retained as a dependency even if eligible. `pinned`, `cited`, `safety`, `credential`, `dependency`, and `exact_text` are trusted protection flags and override eligibility. A top-level `bypass: true` preserves exact-text/legal or otherwise unsupported workflows without scoring. Integrations are responsible for supplying these flags and dependencies; the model is not an authority for discovering which constraints may be discarded.
 
-The scorer receives all parsed context, not a silently truncated approximation. One Boolean question per candidate asks whether it is certainly irrelevant. A fixed provisional threshold of 0.99 is **not** a calibration claim. Any intermediate-confidence candidate makes the entire hypothetical removal plan retain all segments. Required dependencies are closed transitively before and after scoring, including cycles. Missing/malformed/nonfinite/partial results and scorer exceptions also retain everything.
+The scorer receives all parsed context, not a silently truncated approximation. One Boolean question per candidate asks whether it is certainly irrelevant. A fixed provisional threshold of 0.99 is **not** a calibration claim. Any intermediate-confidence candidate makes the entire hypothetical removal plan retain all segments. Required dependencies are closed transitively before and after scoring, including cycles.
+
+**T8 update (2026-09-20):** `MAX_SCORED=32` is now a **per-batch** cap. Candidates are
+scored sequentially in original order, with full original context in every batch. The
+128-segment / 128,000-byte request bounds remain. Missing/malformed/nonfinite/partial
+results or scorer exceptions retain the **entire affected batch**, never its valid subset;
+dependencies of those retained candidates are protected across all batches. Uncertainty
+or inconsistent checkpoint metadata still retains the **whole request**. Single-batch
+semantic behavior is unchanged. See [T8 verification](T8_BATCH_SCORING_V1.md).
+
+Receipts retain `nanojev-context-shadow-v1` and add `batching_policy:
+nanojev-context-batch-v1`, `batches` (index, total count, size, fixed status/reason,
+fingerprint, sanitized usage UUID), and `scorer_event_ids`. Existing readers must ignore
+unknown fields. Single-batch calls keep the old `scorer_event_id`; multi-batch readers use
+the list. `partial_batch_fallback` means usable batches remain; `all_batches_failed`
+means none did. No content or raw exception text is added.
 
 ## Local invocation and logs
 
@@ -44,6 +59,10 @@ The scorer receives all parsed context, not a silently truncated approximation. 
 The CLI analyzes a caller-supplied local file and writes receipts only. It is not an HTTP forwarding proxy. Embedders call `shadow_request(...)` and use its unchanged byte result for their normal provider request. No SDK or live provider integration has been installed globally by this milestone.
 
 Successful inference uses the existing `nanojev-usage-v1` helper for counts, probabilities, timing, and checkpoint configuration identity. The shadow receipt links to that decision event for later feedback. Raw-debug payload logging is forcibly omitted for this integration even if the debug environment setting is enabled. Scorer failures remain visible in the shadow receipt without copying exception messages containing possible private text.
+
+Each successful HTTP batch has its own usage event. Batching does not raise the service's
+32-state or model's 2048-token path limit; overlong paths are refused, never truncated.
+There is no prefix sharing, token-saving claim, or cancellation of timed-out model work.
 
 Receipts contain fixed JSON pointers, segment/request hashes, fixed reason codes, probability values, and policy identity, not raw content. Hashes enable verification against an original retained by the caller; they cannot reconstruct it alone and are not encryption or a guarantee against dictionary attacks. Use local access controls for logs. Configured checkpoint identity is not server weight attestation. Exact token billing is unavailable: optional token counts describe isolated segment text using a declared tokenizer, not cached/prompt/API billing or savings.
 

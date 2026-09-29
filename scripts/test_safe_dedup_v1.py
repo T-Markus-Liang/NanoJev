@@ -140,8 +140,10 @@ NEAR_MISSES = body([
 def _scorer(payload, value=0.999):
     """Deterministic test stub standing in for a model. Never a model call."""
     return {"checkpoint": {"stub": "safe-dedup-test"}, "states": [
-        {"id": state["id"], "answers": {"irrelevant": {
-            "type": "boolean", "probabilities": {"false": 1 - value, "true": value}}}}
+        {"id": state["id"], "answers": {
+            name: {"type": "boolean",
+                   "probabilities": {"false": 1 - value, "true": value}}
+            for name in (state.get("questions") or {})}}
         for state in payload["states"]]}
 
 

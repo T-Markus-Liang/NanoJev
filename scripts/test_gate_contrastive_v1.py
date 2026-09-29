@@ -98,21 +98,29 @@ def stub_scorer(records, entity, fields, wire_format):
     def score(payload):
         states = []
         for state in payload["states"]:
-            pointer = json.loads(state["state"])["candidate_pointer"]
-            index = pointer_index(pointer, wire_format)
+            pointers = json.loads(state["state"])["candidate_pointers"]
             reference = oracle_answer(records, entity, fields)
-            dropped = oracle_answer(records[:index] + records[index + 1:], entity, fields)
-            probability = 1.0 if reference == dropped else 0.0
-            states.append({"id": state["id"], "answers": {"irrelevant": {"type": "boolean",
-                          "probabilities": {"false": 1.0 - probability, "true": probability}}}})
+            answers = {}
+            for index, pointer in enumerate(pointers):
+                rindex = pointer_index(pointer, wire_format)
+                dropped = oracle_answer(records[:rindex] + records[rindex + 1:], entity, fields)
+                probability = 1.0 if reference == dropped else 0.0
+                answers[f"irrelevant_{index}"] = {"type": "boolean",
+                    "probabilities": {"false": 1.0 - probability, "true": probability}}
+            states.append({"id": state["id"], "answers": answers})
         return {"checkpoint": dict(ALL_IRRELEVANT_STUB), "states": states}
     return score
 
 
 def all_irrelevant_scorer(payload):
-    return {"checkpoint": dict(ALL_IRRELEVANT_STUB), "states": [
-        {"id": state["id"], "answers": {"irrelevant": {"type": "boolean",
-         "probabilities": {"false": 0.0, "true": 1.0}}}} for state in payload["states"]]}
+    states = []
+    for state in payload["states"]:
+        pointers = json.loads(state["state"])["candidate_pointers"]
+        states.append({"id": state["id"], "answers": {
+            f"irrelevant_{i}": {"type": "boolean",
+                "probabilities": {"false": 0.0, "true": 1.0}}
+            for i in range(len(pointers))}})
+    return {"checkpoint": dict(ALL_IRRELEVANT_STUB), "states": states}
 
 
 class GateContrastiveBuilderTest(unittest.TestCase):

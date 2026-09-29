@@ -118,6 +118,9 @@ re-confirm anything.
    written permission from Aster; obtain and use an authenticated API key under whatever terms
    accompany it; stop using Aster data; or record the risk as accepted. Only the first two
    would close the gap rather than leave it open.
+   **Owner decision 2026-09-20 (W32-B): option 3 — stop using Aster data.** No permission is
+   requested, no risk is recorded as accepted, and the draft request stays unsent. Existing Aster
+   receipts remain a historical appendix; no new experiment may consume Aster data.
 3. **Bybit and Hyperliquid are unknowns, not clearances.** No clause was read, so nothing is
    established in either direction.
 4. **Live execution is a separate question from data rights** and is blocked for Binance by
@@ -132,3 +135,50 @@ curl -s --proxy "$P" -L https://docs.asterdex.com/resources/terms-and-conditions
 curl -s --proxy "$P" -A "$UA" -L https://www.bybit.com/en/legal/terms-of-service -o /tmp/bybit_terms.html
 curl -s --proxy "$P" -L https://docs.asterdex.com/llms.txt
 ```
+
+## TypeSafe AI / Jev 输出条款核对（2026-09-20，追加）
+
+**来源**：TypeSafe Master Customer Agreement `typesafe.ai/legal/mca`（2026-09-19 更新版，已读原文）；
+Vercel AI Gateway 条款 `vercel.com/legal/ai-product-terms` §8(a) 明确把第三方模型 provider 的
+条款并入适用（"must comply with the terms of any applicable third-party AI provider"），即
+TypeSafe 条款经由 gateway 路径生效。
+
+**MCA §2.3(b) 原文要点**（License Restrictions）：Customer 不得
+> "use the Services or any Output to perform **model distillation**, **train a model to imitate
+> the output of the Services**, or **develop (or to facilitate the development of) a similar or
+> competing product or service**"
+
+**对本项目的裁定**：
+
+1. **Jev-as-teacher / 蒸馏路径：契约层面明确禁止。** J 系列 J-T 中"以 Jev 输出构造训练数据"
+   的选项撤销，不得出现在任何未来方案中。
+2. **"similar or competing product" 条款影响面更广**：NanoJev 是对标 Jev 的同类产品；
+   严格解读下，*用 Jev API 测量结果来指导 NanoJev 改进*（J 系列的 J-M delta 复测）落在
+   "facilitate the development of a competing product" 的禁止范围内。这是 owner 需要决定的
+   风险边界——建议咨询法律意见或向 TypeSafe 书面确认"研究性对比测量"是否被允许。
+   在澄清前，J 系列的 J-M 复测应视为**受限制项**，已完成的对比收据作为一次性测量保留。
+3. **公开仓清理（2026-09-21）**：含 Jev 性能数字的结果、媒体、私有比较站点和工作日志
+   已从当前 Git 跟踪集合中摘除并由 `.gitignore` 阻止重新加入；本地文件保留作私有证据。
+   README 与公开 roadmap 已改为 NanoJev-only 指标。历史提交仍可能含旧产物；本轮未做
+   git history 重写，也未 commit 或 push。
+4. **NanoJev 自身方向不受影响**：用*自有*语料/程序化标签训练 NanoJev 完全合法，
+   只是不能借 Jev 的输出或"以超越 Jev 为优化目标的迭代测量"来开发它。
+
+### Owner 裁定（2026-09-20）：Jev 使用边界
+
+owner 决定不向 TypeSafe 发书面确认，采纳开源社区惯例并收紧公开面：
+
+1. **红线（绝对）**：任何渠道获得的 Jev 输出（答案/概率/分布）**永久不得进入训练数据**，
+   无论是直接调用还是经第三方转手——条款看数据本质不看获取渠道。
+2. **允许（私下）**：本地继续用 `typesafe-ai/jev` 做对比测量与评测（与 kev、Laya 等开源
+   复刻项目的实际做法一致，且我们不公开发布 Jev 数字，比社区惯例更保守）。
+3. **允许（公开）**：对比用例/评测集可用第三方公开 benchmark（如 kev 使用的 QNLI、SciQ、
+   PAWS 等公开 gold-label 集）——题目本身不是 Jev 输出，无限制。
+4. **公开面纪律**：对外文档与公开仓**只发布 NanoJev 自有数据**，不发布 Jev 对比数字；
+   已有 Jev 收据保留在 ignored 本地路径作内部证据。任何提交前必须用 `git check-ignore`
+   和 tracked-file 扫描复核；历史重写仍未授权。
+
+**社区事实记录**（2026-09-20 web 核对）：kev（jaredpalmer，HF）声明 "No Jev outputs were
+used for training" 且公开发布 Jev 对比分数；open-jev（kotoba-lang）声明 "uses none of their
+data or code"；Laya（ConvAI Innovations，Apache-2.0）主张在先技术并公开对比。TypeSafe 未对
+任何开源复刻项目采取公开行动。本裁定比社区惯例更保守（不公开发 Jev 数字）。

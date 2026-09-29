@@ -1,0 +1,925 @@
+{
+  "schema_version": "nanojev-context-filter-value-fixture-manifest-v3",
+  "status": "synthetic_shadow_only_v3_heldout",
+  "purpose": "Held-out synthetic replay cohort for context filtering. Cases are new and do not reuse V2 development examples.",
+  "seed": 20260924,
+  "base_manifest": {
+    "path": "research/context_filter_value_fixture_manifest_v2.json",
+    "sha256": "b4a4a11852fefd3cfe9f7725966c0167ba1cb343ae5d607b61cd52c5109eed69"
+  },
+  "provenance": {
+    "source": "self_authored_synthetic_conversation",
+    "license": "CC0-1.0",
+    "contains_real_user_data": false,
+    "contains_real_credentials": false,
+    "contains_real_tool_output": false,
+    "contains_benchmark_rows": false,
+    "contains_provider_outputs": false,
+    "development_cohort": "research/context_filter_value_fixture_manifest_v2.json",
+    "split": "heldout_replay"
+  },
+  "gate_contract": {
+    "core": "scripts/context_gate_v1.py",
+    "entrypoint": "shadow_request",
+    "active_filtering": false,
+    "applied": false,
+    "probabilities_calibrated": false,
+    "note": "expected_suggestion is a semantic fixture expectation for diagnostics, not an authorization or fitted threshold."
+  },
+  "case_count": 12,
+  "families": [
+    "heldout_clear_irrelevant",
+    "heldout_ambiguous_history",
+    "heldout_correction_dependency",
+    "heldout_tool_result_noise",
+    "heldout_mixed_message_part",
+    "heldout_multilingual",
+    "heldout_exact_duplicate",
+    "heldout_required_marked_eligible",
+    "heldout_protected_only",
+    "heldout_long_tail",
+    "heldout_pending_tool_bypass",
+    "heldout_unsupported_envelope"
+  ],
+  "cases": [
+    {
+      "case_id": "heldout_clear_archive_note",
+      "kind": "heldout_clear_irrelevant",
+      "wire_format": "openai_chat",
+      "description": "A current queue depth is required; an unrelated archive note is eligible.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Answer only from recorded values."
+          },
+          {
+            "role": "assistant",
+            "content": "The latest queue depth is 42 jobs."
+          },
+          {
+            "role": "assistant",
+            "content": "Archived note about picnic blankets, reusable bottles, and weather forecasts unrelated to queues or jobs."
+          },
+          {
+            "role": "user",
+            "content": "What is the latest queue depth?"
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {
+          "/messages/2/content": {
+            "eligible": true
+          }
+        }
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/content",
+          "role": "assistant",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "not_explicitly_eligible"
+        },
+        {
+          "pointer": "/messages/2/content",
+          "role": "assistant",
+          "expected_status": "eligible",
+          "expected_suggestion": "drop",
+          "expected_reason_code": "high_irrelevance_score"
+        },
+        {
+          "pointer": "/messages/3/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "expected_gate": {
+        "status": "scored",
+        "reason": "shadow_only",
+        "all_retain": false,
+        "segments_observed": true
+      },
+      "downstream": {
+        "required_strings": [
+          "queue depth",
+          "42"
+        ],
+        "expected_answer": "42 jobs"
+      }
+    },
+    {
+      "case_id": "heldout_ambiguous_status_history",
+      "kind": "heldout_ambiguous_history",
+      "wire_format": "openai_chat",
+      "description": "A stale warning may still explain the current state, so it should be retained.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Prefer current state but preserve conflicting evidence."
+          },
+          {
+            "role": "assistant",
+            "content": "Two days ago the scheduler reported quota exhaustion."
+          },
+          {
+            "role": "assistant",
+            "content": "The current scheduler state is running normally."
+          },
+          {
+            "role": "user",
+            "content": "What is the current scheduler state?"
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {
+          "/messages/1/content": {
+            "eligible": true
+          }
+        }
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/content",
+          "role": "assistant",
+          "expected_status": "eligible",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "model_retain"
+        },
+        {
+          "pointer": "/messages/2/content",
+          "role": "assistant",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "not_explicitly_eligible"
+        },
+        {
+          "pointer": "/messages/3/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "expected_gate": {
+        "status": "scored",
+        "reason": "shadow_only",
+        "all_retain": true,
+        "segments_observed": true
+      },
+      "downstream": {
+        "required_strings": [
+          "current scheduler",
+          "running normally"
+        ],
+        "expected_answer": "running normally"
+      }
+    },
+    {
+      "case_id": "heldout_correction_dependency",
+      "kind": "heldout_correction_dependency",
+      "wire_format": "openai_chat",
+      "description": "A stale endpoint note is dependency-linked to a later correction and must stay.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Preserve correction chains."
+          },
+          {
+            "role": "assistant",
+            "content": "Old endpoint note: metrics path was /metrics/old."
+          },
+          {
+            "role": "assistant",
+            "content": "Correction: metrics path is now /metrics/v2."
+          },
+          {
+            "role": "user",
+            "content": "Which metrics path is current?"
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {
+          "/messages/1/content": {
+            "eligible": true
+          },
+          "/messages/2/content": {
+            "depends_on": [
+              "/messages/1/content"
+            ]
+          }
+        }
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/content",
+          "role": "assistant",
+          "expected_status": "eligible",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "required_dependency"
+        },
+        {
+          "pointer": "/messages/2/content",
+          "role": "assistant",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "not_explicitly_eligible"
+        },
+        {
+          "pointer": "/messages/3/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "expected_gate": {
+        "status": "scored",
+        "reason": "shadow_only",
+        "all_retain": true,
+        "segments_observed": true
+      },
+      "downstream": {
+        "required_strings": [
+          "/metrics/old",
+          "Correction",
+          "/metrics/v2"
+        ],
+        "expected_answer": "/metrics/v2"
+      }
+    },
+    {
+      "case_id": "heldout_tool_result_noise",
+      "kind": "heldout_tool_result_noise",
+      "wire_format": "openai_chat",
+      "description": "A valid tool result is protected while a long unrelated assistant note is eligible.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Preserve tool calls and results."
+          },
+          {
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "id": "call-heldout-cache",
+                "type": "function",
+                "function": {
+                  "name": "get_queue",
+                  "arguments": "{}"
+                }
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "content": "queue=ingest; backlog=913; state=draining",
+            "tool_call_id": "call-heldout-cache"
+          },
+          {
+            "role": "assistant",
+            "content": "Long unrelated archive note about calendars, key cards, chair height, meeting snacks, label makers, drawer organizers, spare chargers, wall hooks, whiteboards, hallway signs, and cleaning schedules. It does not mention ingest, backlog, queues, or draining."
+          },
+          {
+            "role": "user",
+            "content": "What backlog did the queue tool report?"
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {
+          "/messages/3/content": {
+            "eligible": true
+          }
+        }
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/tool_calls",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/2/tool_call_id",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/2/content",
+          "role": "tool",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/3/content",
+          "role": "assistant",
+          "expected_status": "eligible",
+          "expected_suggestion": "drop",
+          "expected_reason_code": "high_irrelevance_score"
+        },
+        {
+          "pointer": "/messages/4/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "expected_gate": {
+        "status": "scored",
+        "reason": "shadow_only",
+        "all_retain": false,
+        "segments_observed": true
+      },
+      "downstream": {
+        "required_strings": [
+          "queue=ingest",
+          "backlog=913",
+          "state=draining"
+        ],
+        "expected_answer": "913"
+      }
+    },
+    {
+      "case_id": "heldout_mixed_part_drop",
+      "kind": "heldout_mixed_message_part",
+      "wire_format": "openai_chat",
+      "description": "A cited config value is protected; an unrelated text part in the same message is eligible.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Use the cited configuration."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Config source says retry_budget=4 and mode=strict.",
+                "citations": [
+                  {
+                    "id": "cfg"
+                  }
+                ]
+              },
+              {
+                "type": "text",
+                "text": "A separate old note discusses lunch orders and badge colors unrelated to configuration."
+              }
+            ]
+          },
+          {
+            "role": "user",
+            "content": "What retry budget is configured?"
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {
+          "/messages/1/content/1/text": {
+            "eligible": true
+          }
+        }
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/content/0/text",
+          "role": "assistant",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/content/0/citations",
+          "role": "control",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/content/1/text",
+          "role": "assistant",
+          "expected_status": "eligible",
+          "expected_suggestion": "drop",
+          "expected_reason_code": "high_irrelevance_score"
+        },
+        {
+          "pointer": "/messages/2/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "expected_gate": {
+        "status": "scored",
+        "reason": "shadow_only",
+        "all_retain": false,
+        "segments_observed": true
+      },
+      "downstream": {
+        "required_strings": [
+          "retry_budget=4",
+          "mode=strict"
+        ],
+        "expected_answer": "4"
+      }
+    },
+    {
+      "case_id": "heldout_spanish_clear_irrelevant",
+      "kind": "heldout_multilingual",
+      "wire_format": "openai_chat",
+      "description": "A Spanish user asks for a recorded deadline; unrelated English archive text is eligible.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Responde solo con los valores registrados."
+          },
+          {
+            "role": "assistant",
+            "content": "La fecha límite registrada es 2026-10-15."
+          },
+          {
+            "role": "assistant",
+            "content": "Archived note about team jerseys, picnic chairs, and office snacks unrelated to deadlines."
+          },
+          {
+            "role": "user",
+            "content": "¿Cuál es la fecha límite registrada?"
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {
+          "/messages/2/content": {
+            "eligible": true
+          }
+        }
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/content",
+          "role": "assistant",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "not_explicitly_eligible"
+        },
+        {
+          "pointer": "/messages/2/content",
+          "role": "assistant",
+          "expected_status": "eligible",
+          "expected_suggestion": "drop",
+          "expected_reason_code": "high_irrelevance_score"
+        },
+        {
+          "pointer": "/messages/3/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "expected_gate": {
+        "status": "scored",
+        "reason": "shadow_only",
+        "all_retain": false,
+        "segments_observed": true
+      },
+      "downstream": {
+        "required_strings": [
+          "2026-10-15"
+        ],
+        "expected_answer": "2026-10-15"
+      }
+    },
+    {
+      "case_id": "heldout_exact_duplicate",
+      "kind": "heldout_exact_duplicate",
+      "wire_format": "openai_chat",
+      "description": "The later duplicate copy is eligible while the first copy remains protected.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Preserve unique evidence."
+          },
+          {
+            "role": "assistant",
+            "content": "The backup window is Sunday 03:00 UTC."
+          },
+          {
+            "role": "assistant",
+            "content": "The backup window is Sunday 03:00 UTC."
+          },
+          {
+            "role": "user",
+            "content": "When is the backup window?"
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {
+          "/messages/2/content": {
+            "eligible": true
+          }
+        }
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/content",
+          "role": "assistant",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "not_explicitly_eligible"
+        },
+        {
+          "pointer": "/messages/2/content",
+          "role": "assistant",
+          "expected_status": "eligible",
+          "expected_suggestion": "drop",
+          "expected_reason_code": "exact_duplicate"
+        },
+        {
+          "pointer": "/messages/3/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "expected_gate": {
+        "status": "scored",
+        "reason": "shadow_only",
+        "all_retain": false,
+        "segments_observed": true
+      },
+      "downstream": {
+        "required_strings": [
+          "Sunday",
+          "03:00 UTC"
+        ],
+        "expected_answer": "Sunday 03:00 UTC"
+      }
+    },
+    {
+      "case_id": "heldout_required_marked_eligible",
+      "kind": "heldout_required_marked_eligible",
+      "wire_format": "openai_chat",
+      "description": "A required value is marked eligible in the sidecar, but expected behavior is retain.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Preserve required values even when marked eligible."
+          },
+          {
+            "role": "assistant",
+            "content": "Release freeze starts at 2026-10-01T18:00Z."
+          },
+          {
+            "role": "user",
+            "content": "When does the release freeze start?"
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {
+          "/messages/1/content": {
+            "eligible": true
+          }
+        }
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/content",
+          "role": "assistant",
+          "expected_status": "eligible",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "model_retain"
+        },
+        {
+          "pointer": "/messages/2/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "expected_gate": {
+        "status": "scored",
+        "reason": "shadow_only",
+        "all_retain": true,
+        "segments_observed": true
+      },
+      "downstream": {
+        "required_strings": [
+          "2026-10-01T18:00Z"
+        ],
+        "expected_answer": "2026-10-01T18:00Z"
+      }
+    },
+    {
+      "case_id": "heldout_zero_drop_protected",
+      "kind": "heldout_protected_only",
+      "wire_format": "openai_chat",
+      "description": "A request with only protected segments must remain unchanged even at diagnostic thresholds.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Preserve all evidence."
+          },
+          {
+            "role": "assistant",
+            "content": "The approved namespace is nanojev-shadow."
+          },
+          {
+            "role": "user",
+            "content": "Which namespace is approved?"
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {}
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/content",
+          "role": "assistant",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "not_explicitly_eligible"
+        },
+        {
+          "pointer": "/messages/2/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "expected_gate": {
+        "status": "scored",
+        "reason": "shadow_only",
+        "all_retain": true,
+        "segments_observed": true
+      },
+      "downstream": {
+        "required_strings": [
+          "nanojev-shadow"
+        ],
+        "expected_answer": "nanojev-shadow"
+      }
+    },
+    {
+      "case_id": "heldout_long_tail_after_answer",
+      "kind": "heldout_long_tail",
+      "wire_format": "openai_chat",
+      "description": "A long unrelated tail follows the evidence and should be removable.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Use only the recorded value."
+          },
+          {
+            "role": "assistant",
+            "content": "The incident report says error_rate=2.4% and window=5m."
+          },
+          {
+            "role": "assistant",
+            "content": "Unrelated long tail about desk plants, cable ties, sticky labels, lamp stands, hall passes, shelf labels, charger bricks, whiteboard pens, floor mats, visitor stickers, spare keyboards, window blinds, and cleaning carts. It never mentions error rate or the five minute window."
+          },
+          {
+            "role": "user",
+            "content": "What error rate was reported?"
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {
+          "/messages/2/content": {
+            "eligible": true
+          }
+        }
+      },
+      "segments": [
+        {
+          "pointer": "/messages/0/content",
+          "role": "system",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        },
+        {
+          "pointer": "/messages/1/content",
+          "role": "assistant",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "not_explicitly_eligible"
+        },
+        {
+          "pointer": "/messages/2/content",
+          "role": "assistant",
+          "expected_status": "eligible",
+          "expected_suggestion": "drop",
+          "expected_reason_code": "high_irrelevance_score"
+        },
+        {
+          "pointer": "/messages/3/content",
+          "role": "user",
+          "expected_status": "protected",
+          "expected_suggestion": "retain",
+          "expected_reason_code": "protected_structure"
+        }
+      ],
+      "expected_gate": {
+        "status": "scored",
+        "reason": "shadow_only",
+        "all_retain": false,
+        "segments_observed": true
+      },
+      "downstream": {
+        "required_strings": [
+          "error_rate=2.4%",
+          "window=5m"
+        ],
+        "expected_answer": "2.4%"
+      }
+    },
+    {
+      "case_id": "heldout_pending_tool_bypass",
+      "kind": "heldout_pending_tool_bypass",
+      "wire_format": "openai_chat",
+      "description": "A tool call without a result remains unresolved and must bypass.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Preserve unresolved tool linkage."
+          },
+          {
+            "role": "assistant",
+            "tool_calls": [
+              {
+                "id": "call-heldout-pending",
+                "type": "function",
+                "function": {
+                  "name": "fetch_report",
+                  "arguments": "{}"
+                }
+              }
+            ]
+          },
+          {
+            "role": "user",
+            "content": "What did fetch_report return?"
+          }
+        ]
+      },
+      "sidecar": {
+        "segments": {}
+      },
+      "segments": [],
+      "expected_gate": {
+        "status": "bypass",
+        "reason": "unresolved_tool_link",
+        "all_retain": true,
+        "segments_observed": false
+      },
+      "downstream": {
+        "required_strings": [
+          "call-heldout-pending",
+          "fetch_report"
+        ],
+        "expected_answer": "unknown"
+      }
+    },
+    {
+      "case_id": "heldout_unknown_envelope_bypass",
+      "kind": "heldout_unsupported_envelope",
+      "wire_format": "openai_chat",
+      "description": "An unknown envelope extension must bypass rather than be reduced.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Preserve unknown request fields."
+          },
+          {
+            "role": "user",
+            "content": "Use the vendor extension if present."
+          }
+        ],
+        "vendor_extension_blob": "synthetic"
+      },
+      "sidecar": {
+        "segments": {}
+      },
+      "segments": [],
+      "expected_gate": {
+        "status": "bypass",
+        "reason": "unsupported_envelope_fields",
+        "all_retain": true,
+        "segments_observed": false
+      },
+      "downstream": {
+        "required_strings": [
+          "vendor_extension_blob",
+          "synthetic"
+        ],
+        "expected_answer": "unsupported"
+      }
+    }
+  ]
+}

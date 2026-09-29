@@ -18,9 +18,12 @@ class ContextRelevanceDatasetTest(unittest.TestCase):
         for family in FAMILIES:
             for kind in KINDS:
                 row = make_record(family, (100, 200, 300, 50), kind, "train", WIRES[0], random.Random(17))
-                self.assertEqual(row["gold"]["irrelevant"], kind in KINDS[4:])
+                self.assertEqual(row["gold"]["irrelevant_0"], kind in KINDS[4:])
                 parsed = json.loads(row["state"])
-                self.assertEqual(set(parsed), {"conversation", "candidate_pointer", "user_messages_in_order"})
+                self.assertEqual(set(parsed), {"conversation", "candidate_pointers",
+                                               "user_messages_in_order",
+                                               "current_user_request",
+                                               "earlier_user_messages"})
                 self.assertNotIn(kind, row["state"])
                 self.assertNotIn("train", row["state"])
 
@@ -51,7 +54,7 @@ class ContextRelevanceDatasetTest(unittest.TestCase):
         row = self.record()
         with self.assertRaisesRegex(ValueError, "duplicate"):
             validate_cohort([row, deepcopy(row)])
-        row["gold"]["irrelevant"] = True
+        row["gold"]["irrelevant_0"] = True
         with self.assertRaisesRegex(ValueError, "oracle"):
             validate_cohort([row])
 

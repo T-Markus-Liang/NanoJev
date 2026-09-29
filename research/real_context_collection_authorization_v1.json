@@ -1,0 +1,97 @@
+{
+  "schema_version": "nanojev-real-context-collection-authorization-v1",
+  "artifact_id": "real_context_collection_authorization_v1",
+  "status": "template_ready_not_authorized",
+  "created_at": "2026-09-23",
+  "collection": {
+    "authorized": false,
+    "authorized_by": null,
+    "authorized_at": null,
+    "scope": null,
+    "expires_at": null,
+    "max_cases": 50,
+    "data_root": "data/real_context_holdout_v1"
+  },
+  "preconditions": {
+    "protocol": "research/real_context_holdout_protocol_v1.json",
+    "protocol_must_be_valid": true,
+    "manifest_builder": "scripts/real_context_holdout_manifest_v1.py",
+    "shadow_evaluator": "scripts/run_real_context_holdout_shadow_v1.py",
+    "localgen_evaluator": "scripts/run_real_context_holdout_localgen_v1.py",
+    "e2e_runner": "scripts/run_real_context_holdout_preflight_v1.py",
+    "raw_root_must_be_gitignored": true,
+    "credential_scan_must_pass": true,
+    "labels_must_be_manual": true,
+    "v2_v3_isolation_required": true,
+    "provider_calls_allowed": false,
+    "active_filtering_allowed": false
+  },
+  "operator_checklist": [
+    {
+      "id": "scope_named",
+      "required": true,
+      "completed": false,
+      "description": "Owner names the allowed source scope, case budget, and expiry."
+    },
+    {
+      "id": "sources_reviewed",
+      "required": true,
+      "completed": false,
+      "description": "Each source is one of the protocol's allowed owner-selected types and contains no benchmark rows or provider outputs as labels."
+    },
+    {
+      "id": "privacy_reviewed",
+      "required": true,
+      "completed": false,
+      "description": "Credentials, secrets, personal identifiers, and unredactable sensitive content are excluded or redacted before intake."
+    },
+    {
+      "id": "labels_prepared",
+      "required": true,
+      "completed": false,
+      "description": "Protected pointers, required evidence, downstream contract, and expected gate status are manually labeled before evaluation."
+    },
+    {
+      "id": "manifest_built",
+      "required": true,
+      "completed": false,
+      "description": "Content-free manifest is built and validated without copying raw requests."
+    },
+    {
+      "id": "preflight_passed",
+      "required": true,
+      "completed": false,
+      "description": "E2E preflight passes with provider_calls=0 and active_filtering_applied=false."
+    },
+    {
+      "id": "rollback_ready",
+      "required": true,
+      "completed": false,
+      "description": "Owner can stop collection, delete local-only holdout files, and keep repository state unchanged."
+    }
+  ],
+  "forbidden_during_collection": [
+    "provider calls",
+    "active filtering",
+    "remote scorer calls",
+    "copying raw requests outside data/real_context_holdout_v1",
+    "committing raw context or contract files",
+    "using scorer outputs as labels",
+    "using holdout data for training or calibration"
+  ],
+  "stop_conditions": [
+    "credential-like pattern is detected",
+    "raw context appears outside the ignored data root",
+    "case provenance is unclear",
+    "protected pointers cannot be labeled confidently",
+    "manifest or E2E preflight fails",
+    "owner revokes scope or requests stop"
+  ],
+  "required_owner_fields_before_collection": [
+    "collection.authorized=true",
+    "collection.authorized_by",
+    "collection.authorized_at",
+    "collection.scope",
+    "collection.expires_at"
+  ]
+}

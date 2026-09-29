@@ -21,7 +21,8 @@ import pathlib
 import urllib.error
 import urllib.request
 
-BASE = "https://data.binance.vision/data/futures/um/monthly"
+MONTHLY_BASE = "https://data.binance.vision/data/futures/um/monthly"
+DAILY_BASE = "https://data.binance.vision/data/futures/um/daily"
 SOURCE_TERMS = "https://data.binance.vision/Binance_Vision-Terms_of_Use.pdf"
 DEFAULT_SYMBOLS = ("BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "XRPUSDT")
 KINDS = {
@@ -29,11 +30,16 @@ KINDS = {
     "markPriceKlines": "{sym}/1d/{sym}-1d-{month}.zip",
     "indexPriceKlines": "{sym}/1d/{sym}-1d-{month}.zip",
     "fundingRate": "{sym}/{sym}-fundingRate-{month}.zip",
+    # Metrics are daily files, despite the 5-minute rows inside each file.  The
+    # date placeholder is supplied as YYYY-MM-DD; monthly kinds use YYYY-MM.
+    "metrics": "{sym}/{sym}-metrics-{date}.zip",
 }
 
 
-def url_for(kind, symbol, month):
-    return f"{BASE}/{kind}/{KINDS[kind].format(sym=symbol, month=month)}"
+def url_for(kind, symbol, date_value):
+    if kind == "metrics":
+        return f"{DAILY_BASE}/{kind}/{KINDS[kind].format(sym=symbol, date=date_value)}"
+    return f"{MONTHLY_BASE}/{kind}/{KINDS[kind].format(sym=symbol, month=date_value)}"
 
 
 def months(first, last):
@@ -44,6 +50,15 @@ def months(first, last):
         month += 1
         if month == 13:
             year, month = year + 1, 1
+
+
+def days(first, last):
+    import datetime as dt
+    cursor = dt.date(*first)
+    end = dt.date(*last)
+    while cursor <= end:
+        yield cursor.isoformat()
+        cursor += dt.timedelta(days=1)
 
 
 def fetch(url, timeout=60):
@@ -59,6 +74,10 @@ def main():
     parser.add_argument("--symbols", default=",".join(DEFAULT_SYMBOLS))
     parser.add_argument("--first-month", default="2023-01")
     parser.add_argument("--last-month", default="2026-08")
+    parser.add_argument("--first-day", default=None,
+                        help="first UTC day for daily metrics (YYYY-MM-DD)")
+    parser.add_argument("--last-day", default=None,
+                        help="last UTC day for daily metrics (YYYY-MM-DD)")
     parser.add_argument("--kinds", default=",".join(KINDS))
     args = parser.parse_args()
 
@@ -69,12 +88,15 @@ def main():
             raise SystemExit(f"unknown kind: {kind}")
     first = tuple(int(x) for x in args.first_month.split("-"))
     last = tuple(int(x) for x in args.last_month.split("-"))
+    metric_first = tuple(int(x) for x in (args.first_day or f"{args.first_month}-01").split("-"))
+    metric_last = tuple(int(x) for x in (args.last_day or f"{args.last_month}-28").split("-"))
 
     entries, missing, downloaded, cached = [], [], 0, 0
     for kind in kinds:
         for symbol in symbols:
-            for month in months(first, last):
-                url = url_for(kind, symbol, month)
+            date_values = days(metric_first, metric_last) if kind == "metrics" else months(first, last)
+            for date_value in date_values:
+                url = url_for(kind, symbol, date_value)
                 target = args.output_dir / kind / symbol / url.rsplit("/", 1)[-1]
                 if target.exists():
                     payload = target.read_bytes()
@@ -109,6 +131,8 @@ def main():
         "kinds": kinds,
         "first_month": args.first_month,
         "last_month": args.last_month,
+        "first_day": args.first_day if "metrics" in kinds else None,
+        "last_day": args.last_day if "metrics" in kinds else None,
         "downloaded": downloaded,
         "served_from_cache": cached,
         "file_count": len(entries),

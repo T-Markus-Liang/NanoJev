@@ -11,9 +11,12 @@ Safety posture:
 * **Shadow mode is the default.** The original request bytes are forwarded unchanged and
   the upstream response is returned unmodified. The gate only records a hypothetical
   removal plan.
-* **Active mode is explicit opt-in** (``--mode active`` / ``GatewayConfig(mode="active")``)
-  and always fails open. Any gate exception, timeout, partial/malformed/nonfinite score,
-  protected segment in the removal set, or reduction error forwards the ORIGINAL bytes.
+* **Active mode is explicit opt-in** (``--mode active`` / ``GatewayConfig(mode="active")``).
+  Failed score batches are retained, including their dependencies. An uncertain
+  per-segment score retains that segment only (keeping content is the safe
+  direction); a protected segment in the removal set or a reduction/restore
+  error still forwards the ORIGINAL bytes. Production activation requires
+  separate review.
 * **Every applied reduction is reversible.** When a reduction is actually applied, the
   gateway builds a content-free restore manifest
   (:mod:`context_restore_v1`) and returns it to the caller in the
@@ -82,6 +85,11 @@ BASELINE_HEADER = "x-nanojev-baseline-provider-prompt-tokens"
 # reconstruct the original request and contains no raw prompt text: pointers, the wire
 # format, and SHA-256 hashes only. The removed segment content always stays with the caller.
 RESTORE_MANIFEST_HEADER = "x-nanojev-restore-manifest"
+# Bound the complete header line, not only its JSON value. Batch scoring can propose
+# more than 32 removals; the old candidate cap is no longer an implicit size bound.
+# This conservative 4 KiB limit is not a guarantee for every intermediary's total
+# header budget. Oversized manifests must never accompany an applied reduction.
+MAX_RESTORE_HEADER_BYTES = 4096
 KILL_SWITCH_ENV = "NANOJEV_GATEWAY_KILL_SWITCH"
 
 # Only an integration-supplied eligible assistant text segment may ever use this reason.
@@ -104,6 +112,18 @@ class ReductionError(ValueError):
     """The removal plan could not be applied safely; the gateway must fail open."""
 
 
+class RestoreHeaderTooLarge(ReductionError):
+    """The content-free restore manifest cannot fit the supported header budget."""
+
+
+def bounded_restore_header(manifest):
+    value = manifest.to_json()
+    line = f"{RESTORE_MANIFEST_HEADER}: {value}\r\n".encode("ascii")
+    if len(line) > MAX_RESTORE_HEADER_BYTES:
+        raise RestoreHeaderTooLarge("restore_manifest_header_too_large")
+    return value
+
+
 @dataclass
 class GatewayConfig:
     upstream_base_url: str
@@ -121,6 +141,8 @@ class GatewayConfig:
     threshold: float = DEFAULT_THRESHOLD
     max_body_bytes: int = 8_000_000
     max_upstream_bytes: int = 64_000_000
+    min_reduction_bytes: int = 0
+    max_scorer_payload_bytes: int | None = None
 
     def __post_init__(self):
         if self.mode not in MODES:
@@ -149,6 +171,11 @@ class GatewayConfig:
             raise ValueError("max_body_bytes must be a positive integer")
         if type(self.max_upstream_bytes) is not int or self.max_upstream_bytes <= 0:
             raise ValueError("max_upstream_bytes must be a positive integer")
+        if type(self.min_reduction_bytes) is not int or self.min_reduction_bytes < 0:
+            raise ValueError("min_reduction_bytes must be a non-negative integer")
+        if self.max_scorer_payload_bytes is not None and (
+                type(self.max_scorer_payload_bytes) is not int or self.max_scorer_payload_bytes <= 0):
+            raise ValueError("max_scorer_payload_bytes must be a positive integer or None")
 
 
 @dataclass
@@ -387,7 +414,7 @@ class ContextGateGateway:
         forwarded = raw
         proposed = []
         recorder = None
-        restore_manifest = None
+        restore_header = None
         if fail_open_reason is None:
             sidecar = self.config.sidecar
             header_sidecar = decode_sidecar(headers)
@@ -400,7 +427,8 @@ class ContextGateGateway:
             try:
                 _, gate_receipt = shadow_request(
                     raw, wire_format, sidecar, scorer, threshold=self.config.threshold,
-                    token_counter=self.config.token_counter, tokenizer_id=self.config.tokenizer_id)
+                    token_counter=self.config.token_counter, tokenizer_id=self.config.tokenizer_id,
+                    max_scorer_payload_bytes=self.config.max_scorer_payload_bytes)
             except Exception:  # noqa: BLE001 - any gate failure must fail open
                 gate_receipt = None
                 fail_open_reason = "gate_error"
@@ -433,11 +461,20 @@ class ContextGateGateway:
                                                    parse_constant=reject_nonfinite)
                         if restore_request(candidate, candidate_manifest, recovered) != canonical_bytes(original_body):
                             raise ReductionError("restore_round_trip_mismatch")
+                        candidate_header = bounded_restore_header(candidate_manifest)
+                    except RestoreHeaderTooLarge:
+                        fail_open_reason = "restore_manifest_header_too_large"
                     except Exception:  # noqa: BLE001 - malformed or irreversible reduction must fail open
                         fail_open_reason = "reduction_error"
                     else:
-                        forwarded = candidate
-                        restore_manifest = candidate_manifest
+                        # Even a fully verified reduction is skipped when it saves
+                        # less than the configured floor: tiny savings are not
+                        # worth applicator surface or a restore manifest.
+                        if len(raw) - len(candidate) < self.config.min_reduction_bytes:
+                            fail_open_reason = "below_min_reduction"
+                        else:
+                            forwarded = candidate
+                            restore_header = candidate_header
             if recorder is not None and recorder.last_failure is not None:
                 receipt["scorer_failure_kind"] = recorder.last_failure
 
@@ -471,11 +508,11 @@ class ContextGateGateway:
             usage, decode_baseline_prompt_tokens(headers))
         receipt["total_latency_ms"] = (time.perf_counter() - started) * 1000
         self._write_receipt(receipt)
-        if restore_manifest is not None:
+        if restore_header is not None:
             # Additive response metadata for the caller that retained the removed segments.
             # The manifest is content-free, and it is never sent upstream.
             reply.headers = list(reply.headers) + [
-                (RESTORE_MANIFEST_HEADER, restore_manifest.to_json())]
+                (RESTORE_MANIFEST_HEADER, restore_header)]
         return reply
 
     # -- transport --------------------------------------------------------------------
@@ -655,10 +692,22 @@ def main(argv=None):
     parser.add_argument("--score-timeout", type=float, default=5.0)
     parser.add_argument("--upstream-timeout", type=float, default=60.0)
     parser.add_argument("--receipt-log", type=Path, required=True, help="JSONL path for content-free receipts")
-    parser.add_argument("--scorer", choices=("none", "http", "laya", "inprocess"), default="none")
-    parser.add_argument("--scorer-url", default=None)
+    parser.add_argument("--scorer", choices=("none", "http", "laya", "systemone", "cascade", "inprocess"), default="none")
+    parser.add_argument("--scorer-url", default=None,
+                        help="scorer base URL; for cascade, the FAST path")
+    parser.add_argument("--scorer-strong-url", default=None,
+                        help="cascade only: strong fallback scorer base URL")
+    parser.add_argument("--scorer-strong-model", default=None,
+                        help="cascade only: model hint for the strong scorer")
+    parser.add_argument("--scorer-endpoint", default=None,
+                        help="adapter endpoint; defaults to /v1/systemone for systemone/cascade, /api/evaluate otherwise")
+    parser.add_argument("--scorer-model", default=None, help="optional scorer-side model hint")
     parser.add_argument("--estimate-tokenizer", choices=("none", "word"), default="word",
                         help="labelled local ESTIMATE only; never provider billing")
+    parser.add_argument("--min-reduction-bytes", type=int, default=0,
+                        help="skip a verified reduction when it saves fewer bytes than this floor")
+    parser.add_argument("--max-scorer-payload-bytes", type=int, default=None,
+                        help="deterministically shrink scorer state to fit this budget; unset keeps full state")
     args = parser.parse_args(argv)
     token_counter = whitespace_word_counter if args.estimate_tokenizer == "word" else None
     tokenizer_id = WHITESPACE_TOKENIZER_ID if token_counter else None
@@ -667,8 +716,14 @@ def main(argv=None):
         mode=args.mode, kill_switch=args.kill_switch or _kill_switch_from_env(),
         score_timeout=args.score_timeout, upstream_timeout=args.upstream_timeout,
         receipt_log=args.receipt_log,
-        scorer=build_scorer(args.scorer, url=args.scorer_url, timeout=args.score_timeout),
-        token_counter=token_counter, tokenizer_id=tokenizer_id)
+        scorer=build_scorer(args.scorer, url=args.scorer_url, timeout=args.score_timeout,
+                            endpoint=args.scorer_endpoint or ("/v1/systemone" if args.scorer in {"systemone", "cascade"} else "/api/evaluate"),
+                            model_id=args.scorer_model,
+                            strong_url=args.scorer_strong_url,
+                            strong_model_id=args.scorer_strong_model),
+        token_counter=token_counter, tokenizer_id=tokenizer_id,
+        min_reduction_bytes=args.min_reduction_bytes,
+        max_scorer_payload_bytes=args.max_scorer_payload_bytes)
     server = make_server(ContextGateGateway(config))
     host, port = server.server_address[0], server.server_address[1]
     print(json.dumps({"schema_version": SCHEMA_VERSION, "listen": f"http://{host}:{port}",

@@ -1,0 +1,15 @@
+{
+  "expected_actions": {
+    "drop_prod": "block",
+    "read_config": "allow",
+    "send_vendor": "block",
+    "rotate_secret": "confirm",
+    "archive_logs": "allow",
+    "push_main": "block",
+    "email_report": "allow",
+    "global_install": "block",
+    "refund": "allow",
+    "delete_branch": "block"
+  },
+  "label_source": "Original author intended actions; no per-signal truth labels"
+}

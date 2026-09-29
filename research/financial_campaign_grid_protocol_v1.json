@@ -1,0 +1,77 @@
+{
+  "analysis": [
+    "median equity across grid vs BTC hold",
+    "fraction of cells beating BTC hold",
+    "Spearman rank corr per perturbed param vs final equity (monotone ordinal encodings) + encoding-free per-level medians",
+    "best/worst cells",
+    "DEFAULT cell rank \u2014 top decile = overfit flag, middle = robust",
+    "leave-one-year-out table for the default cell (excl-2021 = post-mania number)"
+  ],
+  "caveats": [
+    "in-sample perturbation on the same 2021-2025 calendar \u2014 a robust cell is still the same lucky regime, not a held-out market",
+    "close basis + daily bars: coarse intra-day stops (a 5% trail can gap well beyond 5%)",
+    "no_filter arm not re-gridded \u2014 it already collapsed to ~0 under defaults; this grid probes the composite only",
+    "36 cells is bounded by design; ungridded params (add trigger, time-stop, quintile cut) stay at T119 defaults"
+  ],
+  "created_utc": "2026-09-24T15:56:27Z",
+  "determinism": "full grid simulated twice; serialized cell metrics must be identical",
+  "engine": {
+    "source": "scripts/financial_campaign_sim_v1.py imported unmodified; simulate() reads tunables as module globals at call time \u2014 each cell injects PULLBACK_LO/HI, FUND_ENTRY_MAX, TRAIL. No copied engine, no edits to the T119 file.",
+    "state_machine": "identical to the pinned T119 protocol (research/financial_campaign_sim_protocol_v1.json): entry gate BTC ret20>0 + top-quintile dfh20 XS rank + pullback state + stealth funding; pyramid +3% x2 margined; exits data_end/btc_off/funding_euphoria/trail/time_stop/rank_below_median; 5bps/fill; 1 campaign."
+  },
+  "forbidden": [
+    "fitting",
+    "trading",
+    "profitability claims",
+    "protocol edits post-run",
+    "network"
+  ],
+  "grid": {
+    "funding_max": {
+      "levels": [
+        "none",
+        "0.8",
+        "0.66"
+      ],
+      "none_semantics": "FUND_ENTRY_MAX=+inf \u2014 funded symbols always pass the stealth filter"
+    },
+    "held_constant": [
+      "BTC ret20>0 gate",
+      "top-quintile dfh20",
+      "close>prev_close recovery day",
+      "funding_pct>=0.95 euphoria exit",
+      "+3% add trigger, x2 adds at 50%, margined",
+      "30d time-stop",
+      "rank<median exit",
+      "5bps/fill",
+      "MAX_CONCURRENT=1"
+    ],
+    "n_cells": 36,
+    "pullback_band": {
+      "levels": [
+        "none",
+        "[-0.12,-0.03]",
+        "[-0.08,-0.02]"
+      ],
+      "none_semantics": "dfh20 band unbounded (-inf,+inf); the close>prev_close recovery-day requirement is RETAINED \u2014 only the band varies"
+    },
+    "trail_stop": {
+      "levels": [
+        "0.05",
+        "0.08",
+        "0.12",
+        "none"
+      ],
+      "none_semantics": "TRAIL=0.0 \u2014 close < 0*max_close never fires on a positive close"
+    }
+  },
+  "metrics_per_cell": [
+    "n campaigns",
+    "final compounded equity",
+    "max drawdown (daily equity)",
+    "win rate",
+    "per-year year-end equity vector"
+  ],
+  "purpose": "T122: parameter-robustness grid for the T119 rolling-campaign simulator \u2014 does the composite 34.4x vs BTC 3.0x result survive perturbation of pullback_band x funding_max x trail_stop, or was it parameter-lucky?",
+  "schema_version": "nanojev-financial-campaign-grid-protocol-v1"
+}

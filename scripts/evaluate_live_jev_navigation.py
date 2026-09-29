@@ -55,7 +55,7 @@ def main():
             journal=[json.loads(line) for line in (args.journal_dir/'calls.jsonl').read_text().splitlines() if line]
             successful=[row for row in journal if row['status']=='succeeded']
             result.update(name='Jev API · '+('贪心' if policy=='greedy' else '概率采样'),role='jev',cohort=cohort,
-                representation='coords',model='typesafe-ai/jev',script_sha256=hash_file(__file__),
+                representation='coords',model='jev-latest',script_sha256=hash_file(__file__),
                 renderer_sha256=hash_file('scripts/assemble_navigation_v3_views.py'),
                 api_calls=[{k:row[k] for k in ['id','input_sha256','input','model','native_probs','rounding','cost_usd','started_at','finished_at','response_sha256']} for row in successful],
                 api_measurement_note='Calls are newly measured for this comparison. Exact rendered inputs may reuse this run journal; no historical training labels are read.',

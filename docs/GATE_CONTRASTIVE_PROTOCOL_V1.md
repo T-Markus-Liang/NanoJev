@@ -7,8 +7,8 @@ change, no threshold change, no active context filtering, and no token-saving cl
 This document specifies work package **A2/A4 contrastive curation** for the context gate. It
 is the protocol half of the pair whose data half is
 `scripts/build_gate_contrastive_v1.py`. It follows the published recipe of
-`bespokelabsai/nimble` as reviewed in
-[JEV_COMMUNITY_REFERENCES.md](JEV_COMMUNITY_REFERENCES.md) ("Track A recipe and serving:
+`bespokelabsai/nimble` as reviewed in the internal note
+`JEV_COMMUNITY_REFERENCES.md` (local-only, not published; "Track A recipe and serving:
 Bespoke Nimble"): *change one fact so the correct answer flips; the negative examples force
 discrimination*. It maps that recipe onto the gate-training problem described in
 [WORKFLOW_V2_BASELINE.md](WORKFLOW_V2_BASELINE.md) and
@@ -310,6 +310,6 @@ content hashes; it re-derives and re-verifies its own contract on every validati
 See [WORKFLOW_V2_BASELINE.md](WORKFLOW_V2_BASELINE.md) for the measured baseline,
 [TOOL_HISTORY_SHADOW_V1.md](TOOL_HISTORY_SHADOW_V1.md) and
 [REVERSIBLE_FILTERING_V1.md](REVERSIBLE_FILTERING_V1.md) for the shadow and reversibility
-contracts this data would feed, and
-[JEV_COMMUNITY_REFERENCES.md](JEV_COMMUNITY_REFERENCES.md) for the upstream recipe and its
+contracts this data would feed, and the internal note
+`JEV_COMMUNITY_REFERENCES.md` (local-only, not published) for the upstream recipe and its
 adoption boundary.

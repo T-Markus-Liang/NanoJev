@@ -30,7 +30,7 @@ for (const row of rows) {
   }
 }
 const pending = rows.filter(row => !existing.has(row.id));
-let spent = [...existing.values()].reduce((s, r) => s + Number(r.teacher.provider_metadata?.gateway?.cost ?? 0), 0);
+let spent = [...existing.values()].reduce((s, r) => s + Number(r.teacher.provider_metadata?.gateway?.cost ?? r.teacher.estimated_cost_usd ?? 0), 0);
 let reserved = 0, next = 0, attempted = 0, completed = 0, failed = 0;
 let stopped = false;
 let writing = Promise.resolve();
@@ -44,8 +44,8 @@ async function worker() {
     if (attempted >= maxRequests || spent + reserved + reserve > budget) { stopped = true; break; }
     next++; attempted++; reserved += reserve;
     try {
-      const teacher = await evaluateTeacher({teacher:'jev', model:'typesafe-ai/jev', state:row.state, questions:row.questions});
-      const actual = Number(teacher.provider_metadata?.gateway?.cost);
+      const teacher = await evaluateTeacher({teacher:'jev', model:'jev-latest', state:row.state, questions:row.questions});
+      const actual = Number(teacher.provider_metadata?.gateway?.cost ?? teacher.estimated_cost_usd);
       if (!Number.isFinite(actual) || actual < 0) throw new Error('MISSING_COST');
       spent += actual;
       const saved = {...row, input_sha256:hash(row), teacher, labeled_at:new Date().toISOString()};

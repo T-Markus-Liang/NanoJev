@@ -125,7 +125,9 @@ def discover_project_root() -> Path:
 
 
 DEFAULT_PROJECT_ROOT = discover_project_root()
-DEFAULT_URL = os.environ.get("NANOJEV_URL", "http://127.0.0.1:8765").rstrip("/")
+# Canonical port of the unified local service (launchd keepalive pins 8876; the
+# historical default 8765 may be occupied by an unrelated HTTP server).
+DEFAULT_URL = os.environ.get("NANOJEV_URL", "http://127.0.0.1:8876").rstrip("/")
 DEFAULT_CHECKPOINT = Path(os.environ.get(
     "NANOJEV_CHECKPOINT",
     str(DEFAULT_PROJECT_ROOT / "checkpoints/local_atomic_seed17/variants/local_atomic_seed17"),
@@ -158,7 +160,13 @@ def json_request(url: str, payload: object | None = None, timeout: float = 30.0)
 
 
 def health(url: str) -> dict:
-    result = json_request(f"{url}/api/health", timeout=5)
+    try:
+        result = json_request(f"{url}/api/health", timeout=5)
+    except json.JSONDecodeError as error:
+        raise RuntimeError(
+            f"NanoJev health endpoint at {url} returned a non-JSON response "
+            f"(an unrelated service may occupy the port): {error}"
+        ) from error
     if not isinstance(result, dict) or result.get("ready") is not True or result.get("provider_calls") != 0:
         raise RuntimeError(f"NanoJev service is not ready: {result!r}")
     return result
@@ -178,6 +186,10 @@ def health_from_default_or_saved(url: str, runtime_dir: Path) -> dict:
                     return result
                 except Exception:
                     pass
+        discovered = discover_service(url)
+        if discovered is not None:
+            remember_service_url(runtime_dir, discovered["service_url"])
+            return discovered
         raise initial_error
 
 
@@ -205,6 +217,44 @@ def fallback_url(url: str) -> str:
         if not port_is_open(candidate):
             return candidate
     raise RuntimeError("No free local NanoJev fallback port was found")
+
+
+# Ports where a running NanoJev service may live: the historical default 8765
+# plus the 8876-8890 auto-fallback range (matches check_local_services_v1.py).
+DISCOVERY_PORTS = (8765, *range(8876, 8891))
+
+
+def remember_service_url(runtime_dir: Path, url: str) -> None:
+    try:
+        runtime_dir.mkdir(parents=True, exist_ok=True)
+        (runtime_dir / "service.url").write_text(url + "\n", encoding="utf-8")
+    except OSError:
+        pass
+
+
+def discover_service(url: str) -> dict | None:
+    """Probe the known NanoJev ports for a healthy service; first ready answer wins.
+
+    The configured default port and the saved ``service.url`` are not
+    authoritative: 8765 can be occupied by an unrelated HTTP server and the
+    launchd keepalive runs the unified service on 8876. Discovery prevents a
+    needless heavyweight cold start (or a bogus error) when a healthy service
+    is already listening on another known port.
+    """
+    host = urlsplit(url).hostname or "127.0.0.1"
+    seen: set[str] = set()
+    for port in (url_port(url), *DISCOVERY_PORTS):
+        candidate = urlunsplit(("http", f"{host}:{port}", "", "", ""))
+        if candidate in seen or not port_is_open(candidate):
+            continue
+        seen.add(candidate)
+        try:
+            result = health(candidate)
+        except Exception:
+            continue
+        result["service_url"] = candidate
+        return result
+    return None
 
 
 def service_command(project_root: Path, checkpoint: Path, url: str) -> list[str]:
@@ -236,6 +286,10 @@ def ensure_service(url: str, project_root: Path, checkpoint: Path, runtime_dir: 
                     return result
                 except Exception:
                     pass
+        discovered = discover_service(url)
+        if discovered is not None:
+            remember_service_url(runtime_dir, discovered["service_url"])
+            return discovered
         if not (project_root / "scripts/serve_decisions.py").is_file():
             raise RuntimeError(f"NanoJev service is unavailable and project root is invalid: {project_root}") from initial_error
         if not checkpoint.is_dir():
@@ -637,7 +691,13 @@ def command_decide(args: argparse.Namespace) -> int:
 
 
 def command_lifecycle(args: argparse.Namespace) -> int:
-    candidates = json.loads(args.candidates)
+    try:
+        candidates = json.loads(args.candidates)
+    except json.JSONDecodeError as error:
+        raise ValueError(
+            "lifecycle --candidates must be a JSON object mapping candidate IDs "
+            f"to descriptions: {error}"
+        ) from error
     if (not isinstance(candidates, dict) or not 2 <= len(candidates) <= 32
             or any(not isinstance(k, str) or not k.strip() or not isinstance(v, str) or not v.strip()
                    for k, v in candidates.items())):

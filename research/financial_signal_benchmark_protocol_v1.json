@@ -1,0 +1,24 @@
+{
+ "schema_version": "nanojev-financial-signal-benchmark-protocol-v1",
+ "created_utc": "2026-09-24T00:00:00Z",
+ "purpose": "T82: unified Track B signal benchmark — one contract (v1 cohort pinned, 5d continuous label, frozen test folds, trailing-180 PIT, 5bps+funding cost), 10 cells, placebo controls (3 seeds), determinism, always-long baseline, FDR family, PASS/FAIL scorecard.",
+ "cells": [
+  "funding_pct",
+  "basis_pct",
+  "rv_pct",
+  "abnvol_pct",
+  "taker_pct",
+  "fmom_pct",
+  "fxb",
+  "f2b2",
+  "f2b2_btc",
+  "tri"
+ ],
+ "verdict_rules": "PASS = FDR-survive AND |rho|>placebo band; ECON_ONLY = beats always-long net but not FDR; else FAIL",
+ "forbidden": [
+  "fitting",
+  "trading",
+  "claims",
+  "protocol edits post-run"
+ ]
+}

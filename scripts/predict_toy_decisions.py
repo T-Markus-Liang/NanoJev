@@ -82,6 +82,18 @@ def validate_request(payload):
     return states
 
 
+def question_prefix_segments(state, question):
+    """共享的状态/问题前缀分段；prepare_examples 与 X2 只读路径逐段encode均依赖它。"""
+    typ = question["type"]
+    segments = [f"State:\n{state}\n",
+                f"Question type: {typ}\nQuestion:\n{question['instructions']}\n"]
+    if typ == "boolean" and "criteria" in question:
+        for key, label in (("false", "False"), ("true", "True")):
+            if key in question["criteria"]:
+                segments[1] += f"{label} criterion: {question['criteria'][key]}\n"
+    return segments
+
+
 def prepare_examples(payload, tokenizer, max_length):
     """逐段encode、候选文本和EOS均精确遵循train_toy_decisions.load_examples。"""
     states = validate_request(payload)
@@ -89,6 +101,7 @@ def prepare_examples(payload, tokenizer, max_length):
         raise ValueError("max_length 必须为正整数")
     if type(tokenizer.eos_token_id) is not int or tokenizer.eos_token_id < 0:
         raise ValueError("checkpoint tokenizer 必须有合法 eos_token_id")
+    decision_suffix = tokenizer.encode("Decision:", add_special_tokens=False) + [tokenizer.eos_token_id]
     examples = []
     for row in states:
         for qid, q in row["questions"].items():
@@ -101,13 +114,8 @@ def prepare_examples(payload, tokenizer, max_length):
             else:
                 ids = [str(i) for i in range(len(q["criteria"]))]
                 texts = q["criteria"]
-            segments = [f"State:\n{row['state']}\n",
-                        f"Question type: {typ}\nQuestion:\n{q['instructions']}\n"]
-            if typ == "boolean" and "criteria" in q:
-                for key, label in (("false", "False"), ("true", "True")):
-                    if key in q["criteria"]:
-                        segments[1] += f"{label} criterion: {q['criteria'][key]}\n"
-            prefix = sum([tokenizer.encode(t, add_special_tokens=False) for t in segments], [])
+            prefix = sum([tokenizer.encode(t, add_special_tokens=False)
+                          for t in question_prefix_segments(row["state"], q)], [])
             leaves = [prefix + tokenizer.encode(f"Candidate:\n{t}\nDecision:", add_special_tokens=False)
                       + [tokenizer.eos_token_id] for t in texts]
             largest = max(map(len, leaves))
@@ -115,7 +123,9 @@ def prepare_examples(payload, tokenizer, max_length):
                 raise ValueError(f"{row['id']}:{qid} 候选路径为 {largest} token，超过 max_length={max_length}；未截断输入")
             examples.append({"id": f"{row['id']}:{qid}", "state_id": row["id"], "qid": qid,
                              "type": typ, "candidate_ids": ids, "candidate_texts": texts,
-                             "leaf_tokens": leaves})
+                             "leaf_tokens": leaves,
+                             # 无候选的问题锚点路径；仅 set_head="pointer" 读取，其余模式忽略。
+                             "anchor_tokens": prefix + decision_suffix})
     return examples
 
 
@@ -126,6 +136,110 @@ def complete_question_batches(examples, batch_questions=0):
     if not examples:
         return []
     return [examples[i:i + size] for i in range(0, len(examples), size)]
+
+
+def common_prefix_length(sequences):
+    """最长公共token前缀长度；packed 行的共享段边界由它决定。"""
+    if not sequences:
+        return 0
+    limit = min(len(s) for s in sequences)
+    ref = sequences[0]
+    for other in sequences[1:]:
+        i = 0
+        while i < limit and other[i] == ref[i]:
+            i += 1
+        limit = i
+    return limit
+
+
+def shared_prefix_row_plans(examples, need_anchor, row_tokens=512):
+    """X3 打包规划（纯函数，可独立测试）。
+
+    每个问题拆成若干行：每行 = [共享前缀段] + [最多 c 个候选后缀段]
+    （pointer 头还会在首行追加 anchor 后缀段）。段内 token 位置号与独立前向
+    完全一致：前缀段位置 0..p-1，每个后缀段位置从 p 重新开始。
+    返回 (rows, stats)：rows 每项含 tokens/positions/segment_ids/leaf_lasts/
+    anchor_lasts；leaf_lasts 的元素为 (全局叶序号, 行内末token下标)，全局序号
+    与 encode_paths 的展开顺序一致；anchor_lasts 为 (example序号, 行内下标)。
+    """
+    if type(row_tokens) is not int or row_tokens <= 0:
+        raise ValueError("shared-prefix row_tokens 必须为正整数")
+    rows = []
+    leaf_cursor = 0
+    for ex_index, ex in enumerate(examples):
+        leaves = ex["leaf_tokens"]
+        anchor = ex.get("anchor_tokens") if need_anchor else None
+        if need_anchor and not anchor:
+            raise ValueError('set_head="pointer" 的共享前缀路径要求每题提供 anchor_tokens')
+        p = common_prefix_length(leaves + ([anchor] if anchor else []))
+        if p <= 0:
+            raise ValueError(f"{ex['id']} 的候选路径没有可共享前缀")
+        prefix = leaves[0][:p]
+        for path in leaves + ([anchor] if anchor else []):
+            if path[:p] != prefix:
+                raise ValueError(f"{ex['id']} 候选路径前缀不一致，无法打包")
+        suffixes = [leaf[p:] for leaf in leaves]
+        a_suf = anchor[p:] if anchor else []
+        # 每行最多容纳的后缀数；保证至少一个后缀/行（前缀超长时行会超过预算，属正常退化）。
+        widest = max([len(s) for s in suffixes] + [len(a_suf), 1])
+        per_row = max(1, (row_tokens - p) // widest)
+        for group_start in range(0, len(leaves), per_row):
+            group = list(range(group_start, min(group_start + per_row, len(leaves))))
+            toks = list(prefix)
+            positions = list(range(p))
+            segment_ids = [0] * p
+            leaf_lasts = []
+            anchor_lasts = []
+            for li in group:
+                suf = suffixes[li]
+                if suf:
+                    toks += suf
+                    positions += [p + j for j in range(len(suf))]
+                    segment_ids += [li - group_start + 1] * len(suf)
+                    leaf_lasts.append((leaf_cursor + li, len(toks) - 1))
+                else:
+                    # 后缀为空（如 boolean 单叶）：末token即共享前缀的末token。
+                    leaf_lasts.append((leaf_cursor + li, p - 1))
+            if group_start == 0 and anchor:
+                if a_suf:
+                    toks += a_suf
+                    positions += [p + j for j in range(len(a_suf))]
+                    segment_ids += [len(group) + 1] * len(a_suf)
+                    anchor_lasts.append((ex_index, len(toks) - 1))
+                else:
+                    anchor_lasts.append((ex_index, p - 1))
+            rows.append({"tokens": toks, "positions": positions,
+                         "segment_ids": segment_ids, "leaf_lasts": leaf_lasts,
+                         "anchor_lasts": anchor_lasts})
+        leaf_cursor += len(leaves)
+    stats = {"rows": len(rows),
+             "packed_tokens": sum(len(r["tokens"]) for r in rows),
+             "leaves": leaf_cursor}
+    return rows, stats
+
+
+def chunk_packed_rows(rows, max_rows=16, max_attn_positions=4_000_000):
+    """把打包行切成若干次前向：受行数上限与 attn 方阵规模 R*W^2 上限约束。"""
+    if type(max_rows) is not int or max_rows <= 0:
+        raise ValueError("shared-prefix max_rows 必须为正整数")
+    if type(max_attn_positions) is not int or max_attn_positions <= 0:
+        raise ValueError("shared-prefix max_attn_positions 必须为正整数")
+    chunks = []
+    current = []
+    width = 0
+    for row in rows:
+        new_width = max(width, len(row["tokens"]))
+        if current and (len(current) >= max_rows
+                        or (len(current) + 1) * new_width * new_width > max_attn_positions):
+            chunks.append(current)
+            current = []
+            width = 0
+            new_width = len(row["tokens"])
+        current.append(row)
+        width = new_width
+    if current:
+        chunks.append(current)
+    return chunks
 
 
 def answer_from_probabilities(example, probabilities):
@@ -192,6 +306,8 @@ def resolve_runtime(torch, device_name="auto", precision="auto"):
     if device.type == "cuda":
         if not torch.cuda.is_available():
             raise ValueError("请求了CUDA设备，但当前环境没有可用CUDA")
+        if device.index is None:
+            device = torch.device("cuda", 0)
         torch.cuda.set_device(device)
         if precision == "bf16" and not torch.cuda.is_bf16_supported():
             raise ValueError("当前CUDA设备不支持本checkpoint推理配置所需的BF16")
@@ -216,7 +332,7 @@ class DecisionPredictor:
                  disable_native_triton=False, precision="auto"):
         root, paths = local_checkpoint_files(checkpoint_dir)
         run_config = read_json(paths["run_config"])
-        if not isinstance(run_config, dict) or run_config.get("set_head") not in {"none", "attention"}:
+        if not isinstance(run_config, dict) or run_config.get("set_head") not in {"none", "attention", "pointer"}:
             raise ValueError("checkpoint config 缺少合法 set_head")
     
         # 只读本地checkpoint；不读取.env、不访问Hub、不下载原始模型权重。
@@ -266,10 +382,70 @@ class DecisionPredictor:
         self.inference_calls = 0
         self._torch = torch
 
-    def predict(self, payload, batch_questions=0, temperature=1.0):
+    def _shared_prefix_logits(self, batch, pad_token, row_tokens=512,
+                              max_rows=16, max_attn_positions=4_000_000):
+        """X3 共享前缀打包前向：每行 [共享前缀 + 若干候选后缀] 一次 backbone 调用。
+
+        掩码显式给出树形可见性：后缀 token 只能attend共享前缀与自身后缀的历史，
+        位置号与独立前向一致；因此叶末隐藏态在数学上与独立前向相同
+        （差异仅为批处理浮点噪声）。仅当全部层为 full_attention 时启用，
+        否则回退独立前向（避免滑窗语义差异）。
+        """
+        torch = self._torch
+        model, device = self.model, self.device
+        layer_types = getattr(model.backbone.config, "layer_types", None)
+        if layer_types is not None and set(layer_types) != {"full_attention"}:
+            logits, valid = model(batch, pad_token)
+            return logits, valid, {"forwards": 1, "rows": 0, "packed_tokens": 0,
+                                   "fallback": "non-full-attention layers"}
+        rows, stats = shared_prefix_row_plans(batch, model.set_head == "pointer", row_tokens)
+        chunks = chunk_packed_rows(rows, max_rows, max_attn_positions)
+        n_leaves = stats["leaves"]
+        hidden_size = model.backbone.config.hidden_size
+        leaves = torch.zeros(n_leaves, hidden_size, device=device)
+        anchor_h = (torch.zeros(len(batch), hidden_size, device=device)
+                    if model.set_head == "pointer" else None)
+        neg = torch.finfo(torch.float32).min
+        for chunk in chunks:
+            width = max(len(r["tokens"]) for r in chunk)
+            tokens = torch.full((len(chunk), width), pad_token, dtype=torch.long, device=device)
+            positions = torch.zeros(len(chunk), width, dtype=torch.long, device=device)
+            masks = torch.full((len(chunk), 1, width, width), neg, device=device)
+            for r, row in enumerate(chunk):
+                row_len = len(row["tokens"])
+                tokens[r, :row_len] = torch.tensor(row["tokens"], device=device)
+                positions[r, :row_len] = torch.tensor(row["positions"], device=device)
+                seg = torch.tensor(row["segment_ids"], device=device)
+                order = torch.arange(row_len, device=device)
+                allow = (order[None, :] <= order[:, None]) & ((seg == 0)[None, :] | (seg[:, None] == seg[None, :]))
+                masks[r, 0, :row_len, :row_len] = torch.zeros(row_len, row_len, device=device).masked_fill(~allow, neg)
+            attention_mask = ({"full_attention": masks}
+                              if layer_types is not None else masks)
+            hidden = model.backbone(input_ids=tokens, position_ids=positions,
+                                    attention_mask=attention_mask,
+                                    use_cache=False).last_hidden_state
+            for r, row in enumerate(chunk):
+                for leaf_index, last in row["leaf_lasts"]:
+                    leaves[leaf_index] = hidden[r, last]
+                for ex_index, last in row["anchor_lasts"]:
+                    anchor_h[ex_index] = hidden[r, last]
+        logits, valid = model.head(leaves, anchor_h, batch)
+        stats.update(forwards=len(chunks), fallback=None)
+        return logits, valid, stats
+
+    def predict(self, payload, batch_questions=0, temperature=1.0, shared_prefix=False,
+                shared_prefix_row_tokens=512, shared_prefix_max_rows=16,
+                shared_prefix_max_attn_positions=4_000_000):
         states = validate_request(payload)
         if not isinstance(temperature, (int, float)) or isinstance(temperature, bool) or not math.isfinite(temperature) or temperature <= 0:
             raise ValueError("temperature 必须为有限正数")
+        if type(shared_prefix) is not bool:
+            raise ValueError("shared_prefix 必须为布尔值；独立前向仍是默认参考实现")
+        for name, value in (("shared_prefix_row_tokens", shared_prefix_row_tokens),
+                            ("shared_prefix_max_rows", shared_prefix_max_rows),
+                            ("shared_prefix_max_attn_positions", shared_prefix_max_attn_positions)):
+            if type(value) is not int or value <= 0:
+                raise ValueError(f"{name} 必须为正整数")
         torch = self._torch
         model, tokenizer = self.model, self.tokenizer
         root, run_config, limit = self.root, self.run_config, self.limit
@@ -280,12 +456,26 @@ class DecisionPredictor:
         self.inference_calls += 1
         model.eval()
         outputs = {state["id"]: {"id": state["id"], "answers": {}} for state in states}
+        forward_passes = 0
+        packed_rows = 0
+        packed_tokens = 0
         with torch.inference_mode():
             for batch in batches:
                 autocast_enabled = device.type == "cuda" and precision == "bf16"
                 with torch.autocast(device_type=device.type, dtype=torch.bfloat16,
                                     enabled=autocast_enabled):
-                    logits, _ = model(batch, tokenizer.pad_token_id)
+                    if shared_prefix:
+                        logits, _, stats = self._shared_prefix_logits(
+                            batch, tokenizer.pad_token_id,
+                            row_tokens=shared_prefix_row_tokens,
+                            max_rows=shared_prefix_max_rows,
+                            max_attn_positions=shared_prefix_max_attn_positions)
+                    else:
+                        logits, _ = model(batch, tokenizer.pad_token_id)
+                        stats = {"forwards": 1, "rows": 0, "packed_tokens": 0}
+                    forward_passes += stats["forwards"]
+                    packed_rows += stats["rows"]
+                    packed_tokens += stats["packed_tokens"]
                 for example, values in zip(batch, logits):
                     k = len(example["candidate_ids"])
                     scores = values[:k].float()
@@ -303,8 +493,9 @@ class DecisionPredictor:
                           "forward_autocast": "bfloat16" if device.type == "cuda" and precision == "bf16" else "disabled",
                           "states": len(states), "questions": len(examples),
                           "candidate_paths": sum(len(ex["leaf_tokens"]) for ex in examples),
-                          "forward_passes": len(batches), "batch_questions_limit": batch_questions or "all",
-                          "autoregressive_decode_steps": 0, "prefix_sharing": False,
+                          "forward_passes": forward_passes, "batch_questions_limit": batch_questions or "all",
+                          "autoregressive_decode_steps": 0, "prefix_sharing": shared_prefix,
+                          "prefix_rows": packed_rows, "prefix_packed_tokens": packed_tokens,
                           "max_length": limit, "disable_native_triton": disable_native_triton,
                           "network_model_calls": 0, "persistent_model_load_count": 1,
                           "inference_call_index": self.inference_calls},
@@ -313,7 +504,9 @@ class DecisionPredictor:
 
 
 def predict(payload, checkpoint_dir, temperature=1.0, batch_questions=0, max_length=None,
-            device_name="auto", disable_native_triton=False, precision="auto"):
+            device_name="auto", disable_native_triton=False, precision="auto",
+            shared_prefix=False, shared_prefix_row_tokens=512,
+            shared_prefix_max_rows=16, shared_prefix_max_attn_positions=4_000_000):
     """兼容原一次性接口；连续调用请复用DecisionPredictor实例。"""
     # Fail on malformed input before loading a checkpoint, as in the original entry point.
     validate_request(payload)
@@ -321,7 +514,11 @@ def predict(payload, checkpoint_dir, temperature=1.0, batch_questions=0, max_len
         raise ValueError("temperature 必须为有限正数")
     engine = DecisionPredictor(checkpoint_dir, max_length=max_length, device_name=device_name,
                                disable_native_triton=disable_native_triton, precision=precision)
-    return engine.predict(payload, batch_questions=batch_questions, temperature=temperature)
+    return engine.predict(payload, batch_questions=batch_questions, temperature=temperature,
+                          shared_prefix=shared_prefix,
+                          shared_prefix_row_tokens=shared_prefix_row_tokens,
+                          shared_prefix_max_rows=shared_prefix_max_rows,
+                          shared_prefix_max_attn_positions=shared_prefix_max_attn_positions)
 
 
 def main():
@@ -336,10 +533,20 @@ def main():
     parser.add_argument("--precision", choices=["auto", "fp32", "bf16"], default="auto",
                         help="auto在CUDA BF16可用时选择bf16，其他设备选择fp32")
     parser.add_argument("--disable-native-triton", action="store_true", help="沿用trainer的进程内ATen回退开关")
+    parser.add_argument("--shared-prefix", action="store_true",
+                        help="X3 实验路径：共享前缀打包前向（默认关闭，独立前向为参考实现）")
+    parser.add_argument("--shared-prefix-row-tokens", type=int, default=512, help="打包行token预算")
+    parser.add_argument("--shared-prefix-max-rows", type=int, default=16, help="单次前向最多打包行数")
+    parser.add_argument("--shared-prefix-max-attn-positions", type=int, default=4_000_000,
+                        help="单次前向 R*W^2 注意力方阵规模上限")
     args = parser.parse_args()
     try:
         result = predict(read_json(args.input), args.checkpoint_dir, args.temperature, args.batch_questions,
-                         args.max_length, args.device, args.disable_native_triton, precision=args.precision)
+                         args.max_length, args.device, args.disable_native_triton, precision=args.precision,
+                         shared_prefix=args.shared_prefix,
+                         shared_prefix_row_tokens=args.shared_prefix_row_tokens,
+                         shared_prefix_max_rows=args.shared_prefix_max_rows,
+                         shared_prefix_max_attn_positions=args.shared_prefix_max_attn_positions)
         text = json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False) + "\n"
         if args.output:
             destination = Path(args.output)

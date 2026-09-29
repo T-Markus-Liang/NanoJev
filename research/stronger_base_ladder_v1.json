@@ -1,0 +1,73 @@
+{
+  "schema_version": "nanojev-stronger-base-ladder-v1",
+  "status": "compatibility_probe_authorized_training_not_authorized",
+  "recorded_utc": "2026-09-21T00:00Z",
+  "purpose": "Gate stronger backbones after T9d-v5 failed to generalize. Public results motivate candidates but never serve as training or selection rows. The ladder verifies license, immutable revision, tokenizer/model compatibility, MPS memory, DecisionModel forward, LoRA injection, zero-adapter parity and teardown before any training amendment.",
+  "evidence": {
+    "internal": {
+      "t9d_v5_summary": "results/t9d_v5_lora_summary.json",
+      "shift_diagnosis": "results/t9d_v5_shift_diagnosis_v1.json",
+      "finding": "0.6B v5 heldout_v2 mean accuracy 0.331; choice degrades from 0.367 at k=4 to 0.042 at k=12; score-5 is 0.062. Capacity, candidate-set mismatch and semantic shift remain competing hypotheses."
+    },
+    "public_references": {
+      "semif": {
+        "revision": "ca3ba65f",
+        "reported_owned_workload": "Qwen3-0.6B 0.440, MiniCPM5-2B 0.686, Qwen3.5-4B 0.813 authored balanced accuracy",
+        "boundary": "external project evidence only; no rows, outputs or TypeSafe records may enter NanoJev training, calibration or selection"
+      },
+      "jevbench": {
+        "revision": "83831807458d7df424a1e53e5724f3a3ffe2cf89",
+        "reported_method_signal": "Qwen3.5-4B typed-decision systems are near the leading group; one implementation changed from 72% to 21% under yes/no order reversal",
+        "boundary": "public benchmark remains quarantined; per-task rows and failures are not read for this ladder"
+      },
+      "laya_mlx": {
+        "revision": "fc1df62828a3fedf4d8229fdac1cbd85f1cdf337",
+        "reported_method_signal": "421M bidirectional typed encoder demonstrates low-latency Apple-Silicon packaging and strict port parity",
+        "boundary": "runtime/application reference only; no weights, outputs or benchmark rows imported"
+      }
+    }
+  },
+  "candidates": [
+    {
+      "order": 1,
+      "model_id": "openbmb/MiniCPM5-2B",
+      "revision": "12a3808a956f869c767195e9266b59c4d21d92e2",
+      "license": "Apache-2.0",
+      "architecture": "LlamaModel",
+      "expected_backbone_parameters": 2249369600,
+      "reason": "lowest-risk capacity step; direct AutoModel and existing LoRA target names are expected to work"
+    },
+    {
+      "order": 2,
+      "model_id": "Qwen/Qwen3.5-4B",
+      "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+      "license": "Apache-2.0",
+      "architecture": "Qwen3_5Model hybrid multimodal wrapper",
+      "expected_backbone_parameters": 4539265536,
+      "reason": "strongest relevant public typed-decision evidence",
+      "known_blocker": "top-level config has no hidden_size; current DecisionModel requires a text-language-backbone adapter and parity tests before real-weight MPS probing"
+    }
+  ],
+  "probe_gates": [
+    "exact revision and Apache-2.0 metadata recorded",
+    "tokenizer and model load without trust_remote_code",
+    "DecisionModel forward returns finite logits on an owned synthetic fixture",
+    "LoRA injection wraps expected projection modules",
+    "zero-initialized adapter changes logits by at most 1e-5 with dropout disabled",
+    "MPS load and synchronized forward stay within declared memory budget",
+    "model teardown releases device allocation",
+    "no heldout, JevBench, SemIf or provider rows are used"
+  ],
+  "promotion": {
+    "to_single_seed_training": "all compatibility gates pass and a fresh owner-visible training amendment freezes budget and owned evaluation gates",
+    "to_three_seed_training": "single seed improves dev mechanics and independently authored owned diagnostic gates without protected-error regression",
+    "to_jevbench": "never from this ladder; J-E1 internal candidate freeze remains required"
+  },
+  "authorization": {
+    "model_download_authorized": true,
+    "compatibility_measurement_authorized": true,
+    "training_authorized": false,
+    "heldout_read_authorized": false,
+    "deployment_authorized": false
+  }
+}

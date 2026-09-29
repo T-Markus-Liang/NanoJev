@@ -285,7 +285,7 @@ def main():
                 parser.error("Jev requires env/journal paths and a budget in (0,24]")
             from evaluate_scaled_games import LiveJev
             engine = LiveJev(args.env_file, args.journal_dir, args.budget_usd)
-            identity["model"] = "typesafe-ai/jev"
+            identity["model"] = "jev-latest"
         else:
             engine = UniformChoice()
             identity["chooser"] = "uniform over common-planner candidates; no learned or optimal tie preference"

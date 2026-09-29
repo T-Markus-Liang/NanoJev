@@ -1,0 +1,42 @@
+{
+ "schema_version": "nanojev-financial-signal-intraday-protocol-v1",
+ "created_utc": "2026-09-30T00:00:00Z",
+ "purpose": "T88: hourly-scale baseline signal arms on the BTC pilot intraday cohort — the 1h-scale analog of the T82 daily benchmark. Measurement only; pilot is single-asset, single-month, n=716 -> explicitly low power, any FDR-pass is provisional.",
+ "cohort": {
+  "path": "data/perp_pit_intraday_v1/records.jsonl",
+  "records": 716,
+  "asset": "BTCUSDT-PERP",
+  "granularity": "1h",
+  "span": "2026-08-02T00 .. 2026-08-31T19 UTC",
+  "label": "label.forward_return_bps (4h forward mark move, bps, gross)"
+ },
+ "pit": {
+  "percentile": "trailing-90-record (~90h) mid-rank percentile, window excludes current record",
+  "momentum_raw": "mom_1h = log(mark[i]/mark[i-1]); mom_4h = log(mark[i]/mark[i-4]); each then percentiled over its own trailing-90 window",
+  "eval_rows": "rows where ALL six arm scores are defined (i>=94) -> common n for fair cross-arm comparison"
+ },
+ "arms": {
+  "mom_1h": "trailing 1-bar mark log return percentile -> 4h fwd bps (momentum vs reversal)",
+  "mom_4h": "trailing 4-bar mark log return percentile -> 4h fwd bps (momentum vs reversal)",
+  "rv_pct": "realized_vol_24h percentile -> 4h fwd bps (vol clustering)",
+  "taker_pct": "taker_buy_ratio percentile -> 4h fwd bps (flow pressure)",
+  "basis_pct": "mark_index_basis_bps percentile -> 4h fwd bps",
+  "funding_pct": "last_funding_rate percentile -> 4h fwd bps (hourly analog of the daily confirmed signal)"
+ },
+ "metrics": {
+  "primary": "Spearman rho (score, fwd_bps), normal-approx t/p per project convention",
+  "secondary": "Welch top-quintile vs bottom-quintile mean diff on fwd_bps",
+  "fdr": "BH-FDR alpha=0.05 over the 6 arm primary p-values (momentum hypothesis contributes two lookback arms; strictly more conservative than collapsing to 5 cells)"
+ },
+ "controls": {
+  "placebo": "labels shuffled within dataset, 2 deterministic seeds (LCG Fisher-Yates); real signal requires |rho| > max|placebo rho|",
+  "determinism": "run() twice, payload byte-identical"
+ },
+ "verdict_rules": "PROVISIONAL_PASS = FDR-survive AND |rho|>placebo band (flagged provisional: pilot n, single asset, single month); else NO_SIGNAL",
+ "forbidden": [
+  "fitting",
+  "trading",
+  "profitability claims",
+  "protocol edits post-run"
+ ]
+}

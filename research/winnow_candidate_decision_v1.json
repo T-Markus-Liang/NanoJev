@@ -1,0 +1,38 @@
+{
+  "schema_version": "nanojev-winnow-candidate-decision-v1",
+  "candidate": "winnow-12b-q8",
+  "decision": "retain_as_local_quality_baseline_and_shadow_scorer",
+  "not_decided": [
+    "production release candidate",
+    "active context-filtering scorer",
+    "NanoJev model replacement",
+    "high-confidence authorization mechanism"
+  ],
+  "evidence": {
+    "bundle_manifest_sha256": "1fc3234acf806016adfd9906fade547ca597f87acf749aecac1ba706f6dd8ee5",
+    "summary": "results/offline_bundle_winnow12b_q8_v1.summary.json",
+    "summary_accuracy_893": 0.8824188129899216,
+    "official_jev_accuracy_893": 0.8858,
+    "wall_s": 494.564,
+    "coverage_at_0_9": 0.8744186046511628,
+    "confident_wrong_at_0_9": 59,
+    "failure_breakdown": "results/winnow_failure_breakdown_v1.json",
+    "shadow_gate_report": "results/context_gate_winnow_shadow_v1.json",
+    "shadow_gate_proposed_drops_at_0_99": 0,
+    "shadow_gate_protected_proposed_drops": 0
+  },
+  "blocking_caveats": [
+    "private training mixture; contamination with public benchmark rows cannot be excluded",
+    "confidence is inverse normalized entropy, not calibrated correctness",
+    "59 labeled confident-wrong rows at the 0.9 threshold",
+    "12B Q8 is larger than the intended NanoJev footprint",
+    "A4 shadow fixtures produced zero proposed drops, so token-savings value is unproven"
+  ],
+  "required_before_promotion": [
+    "paired downstream quality and provider-token evidence in Track A",
+    "zero protected-segment violations across a larger fixture set",
+    "concurrency/cache-isolation/error-path stress for the local server",
+    "explicit owner/reviewer classification as runtime baseline, teacher, or shipped dependency"
+  ],
+  "created_by": "local deterministic audit; no model authorization"
+}

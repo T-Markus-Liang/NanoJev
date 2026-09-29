@@ -1,0 +1,178 @@
+{
+  "schema_version": "nanojev-financial-validation-protocol-v1",
+  "status": "frozen_preflight_not_replay_authorized",
+  "created_utc": "2026-09-21",
+  "task": "T12 (B5): real-data validation protocol in the financial backtest path",
+  "purpose": "Drive the frozen R1 real cohort through scripts/financial_backtest_v1.py's run_backtest machinery (not a bespoke replay driver) with purged walk-forward folds, embargo, and regime/instrument holdouts reported separately. The harness emits equity curve, drawdown, and per-regime analytics per validation cell. This protocol validates pipeline behaviour on real data; it authorizes no profitability, edge, promotion, or trading claim.",
+  "why_new_module": "The R1 freeze pins scripts/financial_backtest_v1.py at sha256 51f70ffc32aa48eb57a0089f107deae2f1cdb36f7939255314d91858f7fb449e (research/financial_r1_frozen_parameters_v1.json and docs/FINANCIAL_R1_DECISIONS_V1.md §8.1). Editing that file in place would silently change a fingerprint recorded in frozen artifacts. The real-data path therefore lives in scripts/financial_real_data_path_v1.py, which constructs a real-cohort market path and calls the UNMODIFIED financial_backtest_v1.run_backtest for every replay, receipt construction, determinism check, and invariant enforcement. A future protocol revision may re-pin an extended financial_backtest_v1.py; that is a new review, not an in-place edit.",
+  "upstream_r1": {
+    "protocol_path": "research/financial_experiment_protocol_v2.json",
+    "protocol_sha256": "ab1eec401e14ee20d37a43ff4a5cca962dc60f58abc357a2f95fcc8fbcef1340",
+    "event_definition_sha256": "cffd49217c95e83bedffc05f43f018964758cc58ba153f3963fc221d1f37124c",
+    "bound_receipt_path": "results/financial_pit_r1_bound_receipt_20260920_v5.json",
+    "bound_receipt_sha256": "424c18040c91703e8ce464ccb6bf668e6f702c572a9eed13f95d2974eb79e8a5",
+    "dataset_path": "data/perp_pit_v2/records.jsonl",
+    "dataset_sha256": "ab38bae12eb79e2811fcd09293375c8372339015073eda2cb7c0858a3cfb395d",
+    "validator_sha256": "96e8be1998333e1ea16b80d754898ebe824f4df6be7d2529bf8734e307115c53",
+    "core_sha256": "480786b10ac50c7705da87f2bb501191af49642222f0b4148f7801ff7f8ad347",
+    "frozen_parameters_path": "research/financial_r1_frozen_parameters_v1.json",
+    "frozen_parameters_sha256": "63686c362c1c45b552bcc4bfe90d2ed1c22cc7f00f965dd3dcd03dba6f35ef6e",
+    "note": "Fold geometry, embargo_ns=3600000000000, asof_ns, and the single event definition come verbatim from the R1 bound receipt; the unmodified scripts/financial_pit_v1.py walk_forward result is re-verified on every validation run."
+  },
+  "upstream_t11": {
+    "fit_receipt_path": "results/financial_baselines_v1_fit_20260920_v1.json",
+    "fit_receipt_sha256": "088cb270f73a468ccd07cc9d845f6112fee49547c2ade137707431bc8bb8dec4",
+    "required_status": "fit_completed_not_promoted",
+    "honest_outcome": "T11 real-data result: no dev-selected candidate beat base_rate_train_only significantly on test (fold 0 delta CIs straddle 0; fold 1 selected base_rate itself; fold 2 dev pick was significantly WORSE, nll delta +0.319 [0.293,0.345]). T12 therefore validates the replay harness with mechanical reference policies only; no fitted candidate may be presented as having edge.",
+    "role_in_t12": "Context and honesty bound only. T12 replays do not refit, reselect, or re-evaluate T11 candidates; the T11 receipt hash is bound so this context cannot silently change."
+  },
+  "cohort": {
+    "venue": "binance_um",
+    "contract": "USDT-linear perpetual",
+    "records": 3266,
+    "instruments": ["BNBUSDT-PERP", "BTCUSDT-PERP", "ETHUSDT-PERP", "SOLUSDT-PERP", "XRPUSDT-PERP"],
+    "label_event": "perp_forward_mark_return_up_25bps_1d_gross",
+    "observed_properties": {
+      "funding_interval_hours": 8,
+      "decision_spacing": "consecutive decisions per instrument are 2 to 6 days apart (min 2d, max 6d)",
+      "positive_rate": 0.4427434170238824,
+      "mark_available_equals_decision_ns": true
+    }
+  },
+  "real_market_path": {
+    "construction": "One simulator Quote per retained PIT record. bid = ask = the record's mark_price feature value (the observed book is collapsed to the mark; the cohort has no bid/ask series, so execution costs are entirely policy parameters, not observed venue costs). volume = quote_volume / mark_price, a declared base-coin conversion for the capacity model only. mark_price = the feature value; last_price left unset (the simulator falls back to mid = mark). funding_rate = the record's last_funding_rate feature (last settled rate at or before the decision). event_ns = mark_price feature event_ns (bar close); available_ns = record decision_ns (bar close + 1 ns).",
+    "no_imputation": "Missing features would have excluded the row upstream; this path adds no fill, no interpolation, and no synthetic bar.",
+    "spacing": "Quotes occur only at retained decision bars (2-6 day spacing); intra-bar and gap-day marks do not exist in the cohort and are not invented. The equity curve is therefore sampled at decision bars and funding boundaries only.",
+    "funding": "perps.funding_rate_source = quote_funding_rate_field: each funding boundary applies the last-settled rate carried by the most recent quote. This is a declared approximation: the actual settled rate at each in-horizon boundary is not observable at record granularity, and the frozen synthetic default (policy_constant = 0.0) would understate holding cost to exactly zero. funding_anchor_ns = 0 with funding_interval_ns = 28800000000000 (8 h) lands boundaries at 00:00/08:00/16:00 UTC, matching the venue's published settlement grid; all 3,266 records carry funding_interval_hours = 8.",
+    "seed": "data_seed 20260919; used only for the simulator's seeded draw functions. With fill_probability=1 and reject_probability=0 the draws are degenerate, so equal results across seeds would prove determinism, not robustness.",
+    "path_class": "scripts.financial_real_data_path_v1.RealCohortPath, a SyntheticMarketPath subclass whose to_summary marks synthetic=false and carries cohort provenance. run_backtest's isinstance contract is satisfied without modifying the pinned module."
+  },
+  "fold_policy": {
+    "source": "upstream_r1 bound receipt folds, recomputed by the unmodified validator on every run",
+    "phases": ["train", "dev", "calibration", "test"],
+    "replay_scope": "Each fold's RETAINED test records only, replayed independently per instrument with fresh initial_cash. Purge and embargo are inherited from walk_forward: test ids already exclude purged/embargoed/unmatured rows.",
+    "selection_rule": "Reference policies are fixed in this file; nothing is selected. A probability-driven policy would select on dev only and evaluate test exactly once, per R1 seed_plan.candidate_selection_rule; no such policy is active in v1.",
+    "single_test_evaluation": "Each fold's test window is replayed once per declared policy and reported per fold; no result may be re-run selectively or dropped.",
+    "initial_cash": 100000.0,
+    "risk_gate": "absent in v1 by design; the out-of-model risk engine on real replay is T13 (results/risk_real_v1.json). risk_blocked_decisions must be 0 and is reported."
+  },
+  "instrument_groups": {
+    "source": "identical SHA-256-sorted 2/2/1 partition as the T11 protocol, key encoding 'venue:linear:asset_id'",
+    "groups": {
+      "primary": ["binance_um:linear:SOLUSDT-PERP", "binance_um:linear:ETHUSDT-PERP"],
+      "holdout_instrument_A": ["binance_um:linear:BNBUSDT-PERP", "binance_um:linear:XRPUSDT-PERP"],
+      "holdout_instrument_B": ["binance_um:linear:BTCUSDT-PERP"]
+    },
+    "groups_sha256": "4dcac918682cfae4964424edb319bc187472540e6f5b5973cd22e05afd1dd0c0",
+    "reporting_rule": "Every cell is reported per instrument and aggregated per group descriptively; groups are never pooled into a single headline. Venue holdout remains unsatisfiable in Binance-only V1 and is reported as a limitation."
+  },
+  "pit_regime_masks": {
+    "role": "The four R1 declared_regime_holdouts, realized as point-in-time per-record strata for test-period reporting. Masks are overlapping strata, not a partition: a record may carry zero, one, or several regime labels.",
+    "quantile_rule": "Expanding point-in-time quantile over ALL cohort records with decision_ns strictly earlier than the record under evaluation (pooled across the five eligible instruments; same-timestamp records never see each other). Quantile = linear interpolation on sorted history at position (n-1)*q, identical to benchmark_nanojev_v2.percentile.",
+    "tie_rule": "Top-decile regimes require value STRICTLY greater than the expanding 0.9 quantile; the bottom-quintile regime requires value STRICTLY less than the expanding 0.2 quantile. A value equal to the quantile is not in the regime.",
+    "warmup_rule": "A mask is not evaluable until its expanding history has at least 30 observations; thin_liquidity additionally needs 30 prior decisions of the SAME instrument to form its trailing median. Unevaluable masks are recorded as warmup, never as in-or-out votes.",
+    "masks": [
+      {
+        "regime_id": "regime_high_realized_volatility",
+        "statistic": "record feature realized_vol_24bar",
+        "predicate": "value > expanding_p90(history)"
+      },
+      {
+        "regime_id": "regime_funding_extreme",
+        "statistic": "abs(record feature last_funding_rate)",
+        "predicate": "value > expanding_p90(history)"
+      },
+      {
+        "regime_id": "regime_basis_blowout",
+        "statistic": "abs(record feature mark_index_basis_bps)",
+        "predicate": "value > expanding_p90(history)"
+      },
+      {
+        "regime_id": "regime_thin_liquidity",
+        "statistic": "median of the instrument's own previous 30 decision-bar quote_volume values (strictly prior decisions only)",
+        "predicate": "median < expanding_p20(history of prior medians pooled across instruments)"
+      }
+    ],
+    "label_overlap_rule": "Masks describe the decision-time market state only; they never touch the label window and therefore introduce no additional purge beyond the frozen embargo. Reporting segments attribute equity change to the regime set of the record active at the segment midpoint.",
+    "source_binding": "Computed exclusively from the hash-pinned dataset data/perp_pit_v2/records.jsonl; no external source is queried."
+  },
+  "calendar_stress_windows": {
+    "source": "upstream R1 C8 frozen list",
+    "role_in_t12": "harness-native per_regime strata: the five windows become RegimeWindow entries on every cell path so financial_backtest_v1's own per-regime attribution runs unmodified",
+    "declared_overlap": "none: every frozen test window starts at or after 2025-06-01 while all stress windows end by 2025-04-30, so stress strata are reported as declared-but-empty rather than deleted or silently retimed",
+    "windows": [
+      {"label": "2023-03 banking-sector stress", "start": "2023-03-01", "end_inclusive": "2023-04-15"},
+      {"label": "2023-10 to 2023-11 crypto risk-asset rally", "start": "2023-10-01", "end_inclusive": "2023-11-30"},
+      {"label": "2024-01 US spot bitcoin ETP launches", "start": "2024-01-05", "end_inclusive": "2024-02-15"},
+      {"label": "2024-04 bitcoin halving", "start": "2024-04-15", "end_inclusive": "2024-05-15"},
+      {"label": "2025-02 to 2025-04 tariff-driven risk-off", "start": "2025-02-15", "end_inclusive": "2025-04-30"}
+    ]
+  },
+  "policies": {
+    "reference_policies": [
+      {"name": "no_trade", "declaration": "emits zero decisions; control cell that must produce exactly zero fills, zero turnover, and a flat equity curve - a harness sanity check, not a strategy"},
+      {"name": "unit_long_always", "declaration": "target-position long 1.0 base unit at every retained test decision; mechanical reference, not a promoted strategy"},
+      {"name": "unit_short_always", "declaration": "target-position short 1.0 base unit at every retained test decision; mechanical reference, not a promoted strategy"}
+    ],
+    "probability_policy_interface": {
+      "status": "declared_fail_closed_inactive",
+      "rule": "A future registered candidate policy maps a PINNED per-record probability receipt to long/flat/short via thresholds fitted on the calibration split only. No such receipt exists at v1, so no probability-driven cell may run. Inventing probabilities inside the runner is prohibited.",
+      "required_metrics_when_active": ["nll", "brier", "accuracy", "ece", "selective_risk_vs_coverage", "per_fold", "per_seed", "per_instrument_group", "per_regime"]
+    },
+    "event_metrics_for_reference_policies": "not_applicable: reference policies emit actions, not probabilities. Event-quality numbers live in the bound T11 fit receipt. The validation receipt reports per-regime outcome strata (record counts and realized positive rates) as descriptive context only."
+  },
+  "execution_policy": {
+    "basis": "values copied from research/financial_r1_frozen_parameters_v1.json (owner-frozen D2-a assumptions); deltas below are declared real-path settings, not venue measurements",
+    "declared_deltas": {
+      "fills.order_time_to_live_ns": "691200000000000 (8 days; covers the observed maximum 6-day inter-decision gap so an order can fill at the next available bar; expiry unfilled is otherwise an honest reported outcome)",
+      "perps.funding_rate_source": "quote_funding_rate_field (see real_market_path.funding)",
+      "perps.funding_anchor_ns": 0,
+      "perps.funding_interval_ns": 28800000000000,
+      "perps.trace_perp_curve": "true (the equity curve is a required T12 gate output; the frozen synthetic default false would emit no curve)"
+    },
+    "values": {
+      "fees.fee_bps": 1.0, "fees.fixed_fee_per_fill": 0.0, "fees.minimum_fee": 0.0,
+      "spread.half_spread_bps": 1.0, "spread.fixed_half_spread_price": 0.0,
+      "slippage.fixed_bps": 0.0, "slippage.impact_bps_at_full_capacity": 0.0,
+      "capacity.max_participation_fraction": 0.1, "capacity.max_order_quantity": 1000000000.0,
+      "capacity.max_order_notional": 1000000000000.0, "capacity.on_order_exceeds_limit": "clamp",
+      "fills.reject_probability": 0.0, "fills.fill_probability": 1.0,
+      "fills.minimum_fill_quantity": 1e-09, "fills.require_inventory_for_sell": true,
+      "latency.decision_to_order_ns": 1000000, "latency.order_to_ack_ns": 500000,
+      "latency.ack_to_execution_ns": 1000000,
+      "marks.fallback": "cost_basis", "marks.price_source": "mark",
+      "account.require_sufficient_cash": true, "account.on_insufficient_cash": "reduce",
+      "account.cash_buffer_fraction": 0.0,
+      "perps.allow_short": true, "perps.default_leverage": 5.0, "perps.max_leverage": 20.0,
+      "perps.margin_mode": "cross", "perps.position_mode": "one_way",
+      "perps.maintenance_margin_rate": 0.005, "perps.default_funding_rate": 0.0,
+      "perps.liquidation_fee_bps": 0.0, "perps.trace_perp_curve": true
+    },
+    "contract_spec": "default_contracts per instrument: perp, multiplier 1.0, tick/lot/min_notional 0.0 (constraints disabled), cross margin, max_leverage 20, maintenance_margin_rate 0.005"
+  },
+  "metrics_reporting": {
+    "per_cell_required": ["equity_curve", "drawdown", "costs", "funding", "liquidations", "turnover", "margin_usage", "counts", "per_regime_calendar_stress", "pit_regime_attribution", "attribution_residuals", "backtest_sha256", "determinism"],
+    "per_fold_required": ["test_window", "retained_test_records", "cells", "event_outcome_strata"],
+    "uncertainty": "No confidence intervals are emitted on simulator PnL in v1: mechanical-policy paths are deterministic single realizations, and any interval would be a modelling choice, not a measurement. This is declared, not smoothed over.",
+    "prohibited": ["pooled cross-instrument or cross-fold headline PnL", "any promotion or edge language", "test-based selection", "dropping a cell or regime stratum from the receipt"]
+  },
+  "honesty_gates": {
+    "headline_allowed": false,
+    "gross_event_is_not_tradable_edge": "the R1 label is a gross 25bps/1d mark-price move; even a perfect event forecast is not a net return",
+    "simulated_pnl_is_descriptive": "all equity/PnL numbers come from frozen ASSUMED cost parameters applied to a collapsed bid=ask=mark book; they are plumbing output, not market measurements",
+    "t11_context_binding": "the receipt must embed the bound T11 fit receipt hash and its honest outcome summary",
+    "venue_holdout_limitation": "must be stated; single-venue V1 cohort cannot demonstrate venue generalization",
+    "fail_closed": "any upstream hash, fold, mask, policy or authorization mismatch aborts the run before any replay"
+  },
+  "authorization": {
+    "real_replay_performed": false,
+    "replay_authorized": false,
+    "measurement_authorized": false,
+    "training_authorized": false,
+    "network_model_calls": 0,
+    "order_submission_authorized": false,
+    "live_trading_authorized": false,
+    "approval_note": "This protocol file authorizes nothing by itself. The runner requires a separate nanojev-financial-validation-authorization-v1 receipt bound to this file's sha256 with decision=approved_for_real_replay; without it the runner emits a blocked receipt and exits non-zero."
+  },
+  "change_rule": "Any change to upstream hashes, the event definition, fold use, mask definitions, warmup/tie/quantile rules, policy set, execution values, or the authorization boundary creates a new protocol version; no in-place repair."
+}

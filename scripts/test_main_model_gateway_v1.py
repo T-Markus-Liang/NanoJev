@@ -31,8 +31,9 @@ from context_restore_v1 import (
     RestoreError, build_restore_manifest, canonical_bytes, restore_request, verify_round_trip,
 )
 from scorer_adapters_v1 import (
-    DeadlineScorer, FailureRecordingScorer, InProcessScorer, LayaEncoderScorerAdapter,
-    NanoJevHTTPScorer, ScorerError, ScorerTimeout, build_scorer,
+    CascadeScorer, DeadlineScorer, FailureRecordingScorer, InProcessScorer,
+    LayaEncoderScorerAdapter,
+    NanoJevHTTPScorer, ScorerError, ScorerTimeout, SystemOneHTTPScorer, build_scorer,
 )
 
 
@@ -43,11 +44,13 @@ SECOND_HISTORY = "A second unrelated historical aside about lunch."
 
 
 def score_result(payload, probabilities=None):
-    probabilities = probabilities or [0.999] * len(payload["states"])
-    return {"checkpoint": {"model": "synthetic-scoring-stub"}, "states": [
-        {"id": state["id"], "answers": {"irrelevant": {"type": "boolean",
-                                                       "probabilities": {"false": 1 - p, "true": p}}}}
-        for state, p in zip(payload["states"], probabilities)]}
+    questions = payload["states"][0].get("questions") or {}
+    probabilities = probabilities or [0.999] * len(questions)
+    answers = {name: {"type": "boolean",
+                      "probabilities": {"false": 1 - p, "true": p}}
+               for name, p in zip(questions, probabilities)}
+    return {"checkpoint": {"model": "synthetic-scoring-stub"},
+            "states": [{"id": "batch", "answers": answers}]}
 
 
 def request(history=HISTORY_TEXT, wire="openai_chat"):
@@ -172,6 +175,47 @@ class FakeNanoJevService:
         self.thread.join(timeout=2)
 
 
+class FakeSystemOneService:
+    """Loopback stand-in for a `/v1/systemone` typed-decision server."""
+
+    def __init__(self, noul=0.999):
+        service = self
+        self.calls = []
+        self.noul = noul
+
+        class Handler(BaseHTTPRequestHandler):
+            protocol_version = "HTTP/1.1"
+
+            def do_POST(self):
+                length = int(self.headers.get("Content-Length", 0) or 0)
+                payload = json.loads(self.rfile.read(length))
+                service.calls.append({"path": self.path, "payload": payload})
+                body = json.dumps({
+                    "model": payload.get("model", "fake-systemone"),
+                    "answers": {name: {"type": "noul", "noul": service.noul}
+                                for name in (payload.get("questions") or {"irrelevant": {}})},
+                    "usage": {"input_tokens": 7, "output_tokens": 0},
+                }).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, *args):
+                return
+
+        self.server = HTTPServer(("127.0.0.1", 0), Handler)
+        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        self.thread.start()
+        self.base_url = f"http://127.0.0.1:{self.server.server_port}"
+
+    def close(self):
+        self.server.shutdown()
+        self.server.server_close()
+        self.thread.join(timeout=2)
+
+
 def http_post(host, port, path, raw, headers=None):
     connection = HTTPConnection(host, port, timeout=10)
     try:
@@ -220,13 +264,15 @@ class GatewayTestCase(unittest.TestCase):
 
     def start_gateway(self, mode="shadow", scorer=None, kill_switch=False, sidecar=None,
                       receipt_log=None, score_timeout=5.0, token_counter=word_counter,
-                      tokenizer_id="test-word-counter", upstream_url=None):
+                      tokenizer_id="test-word-counter", upstream_url=None,
+                      min_reduction_bytes=0):
         config = GatewayConfig(
             upstream_base_url=upstream_url or self.upstream.base_url,
             listen_host="127.0.0.1", listen_port=0,
             mode=mode, kill_switch=kill_switch, scorer=scorer, sidecar=sidecar or {},
             receipt_log=Path(receipt_log) if receipt_log else (self.tmp / "receipts.jsonl"),
-            score_timeout=score_timeout, token_counter=token_counter, tokenizer_id=tokenizer_id)
+            score_timeout=score_timeout, token_counter=token_counter, tokenizer_id=tokenizer_id,
+            min_reduction_bytes=min_reduction_bytes)
         gateway = ContextGateGateway(config)
         server = make_server(gateway)
         thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -264,6 +310,24 @@ class ShadowModeTest(GatewayTestCase):
         self.assertGreater(savings["tokens"], 0)
         self.assertEqual(receipt["token_accounting"]["estimate"]["tokenizer_id"], "test-word-counter")
         self.assertEqual(receipt["token_accounting"]["provider_reported"]["prompt_tokens"], len(raw.split()))
+
+    def test_systemone_scorer_shadow_path(self):
+        service = FakeSystemOneService()
+        self.addCleanup(service.close)
+        scorer = SystemOneHTTPScorer(service.base_url, timeout=2.0, model_id="Winnow-12B")
+        raw = encoded(request())
+        config, host, port = self.start_gateway(
+            mode="shadow", scorer=scorer, sidecar=eligible_sidecar())
+        status, _ = http_post(host, port, "/v1/chat/completions", raw)
+        self.assertEqual(status, 200)
+        self.assertEqual(self.upstream.requests[0]["body"], raw)
+        self.assertEqual(len(service.calls), 1)
+        self.assertEqual(service.calls[0]["path"], "/v1/systemone")
+        self.assertEqual(service.calls[0]["payload"]["questions"]["irrelevant_0"]["type"], "noul")
+        receipt = read_receipts(config.receipt_log)[-1]
+        self.assertTrue(receipt["forwarded_unchanged"])
+        self.assertEqual(receipt["gate_receipt"]["status"], "scored")
+        self.assertEqual(receipt["removal_plan"]["proposed_pointers"], ["/messages/1/content"])
 
     def test_default_config_mode_is_shadow(self):
         config = GatewayConfig(upstream_base_url="http://127.0.0.1:1")
@@ -310,6 +374,34 @@ class ActiveModeTest(GatewayTestCase):
         self.assertNotEqual(receipt["forwarded_unchanged"], True)
         self.assertEqual(savings["claim"], "estimate")
         self.assertEqual(savings["basis"], "provider_usage_observed_no_paired_baseline")
+
+    def test_active_skips_verified_reduction_below_min_floor(self):
+        raw = encoded(request())
+        config, host, port = self.start_gateway(mode="active", scorer=score_result,
+                                                sidecar=eligible_sidecar(),
+                                                min_reduction_bytes=len(raw))
+        status, _ = http_post(host, port, "/v1/chat/completions", raw)
+        self.assertEqual(status, 200)
+        self.assertEqual(self.upstream.requests[0]["body"], raw)
+        receipt = read_receipts(config.receipt_log)[-1]
+        self.assertEqual(receipt["forward_reason"], "below_min_reduction")
+        self.assertTrue(receipt["forwarded_unchanged"])
+        self.assertFalse(receipt["removal_plan"]["applied"])
+        self.assertEqual(receipt["removal_plan"]["proposed_pointers"],
+                         ["/messages/1/content"])
+
+    def test_active_reduction_at_or_above_min_floor_still_applies(self):
+        raw = encoded(request())
+        config, host, port = self.start_gateway(mode="active", scorer=score_result,
+                                                sidecar=eligible_sidecar(),
+                                                min_reduction_bytes=1)
+        status, _ = http_post(host, port, "/v1/chat/completions", raw)
+        self.assertEqual(status, 200)
+        sent = self.upstream.requests[0]["body"]
+        self.assertNotEqual(sent, raw)
+        receipt = read_receipts(config.receipt_log)[-1]
+        self.assertEqual(receipt["forward_reason"], "active_reduced")
+        self.assertTrue(receipt["removal_plan"]["applied"])
 
     def test_anthropic_wire_format_reduces_eligible_assistant_text(self):
         body = {"model": "synthetic-main-model", "system": SYSTEM_TEXT,
@@ -464,19 +556,21 @@ class FailOpenTest(GatewayTestCase):
 
         holder = SwitchScorer()
         config, host, port = self.start_gateway(mode="active", scorer=holder, sidecar=sidecar)
-        payload_stub = {"states": [{"id": "segment_0"}, {"id": "segment_1"}]}
-        one_state = score_result(payload_stub)
-        one_state["states"] = one_state["states"][:1]
-        partial_envelope = {"states": [{"id": "segment_0",
-                                        "answers": {"irrelevant": {"type": "boolean",
-                                                                   "probabilities": {"false": 0.001, "true": 0.999}}}}]}
+        payload_stub = {"states": [{"id": "batch", "questions": {
+            "irrelevant_0": {}, "irrelevant_1": {}}}]}
+        partial_envelope = {"states": [{"id": "batch",
+                                        "answers": {"irrelevant_0": {"type": "boolean",
+                                                                     "probabilities": {"false": 0.001, "true": 0.999}}}}]}
         nan_result = score_result(payload_stub)
-        nan_result["states"][0]["answers"]["irrelevant"]["probabilities"]["true"] = float("nan")
+        nan_result["states"][0]["answers"]["irrelevant_0"]["probabilities"]["true"] = float("nan")
         nonunit = score_result(payload_stub)
-        nonunit["states"][0]["answers"]["irrelevant"]["probabilities"] = {"false": 0.5, "true": 0.7}
+        nonunit["states"][0]["answers"]["irrelevant_0"]["probabilities"] = {"false": 0.5, "true": 0.7}
         duplicate = score_result(payload_stub)
         duplicate["states"] = [duplicate["states"][0], duplicate["states"][0]]
-        bads = [None, {}, {"states": []}, partial_envelope, one_state, nan_result, nonunit, duplicate]
+        wrong_id = score_result(payload_stub)
+        wrong_id["states"][0]["id"] = "segment_0"
+        bads = [None, {}, {"states": []}, partial_envelope, nan_result,
+                nonunit, duplicate, wrong_id]
         for bad in bads:
             with self.subTest(result=bad):
                 holder.result = bad
@@ -488,7 +582,7 @@ class FailOpenTest(GatewayTestCase):
                 self.assertFalse(receipt["removal_plan"]["applied"])
                 self.assertTrue(receipt["forwarded_unchanged"])
 
-    def test_uncertain_score_fails_open(self):
+    def test_uncertain_score_retains_that_segment_only(self):
         body = two_eligible_request()
         raw = encoded(body)
         sidecar = {"segments": {"/messages/1/content": {"eligible": True},
@@ -498,10 +592,13 @@ class FailOpenTest(GatewayTestCase):
             scorer=lambda payload: score_result(payload, [0.999, 0.5]))
         status, _ = http_post(host, port, "/v1/chat/completions", raw)
         self.assertEqual(status, 200)
-        self.assertEqual(self.upstream.requests[0]["body"], raw)
+        # confident-irrelevant segment drops; the uncertain one is retained
+        sent = self.upstream.requests[0]["body"]
+        self.assertNotEqual(sent, raw)
+        self.assertNotIn(HISTORY_TEXT.encode(), sent)
+        self.assertIn(SECOND_HISTORY.encode(), sent)
         receipt = read_receipts(config.receipt_log)[-1]
-        self.assertEqual(receipt["gate_receipt"]["reason"], "uncertain_score")
-        self.assertTrue(receipt["forwarded_unchanged"])
+        self.assertEqual(receipt["forward_reason"], "active_reduced")
 
     def test_malformed_reduction_plan_fails_open(self):
         raw = encoded(request())
@@ -880,9 +977,51 @@ class ScorerAdapterTest(unittest.TestCase):
         self.assertEqual(len(scorer(payload)["states"]), 1)
         self.assertIsNone(build_scorer("none"))
         self.assertIsInstance(build_scorer("http", url="http://127.0.0.1:8765"), NanoJevHTTPScorer)
+        self.assertIsInstance(build_scorer("systemone", url="http://127.0.0.1:8091"),
+                              SystemOneHTTPScorer)
         self.assertIsInstance(build_scorer("inprocess", inprocess=score_result), InProcessScorer)
+        self.assertIsInstance(
+            build_scorer("cascade", url="http://127.0.0.1:8092",
+                         strong_url="http://127.0.0.1:8091"),
+            CascadeScorer)
+        with self.assertRaises(ValueError):
+            build_scorer("systemone")
+        with self.assertRaises(ValueError):
+            build_scorer("cascade", url="http://127.0.0.1:8092")
+        with self.assertRaises(ValueError):
+            build_scorer("cascade", strong_url="http://127.0.0.1:8091")
         with self.assertRaises(ValueError):
             build_scorer("unknown")
+
+    def test_cascade_scorer_confident_fast_and_strong_fallback(self):
+        fast = FakeSystemOneService(noul=0.999)
+        strong = FakeSystemOneService(noul=0.001)
+        self.addCleanup(fast.close)
+        self.addCleanup(strong.close)
+        scorer = build_scorer("cascade", url=fast.base_url,
+                              strong_url=strong.base_url)
+        payload = {"states": [{"id": "segment_0",
+                               "state": "x",
+                               "questions": {"irrelevant": {"type": "boolean",
+                                                          "instructions": "irrelevant?"}}}]}
+        result = scorer(payload)
+        self.assertEqual(result["states"][0]["id"], "segment_0")
+        self.assertEqual(
+            result["states"][0]["answers"]["irrelevant"]["probabilities"]["true"],
+            0.999)
+        self.assertEqual(len(fast.calls), 1)
+        self.assertEqual(len(strong.calls), 0)
+        # Uncertain fast answer routes the same state to the strong scorer.
+        uncertain = FakeSystemOneService(noul=0.5)
+        self.addCleanup(uncertain.close)
+        scorer = build_scorer("cascade", url=uncertain.base_url,
+                              strong_url=strong.base_url)
+        result = scorer(payload)
+        self.assertEqual(
+            result["states"][0]["answers"]["irrelevant"]["probabilities"]["true"],
+            0.001)
+        self.assertEqual(len(uncertain.calls), 1)
+        self.assertEqual(len(strong.calls), 1)
 
     def test_deadline_scorer_and_failure_recorder(self):
         with self.assertRaises(ScorerTimeout):
@@ -903,6 +1042,72 @@ class ScorerAdapterTest(unittest.TestCase):
         result = scorer({"states": [{"id": "segment_0"}]})
         self.assertEqual(len(result["states"]), 1)
         self.assertEqual(service.calls, ["/api/evaluate"])
+
+    def test_cascade_scorer_routes_only_uncertain_states_to_strong_path(self):
+        strong_calls = []
+
+        def fast(payload):
+            value = 0.999 if payload["states"][0]["id"] == "segment_0" else 0.5
+            return {"states": [{"id": payload["states"][0]["id"],
+                                "answers": {"q": {"type": "boolean",
+                                                  "probabilities": {"false": 1 - value,
+                                                                    "true": value}}}}]}
+
+        def strong(payload):
+            strong_calls.append(payload["states"][0]["id"])
+            return {"states": [{"id": payload["states"][0]["id"],
+                                "answers": {"q": {"type": "boolean",
+                                                  "probabilities": {"false": 0.001,
+                                                                    "true": 0.999}}}}]}
+
+        scorer = CascadeScorer(fast, strong, fast_threshold=0.95)
+        result = scorer({"states": [{"id": "segment_0"}, {"id": "segment_1"}]})
+        self.assertEqual(strong_calls, ["segment_1"])
+        self.assertEqual(result["states"][0]["id"], "segment_0")
+        self.assertEqual(result["states"][1]["id"], "segment_1")
+        self.assertEqual(result["checkpoint"]["fast_paths"], ["segment_0"])
+        self.assertEqual(result["checkpoint"]["strong_paths"], ["segment_1"])
+
+    def test_cascade_scorer_falls_back_when_fast_path_fails(self):
+        strong_calls = []
+
+        def fast(payload):
+            raise RuntimeError("fast unavailable")
+
+        def strong(payload):
+            strong_calls.append(payload["states"][0]["id"])
+            return score_result(payload, [0.999])
+
+        scorer = CascadeScorer(fast, strong, fast_threshold=0.95)
+        result = scorer({"states": [{"id": "segment_0"}]})
+        self.assertEqual(strong_calls, ["segment_0"])
+        self.assertEqual(result["checkpoint"]["fast_errors"], 1)
+        self.assertEqual(result["checkpoint"]["strong_paths"], ["segment_0"])
+
+    def test_systemone_scorer_translates_states_to_noul_calls(self):
+        service = FakeSystemOneService()
+        self.addCleanup(service.close)
+        scorer = SystemOneHTTPScorer(service.base_url, timeout=2.0, model_id="Winnow-12B")
+        result = scorer({"states": [
+            {"id": "segment_0", "state": "{\"conversation\": []}",
+             "questions": {"irrelevant": {"type": "boolean", "instructions": "irrelevant?"}},
+            },
+            {"id": "segment_1", "state": "plain text state",
+             "questions": {"irrelevant": {"type": "boolean", "instructions": "irrelevant?"}},
+            },
+        ]})
+        self.assertEqual([call["path"] for call in service.calls], ["/v1/systemone"] * 2)
+        self.assertEqual(service.calls[0]["payload"]["state"], {"conversation": []})
+        self.assertEqual(service.calls[0]["payload"]["questions"]["irrelevant"]["type"], "noul")
+        self.assertEqual(service.calls[0]["payload"]["model"], "Winnow-12B")
+        self.assertEqual(len(result["states"]), 2)
+        self.assertEqual(result["states"][0]["answers"]["irrelevant"]["probabilities"]["true"], 0.999)
+        self.assertEqual(result["usage"]["input_tokens"], 14)
+        self.assertEqual(result["usage"]["output_tokens"], 0)
+
+    def test_systemone_scorer_rejects_remote_origins(self):
+        with self.assertRaises(ValueError):
+            SystemOneHTTPScorer("https://example.org", timeout=2.0)
 
     def test_laya_adapter_is_documented_but_not_installed_or_enabled(self):
         adapter = LayaEncoderScorerAdapter()

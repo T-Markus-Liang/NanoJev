@@ -495,17 +495,18 @@ def oracle_scorer(facts, entity, fields, pointer_to_index):
     def score(payload):
         states = []
         for state in payload["states"]:
-            pointer = json.loads(state["state"])["candidate_pointer"]
-            index = pointer_to_index.get(pointer)
-            if index is None:
-                raise KeyError(f"unscored candidate pointer {pointer!r}")
-            decision = oracle_decision(facts, entity, fields, index)
-            probability = 0.0 if decision == "keep" else 1.0
-            states.append({
-                "id": state["id"],
-                "answers": {"irrelevant": {"type": "boolean", "probabilities": {
-                    "false": 1.0 - probability, "true": probability}}},
-            })
+            rendered = json.loads(state["state"])
+            pointers = rendered["candidate_pointers"]
+            answers = {}
+            for index, pointer in enumerate(pointers):
+                fact_index = pointer_to_index.get(pointer)
+                if fact_index is None:
+                    raise KeyError(f"unscored candidate pointer {pointer!r}")
+                decision = oracle_decision(facts, entity, fields, fact_index)
+                probability = 0.0 if decision == "keep" else 1.0
+                answers[f"irrelevant_{index}"] = {"type": "boolean", "probabilities": {
+                    "false": 1.0 - probability, "true": probability}}
+            states.append({"id": state["id"], "answers": answers})
         return {"checkpoint": dict(STUB_CHECKPOINT), "states": states}
     return score
 

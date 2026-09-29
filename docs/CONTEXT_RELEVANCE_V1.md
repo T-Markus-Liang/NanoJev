@@ -2,7 +2,7 @@
 
 状态：**三种子训练与汇总收据已产出；本次完成结果文档化，不晋级、不部署。独立实现/证据审核仍待进行。**
 
-本页记录 2026-09-19 实验产物。事实依据为 [冻结协议](../research/context_relevance_v1_protocol.json)、[机器可读报告](../results/context_relevance_oracle_v1_report.json) 和本地 dataset/run 文件。下一步执行入口见 [进度与 AI 交接计划](CURRENT_PROGRESS_AND_HANDOFF.md)。文档完成不代表工作区变更已提交或 Phase 0 已通过。
+本页记录 2026-09-19 实验产物。事实依据为 [冻结协议](../research/context_relevance_v1_protocol.json)、[机器可读报告](../results/context_relevance_oracle_v1_report.json) 和本地 dataset/run 文件。下一步执行入口见内部文档 `CURRENT_PROGRESS_AND_HANDOFF.md`（本地留存，不发布）。文档完成不代表工作区变更已提交或 Phase 0 已通过。
 
 ## 1. 实验问题与边界
 

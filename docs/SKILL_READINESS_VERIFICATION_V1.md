@@ -15,7 +15,7 @@ on `http://127.0.0.1:8876`.
 | `~/.codex/nanojev/usage.jsonl` (skill usage log) | the per-event record of what was actually asked, what `abstain_below` was applied, and the per-event `abstained_count` / confidence extremes |
 | `/tmp/njsurvey/survey.json`, `run1.json`, `run2.json` (raw artifacts of the original run) | the full per-question answer, probability distribution and confidence for all 13 questions, and the one-byte-level determinism check |
 | `/Users/markus/.codex/skills/nanojev-local-decider/scripts/nanojev_skill.py` | threshold semantics of `decide` vs `lifecycle` |
-| `docs/NANOJEV_V2_ROADMAP.md`, `docs/CURRENT_PROGRESS_AND_HANDOFF.md`, `docs/PAPER_TRADE_REAL_DATA_V1.md`, `docs/WORKFLOW_V2_BASELINE.md`, `docs/EXECUTION_REVIEW_LOG.md`, `results/paper_trade_b0_baseline_*.json`, `results/b0_periods/*.json` | the repository's own recorded facts for the label audit |
+| `docs/NANOJEV_V2_ROADMAP.md`, `docs/CURRENT_PROGRESS_AND_HANDOFF.md` (internal, local-only), `docs/PAPER_TRADE_REAL_DATA_V1.md`, `docs/WORKFLOW_V2_BASELINE.md`, `docs/EXECUTION_REVIEW_LOG.md` (internal, local-only), `results/paper_trade_b0_baseline_*.json`, `results/b0_periods/*.json` (local artifacts) | the repository's own recorded facts for the label audit |
 
 **Concurrent-correction note.** While this verification was in progress, a parallel workstream
 edited `docs/NANOJEV_SKILL_READINESS_V1.md` (mtime 22:25:41) and added

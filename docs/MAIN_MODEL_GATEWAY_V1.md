@@ -19,7 +19,7 @@ content-free receipts, and token accounting.
 | File | Role |
 |---|---|
 | `scripts/main_model_gateway_v1.py` | Loopback HTTP gateway, shadow/active modes, kill switch, reduction applicator, JSONL receipts |
-| `scripts/scorer_adapters_v1.py` | Pluggable scorers: existing NanoJev `/api/evaluate` service, in-process callable, bounded-deadline and failure-recording wrappers, documented laya-style encoder shape |
+| `scripts/scorer_adapters_v1.py` | Pluggable scorers: existing NanoJev `/api/evaluate` service, local `/v1/systemone` services such as Winnow, in-process callable, bounded-deadline and failure-recording wrappers, documented laya-style encoder shape |
 | `scripts/test_main_model_gateway_v1.py` | unittest coverage with a loopback fake upstream started inside the test |
 | `docs/MAIN_MODEL_GATEWAY_V1.md` | This specification |
 
@@ -106,19 +106,33 @@ Invariants, enforced in order:
    it is forwarded. Any failure forwards the ORIGINAL bytes.
 6. Shadow mode never builds or sends reduced bytes under any circumstance.
 7. The kill switch is checked before scoring and forwards everything unchanged.
+8. **T8:** the entire serialized restore-header line must fit **4096 bytes**, checked
+   after the real restore round-trip but **before sending reduced bytes upstream**.
+   Over-budget plans forward the exact original bytes and omit the header. This is a
+   conservative single-header limit, not a guarantee for every intermediary's total
+   header budget. No content is moved into another header or response body.
 
 ### Fail-open reason codes
 
-Any of these forwards the ORIGINAL bytes untouched; `forwarded_unchanged` is `true`:
+Global failures forward the ORIGINAL bytes untouched; `forwarded_unchanged` is `true`.
+Core reasons appear inside `gate_receipt.reason`; gateway reasons appear in
+`forward_reason`. **With T8**, a multi-batch scorer failure retains that batch and its
+dependencies, while other fully scored batches may still produce a hypothetical plan
+(or a test-only active reduction). Uncertainty still retains the whole request.
 
 | `forward_reason` | Cause |
 |---|---|
 | `gate_error` | `shadow_request` itself raised |
-| `scorer_error` | Scorer raised; `scorer_failure_kind` is `exception` or `timeout` |
-| `invalid_score_response` | Malformed, partial, duplicate, non-unit, or nonfinite scores (inside `gate_receipt.reason`) |
+| `scorer_error` | Scorer raised; single batch retains all, multi-batch failure appears in `gate_receipt.batches`; `scorer_failure_kind` is `exception` or `timeout` |
+| `scorer_state_budget_exceeded` | Scorer request could not be fitted into `--max-scorer-payload-bytes` even after all degrade stages; batch fails open |
+| `invalid_score_response` | Malformed, partial, duplicate, non-unit, or nonfinite scores; whole affected batch retained |
+| `partial_batch_fallback` / `all_batches_failed` | Some / all batches failed; their candidates and dependencies stay retained |
+| `scorer_identity_mismatch` | Valid batches report different checkpoint metadata fingerprints; retain whole request |
 | `uncertain_score` | Any candidate inside the uncertain interval |
 | `protected_segment_in_removal_set` | Plan contained a protected/unknown drop |
 | `reduction_error` | Reduced bytes could not be built or failed core re-validation |
+| `restore_manifest_header_too_large` | Full restore-header line exceeds 4096 bytes; original bytes sent, no restore header |
+| `below_min_reduction` | Verified reduction saved less than `--min-reduction-bytes` (default 0); original bytes sent, no restore header |
 | `unsupported_wire_format` / `unsupported_method` | Not a gated endpoint |
 | `kill_switch` | Global kill switch engaged; no scoring performed |
 | `active_no_reduction` | Gate scored but proposed nothing to drop |
@@ -126,6 +140,14 @@ Any of these forwards the ORIGINAL bytes untouched; `forwarded_unchanged` is `tr
 
 Scorer failures never copy exception text into the receipt; only the fixed
 `scorer_failure_kind` code is recorded, because exception messages can contain prompt text.
+
+`--max-scorer-payload-bytes` (unset by default) bounds the serialized scorer
+request. When set, the gate degrades the judge's view deterministically —
+full → context contents truncated at 2000/500/120 chars → non-candidate,
+non-user context collapsed to an `omitted_chars` note — and records the chosen
+stage in `batches[].state_stage`. The candidate being judged and user messages
+are never removed. If no stage fits, the batch fails open with
+`scorer_state_budget_exceeded`.
 
 ## 5. Deterministic global kill switch
 
@@ -142,16 +164,32 @@ both modes. It is deterministic: no request, header, or sidecar can disable it.
 * `none` — no scorer. The core reports `scorer_unavailable` and retains everything.
 * `http` — `NanoJevHTTPScorer`, reusing `context_gate_local.LoopbackPredictor`
   (`POST /api/evaluate`, literal loopback only, no proxy, no redirects, bounded timeout).
+* `systemone` — `SystemOneHTTPScorer`, which translates each gate state into a
+  loopback `POST /v1/systemone` call and maps `noul` back to the gate's boolean
+  probability contract. This supports local Winnow-style typed-decision servers;
+  no API key is sent and remote origins are rejected.
 * `inprocess` — `InProcessScorer` around a caller-supplied callable.
 * `laya` — `LayaEncoderScorerAdapter`, a **documented, configurable shape** for a
   laya-style local encoder decision service. `laya` is never installed, downloaded, or
   imported; the adapter only fixes the loopback HTTP contract and fails with
   `ScorerError` until an operator explicitly configures a loopback origin.
 
+`CascadeScorer` is a scorer-composition helper (not a new gate policy): a small fast
+scorer answers first and only uncertain states are routed to a stronger scorer. The
+current CLI does not expose a generic `cascade` scorer kind because it must be wired to
+two concrete scorer services or callables.
+
 `DeadlineScorer` bounds any scorer with a wall-clock deadline and raises `ScorerTimeout`.
 Python threads cannot be force-killed, so the deadline stops the *gateway* from waiting;
 it does not cancel the underlying call. `FailureRecordingScorer` records whether the last
 failure was a timeout or an exception without retaining its text.
+
+T8 creates at most four sequential scorer calls under the unchanged 128-segment bound.
+The deadline remains **per call**, not one total request deadline: default scoring wait
+can reach approximately `4 × 5 s`, excluding parsing/transport overhead. A later successful
+batch no longer clears an earlier recorded failure; each request gets a fresh recorder.
+The same timeout does not cancel underlying work. This is a capacity extension, not a
+measured latency optimization or authorization to activate production pruning.
 
 Trusted per-request metadata is supplied by integration, never parsed from prompt text:
 
@@ -214,6 +252,18 @@ Start the existing local NanoJev service, then the gateway. Shadow mode first:
   --receipt-log /tmp/nanojev_gateway_receipts.jsonl
 ```
 
+A local SystemOne-compatible scorer such as Winnow uses the same shadow posture:
+
+```bash
+.venv/bin/python scripts/main_model_gateway_v1.py \
+  --upstream https://api.openai.com \
+  --listen-host 127.0.0.1 --listen-port 8790 \
+  --mode shadow \
+  --scorer systemone --scorer-url http://127.0.0.1:8091 \
+  --scorer-endpoint /v1/systemone --scorer-model Winnow-12B \
+  --receipt-log /tmp/nanojev_gateway_receipts.jsonl
+```
+
 Point the client at the gateway instead of the provider (the client keeps sending its own
 credential headers, which the gateway forwards without reading):
 
@@ -242,7 +292,7 @@ savings, protected-segment fail-open, scorer exception/timeout/absent fail-open,
 malformed/partial/nonfinite/duplicate/non-unit/uncertain score fail-open, defensive
 refusal of a protected drop, kill switch, unsupported format/method bypass, receipt
 privacy, upstream error pass-through, upstream-unreachable 502, config validation, and the
-scorer adapter shapes (including that `laya` is never imported).
+scorer adapter shapes (including the loopback `/v1/systemone` translation and that `laya` is never imported).
 
 ## 11. What is NOT established
 

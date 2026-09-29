@@ -1,0 +1,120 @@
+{
+  "schema_version": "nanojev-v2-t9d-fp32-mps-protocol-v2",
+  "protocol_id": "nanojev-v2-t9d-domain-adaptation-fp32-mps-v2",
+  "protocol_version": "v2",
+  "status": "versioned_pending_independent_review_and_clean_corpus",
+  "purpose": "Versioned amendment for the domain-adaptation experiment. This freezes the executable FP32/MPS recipe without authorizing corpus merge, training, checkpoint promotion, serving or deployment.",
+  "predecessor": {
+    "protocol_document": "docs/GATE_CONTRASTIVE_PROTOCOL_V1.md",
+    "protocol_sha256": "af3d745953ec84370b9b47fd5d53460e8c0400d2043881193fac6346bab4ee0f",
+    "superseded_clause": "§7 LoRA rank 16, BF16, effective batch 8, one epoch"
+  },
+  "owner_decision": {
+    "approved_for_review": true,
+    "recorded_utc": "2026-09-20",
+    "decision": "Use the existing full-backbone FP32/MPS runtime as the proposed experimental amendment.",
+    "does_not_mean": [
+      "independent protocol review passed",
+      "corpus isolation passed",
+      "training authorized",
+      "checkpoint promotion authorized",
+      "deployment or active context removal authorized"
+    ]
+  },
+  "runtime": {
+    "device": "mps",
+    "precision": "fp32",
+    "parameter_storage": "float32",
+    "autocast": "disabled",
+    "cuda_required": false,
+    "lora_or_peft": false,
+    "trainer_path": "scripts/train_pipeline_decisions.py",
+    "predictor_path": "scripts/predict_toy_decisions.py",
+    "trainer_sha256": "d1942528411bf9ad6d762ef1660f7bac3003cb8f9191f160c4cc07ec2746dd0a",
+    "predictor_sha256": "701851b421eeca7611eb3241c47c06db779645a9771abf5f0074704b49c23514",
+    "mps_precision_rule": "MPS accepts fp32 only; bf16 is rejected by resolve_runtime.",
+    "loss_rule": "MPS rejects paired_brier_pg; this protocol uses gold_distribution with ce. The trainer also exposes brier, but brier is not selected by this protocol."
+  },
+  "recipe": {
+    "model": "Qwen/Qwen3-0.6B",
+    "initial_checkpoint": "checkpoints/local_atomic_seed17/variants/local_atomic_seed17",
+    "training_seeds": [17, 18, 19],
+    "objective": "gold_distribution",
+    "loss": "ce",
+    "steps": 300,
+    "eval_every": 50,
+    "head_steps": 0,
+    "batch_questions": 16,
+    "microbatch_questions": 4,
+    "max_microbatch_tokens": 16384,
+    "max_length": 2048,
+    "backbone_lr": 0.00002,
+    "head_lr": 0.0002,
+    "head_warmup_lr": 0.001,
+    "explicit_vs_runtime_defaults": {
+      "steps": "explicitly frozen and equal to runtime default",
+      "eval_every": "explicitly frozen and equal to runtime default",
+      "backbone_lr": "explicitly frozen and equal to runtime default",
+      "head_lr": "explicitly frozen and equal to runtime default",
+      "batch_questions": "explicit amendment; differs from runtime default 12",
+      "max_length": "explicit amendment; differs from runtime default 512",
+      "device": "explicit amendment; differs from historical runtime default cuda",
+      "precision": "explicit amendment; differs from historical runtime default bf16"
+    }
+  },
+  "data_and_split_contract": {
+    "maze_root": "dataset/games_v4/data/local_maze_v1",
+    "maze_split_sha256": {
+      "train.jsonl": "502f2840f3e15ffac76554f35ef6c2e41c6e25f58f77b5ee3a2f1196cba0c41a",
+      "dev.jsonl": "bd7f9d4402112770f571210677e329e8673a38caa6bb798b744ee47bc793b9a5",
+      "calibration.jsonl": "94a233e71eaf3460c939bb0b4b147a0a951931001097070ea7ac8b4b78f39ace",
+      "test.jsonl": "be7783c395715f9fa2aae7c793c4e5b7c4b1dfe3fcb0880544b577e85b8f3b10",
+      "ood.jsonl": "e6772998a189880c780b6408c0e348c77324a28204e390767dec54f475d61f4e"
+    },
+    "engineering_corpus": "new reviewed version required; V1 is blocked and immutable",
+    "source_group_unit": "connected component of contrastive lineage plus identical canonical model-visible input",
+    "evaluation_reuse": "forbidden",
+    "heldout_and_ood": "must be independently sourced and source-group disjoint from train, dev and calibration",
+    "t8g_t9_gate": "must pass a new isolation/provenance review before any trainer invocation"
+  },
+  "selection_and_reporting": {
+    "selection_split": "dev",
+    "selection_metric": "target cross-entropy",
+    "include_step_zero": true,
+    "tie_break": "earliest step",
+    "last_point_rule": "If the minimum is the final registered evaluation point, report budget exhaustion and lack of convergence; do not add steps after observing results.",
+    "all_seeds_reported": true,
+    "aggregate_rule": "minimum across seeds for promotion gates; retain every seed and every failure",
+    "temperature": 1.0,
+    "threshold": 0.9,
+    "post_hoc_threshold_fit": false
+  },
+  "paired_gates": {
+    "g0_protected_deletions": 0,
+    "g1_engineering_answered_rate_min": 0.5,
+    "g1_cluster_bootstrap_lower_bound_min": 0.3,
+    "g2_fixed_answer_accuracy_min": 0.8,
+    "g2_confident_wrong_total_max": 0,
+    "g3_spearman_ci_excludes_zero": true,
+    "g4_maze_accuracy_floor_delta_pp": -0.5,
+    "g4_report": ["accuracy", "nll", "brier", "ece"],
+    "g4_pairing": "same cohort and matched initialization",
+    "g5_rule": "all gates hold for the minimum of seeds 17, 18 and 19"
+  },
+  "review_requirements": [
+    "independent reviewer accepts this new protocol version and hash",
+    "new corpus version passes source-group and evaluation-provenance review",
+    "adapter mapping, endpoint identities and heldout composition are frozen",
+    "baseline is measured before candidate training",
+    "training outputs use a new directory and cannot overwrite production"
+  ],
+  "authorization": {
+    "protocol_valid": true,
+    "training_authorized": false,
+    "measurement_authorized": false,
+    "checkpoint_promotion_authorized": false,
+    "deployment_authorized": false,
+    "active_context_removal_authorized": false,
+    "live_trading_authorized": false
+  }
+}

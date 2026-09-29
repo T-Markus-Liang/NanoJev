@@ -1,0 +1,144 @@
+{
+  "schema_version": "nanojev-real-context-holdout-protocol-v1",
+  "protocol_id": "real_context_holdout_v1",
+  "status": "protocol_valid_not_collecting",
+  "created_at": "2026-09-23",
+  "purpose": "Define privacy-preserving intake, quarantine, labeling, and evaluation order for a real-context holdout before any provider shadow/canary phase.",
+  "collection": {
+    "started": false,
+    "requires_owner_authorization": true,
+    "owner_authorization_granted": false,
+    "data_root": "data/real_context_holdout_v1",
+    "raw_files_expected": 0,
+    "minimum_cases_when_collected": 30,
+    "target_cases_when_collected": 50
+  },
+  "allowed_sources": [
+    "owner_selected_local_requests",
+    "owner_selected_sanitized_tool_traces",
+    "owner_selected_application_logs_with_credentials_removed"
+  ],
+  "forbidden_sources": [
+    "jevbench_or_other_benchmark_rows",
+    "provider_generated_outputs_as_labels",
+    "real_credentials_or_tokens",
+    "third_party_private_data_without_permission",
+    "requests_containing_unredactable_sensitive_content"
+  ],
+  "case_contract": {
+    "required_fields": [
+      "case_id",
+      "wire_format",
+      "source_type",
+      "source_hash",
+      "request_sha256",
+      "body_bytes",
+      "captured_or_redacted_at",
+      "expected_gate_status",
+      "protected_pointers",
+      "downstream"
+    ],
+    "optional_fields": [
+      "eligible_candidate_pointers",
+      "dependency_pointers",
+      "expected_suggestions",
+      "expected_answer",
+      "reviewer_notes_hash"
+    ],
+    "wire_formats": [
+      "openai_chat",
+      "anthropic_messages",
+      "openai_responses"
+    ],
+    "expected_gate_statuses": [
+      "scored",
+      "bypass",
+      "protected_only"
+    ]
+  },
+  "labeling": {
+    "labels_are_manual": true,
+    "scorer_outputs_must_not_be_labels": true,
+    "protected_pointers_manual_required": true,
+    "eligible_pointers_manual_or_absent": true,
+    "required_evidence_must_be_declared": true,
+    "downstream_contract_required_for_scored_cases": true,
+    "conflict_resolution": "retain uncertain context"
+  },
+  "coverage_requirements": {
+    "minimum_cases": 30,
+    "minimum_distinct_families": 8,
+    "minimum_bypass_cases": 3,
+    "minimum_tool_linked_cases": 3,
+    "minimum_multilingual_cases": 2,
+    "minimum_protected_only_cases": 2,
+    "minimum_long_tail_cases": 2,
+    "minimum_mixed_part_cases": 1,
+    "minimum_mutable_tool_result_cases": 1,
+    "minimum_nonrepeatable_tool_result_cases": 1
+  },
+  "isolation": {
+    "exclude_v2_v3_cases": true,
+    "duplicate_detection": "request_sha256 must not overlap V2/V3 or any existing case",
+    "near_duplicate_policy": "manual review required; uncertain near-duplicates are excluded",
+    "evaluation_only": true,
+    "training_calibration_forbidden": true
+  },
+  "privacy": {
+    "raw_files_local_only": true,
+    "raw_root_must_be_gitignored": true,
+    "public_manifest_content_free": true,
+    "manifest_may_store_only": [
+      "case_id",
+      "wire_format",
+      "source_type",
+      "hashes",
+      "counts",
+      "status",
+      "expected labels without raw text"
+    ],
+    "credential_scan_required": true,
+    "unredactable_cases_must_be_dropped": true,
+    "receipts_must_not_store_raw_prompt_or_response": true
+  },
+  "evaluation_order": [
+    "manifest_schema_and_hash_validation",
+    "privacy_and_isolation_checks",
+    "deterministic_shadow_evaluation",
+    "pinned_local_generation_pair_evaluation",
+    "optional_phase1_shadow_provider_measurement_after_owner_authorization",
+    "optional_phase2_paired_active_canary_after_owner_authorization"
+  ],
+  "provider_calls_allowed": false,
+  "active_filtering_allowed": false,
+  "stop_conditions": [
+    "raw context appears outside the ignored data root",
+    "credential scan fails",
+    "request_sha256 overlaps V2/V3 or another holdout case",
+    "protected pointers cannot be manually labeled with confidence",
+    "required downstream evidence is unclear",
+    "case contains unredactable sensitive content",
+    "provider call or active filtering is attempted before explicit owner authorization"
+  ],
+  "review_artifacts": {
+    "manifest_builder": "scripts/real_context_holdout_manifest_v1.py",
+    "future_manifest": "data/real_context_holdout_v1/manifest.json",
+    "future_manifest_check": "results/real_context_holdout_manifest_check_v1.json",
+    "shadow_evaluator": "scripts/run_real_context_holdout_shadow_v1.py",
+    "future_shadow_receipt": "results/real_context_holdout_shadow_v1.json",
+    "localgen_evaluator": "scripts/run_real_context_holdout_localgen_v1.py",
+    "future_localgen_receipt": "results/real_context_holdout_localgen_v1.json",
+    "e2e_preflight_runner": "scripts/run_real_context_holdout_preflight_v1.py",
+    "collection_authorization_template": "research/real_context_collection_authorization_v1.json",
+    "collection_runbook": "docs/REAL_CONTEXT_COLLECTION_RUNBOOK_V1.md",
+    "future_e2e_receipt": "results/real_context_holdout_e2e_preflight_v1.json",
+    "future_preflight_receipt": "results/real_context_holdout_preflight_v1.json",
+    "future_value_receipt": "results/real_context_holdout_value_v1.json"
+  },
+  "acceptance": {
+    "protocol_status_required": "protocol_valid_not_collecting",
+    "collection_preflight_required_before_raw_files": true,
+    "provider_phase_requires_new_owner_scope": true,
+    "active_canary_requires_new_owner_scope": true
+  }
+}

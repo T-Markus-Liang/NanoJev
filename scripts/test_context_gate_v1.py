@@ -2,7 +2,8 @@ import json
 import unittest
 from unittest.mock import Mock
 
-from context_gate_v1 import shadow_request, parse_segments
+from context_gate_v1 import (fit_scoring_payload, parse_segments,
+                             scoring_payload, serialized, shadow_request)
 
 
 def request(wire="openai_chat", history="An unrelated old weather forecast."):
@@ -24,10 +25,12 @@ def encoded(body):
 
 
 def score_result(payload, probabilities=None):
-    probabilities = probabilities or [0.999] * len(payload["states"])
-    return {"checkpoint": {"model": "synthetic-scoring-stub"}, "states": [
-        {"id": state["id"], "answers": {"irrelevant": {"type": "boolean", "probabilities": {"false": 1-p, "true": p}}}}
-        for state, p in zip(payload["states"], probabilities)]}
+    questions = payload["states"][0].get("questions") or {}
+    probabilities = probabilities or [0.999] * len(questions)
+    answers = {name: {"type": "boolean", "probabilities": {"false": 1-p, "true": p}}
+               for name, p in zip(questions, probabilities)}
+    return {"checkpoint": {"model": "synthetic-scoring-stub"},
+            "states": [{"id": "batch", "answers": answers}]}
 
 
 class ContextGateTest(unittest.TestCase):
@@ -96,13 +99,16 @@ class ContextGateTest(unittest.TestCase):
         self.assertEqual(receipt["status"], "scored")
         self.assertTrue(all(s["suggestion"] == "retain" for s in receipt["segments"]))
 
-    def test_any_uncertain_score_fails_whole_request_open(self):
+    def test_uncertain_score_retains_only_that_segment(self):
         body = request()
         body["messages"].insert(2, {"role": "assistant", "content": "another old message"})
         notes = {f"/messages/{i}/content": {"eligible": True} for i in (1, 2)}
         _, receipt = shadow_request(encoded(body), "openai_chat", {"segments": notes}, lambda p: score_result(p, [0.999, 0.5]))
-        self.assertEqual(receipt["reason"], "uncertain_score")
-        self.assertTrue(all(s["suggestion"] == "retain" for s in receipt["segments"]))
+        self.assertEqual(receipt["status"], "scored")
+        per_pointer = {s["pointer"]: s for s in receipt["segments"]}
+        self.assertEqual(per_pointer["/messages/1/content"]["suggestion"], "drop")
+        self.assertEqual(per_pointer["/messages/2/content"]["suggestion"], "retain")
+        self.assertEqual(per_pointer["/messages/2/content"]["reason"], "uncertain_score")
 
     def test_errors_are_fail_open_and_error_text_does_not_leak(self):
         raw = encoded(request()); notes = {"segments": {eligible_pointer("openai_chat"): {"eligible": True}}}
@@ -114,12 +120,13 @@ class ContextGateTest(unittest.TestCase):
 
     def test_missing_duplicate_nonfinite_and_nonunit_scores(self):
         raw = encoded(request()); notes = {"segments": {eligible_pointer("openai_chat"): {"eligible": True}}}
-        payload = {"states": [{"id": "segment_0"}]}
+        payload = {"states": [{"id": "batch",
+                               "questions": {"irrelevant_0": {}}}]}
         bads = [None, {}, {"states": []}, score_result(payload)]
         bads[-1]["states"] *= 2
         for probability in (float("nan"), float("inf"), True, -0.01, 1.01, "0.99"):
             bad = score_result(payload)
-            bad["states"][0]["answers"]["irrelevant"]["probabilities"]["true"] = probability
+            bad["states"][0]["answers"]["irrelevant_0"]["probabilities"]["true"] = probability
             bads.append(bad)
         for result in bads:
             with self.subTest(result=result):
@@ -173,6 +180,44 @@ class ContextGateTest(unittest.TestCase):
         for threshold in (True, float("nan"), 0.5, 2):
             _, receipt = shadow_request(encoded(request()), "openai_chat", scorer=score_result, threshold=threshold)
             self.assertEqual(receipt["reason"], "invalid_threshold")
+
+    def test_staged_scorer_state_fitting(self):
+        body = request(history="Long irrelevant history. " * 400)
+        raw = encoded(body)
+        sidecar = {"segments": {eligible_pointer("openai_chat"): {"eligible": True}}}
+        segments = parse_segments(raw, "openai_chat")
+        candidates = [s for s in segments if s.pointer == eligible_pointer("openai_chat")]
+        full, stage = fit_scoring_payload(segments, candidates)
+        self.assertEqual(stage, "full")
+        full_bytes = len(serialized(full).encode("utf-8"))
+        fitted, stage = fit_scoring_payload(segments, candidates, max_bytes=full_bytes - 1)
+        self.assertNotEqual(stage, "full")
+        self.assertLessEqual(len(serialized(fitted).encode("utf-8")), full_bytes - 1)
+        # The candidate and user messages are still present in the degraded view.
+        fitted_text = serialized(fitted)
+        self.assertIn(eligible_pointer("openai_chat"), fitted_text)
+        self.assertIn("warehouse status", fitted_text)
+        # An impossible budget fails open instead of silently scoring a gutted state.
+        seen = []
+        _, receipt = shadow_request(
+            raw, "openai_chat", sidecar,
+            lambda payload: score_result(payload), max_scorer_payload_bytes=50)
+        self.assertEqual(receipt["reason"], "scorer_state_budget_exceeded")
+        self.assertEqual(receipt["batches"][0]["state_stage"], None)
+        # A workable budget is recorded in the batch receipt and still scores.
+        budget = full_bytes - 1
+        def scorer(payload):
+            seen.append(len(serialized(payload).encode("utf-8")))
+            return score_result(payload)
+        _, receipt = shadow_request(
+            raw, "openai_chat", sidecar, scorer, max_scorer_payload_bytes=budget)
+        self.assertEqual(receipt["status"], "scored")
+        self.assertNotEqual(receipt["batches"][0]["state_stage"], "full")
+        self.assertLessEqual(seen[0], budget)
+        # No budget keeps the historical full rendering.
+        payload, stage = fit_scoring_payload(segments, candidates, None)
+        self.assertEqual(stage, "full")
+        self.assertEqual(payload, scoring_payload(segments, candidates))
 
 
 if __name__ == "__main__":

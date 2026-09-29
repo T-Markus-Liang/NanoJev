@@ -51,7 +51,7 @@ function converted(row,publicState,cacheHit){
   return {id:publicState.id,answers};
 }
 async function evaluate(publicState){
-  const input={model:'typesafe-ai/jev',state:publicState.state,questions:publicState.questions};
+  const input={model:'jev-latest',state:publicState.state,questions:publicState.questions};
   const key=digest(input);
   if(cache.has(key))return {result:converted(cache.get(key),publicState,true),apiCalls:0};
   const reservation=Math.max(.002,(Buffer.byteLength(JSON.stringify(input))+8192)*.042/1e6);
@@ -62,7 +62,7 @@ async function evaluate(publicState){
   await append({id,status:'started',input_sha256:key,started_at});
   try{
     const teacher=await evaluateTeacher({teacher:'jev',model:input.model,state:input.state,questions:input.questions});
-    const cost=Number(teacher.provider_metadata?.gateway?.cost);
+    const cost=Number(teacher.provider_metadata?.gateway?.cost ?? teacher.estimated_cost_usd);
     if(!Number.isFinite(cost)||cost<0)throw Error('Missing cost');
     spent+=cost;
     const record={id,status:'succeeded',input_sha256:key,input,model:teacher.model,
@@ -90,7 +90,7 @@ for await(const line of readline.createInterface({input:process.stdin,crlfDelay:
       execution:{engine:'jev_live_api',forward_passes:null,autoregressive_decode_steps:null,
         network_model_calls:calls,cache_hits:results.length-calls,states:results.length,
         questions:request.states.reduce((s,r)=>s+Object.keys(r.questions).length,0),
-        max_concurrent_http_requests:concurrency,cumulative_cost_usd:spent,api_model:'typesafe-ai/jev'}})+'\n');
+        max_concurrent_http_requests:concurrency,cumulative_cost_usd:spent,api_model:'jev-latest'}})+'\n');
   }catch{
     process.stdout.write(JSON.stringify({error:'Jev worker stopped; inspect sanitized local journal, no fallback.'})+'\n');
     process.exitCode=1;break;

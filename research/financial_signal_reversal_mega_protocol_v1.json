@@ -1,0 +1,44 @@
+{
+  "cohort": {
+    "assets": "277 usable USDT-M perps (>=200 daily bars), imported data/rc_futures_v1 archive copy; includes delisted/renamed early-stoppers",
+    "builder": "scripts/build_perp_pit_mega_v1.py",
+    "path": "data/perp_pit_mega_v1/records.jsonl",
+    "price_basis": "csv close as the mark proxy for every symbol",
+    "targets": "label.forward_return_bps (1d, primary) and forward_return_5d_bps (5d, descriptive), gross close-to-close, contiguous daily bars only"
+  },
+  "created_utc": "2026-09-25T14:12:12Z",
+  "definitions": {
+    "amihud": "|ret1d| / quote_volume (ret and volume both known at the decision close)",
+    "btc_gate": "BTCUSDT close/close[t-20]-1 sign on the decision day (contiguous 20d required)",
+    "fdr_family": "10 cells: a pooled Spearman + a XS spread; b illiquid + liquid pooled Spearmans + paired per-day rho flip + illiquid within-half XS; c gate-on + gate-off XS spreads; d shocked pooled Spearman + shocked-only XS",
+    "illiq_level": "median Amihud over the strictly-prior 90 records per symbol (>=30 obs) \u2014 slow-moving characteristic, not the same-day spike",
+    "illiquid_liquid_halves": "per decision day, ranked universe split at the cross-sectional median of illiq_level",
+    "net_cost": "5bps per unit one-sided leg turnover; turnover = (slots entered+exited)/(2*book slots) vs prior day; day-1 establishes the book",
+    "ret1d": "close/close[prev_calendar_day]-1; requires the previous record to be the previous calendar day (no cross-gap returns)",
+    "vol_pct": "mid-rank pct of today's quote_volume vs its strictly-prior 90 records (>=30 obs); shock = vol_pct > 0.90",
+    "xs_decile": "per day >=30 ranked assets: k=n//10; reversal longs bottom-decile losers / shorts top-decile winners; spread = fwd(losers)-fwd(winners), bps"
+  },
+  "forbidden": [
+    "fitting",
+    "trading",
+    "profitability claims",
+    "protocol edits post-run",
+    "network"
+  ],
+  "purpose": "T132: retest daily-scale short-term reversal and liquidity-conditioned reversal/momentum at mega scale (277 symbols x 2021-2025) \u2014 the 5-asset T101b Amihud flip was underpowered and tested at 5d; the Zaremba literature claim is at the 1d horizon. Arms: (a) lag1d->fwd1d pooled Spearman + per-day XS Spearman + decile reversal spread; (b) trailing-90 median Amihud illiquidity level -> per-day median split into illiquid/liquid halves, within-half Spearmans + within-half decile spreads + paired per-day rho contrast (prior: negative rho in the illiquid half); (c) reversal x BTC ret20 gate split; (d) >90th-pct trailing-90 quote-volume shock -> next-day reversal; (e) honest net at 5bps/leg on the daily-rebalanced book. BH-FDR over the fixed 10-cell family, within-day rank-shuffle placebo x3, yearly folds, delisting control, deterministic double-run.",
+  "schema_version": "nanojev-financial-signal-reversal-mega-protocol-v1",
+  "statistics": {
+    "caveats": [
+      "pooled Spearman over ~250k asset-days is dominated by day-level composition; per-day stats carry the load",
+      "reversal decile membership churns ~daily; net sim shows whether the gross edge survives a stylized 5bps/leg",
+      "illiq halves are a per-day cross-sectional split of a slow-moving median \u2014 composition drifts with listings",
+      "delisting is a proxy (early stop = delisted OR renamed); renames can double-count an economic asset",
+      "second-hand archive copy, not an as-of vintage"
+    ],
+    "determinism": "measure() runs twice; serialized arms/fdr/placebo must be byte-identical",
+    "per_day": "per-day XS Spearman / paired rho diffs aggregated over days \u2014 the honest companion to pooled",
+    "placebo": "within-day ret1d shuffle x3 seeds on arm a",
+    "pooled": "Spearman rho + normal-approx p on all asset-days; nominal \u2014 same-day rows share the market factor",
+    "xs": "mean daily decile spread + nominal t + yearly folds + per-regime splits"
+  }
+}

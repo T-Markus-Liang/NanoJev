@@ -100,9 +100,31 @@ class DecisionModel(nn.Module):
             # Only the final residual projection starts at zero; its upstream layers are nonzero.
             nn.init.zeros_(self.set_output.weight)
             nn.init.zeros_(self.set_output.bias)
+        elif set_head == 'pointer':
+            # X2 Arm C (T9b Option B, minimal form): query = hidden state at a
+            # per-question anchor path (prefix + "Decision:" + EOS, emitted by
+            # prepare_examples as anchor_tokens); keys = per-candidate leaf hidden
+            # states. score_i = (Wq q)·(Wk h_i)/sqrt(d), softmax over the set.
+            # Boolean has one semantic leaf but two candidates, so the "false"
+            # slot reads a learned null key (zero-init => logits [0, s] at start,
+            # same operating point as the scalar head).
+            self.pointer_dim = 128
+            self.norm_anchor = nn.LayerNorm(hidden)
+            self.pointer_query = nn.Linear(hidden, self.pointer_dim)
+            self.pointer_key = nn.Linear(hidden, self.pointer_dim)
+            self.pointer_null = nn.Parameter(torch.zeros(self.pointer_dim))
 
-    def forward(self, examples, pad_token):
+    def encode_paths(self, examples, pad_token):
+        # Flat independent candidate paths through the backbone; returns the
+        # last-token hidden state per leaf (and per anchor for set_head="pointer").
         paths = [ids for ex in examples for ids in ex['leaf_tokens']]
+        n_leaves = len(paths)
+        if self.set_head == 'pointer':
+            for ex in examples:
+                anchor = ex.get('anchor_tokens')
+                if not anchor:
+                    raise ValueError('set_head="pointer" requires anchor_tokens per example')
+                paths.append(anchor)
         device = self.scalar.weight.device
         lengths = torch.tensor([len(ids) for ids in paths], device=device)
         width = int(lengths.max())
@@ -112,7 +134,16 @@ class DecisionModel(nn.Module):
         attention = torch.arange(width, device=device)[None, :] < lengths[:, None]
         hidden = self.backbone(input_ids=tokens, attention_mask=attention,
                                use_cache=False).last_hidden_state
-        leaves = hidden[torch.arange(len(paths), device=device), lengths-1]
+        rows = torch.arange(len(paths), device=device)
+        leaves = hidden[rows[:n_leaves], lengths[:n_leaves]-1]
+        anchor_h = (hidden[rows[n_leaves:], lengths[n_leaves:]-1]
+                    if self.set_head == 'pointer' else None)
+        return leaves, anchor_h
+
+    def head(self, leaves, anchor_h, examples):
+        # Identical scoring head as in forward; consumes leaf hidden states from
+        # encode_paths or from a verified-equivalent packed-prefix encode (X3).
+        device = leaves.device
         kmax = max(len(ex['candidate_ids']) for ex in examples)
         h = leaves.new_zeros((len(examples), kmax, leaves.shape[-1]))
         valid = torch.zeros((len(examples), kmax), dtype=torch.bool, device=device)
@@ -123,6 +154,20 @@ class DecisionModel(nn.Module):
             valid[i, :len(ex['candidate_ids'])] = True
             offset += n
         h = self.norm(h)
+        if self.set_head == 'pointer':
+            query = self.pointer_query(self.norm_anchor(anchor_h))      # (N, p)
+            keys = self.pointer_key(h)                                # (N, kmax, p)
+            scale = math.sqrt(self.pointer_dim)
+            z = torch.einsum('nd,nkd->nk', query.float(), keys.float()) / scale
+            out = []
+            for i, ex in enumerate(examples):
+                if ex['type'] == 'boolean':
+                    null_logit = torch.dot(query[i].float(),
+                                           self.pointer_null.float()) / scale
+                    out.append(F.pad(torch.stack([null_logit, z[i, 0]]), (0, kmax-2)))
+                else:
+                    out.append(z[i])
+            return torch.stack(out).masked_fill(~valid, -1e9), valid
         z = self.scalar(h).squeeze(-1).float()
         choice = torch.tensor([i for i, ex in enumerate(examples) if ex['type'] == 'choice'], device=device)
         if self.set_head == 'attention' and len(choice):
@@ -139,6 +184,10 @@ class DecisionModel(nn.Module):
             else:
                 out.append(z[i])
         return torch.stack(out).masked_fill(~valid, -1e9), valid
+
+    def forward(self, examples, pad_token):
+        leaves, anchor_h = self.encode_paths(examples, pad_token)
+        return self.head(leaves, anchor_h, examples)
 
 
 def loss_for(logits, examples, objective):

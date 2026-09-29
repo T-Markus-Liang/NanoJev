@@ -1,0 +1,197 @@
+{
+  "schema_version": "nanojev-v4-s0-metrics-contract-v1",
+  "protocol_id": "nanojev-v4-s0-metrics-preregistration-v1",
+  "status": "frozen_research_contract",
+  "purpose": "Pre-register candidate V4-M1 and V4-M2 targets for package footprint, memory, latency, paired quality, local cost proxy and reliability without measuring or authorizing execution.",
+  "mode": "read_only_preflight",
+  "frozen_before_measurement": true,
+  "read_only": true,
+  "network_model_calls": 0,
+  "model_loaded": false,
+  "artifact_generation_performed": false,
+  "quantization_performed": false,
+  "training_performed": false,
+  "deployment_performed": false,
+  "target_status": "candidate_targets_pending_owner_reviewer",
+  "freeze_scope": "schema_and_candidate_ladder_only",
+  "approval_mode": "pre_approval_only",
+  "protocol_hash_algorithm": "sha256_canonical_json",
+  "owner_approved": false,
+  "independent_reviewer_approved": false,
+  "baseline_candidate_id": "fp32_baseline",
+  "candidate_ladder": [
+    {
+      "candidate_id": "fp32_baseline",
+      "kind": "baseline",
+      "representation": "fp32",
+      "parent_candidate_id": null,
+      "paired_with": "fp32_baseline",
+      "requires_training": false,
+      "requires_quantization": false,
+      "description": "Reference candidate; this contract never loads it."
+    },
+    {
+      "candidate_id": "fp16_cast",
+      "kind": "cast",
+      "representation": "fp16",
+      "parent_candidate_id": "fp32_baseline",
+      "paired_with": "fp32_baseline",
+      "requires_training": false,
+      "requires_quantization": true,
+      "description": "FP16 cast candidate measured only after N2/N3 review."
+    },
+    {
+      "candidate_id": "int8_weight_only",
+      "kind": "weight_only_quantization",
+      "representation": "int8",
+      "parent_candidate_id": "fp32_baseline",
+      "paired_with": "fp32_baseline",
+      "requires_training": false,
+      "requires_quantization": true,
+      "description": "INT8 weight-only candidate with paired quality and resource receipts."
+    },
+    {
+      "candidate_id": "int4_weight_only",
+      "kind": "weight_only_quantization",
+      "representation": "int4",
+      "parent_candidate_id": "fp32_baseline",
+      "paired_with": "fp32_baseline",
+      "requires_training": false,
+      "requires_quantization": true,
+      "description": "INT4 weight-only candidate; protected and OOD regressions reject it."
+    },
+    {
+      "candidate_id": "distilled_student",
+      "kind": "distillation",
+      "representation": "student_declared_precision",
+      "parent_candidate_id": "fp32_baseline",
+      "paired_with": "fp32_baseline",
+      "requires_training": true,
+      "requires_quantization": false,
+      "description": "Distilled student; requires a separately approved training protocol."
+    }
+  ],
+  "hardware_workload_contract": {
+    "owner_freeze_required": true,
+    "workload_manifest_required": true,
+    "same_device": true,
+    "same_runtime": true,
+    "same_tokenizer": true,
+    "same_input_order": true,
+    "same_frozen_splits": true,
+    "scopes": [
+      {
+        "scope_id": "model_compute",
+        "description": "Prepared tensor model compute only; excludes feature extraction and validation.",
+        "required_latency_fields": ["p50_ms", "p95_ms", "p99_ms"]
+      },
+      {
+        "scope_id": "paper_decision_e2e",
+        "description": "End-to-end local paper-decision path including feature and validation work.",
+        "required_latency_fields": ["p50_ms", "p95_ms", "p99_ms"]
+      },
+      {
+        "scope_id": "local_serving",
+        "description": "Persistent local service with queue, cancellation, timeout and fail-open accounting.",
+        "required_latency_fields": ["cold_p95_ms", "cold_p99_ms", "warm_p50_ms", "warm_p95_ms", "warm_p99_ms"]
+      }
+    ]
+  },
+  "target_profiles": {
+    "v4_m1_research": {
+      "warm_single_decision_scope_id": "local_serving",
+      "cold_start_scope_id": "local_serving",
+      "package_bytes_max": 1500000000,
+      "peak_memory_bytes_max": 2000000000,
+      "warm_single_decision_p95_ms_max": 250,
+      "cold_start_p95_ms_max": 5000
+    },
+    "v4_m2_release": {
+      "warm_single_decision_scope_id": "local_serving",
+      "cold_start_scope_id": "local_serving",
+      "package_bytes_max": 800000000,
+      "peak_memory_bytes_max": 1250000000,
+      "warm_single_decision_p95_ms_max": 100,
+      "cold_start_p95_ms_max": 2000
+    },
+    "p99_required_but_not_yet_thresholded": true
+  },
+  "quality_contract": {
+    "paired_with": "fp32_baseline",
+    "ci_level": 0.95,
+    "accuracy_noninferiority_margin_pp": 2.0,
+    "task_family_worst_case_noninferior": true,
+    "required_metrics": ["accuracy", "nll", "brier", "ece", "coverage", "selective_risk"],
+    "protected_error_count_max": 0,
+    "probability_normalization_error_max": 1e-09,
+    "ood_abstain_regression_allowed": false,
+    "permutation_instability_allowed": false,
+    "test_ood_fit_allowed": false
+  },
+  "local_cost_contract": {
+    "paired_with": "fp32_baseline",
+    "ci_level": 0.95,
+    "required_fields": ["wall_time_ms", "device", "energy_proxy", "load_time_ms", "retry_count", "tool_reexecution_count"],
+    "absolute_currency_allowed": false,
+    "cloud_cost_claim_allowed": false,
+    "improvement_required_for_release": true
+  },
+  "reliability_contract": {
+    "deterministic_required": true,
+    "network_model_calls_max": 0,
+    "offline_install_required": true,
+    "corrupted_artifact_reject_required": true,
+    "rollback_required": true,
+    "kill_switch_required": true,
+    "active_pruning_default": false,
+    "scope_guard_disable_allowed": false
+  },
+  "required_receipt_fields": [
+    "candidate_id",
+    "paired_with",
+    "workload_manifest_sha256",
+    "hardware_profile_sha256",
+    "runtime_manifest_sha256",
+    "artifact_sha256",
+    "tokenizer_sha256",
+    "package_bytes",
+    "peak_memory_bytes",
+    "latency_by_scope",
+    "quality_metrics",
+    "calibration_metrics",
+    "ood_metrics",
+    "protected_error_count",
+    "local_cost_proxy",
+    "reliability_checks",
+    "network_model_calls",
+    "deterministic",
+    "model_loaded",
+    "quantization_performed",
+    "training_performed",
+    "deployment_performed",
+    "measurement_authorized",
+    "receipt_sha256"
+  ],
+  "boundaries": {
+    "measurement_authorized": false,
+    "training_authorized": false,
+    "deployment_authorized": false,
+    "production_pruning_authorized": false,
+    "active_pruning_authorized": false,
+    "promotion_authorized": false,
+    "authorizes_execution": false,
+    "authorizes_training": false,
+    "authorizes_deployment": false,
+    "model_weights_modified": false,
+    "checkpoint_written": false,
+    "network_allowed": false,
+    "shadow_only": true
+  },
+  "decision_rule": "A valid contract freezes candidate target fields only. Real measurement requires owner/reviewer approval, an identified workload and hardware manifest, paired FP32 receipts, protected-error zero, OOD/permutation checks, and a new local testing or optimization lifecycle.",
+  "limitations": [
+    "This contract is structure-only: it loads no model, artifact, tokenizer, dataset or provider.",
+    "All targets are candidate targets pending owner and independent reviewer freeze; none is a current result.",
+    "A passing preflight cannot authorize training, quantization, serving, promotion, active pruning or deployment.",
+    "Absolute electricity price, carbon impact, cloud spend and provider savings require separate measured evidence."
+  ]
+}

@@ -1,0 +1,229 @@
+{
+  "schema_version": "nanojev-t10-a5-filter-vs-rebuild-protocol-v1",
+  "protocol_id": "nanojev-v2-t10-a5-filter-vs-rebuild",
+  "protocol_version": "v1",
+  "title": "T10/A5 filter-versus-rebuild frozen paired protocol",
+  "status": "frozen_before_measurement",
+  "frozen": true,
+  "execution_mode": "synthetic_preflight_control_only",
+  "synthetic_only": true,
+  "measurement_evidence": false,
+  "network_model_calls": 0,
+  "model_loaded": false,
+  "purpose": "Freeze the five-arm filter-versus-rebuild comparison, its fixture-kind-to-task-family map, its metrics, and its fail-closed safety contract before any measurement. This package validates the contract and emits synthetic placeholder receipts only. It is not evidence, not a result, and not authorization.",
+  "source_binding": {
+    "a4_manifest_path": "research/tool_history_fixture_manifest_v1.json",
+    "a4_manifest_schema_version": "nanojev-tool-history-fixture-manifest-v1",
+    "a4_manifest_sha256": "0c8253c9424245315d3aaf1501a6c683b8cda39bc494f8c32005ab219adf89e0",
+    "a4_manifest_seed": 20260919,
+    "a4_case_count": 11,
+    "read_only": true,
+    "note": "The A4 manifest is consumed read-only. Fixture content is never copied into this protocol or into any receipt; only its SHA-256 and structural facts are bound."
+  },
+  "hard_blocking_flags": [
+    "non_repeatable",
+    "credential_bearing",
+    "contains_error",
+    "stale_evidence",
+    "correction_dependent",
+    "volatile_source"
+  ],
+  "fixture_family_map": {
+    "success": "tool_lookup",
+    "error": "error_evidence",
+    "parallel_calls": "parallel_tool_use",
+    "duplicate_ids": "ambiguous_linkage",
+    "orphan_result": "ambiguous_linkage",
+    "pending_call": "ambiguous_linkage",
+    "non_repeatable_result": "side_effect_safety",
+    "mutable_file_read": "snapshot_consistency",
+    "stale_output": "correction_dependency",
+    "user_correction": "correction_dependency",
+    "secrets_credentials": "credential_handling"
+  },
+  "task_families": [
+    {
+      "family_id": "tool_lookup",
+      "kinds": ["success"],
+      "protected": false,
+      "description": "Repeatable, non-volatile tool lookup whose pair may be reduced to a bounded result."
+    },
+    {
+      "family_id": "parallel_tool_use",
+      "kinds": ["parallel_calls"],
+      "protected": false,
+      "description": "Parallel tool calls where each call keeps a true one-to-one pair."
+    },
+    {
+      "family_id": "error_evidence",
+      "kinds": ["error"],
+      "protected": true,
+      "description": "A failure whose tool result is the only evidence; the pair allows keep_both only."
+    },
+    {
+      "family_id": "ambiguous_linkage",
+      "kinds": ["duplicate_ids", "orphan_result", "pending_call"],
+      "protected": true,
+      "description": "Unresolved tool linkage that must bypass wholesale; no attribution may be guessed."
+    },
+    {
+      "family_id": "side_effect_safety",
+      "kinds": ["non_repeatable_result"],
+      "protected": true,
+      "description": "Irreversible side effect whose committed result must never be re-derived."
+    },
+    {
+      "family_id": "snapshot_consistency",
+      "kinds": ["mutable_file_read"],
+      "protected": true,
+      "description": "A snapshot of a mutable source whose recorded value must not be refreshed."
+    },
+    {
+      "family_id": "correction_dependency",
+      "kinds": ["stale_output", "user_correction"],
+      "protected": true,
+      "description": "Stale values and corrections whose dependency closure must be retained verbatim."
+    },
+    {
+      "family_id": "credential_handling",
+      "kinds": ["secrets_credentials"],
+      "protected": true,
+      "description": "Synthetic credential placeholder that must never be echoed or re-read."
+    }
+  ],
+  "protected_families": [
+    "ambiguous_linkage",
+    "correction_dependency",
+    "credential_handling",
+    "error_evidence",
+    "side_effect_safety",
+    "snapshot_consistency"
+  ],
+  "arms": [
+    {
+      "arm_id": "unfiltered_control",
+      "order": 0,
+      "transformation_class": "identity",
+      "lossy": false,
+      "fail_open": true,
+      "description": "Forward the original request bytes unchanged; the paired baseline."
+    },
+    {
+      "arm_id": "safe_dedup",
+      "order": 1,
+      "transformation_class": "deterministic_exact_duplicate_removal",
+      "lossy": false,
+      "fail_open": true,
+      "description": "Deterministic, model-free exact-duplicate removal; no scoring and no rewriting."
+    },
+    {
+      "arm_id": "relevance_filter",
+      "order": 2,
+      "transformation_class": "verbatim_retain_relevance_removal",
+      "lossy": false,
+      "fail_open": true,
+      "description": "A2/A4 semantics: score segments, remove only confident irrelevant ones, retain survivors verbatim."
+    },
+    {
+      "arm_id": "abstractive_summary",
+      "order": 3,
+      "transformation_class": "abstractive_reconstruction",
+      "lossy": true,
+      "fail_open": true,
+      "description": "Abstractive reconstruction arm; a fallback summary is a separate policy and is never substituted silently."
+    },
+    {
+      "arm_id": "retrieval_rebuild",
+      "order": 4,
+      "transformation_class": "retrieval_reconstruction",
+      "lossy": true,
+      "fail_open": true,
+      "description": "Retrieval-rebuild reconstruction arm over stored evidence."
+    }
+  ],
+  "metrics": [
+    {
+      "metric_id": "dependency_pair_retention",
+      "unit": "ratio",
+      "direction": "higher_is_better",
+      "must_be_complete": true,
+      "description": "Fraction of required call/result dependency pairs still present and resolvable."
+    },
+    {
+      "metric_id": "evidence_fidelity",
+      "unit": "ratio",
+      "direction": "higher_is_better",
+      "description": "Fraction of cited or authoritative evidence preserved exactly."
+    },
+    {
+      "metric_id": "protected_segment_deletion",
+      "unit": "count",
+      "direction": "must_be_zero",
+      "must_be_zero": true,
+      "description": "Count of protected segments removed; any nonzero value is an unconditional failure."
+    },
+    {
+      "metric_id": "downstream_task_success",
+      "unit": "ratio",
+      "direction": "higher_is_better",
+      "description": "Paired downstream task success rate per task family."
+    },
+    {
+      "metric_id": "restore_cost",
+      "unit": "provider_tokens",
+      "direction": "lower_is_better",
+      "description": "Tokens required to restore the original context; provider-reported or tokenizer-based only."
+    },
+    {
+      "metric_id": "end_to_end_cost",
+      "unit": "provider_tokens",
+      "direction": "lower_is_better",
+      "description": "Total per-request tokens including scorer, rebuild, retry, and tool re-execution; provider-reported or tokenizer-based only."
+    }
+  ],
+  "acceptance": {
+    "max_success_regression": 0.005,
+    "min_median_token_reduction": 0.3,
+    "protected_segment_deletion": 0,
+    "require_paired_confidence_intervals": true,
+    "report_per_task_family": true,
+    "min_task_families": 8
+  },
+  "cost_contract": {
+    "cost_basis": "provider_reported_or_tokenizer",
+    "character_estimates_allowed": false,
+    "manual_character_counts_allowed": false,
+    "provider_prompt_tokens_required": true,
+    "provider_completion_tokens_required": true,
+    "tokenizer_id_required_for_tokenizer_counts": true,
+    "includes_scorer_cost": true,
+    "includes_rebuild_cost": true,
+    "includes_retry_cost": true,
+    "includes_tool_reexecution_cost": true
+  },
+  "safety_contract": {
+    "fail_open_action": "forward_original_bytes",
+    "fail_open_on_every_arm": true,
+    "summary_fallback_substituted_silently": false,
+    "summary_fallback_is_separate_policy": true,
+    "applied": false,
+    "shadow_only": true,
+    "synthetic_only": true,
+    "protected_segment_deletion_must_be_zero": true,
+    "protected_family_loss_blocks_aggregate_win": true,
+    "equivalence_claims_forbidden": true,
+    "active_pruning": false
+  },
+  "authorization": {
+    "network_access": false,
+    "provider_calls": false,
+    "model_load": false,
+    "training": false,
+    "quantization": false,
+    "deployment": false,
+    "active_pruning": false,
+    "result_publication": false,
+    "adoption": false
+  },
+  "notes": "Status is protocol_valid_not_authorized. Synthetic receipts are placeholders: provider, quality, physical, and cost fields stay null, applied is false, network_model_calls is 0, model_loaded is false, measurement_evidence is false, and every authorization flag is false. No arm is adopted from this package."
+}

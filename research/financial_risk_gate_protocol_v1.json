@@ -1,0 +1,88 @@
+{
+  "schema_version": "nanojev-financial-risk-gate-protocol-v1",
+  "status": "frozen_preflight_not_replay_authorized",
+  "created_utc": "2026-09-21",
+  "task": "T13 (B6): out-of-model risk gate on the T12 real-data replay",
+  "purpose": "Attach the existing financial_risk_v1.RiskEngine guard set to the same 45-cell frozen-cohort replay defined by the T12 protocol, so every order intent on real data is evaluated by deterministic allow/reduce/block guards and every blocked or reduced decision is reported per fold, instrument, and regime stratum. This is a gate-mechanics measurement on real data; it authorizes no profitability, edge, promotion, or trading claim and changes no T12 artifact.",
+  "amendment_of": {
+    "protocol_path": "research/financial_validation_protocol_v1.json",
+    "protocol_sha256": "507ee3e280d84693b017979a811bf90601cdcc630e1411ebf54a64aa9ecc31cf",
+    "relationship": "T13 is an additive arm, not a revision of T12. The T12 protocol itself declares the gate 'absent in v1 by design; the out-of-model risk engine on real replay is T13 (results/risk_real_v1.json)'. Everything T12 pinned is inherited verbatim: cohort, folds, embargo, instrument groups, regime masks, reference policies, execution policy values and declared deltas. The T12 runner, validator, adapter module and receipt are untouched and remain hash-pinned; this protocol only binds their hashes.",
+    "t12_run_receipt_path": "results/financial_realdata_validation_20260921_v1.json",
+    "t12_run_receipt_sha256": "d478292ce5dd55a4c5dd7fad5a209b841439d50cdbabaaa847fba07348c47f2a"
+  },
+  "risk_gate": {
+    "engine": "financial_risk_v1.RiskEngine",
+    "engine_module": "scripts/financial_risk_v1.py",
+    "engine_module_sha256": "bc2b933bbcb73fc143ed0e667996b5dd5194c4dfeca4ce812b1c765167b2c60b",
+    "adapter_module": "scripts/financial_real_data_risk_v1.py",
+    "adapter_module_sha256": "37d57d4abe6181db7a8ffad4393dae1a26acb63c2754d68af91cfd84bd838138",
+    "policy_version": "v1-provisional-pending-r1",
+    "limits_source": "research/financial_r1_frozen_parameters_v1.json, simulator_and_risk_parameters limits.* entries, loaded verbatim by financial_real_data_risk_v1.load_frozen_risk_limits (fail-closed on missing, extra, or renamed fields). These values equal the RiskLimits dataclass defaults; they are owner-frozen provisional engineering guesses pending review gate R1, not venue or broker facts.",
+    "limits": {
+      "max_position_quantity": 100.0,
+      "min_position_quantity": 0.0,
+      "max_gross_exposure_notional": 100000.0,
+      "max_abs_net_exposure_notional": 100000.0,
+      "max_net_loss_notional": 10000.0,
+      "max_realized_loss_notional": 10000.0,
+      "max_turnover_notional": 250000.0,
+      "turnover_window_ns": 60000000000,
+      "max_orders_per_window": 60,
+      "order_rate_window_ns": 1000000000,
+      "max_order_notional": 25000.0,
+      "max_data_staleness_ns": 5000000000,
+      "max_clock_drift_ns": 1000000000,
+      "require_data_quality_fields": true,
+      "latch_kill_switch_on_block": false,
+      "max_leverage": 20.0,
+      "max_position_notional_per_venue": 1000000.0,
+      "max_funding_cost_notional": 10000.0,
+      "max_margin_ratio": 0.8,
+      "min_available_margin_notional": 0.0,
+      "min_liquidation_distance_fraction": 0.05,
+      "max_initial_margin_utilization": 0.95,
+      "require_margin_sufficiency": true,
+      "policy_version": "v1-provisional-pending-r1"
+    },
+    "lifecycle": "One fresh RiskEngine per replay. run_backtest(verify_determinism=True) would reuse a single gate object across its internal double replay, and the engine's trailing order-rate/turnover windows (plus the optional kill-switch latch) are mutable per-replay state that a second replay must not inherit. T13 therefore performs the double replay one level up: two independent run_backtest(verify_determinism=False) calls, each with a freshly constructed engine, and byte-identical comparison of the two full-receipt fingerprints. A non-identical pair aborts the cell.",
+    "known_mechanical_consequences": [
+      "min_position_quantity=0 makes every net-short intent out of bounds: unit_short_always cells are expected to report a ~100% risk-block rate at reason position_limit. This is a property of the frozen spot-style parameter set on a perp cohort, reported verbatim; it is not tuned away in this protocol.",
+      "max_order_notional=25000 and the 100000 gross/net exposure caps are expected to reduce and then block high-priced instruments (BTC mark ~100k+); reduce verdicts still execute at the allowed quantity and ratchet toward target across later decisions.",
+      "max_data_staleness_ns=5e9 and max_clock_drift_ns=1e9 are satisfied by construction (decisions are emitted at quote availability with zero declared clock skew); any staleness or drift block is a real defect signal, not noise.",
+      "turnover_window_ns=60s and order_rate_window_ns=1s sit far below the observed 2-6 day decision spacing, so those windows are not expected to bind within a run; they exist to bound burst behaviour, which this cohort cannot exhibit.",
+      "latch_kill_switch_on_block=false per the frozen set: a blocked decision does not poison later decisions; each verdict is independent."
+    ],
+    "no_tuning_rule": "Observing blocks or reductions does not authorize relaxing, tightening, or reordering any limit inside this protocol. Any limit change is a new protocol version with a new hash and a new authorization."
+  },
+  "replay_scope": {
+    "cell_plan": "Identical to T12: 3 folds x 5 instruments x 3 reference policies = 45 cells over each fold's retained test records, recomputed by the T12 validator on every run; no cell may be added, dropped, or re-run selectively.",
+    "fresh_state": "Each cell replays with fresh initial_cash=100000.0, a fresh ledger, and a fresh RiskEngine, exactly as in T12 plus the gate.",
+    "probability_policy_interface": "unchanged: declared_fail_closed_inactive; no probability-driven cell may run"
+  },
+  "metrics_reporting": {
+    "per_cell_required": ["all T12 per-cell fields", "risk (gate name, blocked count, limits)", "gate_stats (evaluated/allowed/reduced/blocked counts, reason-code counts, reduced_quantity_total, per-decision non-allow records)", "pit_gate_attribution (per-regime evaluated/allowed/reduced/blocked decision counts on the overlapping T12 mask strata)", "determinism (two fresh-gate replays, both fingerprints, byte_identical)"],
+    "aggregate": "per-instrument and per-regime decision-outcome counts only; regime strata overlap and are not a partition; no PnL is ever pooled across instruments, folds, or regimes",
+    "prohibited": ["pooled cross-instrument or cross-fold headline PnL", "any promotion or edge language", "interpreting a block or reduce verdict as a market forecast or strategy property", "dropping a cell, a decision, or a regime stratum from the receipt", "editing a limit after observing its effect"]
+  },
+  "honesty_gates": {
+    "headline_allowed": false,
+    "gross_event_is_not_tradable_edge": "unchanged from T12: the R1 label is a gross 25bps/1d mark-price move; even a perfect event forecast is not a net return",
+    "simulated_pnl_is_descriptive": "unchanged from T12: all equity/PnL numbers come from frozen ASSUMED cost parameters applied to a collapsed bid=ask=mark book; gate-blocked cells additionally have truncated exposure, so their curves are even further from any tradable result",
+    "gate_verdicts_are_guard_mechanics": "a block or reduce verdict is a deterministic limit evaluation under provisional frozen parameters, not a statement about the instrument, the regime, or any strategy",
+    "t11_context_binding": "the receipt must embed the bound T11 fit receipt hash and its honest outcome summary (no dev-selected candidate beat base rate on test)",
+    "venue_holdout_limitation": "must be stated; single-venue V1 cohort cannot demonstrate venue generalization",
+    "fail_closed": "any upstream hash, fold, mask, policy, limit, or authorization mismatch aborts the run before any replay"
+  },
+  "authorization": {
+    "real_replay_performed": false,
+    "replay_authorized": false,
+    "measurement_authorized": false,
+    "training_authorized": false,
+    "network_model_calls": 0,
+    "order_submission_authorized": false,
+    "live_trading_authorized": false,
+    "approval_note": "This protocol file authorizes nothing by itself. The T13 runner requires a separate nanojev-financial-validation-authorization-v1 receipt bound to THIS file's sha256 with decision=approved_for_real_replay; without it the runner emits a blocked receipt and exits non-zero."
+  },
+  "change_rule": "Any change to bound upstream hashes (including the T12 protocol and run receipt), the gate module, the limits set, the lifecycle rule, the cell plan, the reporting contract, or the authorization boundary creates a new protocol version; no in-place repair."
+}

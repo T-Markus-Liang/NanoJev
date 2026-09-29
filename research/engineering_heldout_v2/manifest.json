@@ -1,0 +1,140 @@
+{
+  "builder_sha256": "71cbc7e37aee7cb03ddf88d628afb8c47f24d24d7e4535d31b146052a9dd3256",
+  "cohort": "engineering_heldout_v2",
+  "created_by": "scripts/build_engineering_heldout_v2.py",
+  "families": {
+    "eh2_artifact_promotion": {
+      "choice_options": 5,
+      "rows": 24,
+      "score_levels": 5,
+      "states": 8
+    },
+    "eh2_blob_lifecycle": {
+      "choice_options": 4,
+      "rows": 24,
+      "score_levels": 4,
+      "states": 8
+    },
+    "eh2_cache_warmup": {
+      "choice_options": 4,
+      "rows": 24,
+      "score_levels": 5,
+      "states": 8
+    },
+    "eh2_cron_storm": {
+      "choice_options": 6,
+      "rows": 24,
+      "score_levels": 3,
+      "states": 8
+    },
+    "eh2_dns_failover_policy": {
+      "choice_options": 4,
+      "rows": 24,
+      "score_levels": 4,
+      "states": 8
+    },
+    "eh2_edge_route_shift": {
+      "choice_options": 12,
+      "rows": 24,
+      "score_levels": 3,
+      "states": 8
+    },
+    "eh2_gpu_batch_pack": {
+      "choice_options": 8,
+      "rows": 24,
+      "score_levels": 4,
+      "states": 8
+    },
+    "eh2_log_pii_redaction": {
+      "choice_options": 5,
+      "rows": 24,
+      "score_levels": 4,
+      "states": 8
+    },
+    "eh2_node_drain": {
+      "choice_options": 5,
+      "rows": 24,
+      "score_levels": 4,
+      "states": 8
+    },
+    "eh2_partition_rebalance": {
+      "choice_options": 6,
+      "rows": 24,
+      "score_levels": 4,
+      "states": 8
+    },
+    "eh2_secret_scope_grant": {
+      "choice_options": 4,
+      "rows": 24,
+      "score_levels": 3,
+      "states": 8
+    },
+    "eh2_snapshot_prune": {
+      "choice_options": 4,
+      "rows": 24,
+      "score_levels": 4,
+      "states": 8
+    },
+    "eh2_webhook_retry": {
+      "choice_options": 5,
+      "rows": 24,
+      "score_levels": 3,
+      "states": 8
+    }
+  },
+  "independence": {
+    "corpora_excluded": [
+      "engineering_judgment_corpus_v1",
+      "engineering_judgment_corpus_v2",
+      "engineering_judgment_corpus_v3",
+      "engineering_judgment_corpus_v4",
+      "engineering_heldout_v1"
+    ],
+    "external_model_outputs": "none; golds are computed by frozen local oracles",
+    "surface_templates": "4 heldout-specific formats unused by any corpus"
+  },
+  "items_sha256": "36cf1a00f3843ab665c2b5d911dbb69d0c25af3021e99517be40663e38bc9319",
+  "network_model_calls": 0,
+  "option_count_strata": [
+    3,
+    4,
+    5,
+    6,
+    8,
+    12
+  ],
+  "provenance": {
+    "checkpoint_modified": false,
+    "checkpoint_read": false,
+    "contains_real_credentials": false,
+    "contains_real_tool_output": false,
+    "contains_real_user_data": false,
+    "corpus_role": "training_data_prerequisite_only",
+    "derived_from_any_existing_evaluation_record": false,
+    "labels_human_reviewed": false,
+    "license": "CC0-1.0",
+    "network_access": false,
+    "reuses_local_maze_evaluation_corpus": false,
+    "reuses_pre-registered-abstention-survey": false,
+    "reuses_relevance-test-or-ood-corpus": false,
+    "reuses_workflow-v2-evaluation-cohort-or-baseline": false,
+    "source": "self_authored_engineering_judgment_states_and_frozen_rules",
+    "training_authorized_by_this_corpus": false,
+    "training_performed": false
+  },
+  "question_types": [
+    "boolean",
+    "choice",
+    "score"
+  ],
+  "role": "independent_evaluation_heldout_only",
+  "row_count": 312,
+  "row_schema": "nanojev-engineering-judgment-trainer-row-v1",
+  "schema_version": "nanojev-engineering-heldout-v2-manifest-v1",
+  "seed": 20260923,
+  "source_group_count": 104,
+  "split": "test",
+  "state_count": 104,
+  "training_authorized": false,
+  "training_performed": false
+}

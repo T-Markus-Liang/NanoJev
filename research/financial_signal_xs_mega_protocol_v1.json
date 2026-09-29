@@ -1,0 +1,44 @@
+{
+  "cohort": {
+    "assets": "up to 301 USDT-M perps (>=200 daily bars), imported data/rc_futures_v1 archive copy; includes delisted/renamed early-stoppers (listed/last_bar_date on every record)",
+    "builder": "scripts/build_perp_pit_mega_v1.py",
+    "path": "data/perp_pit_mega_v1/records.jsonl",
+    "price_basis": "csv close as the mark proxy for every symbol",
+    "targets": "label.forward_return_bps (1d) and forward_return_5d_bps (5d), gross close-to-close, contiguous daily bars only"
+  },
+  "created_utc": "2026-09-24T12:33:13Z",
+  "definitions": {
+    "btc_gate": "BTCUSDT close/close[t-20]-1 sign on the decision day (from the BTC series in the same cohort)",
+    "day_gate": ">=30 assets with score AND forward return that day",
+    "decile_edge": "k = max(1, n_ranked // 10) names per side",
+    "dfh20": "precomputed feature: close / max(close[i-20:i]) - 1 (strictly prior 20 contiguous bars)",
+    "funding_pct": "per-asset mid-rank pct of last_funding_rate vs its trailing-180 daily values (MIN_WINDOW=20); only the ~52 funding-covered symbols can rank",
+    "mom20": "precomputed feature: close / close[i-20] - 1",
+    "placebo": "score values shuffled among the same day's assets, 3 seeds",
+    "spread": "mean fwd(long decile) - mean fwd(short decile), bps; momentum arms long top-decile, carry longs bottom-decile",
+    "survivorship_controls": "headline arm re-run excluding (a) all early-stopped symbols, (b) symbols stopped from 2024 onward",
+    "turnover": "(slots entered + slots exited)/(2*book slots) vs previous day; cost = 5bps * fraction"
+  },
+  "forbidden": [
+    "fitting",
+    "trading",
+    "profitability claims",
+    "protocol edits post-run",
+    "network"
+  ],
+  "purpose": "T112: re-run the cross-sectional arms at proper depth on the 301-symbol mega cohort. Arms: (1) dfh20 decile rank, long top-decile / short bottom-decile, next-1d/5d close spreads; (2) mom20 decile rank, same; (3) funding_pct trailing-180 mid-rank carry on the ~52 funding-covered subset, long bottom-decile / short top-decile. >=30 ranked assets/day, equal weight, daily rebalance; BTC 20d-return gate split; turnover + 5bps/leg net sim; yearly folds 2021-2025; within-day rank-shuffle placebo x3; BH-FDR over the 6 headline cells; delisting controls (exclude all early-stopped and post-2024-stopped symbols). Measurement only \u2014 no fitting, no trading, no profitability claims.",
+  "schema_version": "nanojev-financial-signal-xs-mega-protocol-v1",
+  "statistics": {
+    "caveats": [
+      "h-day overlapping labels autocorrelate ~1-1/h of adjacent days; all t/p nominal",
+      "~10-29 names/side at full universe: ~20-60 effective XS dof/day (real cross-section vs pilot's ~4-5), but pooled Welch still double-counts correlated asset-days",
+      "universe composition changes as symbols list/delist; decile size floats with n",
+      "delisting is a proxy: early stop = delisted OR renamed; renames can double-count an economic asset",
+      "second-hand archive copy, not an as-of vintage"
+    ],
+    "daily": "mean daily spread + nominal t + normal-approx p",
+    "fdr": "Benjamini-Hochberg alpha=0.05 over the 6 headline arm-x-horizon cells (small family)",
+    "folds": "per-calendar-year fold mean spreads, sign consistency",
+    "pooled": "Welch two-sample t (all long-decile vs all short-decile asset-days) + Welch-Satterthwaite df"
+  }
+}

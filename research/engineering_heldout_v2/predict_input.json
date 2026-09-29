@@ -1,0 +1,4736 @@
+{
+ "states": [
+  {
+   "id": "eh2-dns_failover_policy-s00-boolean",
+   "state": "record:\n  ref: EDGE-48890\n  entity: resolver-west\n  kind: dns-failover-policy\n  secondary_rtt: 140\n  primary_healthy: false\n  primary_rtt: 10\n  dns_ttl: 480\n  failover_armed: true",
+   "questions": {
+    "failover_ready": {
+     "instructions": "Is failover armed with a healthy primary?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s00-choice",
+   "state": "record:\n  ref: EDGE-48890\n  entity: resolver-west\n  kind: dns-failover-policy\n  secondary_rtt: 140\n  primary_healthy: false\n  primary_rtt: 10\n  dns_ttl: 480\n  failover_armed: true",
+   "questions": {
+    "dns_action": {
+     "criteria": {
+      "hold_for_health": "Secondary too slow: hold and investigate health",
+      "keep_primary": "Keep serving the primary endpoint",
+      "promote_secondary": "Primary unhealthy: promote the secondary",
+      "shift_traffic": "Shift traffic toward the much faster secondary"
+     },
+     "instructions": "What is the correct DNS failover action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s00-score",
+   "state": "record:\n  ref: EDGE-48890\n  entity: resolver-west\n  kind: dns-failover-policy\n  secondary_rtt: 140\n  primary_healthy: false\n  primary_rtt: 10\n  dns_ttl: 480\n  failover_armed: true",
+   "questions": {
+    "failover_risk": {
+     "criteria": [
+      "nominal",
+      "elevated",
+      "high",
+      "critical"
+     ],
+     "instructions": "Score the failover risk, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s01-boolean",
+   "state": "dump EDGE-13868 (authoritative-ns)\nfield,value\nsecondary_rtt,260\nprimary_healthy,yes\nfailover_armed,yes\nprimary_rtt,80\ndns_ttl,570",
+   "questions": {
+    "failover_ready": {
+     "criteria": {
+      "false": "failover is not armed or the primary is unhealthy",
+      "true": "failover is armed and the primary is healthy"
+     },
+     "instructions": "Is the DNS failover posture healthy and armed?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s01-choice",
+   "state": "dump EDGE-13868 (authoritative-ns)\nfield,value\nsecondary_rtt,260\nprimary_healthy,yes\nfailover_armed,yes\nprimary_rtt,80\ndns_ttl,570",
+   "questions": {
+    "dns_action": {
+     "criteria": {
+      "hold_for_health": "Secondary too slow: hold and investigate health",
+      "keep_primary": "Keep serving the primary endpoint",
+      "promote_secondary": "Primary unhealthy: promote the secondary",
+      "shift_traffic": "Shift traffic toward the much faster secondary"
+     },
+     "instructions": "Pick the action the failover policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s01-score",
+   "state": "dump EDGE-13868 (authoritative-ns)\nfield,value\nsecondary_rtt,260\nprimary_healthy,yes\nfailover_armed,yes\nprimary_rtt,80\ndns_ttl,570",
+   "questions": {
+    "failover_risk": {
+     "criteria": [
+      "nominal",
+      "elevated",
+      "high",
+      "critical"
+     ],
+     "instructions": "Rate the failover risk, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s02-boolean",
+   "state": "record:\n  ref: EDGE-47860\n  entity: resolver-west\n  kind: dns-failover-policy\n  failover_armed: true\n  dns_ttl: 240\n  primary_healthy: true\n  secondary_rtt: 140\n  primary_rtt: 130",
+   "questions": {
+    "failover_ready": {
+     "instructions": "Is failover armed with a healthy primary?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s02-choice",
+   "state": "record:\n  ref: EDGE-47860\n  entity: resolver-west\n  kind: dns-failover-policy\n  failover_armed: true\n  dns_ttl: 240\n  primary_healthy: true\n  secondary_rtt: 140\n  primary_rtt: 130",
+   "questions": {
+    "dns_action": {
+     "criteria": {
+      "hold_for_health": "Secondary too slow: hold and investigate health",
+      "keep_primary": "Keep serving the primary endpoint",
+      "promote_secondary": "Primary unhealthy: promote the secondary",
+      "shift_traffic": "Shift traffic toward the much faster secondary"
+     },
+     "instructions": "What is the correct DNS failover action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s02-score",
+   "state": "record:\n  ref: EDGE-47860\n  entity: resolver-west\n  kind: dns-failover-policy\n  failover_armed: true\n  dns_ttl: 240\n  primary_healthy: true\n  secondary_rtt: 140\n  primary_rtt: 130",
+   "questions": {
+    "failover_risk": {
+     "criteria": [
+      "nominal",
+      "elevated",
+      "high",
+      "critical"
+     ],
+     "instructions": "Score the failover risk, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s03-boolean",
+   "state": "[DNS-65043] resolver-east dns-failover-policy snapshot\n[DNS-65043] primary_healthy=FALSE\n[DNS-65043] secondary_rtt=370\n[DNS-65043] dns_ttl=360\n[DNS-65043] primary_rtt=120\n[DNS-65043] failover_armed=TRUE",
+   "questions": {
+    "failover_ready": {
+     "criteria": {
+      "false": "failover is not armed or the primary is unhealthy",
+      "true": "failover is armed and the primary is healthy"
+     },
+     "instructions": "Is the DNS failover posture healthy and armed?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s03-choice",
+   "state": "[DNS-65043] resolver-east dns-failover-policy snapshot\n[DNS-65043] primary_healthy=FALSE\n[DNS-65043] secondary_rtt=370\n[DNS-65043] dns_ttl=360\n[DNS-65043] primary_rtt=120\n[DNS-65043] failover_armed=TRUE",
+   "questions": {
+    "dns_action": {
+     "criteria": {
+      "hold_for_health": "Secondary too slow: hold and investigate health",
+      "keep_primary": "Keep serving the primary endpoint",
+      "promote_secondary": "Primary unhealthy: promote the secondary",
+      "shift_traffic": "Shift traffic toward the much faster secondary"
+     },
+     "instructions": "Pick the action the failover policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s03-score",
+   "state": "[DNS-65043] resolver-east dns-failover-policy snapshot\n[DNS-65043] primary_healthy=FALSE\n[DNS-65043] secondary_rtt=370\n[DNS-65043] dns_ttl=360\n[DNS-65043] primary_rtt=120\n[DNS-65043] failover_armed=TRUE",
+   "questions": {
+    "failover_risk": {
+     "criteria": [
+      "nominal",
+      "elevated",
+      "high",
+      "critical"
+     ],
+     "instructions": "Rate the failover risk, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s04-boolean",
+   "state": "Situation report EDGE-12019 for resolver-east. The record shows secondary endpoint RTT in ms = 40. The record shows the primary endpoint passes health checks = true. The record shows automatic failover is armed = true. The record shows primary endpoint RTT in ms = 260. The record shows DNS TTL in seconds = 540.",
+   "questions": {
+    "failover_ready": {
+     "instructions": "Is failover armed with a healthy primary?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s04-choice",
+   "state": "Situation report EDGE-12019 for resolver-east. The record shows secondary endpoint RTT in ms = 40. The record shows the primary endpoint passes health checks = true. The record shows automatic failover is armed = true. The record shows primary endpoint RTT in ms = 260. The record shows DNS TTL in seconds = 540.",
+   "questions": {
+    "dns_action": {
+     "criteria": {
+      "hold_for_health": "Secondary too slow: hold and investigate health",
+      "keep_primary": "Keep serving the primary endpoint",
+      "promote_secondary": "Primary unhealthy: promote the secondary",
+      "shift_traffic": "Shift traffic toward the much faster secondary"
+     },
+     "instructions": "What is the correct DNS failover action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s04-score",
+   "state": "Situation report EDGE-12019 for resolver-east. The record shows secondary endpoint RTT in ms = 40. The record shows the primary endpoint passes health checks = true. The record shows automatic failover is armed = true. The record shows primary endpoint RTT in ms = 260. The record shows DNS TTL in seconds = 540.",
+   "questions": {
+    "failover_risk": {
+     "criteria": [
+      "nominal",
+      "elevated",
+      "high",
+      "critical"
+     ],
+     "instructions": "Score the failover risk, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s05-boolean",
+   "state": "Situation report DNS-61203 for authoritative-ns. The record shows automatic failover is armed = true. The record shows primary endpoint RTT in ms = 220. The record shows secondary endpoint RTT in ms = 230. The record shows DNS TTL in seconds = 600. The record shows the primary endpoint passes health checks = false.",
+   "questions": {
+    "failover_ready": {
+     "criteria": {
+      "false": "failover is not armed or the primary is unhealthy",
+      "true": "failover is armed and the primary is healthy"
+     },
+     "instructions": "Is the DNS failover posture healthy and armed?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s05-choice",
+   "state": "Situation report DNS-61203 for authoritative-ns. The record shows automatic failover is armed = true. The record shows primary endpoint RTT in ms = 220. The record shows secondary endpoint RTT in ms = 230. The record shows DNS TTL in seconds = 600. The record shows the primary endpoint passes health checks = false.",
+   "questions": {
+    "dns_action": {
+     "criteria": {
+      "hold_for_health": "Secondary too slow: hold and investigate health",
+      "keep_primary": "Keep serving the primary endpoint",
+      "promote_secondary": "Primary unhealthy: promote the secondary",
+      "shift_traffic": "Shift traffic toward the much faster secondary"
+     },
+     "instructions": "Pick the action the failover policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s05-score",
+   "state": "Situation report DNS-61203 for authoritative-ns. The record shows automatic failover is armed = true. The record shows primary endpoint RTT in ms = 220. The record shows secondary endpoint RTT in ms = 230. The record shows DNS TTL in seconds = 600. The record shows the primary endpoint passes health checks = false.",
+   "questions": {
+    "failover_risk": {
+     "criteria": [
+      "nominal",
+      "elevated",
+      "high",
+      "critical"
+     ],
+     "instructions": "Rate the failover risk, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s06-boolean",
+   "state": "dump DNS-94277 (edge-dns)\nfield,value\ndns_ttl,240\nprimary_rtt,400\nsecondary_rtt,340\nprimary_healthy,no\nfailover_armed,yes",
+   "questions": {
+    "failover_ready": {
+     "instructions": "Is failover armed with a healthy primary?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s06-choice",
+   "state": "dump DNS-94277 (edge-dns)\nfield,value\ndns_ttl,240\nprimary_rtt,400\nsecondary_rtt,340\nprimary_healthy,no\nfailover_armed,yes",
+   "questions": {
+    "dns_action": {
+     "criteria": {
+      "hold_for_health": "Secondary too slow: hold and investigate health",
+      "keep_primary": "Keep serving the primary endpoint",
+      "promote_secondary": "Primary unhealthy: promote the secondary",
+      "shift_traffic": "Shift traffic toward the much faster secondary"
+     },
+     "instructions": "What is the correct DNS failover action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s06-score",
+   "state": "dump DNS-94277 (edge-dns)\nfield,value\ndns_ttl,240\nprimary_rtt,400\nsecondary_rtt,340\nprimary_healthy,no\nfailover_armed,yes",
+   "questions": {
+    "failover_risk": {
+     "criteria": [
+      "nominal",
+      "elevated",
+      "high",
+      "critical"
+     ],
+     "instructions": "Score the failover risk, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s07-boolean",
+   "state": "dump DNS-55633 (resolver-east)\nfield,value\ndns_ttl,180\nsecondary_rtt,20\nprimary_rtt,210\nprimary_healthy,yes\nfailover_armed,no",
+   "questions": {
+    "failover_ready": {
+     "instructions": "Is failover armed with a healthy primary?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s07-choice",
+   "state": "dump DNS-55633 (resolver-east)\nfield,value\ndns_ttl,180\nsecondary_rtt,20\nprimary_rtt,210\nprimary_healthy,yes\nfailover_armed,no",
+   "questions": {
+    "dns_action": {
+     "criteria": {
+      "hold_for_health": "Secondary too slow: hold and investigate health",
+      "keep_primary": "Keep serving the primary endpoint",
+      "promote_secondary": "Primary unhealthy: promote the secondary",
+      "shift_traffic": "Shift traffic toward the much faster secondary"
+     },
+     "instructions": "What is the correct DNS failover action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-dns_failover_policy-s07-score",
+   "state": "dump DNS-55633 (resolver-east)\nfield,value\ndns_ttl,180\nsecondary_rtt,20\nprimary_rtt,210\nprimary_healthy,yes\nfailover_armed,no",
+   "questions": {
+    "failover_risk": {
+     "criteria": [
+      "nominal",
+      "elevated",
+      "high",
+      "critical"
+     ],
+     "instructions": "Score the failover risk, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s00-boolean",
+   "state": "record:\n  ref: BLOB-17388\n  entity: media-vault\n  kind: blob-lifecycle\n  age_days: 324\n  tier: 0\n  size_gb: 48\n  legal_hold: false\n  access_count: 11",
+   "questions": {
+    "protected_from_moves": {
+     "instructions": "Is this object protected from any lifecycle move?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s00-choice",
+   "state": "record:\n  ref: BLOB-17388\n  entity: media-vault\n  kind: blob-lifecycle\n  age_days: 324\n  tier: 0\n  size_gb: 48\n  legal_hold: false\n  access_count: 11",
+   "questions": {
+    "lifecycle_action": {
+     "criteria": {
+      "demote": "No reads in 90+ days: demote to a colder tier",
+      "keep_tier": "Keep the object at its current tier",
+      "purge_review": "Archive-tier object older than 180 days: review for purge",
+      "retain": "Legal hold: retain and skip all lifecycle moves"
+     },
+     "instructions": "What lifecycle action applies to this object?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s00-score",
+   "state": "record:\n  ref: BLOB-17388\n  entity: media-vault\n  kind: blob-lifecycle\n  age_days: 324\n  tier: 0\n  size_gb: 48\n  legal_hold: false\n  access_count: 11",
+   "questions": {
+    "age_band": {
+     "criteria": [
+      "fresh (<=30 days)",
+      "settling (31-120)",
+      "old (121-240)",
+      "ancient (>240 days)"
+     ],
+     "instructions": "Score the object's age band, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s01-boolean",
+   "state": "[BLOB-26583] telemetry-store blob-lifecycle snapshot\n[BLOB-26583] age_days=366\n[BLOB-26583] tier=2\n[BLOB-26583] access_count=49\n[BLOB-26583] size_gb=18\n[BLOB-26583] legal_hold=TRUE",
+   "questions": {
+    "protected_from_moves": {
+     "criteria": {
+      "false": "the object may transition under policy",
+      "true": "a legal hold protects the object"
+     },
+     "instructions": "Does a legal hold freeze this object in place?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s01-choice",
+   "state": "[BLOB-26583] telemetry-store blob-lifecycle snapshot\n[BLOB-26583] age_days=366\n[BLOB-26583] tier=2\n[BLOB-26583] access_count=49\n[BLOB-26583] size_gb=18\n[BLOB-26583] legal_hold=TRUE",
+   "questions": {
+    "lifecycle_action": {
+     "criteria": {
+      "demote": "No reads in 90+ days: demote to a colder tier",
+      "keep_tier": "Keep the object at its current tier",
+      "purge_review": "Archive-tier object older than 180 days: review for purge",
+      "retain": "Legal hold: retain and skip all lifecycle moves"
+     },
+     "instructions": "Pick the correct lifecycle transition.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s01-score",
+   "state": "[BLOB-26583] telemetry-store blob-lifecycle snapshot\n[BLOB-26583] age_days=366\n[BLOB-26583] tier=2\n[BLOB-26583] access_count=49\n[BLOB-26583] size_gb=18\n[BLOB-26583] legal_hold=TRUE",
+   "questions": {
+    "age_band": {
+     "criteria": [
+      "fresh (<=30 days)",
+      "settling (31-120)",
+      "old (121-240)",
+      "ancient (>240 days)"
+     ],
+     "instructions": "Rate the object age band, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s02-boolean",
+   "state": "Situation report BLOB-80002 for artifact-store. The record shows a legal hold is attached to the object = true. The record shows storage tier 0-2 (0 hot, 2 archive) = 1. The record shows object age in days = 22. The record shows object size in GB = 36. The record shows reads in the last 90 days = 47.",
+   "questions": {
+    "protected_from_moves": {
+     "criteria": {
+      "false": "the object may transition under policy",
+      "true": "a legal hold protects the object"
+     },
+     "instructions": "Does a legal hold freeze this object in place?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s02-choice",
+   "state": "Situation report BLOB-80002 for artifact-store. The record shows a legal hold is attached to the object = true. The record shows storage tier 0-2 (0 hot, 2 archive) = 1. The record shows object age in days = 22. The record shows object size in GB = 36. The record shows reads in the last 90 days = 47.",
+   "questions": {
+    "lifecycle_action": {
+     "criteria": {
+      "demote": "No reads in 90+ days: demote to a colder tier",
+      "keep_tier": "Keep the object at its current tier",
+      "purge_review": "Archive-tier object older than 180 days: review for purge",
+      "retain": "Legal hold: retain and skip all lifecycle moves"
+     },
+     "instructions": "Pick the correct lifecycle transition.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s02-score",
+   "state": "Situation report BLOB-80002 for artifact-store. The record shows a legal hold is attached to the object = true. The record shows storage tier 0-2 (0 hot, 2 archive) = 1. The record shows object age in days = 22. The record shows object size in GB = 36. The record shows reads in the last 90 days = 47.",
+   "questions": {
+    "age_band": {
+     "criteria": [
+      "fresh (<=30 days)",
+      "settling (31-120)",
+      "old (121-240)",
+      "ancient (>240 days)"
+     ],
+     "instructions": "Rate the object age band, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s03-boolean",
+   "state": "dump STOR-8963 (backup-blobs)\nfield,value\nsize_gb,147\ntier,1\nlegal_hold,yes\nage_days,87\naccess_count,28",
+   "questions": {
+    "protected_from_moves": {
+     "criteria": {
+      "false": "the object may transition under policy",
+      "true": "a legal hold protects the object"
+     },
+     "instructions": "Does a legal hold freeze this object in place?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s03-choice",
+   "state": "dump STOR-8963 (backup-blobs)\nfield,value\nsize_gb,147\ntier,1\nlegal_hold,yes\nage_days,87\naccess_count,28",
+   "questions": {
+    "lifecycle_action": {
+     "criteria": {
+      "demote": "No reads in 90+ days: demote to a colder tier",
+      "keep_tier": "Keep the object at its current tier",
+      "purge_review": "Archive-tier object older than 180 days: review for purge",
+      "retain": "Legal hold: retain and skip all lifecycle moves"
+     },
+     "instructions": "Pick the correct lifecycle transition.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s03-score",
+   "state": "dump STOR-8963 (backup-blobs)\nfield,value\nsize_gb,147\ntier,1\nlegal_hold,yes\nage_days,87\naccess_count,28",
+   "questions": {
+    "age_band": {
+     "criteria": [
+      "fresh (<=30 days)",
+      "settling (31-120)",
+      "old (121-240)",
+      "ancient (>240 days)"
+     ],
+     "instructions": "Rate the object age band, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s04-boolean",
+   "state": "Situation report STOR-62168 for artifact-store. The record shows object size in GB = 113. The record shows reads in the last 90 days = 0. The record shows object age in days = 103. The record shows storage tier 0-2 (0 hot, 2 archive) = 1. The record shows a legal hold is attached to the object = false.",
+   "questions": {
+    "protected_from_moves": {
+     "criteria": {
+      "false": "the object may transition under policy",
+      "true": "a legal hold protects the object"
+     },
+     "instructions": "Does a legal hold freeze this object in place?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s04-choice",
+   "state": "Situation report STOR-62168 for artifact-store. The record shows object size in GB = 113. The record shows reads in the last 90 days = 0. The record shows object age in days = 103. The record shows storage tier 0-2 (0 hot, 2 archive) = 1. The record shows a legal hold is attached to the object = false.",
+   "questions": {
+    "lifecycle_action": {
+     "criteria": {
+      "demote": "No reads in 90+ days: demote to a colder tier",
+      "keep_tier": "Keep the object at its current tier",
+      "purge_review": "Archive-tier object older than 180 days: review for purge",
+      "retain": "Legal hold: retain and skip all lifecycle moves"
+     },
+     "instructions": "Pick the correct lifecycle transition.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s04-score",
+   "state": "Situation report STOR-62168 for artifact-store. The record shows object size in GB = 113. The record shows reads in the last 90 days = 0. The record shows object age in days = 103. The record shows storage tier 0-2 (0 hot, 2 archive) = 1. The record shows a legal hold is attached to the object = false.",
+   "questions": {
+    "age_band": {
+     "criteria": [
+      "fresh (<=30 days)",
+      "settling (31-120)",
+      "old (121-240)",
+      "ancient (>240 days)"
+     ],
+     "instructions": "Rate the object age band, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s05-boolean",
+   "state": "dump BLOB-68077 (media-vault)\nfield,value\naccess_count,35\nage_days,324\ntier,2\nsize_gb,189\nlegal_hold,no",
+   "questions": {
+    "protected_from_moves": {
+     "instructions": "Is this object protected from any lifecycle move?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s05-choice",
+   "state": "dump BLOB-68077 (media-vault)\nfield,value\naccess_count,35\nage_days,324\ntier,2\nsize_gb,189\nlegal_hold,no",
+   "questions": {
+    "lifecycle_action": {
+     "criteria": {
+      "demote": "No reads in 90+ days: demote to a colder tier",
+      "keep_tier": "Keep the object at its current tier",
+      "purge_review": "Archive-tier object older than 180 days: review for purge",
+      "retain": "Legal hold: retain and skip all lifecycle moves"
+     },
+     "instructions": "What lifecycle action applies to this object?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s05-score",
+   "state": "dump BLOB-68077 (media-vault)\nfield,value\naccess_count,35\nage_days,324\ntier,2\nsize_gb,189\nlegal_hold,no",
+   "questions": {
+    "age_band": {
+     "criteria": [
+      "fresh (<=30 days)",
+      "settling (31-120)",
+      "old (121-240)",
+      "ancient (>240 days)"
+     ],
+     "instructions": "Score the object's age band, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s06-boolean",
+   "state": "[STOR-47417] backup-blobs blob-lifecycle snapshot\n[STOR-47417] tier=2\n[STOR-47417] access_count=3\n[STOR-47417] legal_hold=TRUE\n[STOR-47417] size_gb=53\n[STOR-47417] age_days=245",
+   "questions": {
+    "protected_from_moves": {
+     "criteria": {
+      "false": "the object may transition under policy",
+      "true": "a legal hold protects the object"
+     },
+     "instructions": "Does a legal hold freeze this object in place?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s06-choice",
+   "state": "[STOR-47417] backup-blobs blob-lifecycle snapshot\n[STOR-47417] tier=2\n[STOR-47417] access_count=3\n[STOR-47417] legal_hold=TRUE\n[STOR-47417] size_gb=53\n[STOR-47417] age_days=245",
+   "questions": {
+    "lifecycle_action": {
+     "criteria": {
+      "demote": "No reads in 90+ days: demote to a colder tier",
+      "keep_tier": "Keep the object at its current tier",
+      "purge_review": "Archive-tier object older than 180 days: review for purge",
+      "retain": "Legal hold: retain and skip all lifecycle moves"
+     },
+     "instructions": "Pick the correct lifecycle transition.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s06-score",
+   "state": "[STOR-47417] backup-blobs blob-lifecycle snapshot\n[STOR-47417] tier=2\n[STOR-47417] access_count=3\n[STOR-47417] legal_hold=TRUE\n[STOR-47417] size_gb=53\n[STOR-47417] age_days=245",
+   "questions": {
+    "age_band": {
+     "criteria": [
+      "fresh (<=30 days)",
+      "settling (31-120)",
+      "old (121-240)",
+      "ancient (>240 days)"
+     ],
+     "instructions": "Rate the object age band, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s07-boolean",
+   "state": "record:\n  ref: STOR-31161\n  entity: artifact-store\n  kind: blob-lifecycle\n  legal_hold: true\n  tier: 2\n  age_days: 216\n  access_count: 45\n  size_gb: 102",
+   "questions": {
+    "protected_from_moves": {
+     "criteria": {
+      "false": "the object may transition under policy",
+      "true": "a legal hold protects the object"
+     },
+     "instructions": "Does a legal hold freeze this object in place?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s07-choice",
+   "state": "record:\n  ref: STOR-31161\n  entity: artifact-store\n  kind: blob-lifecycle\n  legal_hold: true\n  tier: 2\n  age_days: 216\n  access_count: 45\n  size_gb: 102",
+   "questions": {
+    "lifecycle_action": {
+     "criteria": {
+      "demote": "No reads in 90+ days: demote to a colder tier",
+      "keep_tier": "Keep the object at its current tier",
+      "purge_review": "Archive-tier object older than 180 days: review for purge",
+      "retain": "Legal hold: retain and skip all lifecycle moves"
+     },
+     "instructions": "Pick the correct lifecycle transition.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-blob_lifecycle-s07-score",
+   "state": "record:\n  ref: STOR-31161\n  entity: artifact-store\n  kind: blob-lifecycle\n  legal_hold: true\n  tier: 2\n  age_days: 216\n  access_count: 45\n  size_gb: 102",
+   "questions": {
+    "age_band": {
+     "criteria": [
+      "fresh (<=30 days)",
+      "settling (31-120)",
+      "old (121-240)",
+      "ancient (>240 days)"
+     ],
+     "instructions": "Rate the object age band, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s00-boolean",
+   "state": "dump HOOK-59109 (billing-hooks)\nfield,value\nattempts,4\njitter_on,no\nstatus_class,1\nmax_attempts,3",
+   "questions": {
+    "will_retry": {
+     "instructions": "Will this event be retried?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s00-choice",
+   "state": "dump HOOK-59109 (billing-hooks)\nfield,value\nattempts,4\njitter_on,no\nstatus_class,1\nmax_attempts,3",
+   "questions": {
+    "retry_verdict": {
+     "criteria": {
+      "dead_letter": "Attempts exhausted: move the event to the dead-letter queue",
+      "drop_event": "Permanent client error: drop the event",
+      "mark_delivered": "Last attempt succeeded: mark the event delivered",
+      "retry_long_backoff": "Rate-limited: retry on the long backoff",
+      "retry_short_backoff": "Server error: retry on the short backoff"
+     },
+     "instructions": "What is the correct retry verdict?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s00-score",
+   "state": "dump HOOK-59109 (billing-hooks)\nfield,value\nattempts,4\njitter_on,no\nstatus_class,1\nmax_attempts,3",
+   "questions": {
+    "attempts_left": {
+     "criteria": [
+      "three or more attempts left",
+      "two attempts left",
+      "one or zero attempts left"
+     ],
+     "instructions": "Score remaining attempts, 0 to 2 (3+, 2, fewer).",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s01-boolean",
+   "state": "dump HOOK-27969 (identity-hooks)\nfield,value\njitter_on,no\nstatus_class,2\nattempts,1\nmax_attempts,6",
+   "questions": {
+    "will_retry": {
+     "criteria": {
+      "false": "no further retry happens",
+      "true": "another retry is scheduled"
+     },
+     "instructions": "Does the retry policy schedule another attempt?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s01-choice",
+   "state": "dump HOOK-27969 (identity-hooks)\nfield,value\njitter_on,no\nstatus_class,2\nattempts,1\nmax_attempts,6",
+   "questions": {
+    "retry_verdict": {
+     "criteria": {
+      "dead_letter": "Attempts exhausted: move the event to the dead-letter queue",
+      "drop_event": "Permanent client error: drop the event",
+      "mark_delivered": "Last attempt succeeded: mark the event delivered",
+      "retry_long_backoff": "Rate-limited: retry on the long backoff",
+      "retry_short_backoff": "Server error: retry on the short backoff"
+     },
+     "instructions": "Pick the retry decision the policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s01-score",
+   "state": "dump HOOK-27969 (identity-hooks)\nfield,value\njitter_on,no\nstatus_class,2\nattempts,1\nmax_attempts,6",
+   "questions": {
+    "attempts_left": {
+     "criteria": [
+      "three or more attempts left",
+      "two attempts left",
+      "one or zero attempts left"
+     ],
+     "instructions": "Rate how many retries remain, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s02-boolean",
+   "state": "dump HOOK-63572 (crm-hooks)\nfield,value\nmax_attempts,8\nstatus_class,0\njitter_on,yes\nattempts,6",
+   "questions": {
+    "will_retry": {
+     "criteria": {
+      "false": "no further retry happens",
+      "true": "another retry is scheduled"
+     },
+     "instructions": "Does the retry policy schedule another attempt?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s02-choice",
+   "state": "dump HOOK-63572 (crm-hooks)\nfield,value\nmax_attempts,8\nstatus_class,0\njitter_on,yes\nattempts,6",
+   "questions": {
+    "retry_verdict": {
+     "criteria": {
+      "dead_letter": "Attempts exhausted: move the event to the dead-letter queue",
+      "drop_event": "Permanent client error: drop the event",
+      "mark_delivered": "Last attempt succeeded: mark the event delivered",
+      "retry_long_backoff": "Rate-limited: retry on the long backoff",
+      "retry_short_backoff": "Server error: retry on the short backoff"
+     },
+     "instructions": "Pick the retry decision the policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s02-score",
+   "state": "dump HOOK-63572 (crm-hooks)\nfield,value\nmax_attempts,8\nstatus_class,0\njitter_on,yes\nattempts,6",
+   "questions": {
+    "attempts_left": {
+     "criteria": [
+      "three or more attempts left",
+      "two attempts left",
+      "one or zero attempts left"
+     ],
+     "instructions": "Rate how many retries remain, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s03-boolean",
+   "state": "[HOOK-93452] crm-hooks webhook-retry snapshot\n[HOOK-93452] jitter_on=TRUE\n[HOOK-93452] attempts=4\n[HOOK-93452] max_attempts=7\n[HOOK-93452] status_class=1",
+   "questions": {
+    "will_retry": {
+     "criteria": {
+      "false": "no further retry happens",
+      "true": "another retry is scheduled"
+     },
+     "instructions": "Does the retry policy schedule another attempt?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s03-choice",
+   "state": "[HOOK-93452] crm-hooks webhook-retry snapshot\n[HOOK-93452] jitter_on=TRUE\n[HOOK-93452] attempts=4\n[HOOK-93452] max_attempts=7\n[HOOK-93452] status_class=1",
+   "questions": {
+    "retry_verdict": {
+     "criteria": {
+      "dead_letter": "Attempts exhausted: move the event to the dead-letter queue",
+      "drop_event": "Permanent client error: drop the event",
+      "mark_delivered": "Last attempt succeeded: mark the event delivered",
+      "retry_long_backoff": "Rate-limited: retry on the long backoff",
+      "retry_short_backoff": "Server error: retry on the short backoff"
+     },
+     "instructions": "Pick the retry decision the policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s03-score",
+   "state": "[HOOK-93452] crm-hooks webhook-retry snapshot\n[HOOK-93452] jitter_on=TRUE\n[HOOK-93452] attempts=4\n[HOOK-93452] max_attempts=7\n[HOOK-93452] status_class=1",
+   "questions": {
+    "attempts_left": {
+     "criteria": [
+      "three or more attempts left",
+      "two attempts left",
+      "one or zero attempts left"
+     ],
+     "instructions": "Rate how many retries remain, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s04-boolean",
+   "state": "record:\n  ref: HOOK-46382\n  entity: billing-hooks\n  kind: webhook-retry\n  attempts: 3\n  jitter_on: false\n  max_attempts: 6\n  status_class: 3",
+   "questions": {
+    "will_retry": {
+     "criteria": {
+      "false": "no further retry happens",
+      "true": "another retry is scheduled"
+     },
+     "instructions": "Does the retry policy schedule another attempt?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s04-choice",
+   "state": "record:\n  ref: HOOK-46382\n  entity: billing-hooks\n  kind: webhook-retry\n  attempts: 3\n  jitter_on: false\n  max_attempts: 6\n  status_class: 3",
+   "questions": {
+    "retry_verdict": {
+     "criteria": {
+      "dead_letter": "Attempts exhausted: move the event to the dead-letter queue",
+      "drop_event": "Permanent client error: drop the event",
+      "mark_delivered": "Last attempt succeeded: mark the event delivered",
+      "retry_long_backoff": "Rate-limited: retry on the long backoff",
+      "retry_short_backoff": "Server error: retry on the short backoff"
+     },
+     "instructions": "Pick the retry decision the policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s04-score",
+   "state": "record:\n  ref: HOOK-46382\n  entity: billing-hooks\n  kind: webhook-retry\n  attempts: 3\n  jitter_on: false\n  max_attempts: 6\n  status_class: 3",
+   "questions": {
+    "attempts_left": {
+     "criteria": [
+      "three or more attempts left",
+      "two attempts left",
+      "one or zero attempts left"
+     ],
+     "instructions": "Rate how many retries remain, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s05-boolean",
+   "state": "record:\n  ref: HOOK-14914\n  entity: identity-hooks\n  kind: webhook-retry\n  max_attempts: 5\n  status_class: 0\n  jitter_on: true\n  attempts: 5",
+   "questions": {
+    "will_retry": {
+     "instructions": "Will this event be retried?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s05-choice",
+   "state": "record:\n  ref: HOOK-14914\n  entity: identity-hooks\n  kind: webhook-retry\n  max_attempts: 5\n  status_class: 0\n  jitter_on: true\n  attempts: 5",
+   "questions": {
+    "retry_verdict": {
+     "criteria": {
+      "dead_letter": "Attempts exhausted: move the event to the dead-letter queue",
+      "drop_event": "Permanent client error: drop the event",
+      "mark_delivered": "Last attempt succeeded: mark the event delivered",
+      "retry_long_backoff": "Rate-limited: retry on the long backoff",
+      "retry_short_backoff": "Server error: retry on the short backoff"
+     },
+     "instructions": "What is the correct retry verdict?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s05-score",
+   "state": "record:\n  ref: HOOK-14914\n  entity: identity-hooks\n  kind: webhook-retry\n  max_attempts: 5\n  status_class: 0\n  jitter_on: true\n  attempts: 5",
+   "questions": {
+    "attempts_left": {
+     "criteria": [
+      "three or more attempts left",
+      "two attempts left",
+      "one or zero attempts left"
+     ],
+     "instructions": "Score remaining attempts, 0 to 2 (3+, 2, fewer).",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s06-boolean",
+   "state": "dump HOOK-35924 (shipping-hooks)\nfield,value\nstatus_class,2\nattempts,5\nmax_attempts,5\njitter_on,yes",
+   "questions": {
+    "will_retry": {
+     "instructions": "Will this event be retried?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s06-choice",
+   "state": "dump HOOK-35924 (shipping-hooks)\nfield,value\nstatus_class,2\nattempts,5\nmax_attempts,5\njitter_on,yes",
+   "questions": {
+    "retry_verdict": {
+     "criteria": {
+      "dead_letter": "Attempts exhausted: move the event to the dead-letter queue",
+      "drop_event": "Permanent client error: drop the event",
+      "mark_delivered": "Last attempt succeeded: mark the event delivered",
+      "retry_long_backoff": "Rate-limited: retry on the long backoff",
+      "retry_short_backoff": "Server error: retry on the short backoff"
+     },
+     "instructions": "What is the correct retry verdict?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s06-score",
+   "state": "dump HOOK-35924 (shipping-hooks)\nfield,value\nstatus_class,2\nattempts,5\nmax_attempts,5\njitter_on,yes",
+   "questions": {
+    "attempts_left": {
+     "criteria": [
+      "three or more attempts left",
+      "two attempts left",
+      "one or zero attempts left"
+     ],
+     "instructions": "Score remaining attempts, 0 to 2 (3+, 2, fewer).",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s07-boolean",
+   "state": "record:\n  ref: RETRY-50739\n  entity: crm-hooks\n  kind: webhook-retry\n  jitter_on: false\n  max_attempts: 6\n  status_class: 1\n  attempts: 1",
+   "questions": {
+    "will_retry": {
+     "criteria": {
+      "false": "no further retry happens",
+      "true": "another retry is scheduled"
+     },
+     "instructions": "Does the retry policy schedule another attempt?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s07-choice",
+   "state": "record:\n  ref: RETRY-50739\n  entity: crm-hooks\n  kind: webhook-retry\n  jitter_on: false\n  max_attempts: 6\n  status_class: 1\n  attempts: 1",
+   "questions": {
+    "retry_verdict": {
+     "criteria": {
+      "dead_letter": "Attempts exhausted: move the event to the dead-letter queue",
+      "drop_event": "Permanent client error: drop the event",
+      "mark_delivered": "Last attempt succeeded: mark the event delivered",
+      "retry_long_backoff": "Rate-limited: retry on the long backoff",
+      "retry_short_backoff": "Server error: retry on the short backoff"
+     },
+     "instructions": "Pick the retry decision the policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-webhook_retry-s07-score",
+   "state": "record:\n  ref: RETRY-50739\n  entity: crm-hooks\n  kind: webhook-retry\n  jitter_on: false\n  max_attempts: 6\n  status_class: 1\n  attempts: 1",
+   "questions": {
+    "attempts_left": {
+     "criteria": [
+      "three or more attempts left",
+      "two attempts left",
+      "one or zero attempts left"
+     ],
+     "instructions": "Rate how many retries remain, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s00-boolean",
+   "state": "Situation report NODE-1684 for batch-nodes. The record shows the node is already cordoned = false. The record shows the node is a reclaimable spot instance = true. The record shows share of pods that can be evicted now, percent = 55. The record shows pods currently scheduled on the node = 59. The record shows minimum pods the disruption budget requires = 2.",
+   "questions": {
+    "drainable_now": {
+     "instructions": "May the drain proceed immediately under the PDB?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s00-choice",
+   "state": "Situation report NODE-1684 for batch-nodes. The record shows the node is already cordoned = false. The record shows the node is a reclaimable spot instance = true. The record shows share of pods that can be evicted now, percent = 55. The record shows pods currently scheduled on the node = 59. The record shows minimum pods the disruption budget requires = 2.",
+   "questions": {
+    "drain_step": {
+     "criteria": {
+      "cordon_first": "Cordon the node before anything else",
+      "drain_gradual": "Drain gradually within the budget",
+      "remove_node": "Node is empty: remove it",
+      "rush_drain": "Spot node: drain aggressively before reclaim",
+      "wait_for_pdb": "Wait: eviction would breach the disruption budget"
+     },
+     "instructions": "What is the correct next drain step?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s00-score",
+   "state": "Situation report NODE-1684 for batch-nodes. The record shows the node is already cordoned = false. The record shows the node is a reclaimable spot instance = true. The record shows share of pods that can be evicted now, percent = 55. The record shows pods currently scheduled on the node = 59. The record shows minimum pods the disruption budget requires = 2.",
+   "questions": {
+    "drain_urgency": {
+     "criteria": [
+      "routine",
+      "elevated",
+      "high",
+      "critical"
+     ],
+     "instructions": "Score the drain urgency, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s01-boolean",
+   "state": "dump NODE-65189 (k8s-pool-a)\nfield,value\ncordoned,yes\npods,40\nevictable_pct,80\npdb_min,1\nspot_node,no",
+   "questions": {
+    "drainable_now": {
+     "criteria": {
+      "false": "cordon first or the PDB would be violated",
+      "true": "the drain may proceed"
+     },
+     "instructions": "Is the node drainable right now?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s01-choice",
+   "state": "dump NODE-65189 (k8s-pool-a)\nfield,value\ncordoned,yes\npods,40\nevictable_pct,80\npdb_min,1\nspot_node,no",
+   "questions": {
+    "drain_step": {
+     "criteria": {
+      "cordon_first": "Cordon the node before anything else",
+      "drain_gradual": "Drain gradually within the budget",
+      "remove_node": "Node is empty: remove it",
+      "rush_drain": "Spot node: drain aggressively before reclaim",
+      "wait_for_pdb": "Wait: eviction would breach the disruption budget"
+     },
+     "instructions": "Pick the step the drain policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s01-score",
+   "state": "dump NODE-65189 (k8s-pool-a)\nfield,value\ncordoned,yes\npods,40\nevictable_pct,80\npdb_min,1\nspot_node,no",
+   "questions": {
+    "drain_urgency": {
+     "criteria": [
+      "routine",
+      "elevated",
+      "high",
+      "critical"
+     ],
+     "instructions": "Rate how urgent this drain is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s02-boolean",
+   "state": "dump NODE-74436 (k8s-pool-b)\nfield,value\npdb_min,5\ncordoned,yes\npods,56\nevictable_pct,5\nspot_node,no",
+   "questions": {
+    "drainable_now": {
+     "instructions": "May the drain proceed immediately under the PDB?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s02-choice",
+   "state": "dump NODE-74436 (k8s-pool-b)\nfield,value\npdb_min,5\ncordoned,yes\npods,56\nevictable_pct,5\nspot_node,no",
+   "questions": {
+    "drain_step": {
+     "criteria": {
+      "cordon_first": "Cordon the node before anything else",
+      "drain_gradual": "Drain gradually within the budget",
+      "remove_node": "Node is empty: remove it",
+      "rush_drain": "Spot node: drain aggressively before reclaim",
+      "wait_for_pdb": "Wait: eviction would breach the disruption budget"
+     },
+     "instructions": "What is the correct next drain step?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s02-score",
+   "state": "dump NODE-74436 (k8s-pool-b)\nfield,value\npdb_min,5\ncordoned,yes\npods,56\nevictable_pct,5\nspot_node,no",
+   "questions": {
+    "drain_urgency": {
+     "criteria": [
+      "routine",
+      "elevated",
+      "high",
+      "critical"
+     ],
+     "instructions": "Score the drain urgency, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s03-boolean",
+   "state": "Situation report DRAIN-60160 for gpu-nodes. The record shows minimum pods the disruption budget requires = 3. The record shows pods currently scheduled on the node = 0. The record shows the node is already cordoned = true. The record shows share of pods that can be evicted now, percent = 85. The record shows the node is a reclaimable spot instance = false.",
+   "questions": {
+    "drainable_now": {
+     "criteria": {
+      "false": "cordon first or the PDB would be violated",
+      "true": "the drain may proceed"
+     },
+     "instructions": "Is the node drainable right now?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s03-choice",
+   "state": "Situation report DRAIN-60160 for gpu-nodes. The record shows minimum pods the disruption budget requires = 3. The record shows pods currently scheduled on the node = 0. The record shows the node is already cordoned = true. The record shows share of pods that can be evicted now, percent = 85. The record shows the node is a reclaimable spot instance = false.",
+   "questions": {
+    "drain_step": {
+     "criteria": {
+      "cordon_first": "Cordon the node before anything else",
+      "drain_gradual": "Drain gradually within the budget",
+      "remove_node": "Node is empty: remove it",
+      "rush_drain": "Spot node: drain aggressively before reclaim",
+      "wait_for_pdb": "Wait: eviction would breach the disruption budget"
+     },
+     "instructions": "Pick the step the drain policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s03-score",
+   "state": "Situation report DRAIN-60160 for gpu-nodes. The record shows minimum pods the disruption budget requires = 3. The record shows pods currently scheduled on the node = 0. The record shows the node is already cordoned = true. The record shows share of pods that can be evicted now, percent = 85. The record shows the node is a reclaimable spot instance = false.",
+   "questions": {
+    "drain_urgency": {
+     "criteria": [
+      "routine",
+      "elevated",
+      "high",
+      "critical"
+     ],
+     "instructions": "Rate how urgent this drain is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s04-boolean",
+   "state": "record:\n  ref: NODE-92014\n  entity: batch-nodes\n  kind: node-drain\n  cordoned: true\n  evictable_pct: 20\n  pods: 19\n  pdb_min: 5\n  spot_node: true",
+   "questions": {
+    "drainable_now": {
+     "criteria": {
+      "false": "cordon first or the PDB would be violated",
+      "true": "the drain may proceed"
+     },
+     "instructions": "Is the node drainable right now?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s04-choice",
+   "state": "record:\n  ref: NODE-92014\n  entity: batch-nodes\n  kind: node-drain\n  cordoned: true\n  evictable_pct: 20\n  pods: 19\n  pdb_min: 5\n  spot_node: true",
+   "questions": {
+    "drain_step": {
+     "criteria": {
+      "cordon_first": "Cordon the node before anything else",
+      "drain_gradual": "Drain gradually within the budget",
+      "remove_node": "Node is empty: remove it",
+      "rush_drain": "Spot node: drain aggressively before reclaim",
+      "wait_for_pdb": "Wait: eviction would breach the disruption budget"
+     },
+     "instructions": "Pick the step the drain policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s04-score",
+   "state": "record:\n  ref: NODE-92014\n  entity: batch-nodes\n  kind: node-drain\n  cordoned: true\n  evictable_pct: 20\n  pods: 19\n  pdb_min: 5\n  spot_node: true",
+   "questions": {
+    "drain_urgency": {
+     "criteria": [
+      "routine",
+      "elevated",
+      "high",
+      "critical"
+     ],
+     "instructions": "Rate how urgent this drain is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s05-boolean",
+   "state": "[NODE-79920] k8s-pool-a node-drain snapshot\n[NODE-79920] evictable_pct=100\n[NODE-79920] pdb_min=4\n[NODE-79920] cordoned=TRUE\n[NODE-79920] spot_node=FALSE\n[NODE-79920] pods=54",
+   "questions": {
+    "drainable_now": {
+     "instructions": "May the drain proceed immediately under the PDB?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s05-choice",
+   "state": "[NODE-79920] k8s-pool-a node-drain snapshot\n[NODE-79920] evictable_pct=100\n[NODE-79920] pdb_min=4\n[NODE-79920] cordoned=TRUE\n[NODE-79920] spot_node=FALSE\n[NODE-79920] pods=54",
+   "questions": {
+    "drain_step": {
+     "criteria": {
+      "cordon_first": "Cordon the node before anything else",
+      "drain_gradual": "Drain gradually within the budget",
+      "remove_node": "Node is empty: remove it",
+      "rush_drain": "Spot node: drain aggressively before reclaim",
+      "wait_for_pdb": "Wait: eviction would breach the disruption budget"
+     },
+     "instructions": "What is the correct next drain step?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s05-score",
+   "state": "[NODE-79920] k8s-pool-a node-drain snapshot\n[NODE-79920] evictable_pct=100\n[NODE-79920] pdb_min=4\n[NODE-79920] cordoned=TRUE\n[NODE-79920] spot_node=FALSE\n[NODE-79920] pods=54",
+   "questions": {
+    "drain_urgency": {
+     "criteria": [
+      "routine",
+      "elevated",
+      "high",
+      "critical"
+     ],
+     "instructions": "Score the drain urgency, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s06-boolean",
+   "state": "dump DRAIN-62782 (batch-nodes)\nfield,value\npods,23\ncordoned,yes\nevictable_pct,30\nspot_node,no\npdb_min,7",
+   "questions": {
+    "drainable_now": {
+     "criteria": {
+      "false": "cordon first or the PDB would be violated",
+      "true": "the drain may proceed"
+     },
+     "instructions": "Is the node drainable right now?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s06-choice",
+   "state": "dump DRAIN-62782 (batch-nodes)\nfield,value\npods,23\ncordoned,yes\nevictable_pct,30\nspot_node,no\npdb_min,7",
+   "questions": {
+    "drain_step": {
+     "criteria": {
+      "cordon_first": "Cordon the node before anything else",
+      "drain_gradual": "Drain gradually within the budget",
+      "remove_node": "Node is empty: remove it",
+      "rush_drain": "Spot node: drain aggressively before reclaim",
+      "wait_for_pdb": "Wait: eviction would breach the disruption budget"
+     },
+     "instructions": "Pick the step the drain policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s06-score",
+   "state": "dump DRAIN-62782 (batch-nodes)\nfield,value\npods,23\ncordoned,yes\nevictable_pct,30\nspot_node,no\npdb_min,7",
+   "questions": {
+    "drain_urgency": {
+     "criteria": [
+      "routine",
+      "elevated",
+      "high",
+      "critical"
+     ],
+     "instructions": "Rate how urgent this drain is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s07-boolean",
+   "state": "[NODE-50667] batch-nodes node-drain snapshot\n[NODE-50667] pods=4\n[NODE-50667] cordoned=FALSE\n[NODE-50667] spot_node=TRUE\n[NODE-50667] pdb_min=3\n[NODE-50667] evictable_pct=45",
+   "questions": {
+    "drainable_now": {
+     "instructions": "May the drain proceed immediately under the PDB?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s07-choice",
+   "state": "[NODE-50667] batch-nodes node-drain snapshot\n[NODE-50667] pods=4\n[NODE-50667] cordoned=FALSE\n[NODE-50667] spot_node=TRUE\n[NODE-50667] pdb_min=3\n[NODE-50667] evictable_pct=45",
+   "questions": {
+    "drain_step": {
+     "criteria": {
+      "cordon_first": "Cordon the node before anything else",
+      "drain_gradual": "Drain gradually within the budget",
+      "remove_node": "Node is empty: remove it",
+      "rush_drain": "Spot node: drain aggressively before reclaim",
+      "wait_for_pdb": "Wait: eviction would breach the disruption budget"
+     },
+     "instructions": "What is the correct next drain step?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-node_drain-s07-score",
+   "state": "[NODE-50667] batch-nodes node-drain snapshot\n[NODE-50667] pods=4\n[NODE-50667] cordoned=FALSE\n[NODE-50667] spot_node=TRUE\n[NODE-50667] pdb_min=3\n[NODE-50667] evictable_pct=45",
+   "questions": {
+    "drain_urgency": {
+     "criteria": [
+      "routine",
+      "elevated",
+      "high",
+      "critical"
+     ],
+     "instructions": "Score the drain urgency, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s00-boolean",
+   "state": "[VAULT-12151] token-vault secret-scope-grant snapshot\n[VAULT-12151] expires_days=2\n[VAULT-12151] scope_sensitivity=2\n[VAULT-12151] approved_ticket=FALSE\n[VAULT-12151] requester_role=1",
+   "questions": {
+    "grant_permitted": {
+     "criteria": {
+      "false": "no grant may be issued",
+      "true": "a grant is permitted"
+     },
+     "instructions": "Is some form of grant permitted here?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s00-choice",
+   "state": "[VAULT-12151] token-vault secret-scope-grant snapshot\n[VAULT-12151] expires_days=2\n[VAULT-12151] scope_sensitivity=2\n[VAULT-12151] approved_ticket=FALSE\n[VAULT-12151] requester_role=1",
+   "questions": {
+    "grant_verdict": {
+     "criteria": {
+      "deny": "Deny the grant request",
+      "grant": "Issue the grant as requested",
+      "grant_expiring": "Issue only a short-lived expiring grant",
+      "grant_with_audit": "Grant with elevated audit logging"
+     },
+     "instructions": "Pick the verdict the access policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s00-score",
+   "state": "[VAULT-12151] token-vault secret-scope-grant snapshot\n[VAULT-12151] expires_days=2\n[VAULT-12151] scope_sensitivity=2\n[VAULT-12151] approved_ticket=FALSE\n[VAULT-12151] requester_role=1",
+   "questions": {
+    "grant_risk": {
+     "criteria": [
+      "low risk",
+      "moderate risk",
+      "high risk"
+     ],
+     "instructions": "Rate the risk of this grant, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s01-boolean",
+   "state": "Situation report SEC-49152 for kms-edge. The record shows scope sensitivity 0-2 (2 most sensitive) = 0. The record shows an approved access ticket exists = false. The record shows requested grant lifetime in days (0 = indefinite) = 88. The record shows requester role 0-2 (0 contractor, 2 owner) = 0.",
+   "questions": {
+    "grant_permitted": {
+     "instructions": "May any grant be issued for this request?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s01-choice",
+   "state": "Situation report SEC-49152 for kms-edge. The record shows scope sensitivity 0-2 (2 most sensitive) = 0. The record shows an approved access ticket exists = false. The record shows requested grant lifetime in days (0 = indefinite) = 88. The record shows requester role 0-2 (0 contractor, 2 owner) = 0.",
+   "questions": {
+    "grant_verdict": {
+     "criteria": {
+      "deny": "Deny the grant request",
+      "grant": "Issue the grant as requested",
+      "grant_expiring": "Issue only a short-lived expiring grant",
+      "grant_with_audit": "Grant with elevated audit logging"
+     },
+     "instructions": "What is the correct grant verdict?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s01-score",
+   "state": "Situation report SEC-49152 for kms-edge. The record shows scope sensitivity 0-2 (2 most sensitive) = 0. The record shows an approved access ticket exists = false. The record shows requested grant lifetime in days (0 = indefinite) = 88. The record shows requester role 0-2 (0 contractor, 2 owner) = 0.",
+   "questions": {
+    "grant_risk": {
+     "criteria": [
+      "low risk",
+      "moderate risk",
+      "high risk"
+     ],
+     "instructions": "Score the grant risk, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s02-boolean",
+   "state": "[SEC-30285] vault-prod secret-scope-grant snapshot\n[SEC-30285] scope_sensitivity=0\n[SEC-30285] requester_role=1\n[SEC-30285] approved_ticket=TRUE\n[SEC-30285] expires_days=6",
+   "questions": {
+    "grant_permitted": {
+     "criteria": {
+      "false": "no grant may be issued",
+      "true": "a grant is permitted"
+     },
+     "instructions": "Is some form of grant permitted here?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s02-choice",
+   "state": "[SEC-30285] vault-prod secret-scope-grant snapshot\n[SEC-30285] scope_sensitivity=0\n[SEC-30285] requester_role=1\n[SEC-30285] approved_ticket=TRUE\n[SEC-30285] expires_days=6",
+   "questions": {
+    "grant_verdict": {
+     "criteria": {
+      "deny": "Deny the grant request",
+      "grant": "Issue the grant as requested",
+      "grant_expiring": "Issue only a short-lived expiring grant",
+      "grant_with_audit": "Grant with elevated audit logging"
+     },
+     "instructions": "Pick the verdict the access policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s02-score",
+   "state": "[SEC-30285] vault-prod secret-scope-grant snapshot\n[SEC-30285] scope_sensitivity=0\n[SEC-30285] requester_role=1\n[SEC-30285] approved_ticket=TRUE\n[SEC-30285] expires_days=6",
+   "questions": {
+    "grant_risk": {
+     "criteria": [
+      "low risk",
+      "moderate risk",
+      "high risk"
+     ],
+     "instructions": "Rate the risk of this grant, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s03-boolean",
+   "state": "record:\n  ref: SEC-69145\n  entity: secrets-hub\n  kind: secret-scope-grant\n  scope_sensitivity: 1\n  expires_days: 75\n  approved_ticket: true\n  requester_role: 2",
+   "questions": {
+    "grant_permitted": {
+     "instructions": "May any grant be issued for this request?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s03-choice",
+   "state": "record:\n  ref: SEC-69145\n  entity: secrets-hub\n  kind: secret-scope-grant\n  scope_sensitivity: 1\n  expires_days: 75\n  approved_ticket: true\n  requester_role: 2",
+   "questions": {
+    "grant_verdict": {
+     "criteria": {
+      "deny": "Deny the grant request",
+      "grant": "Issue the grant as requested",
+      "grant_expiring": "Issue only a short-lived expiring grant",
+      "grant_with_audit": "Grant with elevated audit logging"
+     },
+     "instructions": "What is the correct grant verdict?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s03-score",
+   "state": "record:\n  ref: SEC-69145\n  entity: secrets-hub\n  kind: secret-scope-grant\n  scope_sensitivity: 1\n  expires_days: 75\n  approved_ticket: true\n  requester_role: 2",
+   "questions": {
+    "grant_risk": {
+     "criteria": [
+      "low risk",
+      "moderate risk",
+      "high risk"
+     ],
+     "instructions": "Score the grant risk, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s04-boolean",
+   "state": "dump SEC-7768 (secrets-hub)\nfield,value\nrequester_role,0\napproved_ticket,no\nexpires_days,25\nscope_sensitivity,0",
+   "questions": {
+    "grant_permitted": {
+     "instructions": "May any grant be issued for this request?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s04-choice",
+   "state": "dump SEC-7768 (secrets-hub)\nfield,value\nrequester_role,0\napproved_ticket,no\nexpires_days,25\nscope_sensitivity,0",
+   "questions": {
+    "grant_verdict": {
+     "criteria": {
+      "deny": "Deny the grant request",
+      "grant": "Issue the grant as requested",
+      "grant_expiring": "Issue only a short-lived expiring grant",
+      "grant_with_audit": "Grant with elevated audit logging"
+     },
+     "instructions": "What is the correct grant verdict?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s04-score",
+   "state": "dump SEC-7768 (secrets-hub)\nfield,value\nrequester_role,0\napproved_ticket,no\nexpires_days,25\nscope_sensitivity,0",
+   "questions": {
+    "grant_risk": {
+     "criteria": [
+      "low risk",
+      "moderate risk",
+      "high risk"
+     ],
+     "instructions": "Score the grant risk, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s05-boolean",
+   "state": "record:\n  ref: VAULT-84122\n  entity: kms-edge\n  kind: secret-scope-grant\n  expires_days: 69\n  scope_sensitivity: 2\n  requester_role: 0\n  approved_ticket: true",
+   "questions": {
+    "grant_permitted": {
+     "instructions": "May any grant be issued for this request?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s05-choice",
+   "state": "record:\n  ref: VAULT-84122\n  entity: kms-edge\n  kind: secret-scope-grant\n  expires_days: 69\n  scope_sensitivity: 2\n  requester_role: 0\n  approved_ticket: true",
+   "questions": {
+    "grant_verdict": {
+     "criteria": {
+      "deny": "Deny the grant request",
+      "grant": "Issue the grant as requested",
+      "grant_expiring": "Issue only a short-lived expiring grant",
+      "grant_with_audit": "Grant with elevated audit logging"
+     },
+     "instructions": "What is the correct grant verdict?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s05-score",
+   "state": "record:\n  ref: VAULT-84122\n  entity: kms-edge\n  kind: secret-scope-grant\n  expires_days: 69\n  scope_sensitivity: 2\n  requester_role: 0\n  approved_ticket: true",
+   "questions": {
+    "grant_risk": {
+     "criteria": [
+      "low risk",
+      "moderate risk",
+      "high risk"
+     ],
+     "instructions": "Score the grant risk, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s06-boolean",
+   "state": "Situation report SEC-15741 for vault-prod. The record shows scope sensitivity 0-2 (2 most sensitive) = 1. The record shows an approved access ticket exists = true. The record shows requester role 0-2 (0 contractor, 2 owner) = 0. The record shows requested grant lifetime in days (0 = indefinite) = 68.",
+   "questions": {
+    "grant_permitted": {
+     "criteria": {
+      "false": "no grant may be issued",
+      "true": "a grant is permitted"
+     },
+     "instructions": "Is some form of grant permitted here?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s06-choice",
+   "state": "Situation report SEC-15741 for vault-prod. The record shows scope sensitivity 0-2 (2 most sensitive) = 1. The record shows an approved access ticket exists = true. The record shows requester role 0-2 (0 contractor, 2 owner) = 0. The record shows requested grant lifetime in days (0 = indefinite) = 68.",
+   "questions": {
+    "grant_verdict": {
+     "criteria": {
+      "deny": "Deny the grant request",
+      "grant": "Issue the grant as requested",
+      "grant_expiring": "Issue only a short-lived expiring grant",
+      "grant_with_audit": "Grant with elevated audit logging"
+     },
+     "instructions": "Pick the verdict the access policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s06-score",
+   "state": "Situation report SEC-15741 for vault-prod. The record shows scope sensitivity 0-2 (2 most sensitive) = 1. The record shows an approved access ticket exists = true. The record shows requester role 0-2 (0 contractor, 2 owner) = 0. The record shows requested grant lifetime in days (0 = indefinite) = 68.",
+   "questions": {
+    "grant_risk": {
+     "criteria": [
+      "low risk",
+      "moderate risk",
+      "high risk"
+     ],
+     "instructions": "Rate the risk of this grant, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s07-boolean",
+   "state": "[SEC-53545] kms-edge secret-scope-grant snapshot\n[SEC-53545] requester_role=2\n[SEC-53545] scope_sensitivity=1\n[SEC-53545] approved_ticket=FALSE\n[SEC-53545] expires_days=22",
+   "questions": {
+    "grant_permitted": {
+     "instructions": "May any grant be issued for this request?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s07-choice",
+   "state": "[SEC-53545] kms-edge secret-scope-grant snapshot\n[SEC-53545] requester_role=2\n[SEC-53545] scope_sensitivity=1\n[SEC-53545] approved_ticket=FALSE\n[SEC-53545] expires_days=22",
+   "questions": {
+    "grant_verdict": {
+     "criteria": {
+      "deny": "Deny the grant request",
+      "grant": "Issue the grant as requested",
+      "grant_expiring": "Issue only a short-lived expiring grant",
+      "grant_with_audit": "Grant with elevated audit logging"
+     },
+     "instructions": "What is the correct grant verdict?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-secret_scope_grant-s07-score",
+   "state": "[SEC-53545] kms-edge secret-scope-grant snapshot\n[SEC-53545] requester_role=2\n[SEC-53545] scope_sensitivity=1\n[SEC-53545] approved_ticket=FALSE\n[SEC-53545] expires_days=22",
+   "questions": {
+    "grant_risk": {
+     "criteria": [
+      "low risk",
+      "moderate risk",
+      "high risk"
+     ],
+     "instructions": "Score the grant risk, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s00-boolean",
+   "state": "[EDGE-79354] img-cdn cache-warmup snapshot\n[EDGE-79354] target_pct=65\n[EDGE-79354] miss_spike=TRUE\n[EDGE-79354] origin_capacity=75\n[EDGE-79354] warm_pct=55",
+   "questions": {
+    "ready_for_traffic": {
+     "criteria": {
+      "false": "warmup is below the target",
+      "true": "target reached"
+     },
+     "instructions": "Has warmup reached the stated target?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s00-choice",
+   "state": "[EDGE-79354] img-cdn cache-warmup snapshot\n[EDGE-79354] target_pct=65\n[EDGE-79354] miss_spike=TRUE\n[EDGE-79354] origin_capacity=75\n[EDGE-79354] warm_pct=55",
+   "questions": {
+    "warmup_step": {
+     "criteria": {
+      "hold_traffic": "Hold traffic; the cache is far below target",
+      "open_traffic": "Target reached: open full traffic",
+      "partial_traffic": "Admit partial traffic while warming finishes",
+      "slow_warmup": "Miss spike with a weak origin: slow the warmup"
+     },
+     "instructions": "Pick the traffic decision for this cache.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s00-score",
+   "state": "[EDGE-79354] img-cdn cache-warmup snapshot\n[EDGE-79354] target_pct=65\n[EDGE-79354] miss_spike=TRUE\n[EDGE-79354] origin_capacity=75\n[EDGE-79354] warm_pct=55",
+   "questions": {
+    "warmup_gap": {
+     "criteria": [
+      "at target",
+      "small gap (<=15)",
+      "moderate gap (16-35)",
+      "large gap (36-60)",
+      "extreme gap (>60)"
+     ],
+     "instructions": "Rate how far below target the cache is, 0 to 4.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s01-boolean",
+   "state": "Situation report EDGE-35229 for read-cache. The record shows share of the hot set already warmed, percent = 85. The record shows origin spare capacity, percent = 35. The record shows warm share required before full traffic, percent = 80. The record shows a miss spike is in progress = true.",
+   "questions": {
+    "ready_for_traffic": {
+     "criteria": {
+      "false": "warmup is below the target",
+      "true": "target reached"
+     },
+     "instructions": "Has warmup reached the stated target?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s01-choice",
+   "state": "Situation report EDGE-35229 for read-cache. The record shows share of the hot set already warmed, percent = 85. The record shows origin spare capacity, percent = 35. The record shows warm share required before full traffic, percent = 80. The record shows a miss spike is in progress = true.",
+   "questions": {
+    "warmup_step": {
+     "criteria": {
+      "hold_traffic": "Hold traffic; the cache is far below target",
+      "open_traffic": "Target reached: open full traffic",
+      "partial_traffic": "Admit partial traffic while warming finishes",
+      "slow_warmup": "Miss spike with a weak origin: slow the warmup"
+     },
+     "instructions": "Pick the traffic decision for this cache.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s01-score",
+   "state": "Situation report EDGE-35229 for read-cache. The record shows share of the hot set already warmed, percent = 85. The record shows origin spare capacity, percent = 35. The record shows warm share required before full traffic, percent = 80. The record shows a miss spike is in progress = true.",
+   "questions": {
+    "warmup_gap": {
+     "criteria": [
+      "at target",
+      "small gap (<=15)",
+      "moderate gap (16-35)",
+      "large gap (36-60)",
+      "extreme gap (>60)"
+     ],
+     "instructions": "Rate how far below target the cache is, 0 to 4.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s02-boolean",
+   "state": "Situation report WARM-69281 for video-edge. The record shows origin spare capacity, percent = 85. The record shows share of the hot set already warmed, percent = 25. The record shows a miss spike is in progress = true. The record shows warm share required before full traffic, percent = 50.",
+   "questions": {
+    "ready_for_traffic": {
+     "criteria": {
+      "false": "warmup is below the target",
+      "true": "target reached"
+     },
+     "instructions": "Has warmup reached the stated target?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s02-choice",
+   "state": "Situation report WARM-69281 for video-edge. The record shows origin spare capacity, percent = 85. The record shows share of the hot set already warmed, percent = 25. The record shows a miss spike is in progress = true. The record shows warm share required before full traffic, percent = 50.",
+   "questions": {
+    "warmup_step": {
+     "criteria": {
+      "hold_traffic": "Hold traffic; the cache is far below target",
+      "open_traffic": "Target reached: open full traffic",
+      "partial_traffic": "Admit partial traffic while warming finishes",
+      "slow_warmup": "Miss spike with a weak origin: slow the warmup"
+     },
+     "instructions": "Pick the traffic decision for this cache.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s02-score",
+   "state": "Situation report WARM-69281 for video-edge. The record shows origin spare capacity, percent = 85. The record shows share of the hot set already warmed, percent = 25. The record shows a miss spike is in progress = true. The record shows warm share required before full traffic, percent = 50.",
+   "questions": {
+    "warmup_gap": {
+     "criteria": [
+      "at target",
+      "small gap (<=15)",
+      "moderate gap (16-35)",
+      "large gap (36-60)",
+      "extreme gap (>60)"
+     ],
+     "instructions": "Rate how far below target the cache is, 0 to 4.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s03-boolean",
+   "state": "Situation report WARM-96099 for video-edge. The record shows a miss spike is in progress = false. The record shows origin spare capacity, percent = 70. The record shows share of the hot set already warmed, percent = 95. The record shows warm share required before full traffic, percent = 55.",
+   "questions": {
+    "ready_for_traffic": {
+     "criteria": {
+      "false": "warmup is below the target",
+      "true": "target reached"
+     },
+     "instructions": "Has warmup reached the stated target?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s03-choice",
+   "state": "Situation report WARM-96099 for video-edge. The record shows a miss spike is in progress = false. The record shows origin spare capacity, percent = 70. The record shows share of the hot set already warmed, percent = 95. The record shows warm share required before full traffic, percent = 55.",
+   "questions": {
+    "warmup_step": {
+     "criteria": {
+      "hold_traffic": "Hold traffic; the cache is far below target",
+      "open_traffic": "Target reached: open full traffic",
+      "partial_traffic": "Admit partial traffic while warming finishes",
+      "slow_warmup": "Miss spike with a weak origin: slow the warmup"
+     },
+     "instructions": "Pick the traffic decision for this cache.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s03-score",
+   "state": "Situation report WARM-96099 for video-edge. The record shows a miss spike is in progress = false. The record shows origin spare capacity, percent = 70. The record shows share of the hot set already warmed, percent = 95. The record shows warm share required before full traffic, percent = 55.",
+   "questions": {
+    "warmup_gap": {
+     "criteria": [
+      "at target",
+      "small gap (<=15)",
+      "moderate gap (16-35)",
+      "large gap (36-60)",
+      "extreme gap (>60)"
+     ],
+     "instructions": "Rate how far below target the cache is, 0 to 4.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s04-boolean",
+   "state": "dump WARM-31357 (video-edge)\nfield,value\nwarm_pct,45\nmiss_spike,yes\ntarget_pct,50\norigin_capacity,65",
+   "questions": {
+    "ready_for_traffic": {
+     "instructions": "Is the cache warm enough for full traffic?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s04-choice",
+   "state": "dump WARM-31357 (video-edge)\nfield,value\nwarm_pct,45\nmiss_spike,yes\ntarget_pct,50\norigin_capacity,65",
+   "questions": {
+    "warmup_step": {
+     "criteria": {
+      "hold_traffic": "Hold traffic; the cache is far below target",
+      "open_traffic": "Target reached: open full traffic",
+      "partial_traffic": "Admit partial traffic while warming finishes",
+      "slow_warmup": "Miss spike with a weak origin: slow the warmup"
+     },
+     "instructions": "What is the correct warmup step?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s04-score",
+   "state": "dump WARM-31357 (video-edge)\nfield,value\nwarm_pct,45\nmiss_spike,yes\ntarget_pct,50\norigin_capacity,65",
+   "questions": {
+    "warmup_gap": {
+     "criteria": [
+      "at target",
+      "small gap (<=15)",
+      "moderate gap (16-35)",
+      "large gap (36-60)",
+      "extreme gap (>60)"
+     ],
+     "instructions": "Score the warmup gap, 0 to 4.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s05-boolean",
+   "state": "Situation report WARM-25437 for video-edge. The record shows share of the hot set already warmed, percent = 80. The record shows a miss spike is in progress = false. The record shows warm share required before full traffic, percent = 95. The record shows origin spare capacity, percent = 55.",
+   "questions": {
+    "ready_for_traffic": {
+     "criteria": {
+      "false": "warmup is below the target",
+      "true": "target reached"
+     },
+     "instructions": "Has warmup reached the stated target?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s05-choice",
+   "state": "Situation report WARM-25437 for video-edge. The record shows share of the hot set already warmed, percent = 80. The record shows a miss spike is in progress = false. The record shows warm share required before full traffic, percent = 95. The record shows origin spare capacity, percent = 55.",
+   "questions": {
+    "warmup_step": {
+     "criteria": {
+      "hold_traffic": "Hold traffic; the cache is far below target",
+      "open_traffic": "Target reached: open full traffic",
+      "partial_traffic": "Admit partial traffic while warming finishes",
+      "slow_warmup": "Miss spike with a weak origin: slow the warmup"
+     },
+     "instructions": "Pick the traffic decision for this cache.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s05-score",
+   "state": "Situation report WARM-25437 for video-edge. The record shows share of the hot set already warmed, percent = 80. The record shows a miss spike is in progress = false. The record shows warm share required before full traffic, percent = 95. The record shows origin spare capacity, percent = 55.",
+   "questions": {
+    "warmup_gap": {
+     "criteria": [
+      "at target",
+      "small gap (<=15)",
+      "moderate gap (16-35)",
+      "large gap (36-60)",
+      "extreme gap (>60)"
+     ],
+     "instructions": "Rate how far below target the cache is, 0 to 4.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s06-boolean",
+   "state": "[EDGE-84840] img-cdn cache-warmup snapshot\n[EDGE-84840] target_pct=65\n[EDGE-84840] warm_pct=15\n[EDGE-84840] miss_spike=FALSE\n[EDGE-84840] origin_capacity=95",
+   "questions": {
+    "ready_for_traffic": {
+     "criteria": {
+      "false": "warmup is below the target",
+      "true": "target reached"
+     },
+     "instructions": "Has warmup reached the stated target?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s06-choice",
+   "state": "[EDGE-84840] img-cdn cache-warmup snapshot\n[EDGE-84840] target_pct=65\n[EDGE-84840] warm_pct=15\n[EDGE-84840] miss_spike=FALSE\n[EDGE-84840] origin_capacity=95",
+   "questions": {
+    "warmup_step": {
+     "criteria": {
+      "hold_traffic": "Hold traffic; the cache is far below target",
+      "open_traffic": "Target reached: open full traffic",
+      "partial_traffic": "Admit partial traffic while warming finishes",
+      "slow_warmup": "Miss spike with a weak origin: slow the warmup"
+     },
+     "instructions": "Pick the traffic decision for this cache.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s06-score",
+   "state": "[EDGE-84840] img-cdn cache-warmup snapshot\n[EDGE-84840] target_pct=65\n[EDGE-84840] warm_pct=15\n[EDGE-84840] miss_spike=FALSE\n[EDGE-84840] origin_capacity=95",
+   "questions": {
+    "warmup_gap": {
+     "criteria": [
+      "at target",
+      "small gap (<=15)",
+      "moderate gap (16-35)",
+      "large gap (36-60)",
+      "extreme gap (>60)"
+     ],
+     "instructions": "Rate how far below target the cache is, 0 to 4.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s07-boolean",
+   "state": "Situation report WARM-13285 for read-cache. The record shows origin spare capacity, percent = 55. The record shows a miss spike is in progress = false. The record shows share of the hot set already warmed, percent = 10. The record shows warm share required before full traffic, percent = 90.",
+   "questions": {
+    "ready_for_traffic": {
+     "criteria": {
+      "false": "warmup is below the target",
+      "true": "target reached"
+     },
+     "instructions": "Has warmup reached the stated target?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s07-choice",
+   "state": "Situation report WARM-13285 for read-cache. The record shows origin spare capacity, percent = 55. The record shows a miss spike is in progress = false. The record shows share of the hot set already warmed, percent = 10. The record shows warm share required before full traffic, percent = 90.",
+   "questions": {
+    "warmup_step": {
+     "criteria": {
+      "hold_traffic": "Hold traffic; the cache is far below target",
+      "open_traffic": "Target reached: open full traffic",
+      "partial_traffic": "Admit partial traffic while warming finishes",
+      "slow_warmup": "Miss spike with a weak origin: slow the warmup"
+     },
+     "instructions": "Pick the traffic decision for this cache.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-cache_warmup-s07-score",
+   "state": "Situation report WARM-13285 for read-cache. The record shows origin spare capacity, percent = 55. The record shows a miss spike is in progress = false. The record shows share of the hot set already warmed, percent = 10. The record shows warm share required before full traffic, percent = 90.",
+   "questions": {
+    "warmup_gap": {
+     "criteria": [
+      "at target",
+      "small gap (<=15)",
+      "moderate gap (16-35)",
+      "large gap (36-60)",
+      "extreme gap (>60)"
+     ],
+     "instructions": "Rate how far below target the cache is, 0 to 4.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s00-boolean",
+   "state": "dump PART-50750 (audit-stream)\nfield,value\ntotal_partitions,16\nskew_pct,15\nmove_running,no\nhot_partitions,2\nquorum_ok,yes",
+   "questions": {
+    "rebalance_needed": {
+     "criteria": {
+      "false": "no rebalance is needed",
+      "true": "a rebalance is needed"
+     },
+     "instructions": "Is a rebalance warranted by skew or hot partitions?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s00-choice",
+   "state": "dump PART-50750 (audit-stream)\nfield,value\ntotal_partitions,16\nskew_pct,15\nmove_running,no\nhot_partitions,2\nquorum_ok,yes",
+   "questions": {
+    "rebalance_action": {
+     "criteria": {
+      "halt": "Quorum unhealthy: halt all moves",
+      "no_action": "Cluster is balanced; no action",
+      "plan_rebalance": "Plan a rebalance inside the next window",
+      "split_hot": "Split the hottest partitions first",
+      "urgent_rebalance": "Severe skew: rebalance now",
+      "wait_running": "Wait for the in-flight move to finish"
+     },
+     "instructions": "Pick the action the partition policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s00-score",
+   "state": "dump PART-50750 (audit-stream)\nfield,value\ntotal_partitions,16\nskew_pct,15\nmove_running,no\nhot_partitions,2\nquorum_ok,yes",
+   "questions": {
+    "skew_urgency": {
+     "criteria": [
+      "balanced",
+      "watch",
+      "urgent",
+      "halted"
+     ],
+     "instructions": "Rate how urgent rebalancing is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s01-boolean",
+   "state": "[PART-26074] events-core partition-rebalance snapshot\n[PART-26074] quorum_ok=FALSE\n[PART-26074] move_running=TRUE\n[PART-26074] skew_pct=35\n[PART-26074] total_partitions=40\n[PART-26074] hot_partitions=2",
+   "questions": {
+    "rebalance_needed": {
+     "criteria": {
+      "false": "no rebalance is needed",
+      "true": "a rebalance is needed"
+     },
+     "instructions": "Is a rebalance warranted by skew or hot partitions?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s01-choice",
+   "state": "[PART-26074] events-core partition-rebalance snapshot\n[PART-26074] quorum_ok=FALSE\n[PART-26074] move_running=TRUE\n[PART-26074] skew_pct=35\n[PART-26074] total_partitions=40\n[PART-26074] hot_partitions=2",
+   "questions": {
+    "rebalance_action": {
+     "criteria": {
+      "halt": "Quorum unhealthy: halt all moves",
+      "no_action": "Cluster is balanced; no action",
+      "plan_rebalance": "Plan a rebalance inside the next window",
+      "split_hot": "Split the hottest partitions first",
+      "urgent_rebalance": "Severe skew: rebalance now",
+      "wait_running": "Wait for the in-flight move to finish"
+     },
+     "instructions": "Pick the action the partition policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s01-score",
+   "state": "[PART-26074] events-core partition-rebalance snapshot\n[PART-26074] quorum_ok=FALSE\n[PART-26074] move_running=TRUE\n[PART-26074] skew_pct=35\n[PART-26074] total_partitions=40\n[PART-26074] hot_partitions=2",
+   "questions": {
+    "skew_urgency": {
+     "criteria": [
+      "balanced",
+      "watch",
+      "urgent",
+      "halted"
+     ],
+     "instructions": "Rate how urgent rebalancing is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s02-boolean",
+   "state": "[PART-55146] audit-stream partition-rebalance snapshot\n[PART-55146] total_partitions=56\n[PART-55146] move_running=FALSE\n[PART-55146] hot_partitions=8\n[PART-55146] quorum_ok=FALSE\n[PART-55146] skew_pct=0",
+   "questions": {
+    "rebalance_needed": {
+     "criteria": {
+      "false": "no rebalance is needed",
+      "true": "a rebalance is needed"
+     },
+     "instructions": "Is a rebalance warranted by skew or hot partitions?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s02-choice",
+   "state": "[PART-55146] audit-stream partition-rebalance snapshot\n[PART-55146] total_partitions=56\n[PART-55146] move_running=FALSE\n[PART-55146] hot_partitions=8\n[PART-55146] quorum_ok=FALSE\n[PART-55146] skew_pct=0",
+   "questions": {
+    "rebalance_action": {
+     "criteria": {
+      "halt": "Quorum unhealthy: halt all moves",
+      "no_action": "Cluster is balanced; no action",
+      "plan_rebalance": "Plan a rebalance inside the next window",
+      "split_hot": "Split the hottest partitions first",
+      "urgent_rebalance": "Severe skew: rebalance now",
+      "wait_running": "Wait for the in-flight move to finish"
+     },
+     "instructions": "Pick the action the partition policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s02-score",
+   "state": "[PART-55146] audit-stream partition-rebalance snapshot\n[PART-55146] total_partitions=56\n[PART-55146] move_running=FALSE\n[PART-55146] hot_partitions=8\n[PART-55146] quorum_ok=FALSE\n[PART-55146] skew_pct=0",
+   "questions": {
+    "skew_urgency": {
+     "criteria": [
+      "balanced",
+      "watch",
+      "urgent",
+      "halted"
+     ],
+     "instructions": "Rate how urgent rebalancing is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s03-boolean",
+   "state": "dump PART-39452 (audit-stream)\nfield,value\nskew_pct,35\nquorum_ok,yes\nmove_running,no\ntotal_partitions,24\nhot_partitions,12",
+   "questions": {
+    "rebalance_needed": {
+     "instructions": "Does this cluster need a rebalance at all?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s03-choice",
+   "state": "dump PART-39452 (audit-stream)\nfield,value\nskew_pct,35\nquorum_ok,yes\nmove_running,no\ntotal_partitions,24\nhot_partitions,12",
+   "questions": {
+    "rebalance_action": {
+     "criteria": {
+      "halt": "Quorum unhealthy: halt all moves",
+      "no_action": "Cluster is balanced; no action",
+      "plan_rebalance": "Plan a rebalance inside the next window",
+      "split_hot": "Split the hottest partitions first",
+      "urgent_rebalance": "Severe skew: rebalance now",
+      "wait_running": "Wait for the in-flight move to finish"
+     },
+     "instructions": "What is the correct rebalance action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s03-score",
+   "state": "dump PART-39452 (audit-stream)\nfield,value\nskew_pct,35\nquorum_ok,yes\nmove_running,no\ntotal_partitions,24\nhot_partitions,12",
+   "questions": {
+    "skew_urgency": {
+     "criteria": [
+      "balanced",
+      "watch",
+      "urgent",
+      "halted"
+     ],
+     "instructions": "Score the skew urgency, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s04-boolean",
+   "state": "Situation report KAFKA-9570 for click-pipe. The record shows a partition move is already running = false. The record shows partitions above the hot threshold = 11. The record shows the controller quorum is healthy = true. The record shows total partition count = 16. The record shows broker load skew, percent = 0.",
+   "questions": {
+    "rebalance_needed": {
+     "criteria": {
+      "false": "no rebalance is needed",
+      "true": "a rebalance is needed"
+     },
+     "instructions": "Is a rebalance warranted by skew or hot partitions?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s04-choice",
+   "state": "Situation report KAFKA-9570 for click-pipe. The record shows a partition move is already running = false. The record shows partitions above the hot threshold = 11. The record shows the controller quorum is healthy = true. The record shows total partition count = 16. The record shows broker load skew, percent = 0.",
+   "questions": {
+    "rebalance_action": {
+     "criteria": {
+      "halt": "Quorum unhealthy: halt all moves",
+      "no_action": "Cluster is balanced; no action",
+      "plan_rebalance": "Plan a rebalance inside the next window",
+      "split_hot": "Split the hottest partitions first",
+      "urgent_rebalance": "Severe skew: rebalance now",
+      "wait_running": "Wait for the in-flight move to finish"
+     },
+     "instructions": "Pick the action the partition policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s04-score",
+   "state": "Situation report KAFKA-9570 for click-pipe. The record shows a partition move is already running = false. The record shows partitions above the hot threshold = 11. The record shows the controller quorum is healthy = true. The record shows total partition count = 16. The record shows broker load skew, percent = 0.",
+   "questions": {
+    "skew_urgency": {
+     "criteria": [
+      "balanced",
+      "watch",
+      "urgent",
+      "halted"
+     ],
+     "instructions": "Rate how urgent rebalancing is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s05-boolean",
+   "state": "Situation report KAFKA-65918 for audit-stream. The record shows a partition move is already running = false. The record shows total partition count = 56. The record shows partitions above the hot threshold = 1. The record shows broker load skew, percent = 70. The record shows the controller quorum is healthy = true.",
+   "questions": {
+    "rebalance_needed": {
+     "instructions": "Does this cluster need a rebalance at all?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s05-choice",
+   "state": "Situation report KAFKA-65918 for audit-stream. The record shows a partition move is already running = false. The record shows total partition count = 56. The record shows partitions above the hot threshold = 1. The record shows broker load skew, percent = 70. The record shows the controller quorum is healthy = true.",
+   "questions": {
+    "rebalance_action": {
+     "criteria": {
+      "halt": "Quorum unhealthy: halt all moves",
+      "no_action": "Cluster is balanced; no action",
+      "plan_rebalance": "Plan a rebalance inside the next window",
+      "split_hot": "Split the hottest partitions first",
+      "urgent_rebalance": "Severe skew: rebalance now",
+      "wait_running": "Wait for the in-flight move to finish"
+     },
+     "instructions": "What is the correct rebalance action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s05-score",
+   "state": "Situation report KAFKA-65918 for audit-stream. The record shows a partition move is already running = false. The record shows total partition count = 56. The record shows partitions above the hot threshold = 1. The record shows broker load skew, percent = 70. The record shows the controller quorum is healthy = true.",
+   "questions": {
+    "skew_urgency": {
+     "criteria": [
+      "balanced",
+      "watch",
+      "urgent",
+      "halted"
+     ],
+     "instructions": "Score the skew urgency, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s06-boolean",
+   "state": "[PART-99399] events-core partition-rebalance snapshot\n[PART-99399] hot_partitions=11\n[PART-99399] quorum_ok=TRUE\n[PART-99399] total_partitions=48\n[PART-99399] move_running=TRUE\n[PART-99399] skew_pct=60",
+   "questions": {
+    "rebalance_needed": {
+     "criteria": {
+      "false": "no rebalance is needed",
+      "true": "a rebalance is needed"
+     },
+     "instructions": "Is a rebalance warranted by skew or hot partitions?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s06-choice",
+   "state": "[PART-99399] events-core partition-rebalance snapshot\n[PART-99399] hot_partitions=11\n[PART-99399] quorum_ok=TRUE\n[PART-99399] total_partitions=48\n[PART-99399] move_running=TRUE\n[PART-99399] skew_pct=60",
+   "questions": {
+    "rebalance_action": {
+     "criteria": {
+      "halt": "Quorum unhealthy: halt all moves",
+      "no_action": "Cluster is balanced; no action",
+      "plan_rebalance": "Plan a rebalance inside the next window",
+      "split_hot": "Split the hottest partitions first",
+      "urgent_rebalance": "Severe skew: rebalance now",
+      "wait_running": "Wait for the in-flight move to finish"
+     },
+     "instructions": "Pick the action the partition policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s06-score",
+   "state": "[PART-99399] events-core partition-rebalance snapshot\n[PART-99399] hot_partitions=11\n[PART-99399] quorum_ok=TRUE\n[PART-99399] total_partitions=48\n[PART-99399] move_running=TRUE\n[PART-99399] skew_pct=60",
+   "questions": {
+    "skew_urgency": {
+     "criteria": [
+      "balanced",
+      "watch",
+      "urgent",
+      "halted"
+     ],
+     "instructions": "Rate how urgent rebalancing is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s07-boolean",
+   "state": "dump PART-51805 (events-core)\nfield,value\nhot_partitions,4\nmove_running,yes\nquorum_ok,no\nskew_pct,90\ntotal_partitions,48",
+   "questions": {
+    "rebalance_needed": {
+     "criteria": {
+      "false": "no rebalance is needed",
+      "true": "a rebalance is needed"
+     },
+     "instructions": "Is a rebalance warranted by skew or hot partitions?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s07-choice",
+   "state": "dump PART-51805 (events-core)\nfield,value\nhot_partitions,4\nmove_running,yes\nquorum_ok,no\nskew_pct,90\ntotal_partitions,48",
+   "questions": {
+    "rebalance_action": {
+     "criteria": {
+      "halt": "Quorum unhealthy: halt all moves",
+      "no_action": "Cluster is balanced; no action",
+      "plan_rebalance": "Plan a rebalance inside the next window",
+      "split_hot": "Split the hottest partitions first",
+      "urgent_rebalance": "Severe skew: rebalance now",
+      "wait_running": "Wait for the in-flight move to finish"
+     },
+     "instructions": "Pick the action the partition policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-partition_rebalance-s07-score",
+   "state": "dump PART-51805 (events-core)\nfield,value\nhot_partitions,4\nmove_running,yes\nquorum_ok,no\nskew_pct,90\ntotal_partitions,48",
+   "questions": {
+    "skew_urgency": {
+     "criteria": [
+      "balanced",
+      "watch",
+      "urgent",
+      "halted"
+     ],
+     "instructions": "Rate how urgent rebalancing is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s00-boolean",
+   "state": "[LOGS-93498] debug-logs log-pii-redaction snapshot\n[LOGS-93498] detector_recall=53\n[LOGS-93498] jurisdiction=1\n[LOGS-93498] user_consent=TRUE\n[LOGS-93498] pii_detected=TRUE",
+   "questions": {
+    "compliant_as_is": {
+     "instructions": "Is the log stream compliant with no further action?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s00-choice",
+   "state": "[LOGS-93498] debug-logs log-pii-redaction snapshot\n[LOGS-93498] detector_recall=53\n[LOGS-93498] jurisdiction=1\n[LOGS-93498] user_consent=TRUE\n[LOGS-93498] pii_detected=TRUE",
+   "questions": {
+    "pii_action": {
+     "criteria": {
+      "compliant": "No PII and a healthy detector: compliant",
+      "flag_for_review": "PII with consent: flag for manual review",
+      "redact_now": "Redact the stream immediately",
+      "suspend_pipeline": "Suspend the pipeline until remediation lands",
+      "upgrade_detector": "Detector recall too low: upgrade before trusting it"
+     },
+     "instructions": "What is the correct PII handling action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s00-score",
+   "state": "[LOGS-93498] debug-logs log-pii-redaction snapshot\n[LOGS-93498] detector_recall=53\n[LOGS-93498] jurisdiction=1\n[LOGS-93498] user_consent=TRUE\n[LOGS-93498] pii_detected=TRUE",
+   "questions": {
+    "privacy_severity": {
+     "criteria": [
+      "clean",
+      "watch",
+      "serious",
+      "critical"
+     ],
+     "instructions": "Score the privacy severity, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s01-boolean",
+   "state": "[LOGS-614] debug-logs log-pii-redaction snapshot\n[LOGS-614] detector_recall=99\n[LOGS-614] jurisdiction=2\n[LOGS-614] pii_detected=FALSE\n[LOGS-614] user_consent=TRUE",
+   "questions": {
+    "compliant_as_is": {
+     "criteria": {
+      "false": "an action is required",
+      "true": "compliant as-is"
+     },
+     "instructions": "May the pipeline continue unchanged?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s01-choice",
+   "state": "[LOGS-614] debug-logs log-pii-redaction snapshot\n[LOGS-614] detector_recall=99\n[LOGS-614] jurisdiction=2\n[LOGS-614] pii_detected=FALSE\n[LOGS-614] user_consent=TRUE",
+   "questions": {
+    "pii_action": {
+     "criteria": {
+      "compliant": "No PII and a healthy detector: compliant",
+      "flag_for_review": "PII with consent: flag for manual review",
+      "redact_now": "Redact the stream immediately",
+      "suspend_pipeline": "Suspend the pipeline until remediation lands",
+      "upgrade_detector": "Detector recall too low: upgrade before trusting it"
+     },
+     "instructions": "Pick the action the privacy policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s01-score",
+   "state": "[LOGS-614] debug-logs log-pii-redaction snapshot\n[LOGS-614] detector_recall=99\n[LOGS-614] jurisdiction=2\n[LOGS-614] pii_detected=FALSE\n[LOGS-614] user_consent=TRUE",
+   "questions": {
+    "privacy_severity": {
+     "criteria": [
+      "clean",
+      "watch",
+      "serious",
+      "critical"
+     ],
+     "instructions": "Rate how severe the privacy posture is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s02-boolean",
+   "state": "dump LOGS-86661 (audit-logs)\nfield,value\npii_detected,no\nuser_consent,yes\ndetector_recall,84\njurisdiction,1",
+   "questions": {
+    "compliant_as_is": {
+     "instructions": "Is the log stream compliant with no further action?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s02-choice",
+   "state": "dump LOGS-86661 (audit-logs)\nfield,value\npii_detected,no\nuser_consent,yes\ndetector_recall,84\njurisdiction,1",
+   "questions": {
+    "pii_action": {
+     "criteria": {
+      "compliant": "No PII and a healthy detector: compliant",
+      "flag_for_review": "PII with consent: flag for manual review",
+      "redact_now": "Redact the stream immediately",
+      "suspend_pipeline": "Suspend the pipeline until remediation lands",
+      "upgrade_detector": "Detector recall too low: upgrade before trusting it"
+     },
+     "instructions": "What is the correct PII handling action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s02-score",
+   "state": "dump LOGS-86661 (audit-logs)\nfield,value\npii_detected,no\nuser_consent,yes\ndetector_recall,84\njurisdiction,1",
+   "questions": {
+    "privacy_severity": {
+     "criteria": [
+      "clean",
+      "watch",
+      "serious",
+      "critical"
+     ],
+     "instructions": "Score the privacy severity, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s03-boolean",
+   "state": "[PII-89806] debug-logs log-pii-redaction snapshot\n[PII-89806] user_consent=TRUE\n[PII-89806] detector_recall=80\n[PII-89806] jurisdiction=2\n[PII-89806] pii_detected=TRUE",
+   "questions": {
+    "compliant_as_is": {
+     "criteria": {
+      "false": "an action is required",
+      "true": "compliant as-is"
+     },
+     "instructions": "May the pipeline continue unchanged?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s03-choice",
+   "state": "[PII-89806] debug-logs log-pii-redaction snapshot\n[PII-89806] user_consent=TRUE\n[PII-89806] detector_recall=80\n[PII-89806] jurisdiction=2\n[PII-89806] pii_detected=TRUE",
+   "questions": {
+    "pii_action": {
+     "criteria": {
+      "compliant": "No PII and a healthy detector: compliant",
+      "flag_for_review": "PII with consent: flag for manual review",
+      "redact_now": "Redact the stream immediately",
+      "suspend_pipeline": "Suspend the pipeline until remediation lands",
+      "upgrade_detector": "Detector recall too low: upgrade before trusting it"
+     },
+     "instructions": "Pick the action the privacy policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s03-score",
+   "state": "[PII-89806] debug-logs log-pii-redaction snapshot\n[PII-89806] user_consent=TRUE\n[PII-89806] detector_recall=80\n[PII-89806] jurisdiction=2\n[PII-89806] pii_detected=TRUE",
+   "questions": {
+    "privacy_severity": {
+     "criteria": [
+      "clean",
+      "watch",
+      "serious",
+      "critical"
+     ],
+     "instructions": "Rate how severe the privacy posture is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s04-boolean",
+   "state": "Situation report PII-58403 for debug-logs. The record shows the detector found PII in the stream = false. The record shows measured detector recall, percent = 70. The record shows strictest applicable jurisdiction 0-2 (2 strictest) = 1. The record shows a documented user consent covers this data = true.",
+   "questions": {
+    "compliant_as_is": {
+     "instructions": "Is the log stream compliant with no further action?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s04-choice",
+   "state": "Situation report PII-58403 for debug-logs. The record shows the detector found PII in the stream = false. The record shows measured detector recall, percent = 70. The record shows strictest applicable jurisdiction 0-2 (2 strictest) = 1. The record shows a documented user consent covers this data = true.",
+   "questions": {
+    "pii_action": {
+     "criteria": {
+      "compliant": "No PII and a healthy detector: compliant",
+      "flag_for_review": "PII with consent: flag for manual review",
+      "redact_now": "Redact the stream immediately",
+      "suspend_pipeline": "Suspend the pipeline until remediation lands",
+      "upgrade_detector": "Detector recall too low: upgrade before trusting it"
+     },
+     "instructions": "What is the correct PII handling action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s04-score",
+   "state": "Situation report PII-58403 for debug-logs. The record shows the detector found PII in the stream = false. The record shows measured detector recall, percent = 70. The record shows strictest applicable jurisdiction 0-2 (2 strictest) = 1. The record shows a documented user consent covers this data = true.",
+   "questions": {
+    "privacy_severity": {
+     "criteria": [
+      "clean",
+      "watch",
+      "serious",
+      "critical"
+     ],
+     "instructions": "Score the privacy severity, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s05-boolean",
+   "state": "dump PII-84135 (audit-logs)\nfield,value\ndetector_recall,64\njurisdiction,0\npii_detected,no\nuser_consent,no",
+   "questions": {
+    "compliant_as_is": {
+     "instructions": "Is the log stream compliant with no further action?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s05-choice",
+   "state": "dump PII-84135 (audit-logs)\nfield,value\ndetector_recall,64\njurisdiction,0\npii_detected,no\nuser_consent,no",
+   "questions": {
+    "pii_action": {
+     "criteria": {
+      "compliant": "No PII and a healthy detector: compliant",
+      "flag_for_review": "PII with consent: flag for manual review",
+      "redact_now": "Redact the stream immediately",
+      "suspend_pipeline": "Suspend the pipeline until remediation lands",
+      "upgrade_detector": "Detector recall too low: upgrade before trusting it"
+     },
+     "instructions": "What is the correct PII handling action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s05-score",
+   "state": "dump PII-84135 (audit-logs)\nfield,value\ndetector_recall,64\njurisdiction,0\npii_detected,no\nuser_consent,no",
+   "questions": {
+    "privacy_severity": {
+     "criteria": [
+      "clean",
+      "watch",
+      "serious",
+      "critical"
+     ],
+     "instructions": "Score the privacy severity, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s06-boolean",
+   "state": "[LOGS-5988] edge-logs log-pii-redaction snapshot\n[LOGS-5988] jurisdiction=1\n[LOGS-5988] detector_recall=64\n[LOGS-5988] pii_detected=FALSE\n[LOGS-5988] user_consent=TRUE",
+   "questions": {
+    "compliant_as_is": {
+     "instructions": "Is the log stream compliant with no further action?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s06-choice",
+   "state": "[LOGS-5988] edge-logs log-pii-redaction snapshot\n[LOGS-5988] jurisdiction=1\n[LOGS-5988] detector_recall=64\n[LOGS-5988] pii_detected=FALSE\n[LOGS-5988] user_consent=TRUE",
+   "questions": {
+    "pii_action": {
+     "criteria": {
+      "compliant": "No PII and a healthy detector: compliant",
+      "flag_for_review": "PII with consent: flag for manual review",
+      "redact_now": "Redact the stream immediately",
+      "suspend_pipeline": "Suspend the pipeline until remediation lands",
+      "upgrade_detector": "Detector recall too low: upgrade before trusting it"
+     },
+     "instructions": "What is the correct PII handling action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s06-score",
+   "state": "[LOGS-5988] edge-logs log-pii-redaction snapshot\n[LOGS-5988] jurisdiction=1\n[LOGS-5988] detector_recall=64\n[LOGS-5988] pii_detected=FALSE\n[LOGS-5988] user_consent=TRUE",
+   "questions": {
+    "privacy_severity": {
+     "criteria": [
+      "clean",
+      "watch",
+      "serious",
+      "critical"
+     ],
+     "instructions": "Score the privacy severity, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s07-boolean",
+   "state": "[LOGS-82861] audit-logs log-pii-redaction snapshot\n[LOGS-82861] user_consent=FALSE\n[LOGS-82861] detector_recall=93\n[LOGS-82861] jurisdiction=0\n[LOGS-82861] pii_detected=FALSE",
+   "questions": {
+    "compliant_as_is": {
+     "criteria": {
+      "false": "an action is required",
+      "true": "compliant as-is"
+     },
+     "instructions": "May the pipeline continue unchanged?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s07-choice",
+   "state": "[LOGS-82861] audit-logs log-pii-redaction snapshot\n[LOGS-82861] user_consent=FALSE\n[LOGS-82861] detector_recall=93\n[LOGS-82861] jurisdiction=0\n[LOGS-82861] pii_detected=FALSE",
+   "questions": {
+    "pii_action": {
+     "criteria": {
+      "compliant": "No PII and a healthy detector: compliant",
+      "flag_for_review": "PII with consent: flag for manual review",
+      "redact_now": "Redact the stream immediately",
+      "suspend_pipeline": "Suspend the pipeline until remediation lands",
+      "upgrade_detector": "Detector recall too low: upgrade before trusting it"
+     },
+     "instructions": "Pick the action the privacy policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-log_pii_redaction-s07-score",
+   "state": "[LOGS-82861] audit-logs log-pii-redaction snapshot\n[LOGS-82861] user_consent=FALSE\n[LOGS-82861] detector_recall=93\n[LOGS-82861] jurisdiction=0\n[LOGS-82861] pii_detected=FALSE",
+   "questions": {
+    "privacy_severity": {
+     "criteria": [
+      "clean",
+      "watch",
+      "serious",
+      "critical"
+     ],
+     "instructions": "Rate how severe the privacy posture is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s00-boolean",
+   "state": "dump PACK-91353 (train-cluster)\nfield,value\nbin_7_free,0\nbin_0_free,0\nbin_2_free,3\nbin_6_free,2\nbin_1_free,4\nslots_needed,2\nurgent,no\nbin_5_free,0\nbin_3_free,4\nbin_4_free,4",
+   "questions": {
+    "bin_zero_fits": {
+     "instructions": "Does bin 0 have enough free slots for this job?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s00-choice",
+   "state": "dump PACK-91353 (train-cluster)\nfield,value\nbin_7_free,0\nbin_0_free,0\nbin_2_free,3\nbin_6_free,2\nbin_1_free,4\nslots_needed,2\nurgent,no\nbin_5_free,0\nbin_3_free,4\nbin_4_free,4",
+   "questions": {
+    "target_bin": {
+     "criteria": {
+      "bin_0": "Pack the job into bin 0",
+      "bin_1": "Pack the job into bin 1",
+      "bin_2": "Pack the job into bin 2",
+      "bin_3": "Pack the job into bin 3",
+      "bin_4": "Pack the job into bin 4",
+      "bin_5": "Pack the job into bin 5",
+      "bin_6": "Pack the job into bin 6",
+      "bin_7": "Pack the job into bin 7"
+     },
+     "instructions": "Which bin should take this job?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s00-score",
+   "state": "dump PACK-91353 (train-cluster)\nfield,value\nbin_7_free,0\nbin_0_free,0\nbin_2_free,3\nbin_6_free,2\nbin_1_free,4\nslots_needed,2\nurgent,no\nbin_5_free,0\nbin_3_free,4\nbin_4_free,4",
+   "questions": {
+    "pool_scarcity": {
+     "criteria": [
+      "plenty of room",
+      "tightening",
+      "scarce",
+      "almost full"
+     ],
+     "instructions": "Score pool scarcity, 0 to 3 (free slots 24+, 12-23, 4-11, <4).",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s01-boolean",
+   "state": "dump GPU-53411 (train-cluster)\nfield,value\nbin_6_free,1\nurgent,yes\nbin_2_free,0\nbin_5_free,0\nbin_7_free,2\nbin_3_free,1\nbin_1_free,0\nslots_needed,2\nbin_0_free,3\nbin_4_free,1",
+   "questions": {
+    "bin_zero_fits": {
+     "instructions": "Does bin 0 have enough free slots for this job?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s01-choice",
+   "state": "dump GPU-53411 (train-cluster)\nfield,value\nbin_6_free,1\nurgent,yes\nbin_2_free,0\nbin_5_free,0\nbin_7_free,2\nbin_3_free,1\nbin_1_free,0\nslots_needed,2\nbin_0_free,3\nbin_4_free,1",
+   "questions": {
+    "target_bin": {
+     "criteria": {
+      "bin_0": "Pack the job into bin 0",
+      "bin_1": "Pack the job into bin 1",
+      "bin_2": "Pack the job into bin 2",
+      "bin_3": "Pack the job into bin 3",
+      "bin_4": "Pack the job into bin 4",
+      "bin_5": "Pack the job into bin 5",
+      "bin_6": "Pack the job into bin 6",
+      "bin_7": "Pack the job into bin 7"
+     },
+     "instructions": "Which bin should take this job?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s01-score",
+   "state": "dump GPU-53411 (train-cluster)\nfield,value\nbin_6_free,1\nurgent,yes\nbin_2_free,0\nbin_5_free,0\nbin_7_free,2\nbin_3_free,1\nbin_1_free,0\nslots_needed,2\nbin_0_free,3\nbin_4_free,1",
+   "questions": {
+    "pool_scarcity": {
+     "criteria": [
+      "plenty of room",
+      "tightening",
+      "scarce",
+      "almost full"
+     ],
+     "instructions": "Score pool scarcity, 0 to 3 (free slots 24+, 12-23, 4-11, <4).",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s02-boolean",
+   "state": "dump PACK-49686 (render-gpus)\nfield,value\nbin_7_free,1\nurgent,yes\nbin_3_free,3\nbin_1_free,3\nslots_needed,3\nbin_6_free,4\nbin_2_free,4\nbin_4_free,4\nbin_0_free,3\nbin_5_free,3",
+   "questions": {
+    "bin_zero_fits": {
+     "instructions": "Does bin 0 have enough free slots for this job?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s02-choice",
+   "state": "dump PACK-49686 (render-gpus)\nfield,value\nbin_7_free,1\nurgent,yes\nbin_3_free,3\nbin_1_free,3\nslots_needed,3\nbin_6_free,4\nbin_2_free,4\nbin_4_free,4\nbin_0_free,3\nbin_5_free,3",
+   "questions": {
+    "target_bin": {
+     "criteria": {
+      "bin_0": "Pack the job into bin 0",
+      "bin_1": "Pack the job into bin 1",
+      "bin_2": "Pack the job into bin 2",
+      "bin_3": "Pack the job into bin 3",
+      "bin_4": "Pack the job into bin 4",
+      "bin_5": "Pack the job into bin 5",
+      "bin_6": "Pack the job into bin 6",
+      "bin_7": "Pack the job into bin 7"
+     },
+     "instructions": "Which bin should take this job?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s02-score",
+   "state": "dump PACK-49686 (render-gpus)\nfield,value\nbin_7_free,1\nurgent,yes\nbin_3_free,3\nbin_1_free,3\nslots_needed,3\nbin_6_free,4\nbin_2_free,4\nbin_4_free,4\nbin_0_free,3\nbin_5_free,3",
+   "questions": {
+    "pool_scarcity": {
+     "criteria": [
+      "plenty of room",
+      "tightening",
+      "scarce",
+      "almost full"
+     ],
+     "instructions": "Score pool scarcity, 0 to 3 (free slots 24+, 12-23, 4-11, <4).",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s03-boolean",
+   "state": "record:\n  ref: PACK-59463\n  entity: infer-pool\n  kind: gpu-batch-pack\n  bin_0_free: 3\n  bin_2_free: 4\n  bin_1_free: 2\n  bin_7_free: 4\n  slots_needed: 2\n  bin_4_free: 1\n  urgent: true\n  bin_5_free: 3\n  bin_3_free: 3\n  bin_6_free: 3",
+   "questions": {
+    "bin_zero_fits": {
+     "criteria": {
+      "false": "bin 0 lacks the free slots",
+      "true": "bin 0 fits the job"
+     },
+     "instructions": "Can bin 0 take the job as-is?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s03-choice",
+   "state": "record:\n  ref: PACK-59463\n  entity: infer-pool\n  kind: gpu-batch-pack\n  bin_0_free: 3\n  bin_2_free: 4\n  bin_1_free: 2\n  bin_7_free: 4\n  slots_needed: 2\n  bin_4_free: 1\n  urgent: true\n  bin_5_free: 3\n  bin_3_free: 3\n  bin_6_free: 3",
+   "questions": {
+    "target_bin": {
+     "criteria": {
+      "bin_0": "Pack the job into bin 0",
+      "bin_1": "Pack the job into bin 1",
+      "bin_2": "Pack the job into bin 2",
+      "bin_3": "Pack the job into bin 3",
+      "bin_4": "Pack the job into bin 4",
+      "bin_5": "Pack the job into bin 5",
+      "bin_6": "Pack the job into bin 6",
+      "bin_7": "Pack the job into bin 7"
+     },
+     "instructions": "Pick the bin the packing rule selects.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s03-score",
+   "state": "record:\n  ref: PACK-59463\n  entity: infer-pool\n  kind: gpu-batch-pack\n  bin_0_free: 3\n  bin_2_free: 4\n  bin_1_free: 2\n  bin_7_free: 4\n  slots_needed: 2\n  bin_4_free: 1\n  urgent: true\n  bin_5_free: 3\n  bin_3_free: 3\n  bin_6_free: 3",
+   "questions": {
+    "pool_scarcity": {
+     "criteria": [
+      "plenty of room",
+      "tightening",
+      "scarce",
+      "almost full"
+     ],
+     "instructions": "Rate how scarce free capacity is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s04-boolean",
+   "state": "Situation report GPU-72023 for lab-rig. The record shows free slots in gpu bin 0 = 0. The record shows free slots in gpu bin 4 = 1. The record shows free slots in gpu bin 2 = 1. The record shows free slots in gpu bin 5 = 4. The record shows free slots in gpu bin 7 = 0. The record shows free slots in gpu bin 3 = 4. The record shows free slots in gpu bin 1 = 3. The record shows free slots in gpu bin 6 = 2. The record shows slots the job requires in one bin = 1. The record shows the job is marked urgent = true.",
+   "questions": {
+    "bin_zero_fits": {
+     "instructions": "Does bin 0 have enough free slots for this job?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s04-choice",
+   "state": "Situation report GPU-72023 for lab-rig. The record shows free slots in gpu bin 0 = 0. The record shows free slots in gpu bin 4 = 1. The record shows free slots in gpu bin 2 = 1. The record shows free slots in gpu bin 5 = 4. The record shows free slots in gpu bin 7 = 0. The record shows free slots in gpu bin 3 = 4. The record shows free slots in gpu bin 1 = 3. The record shows free slots in gpu bin 6 = 2. The record shows slots the job requires in one bin = 1. The record shows the job is marked urgent = true.",
+   "questions": {
+    "target_bin": {
+     "criteria": {
+      "bin_0": "Pack the job into bin 0",
+      "bin_1": "Pack the job into bin 1",
+      "bin_2": "Pack the job into bin 2",
+      "bin_3": "Pack the job into bin 3",
+      "bin_4": "Pack the job into bin 4",
+      "bin_5": "Pack the job into bin 5",
+      "bin_6": "Pack the job into bin 6",
+      "bin_7": "Pack the job into bin 7"
+     },
+     "instructions": "Which bin should take this job?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s04-score",
+   "state": "Situation report GPU-72023 for lab-rig. The record shows free slots in gpu bin 0 = 0. The record shows free slots in gpu bin 4 = 1. The record shows free slots in gpu bin 2 = 1. The record shows free slots in gpu bin 5 = 4. The record shows free slots in gpu bin 7 = 0. The record shows free slots in gpu bin 3 = 4. The record shows free slots in gpu bin 1 = 3. The record shows free slots in gpu bin 6 = 2. The record shows slots the job requires in one bin = 1. The record shows the job is marked urgent = true.",
+   "questions": {
+    "pool_scarcity": {
+     "criteria": [
+      "plenty of room",
+      "tightening",
+      "scarce",
+      "almost full"
+     ],
+     "instructions": "Score pool scarcity, 0 to 3 (free slots 24+, 12-23, 4-11, <4).",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s05-boolean",
+   "state": "Situation report PACK-87859 for infer-pool. The record shows free slots in gpu bin 5 = 4. The record shows free slots in gpu bin 3 = 2. The record shows free slots in gpu bin 6 = 3. The record shows free slots in gpu bin 2 = 1. The record shows free slots in gpu bin 0 = 3. The record shows free slots in gpu bin 4 = 2. The record shows free slots in gpu bin 1 = 1. The record shows slots the job requires in one bin = 2. The record shows the job is marked urgent = true. The record shows free slots in gpu bin 7 = 0.",
+   "questions": {
+    "bin_zero_fits": {
+     "instructions": "Does bin 0 have enough free slots for this job?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s05-choice",
+   "state": "Situation report PACK-87859 for infer-pool. The record shows free slots in gpu bin 5 = 4. The record shows free slots in gpu bin 3 = 2. The record shows free slots in gpu bin 6 = 3. The record shows free slots in gpu bin 2 = 1. The record shows free slots in gpu bin 0 = 3. The record shows free slots in gpu bin 4 = 2. The record shows free slots in gpu bin 1 = 1. The record shows slots the job requires in one bin = 2. The record shows the job is marked urgent = true. The record shows free slots in gpu bin 7 = 0.",
+   "questions": {
+    "target_bin": {
+     "criteria": {
+      "bin_0": "Pack the job into bin 0",
+      "bin_1": "Pack the job into bin 1",
+      "bin_2": "Pack the job into bin 2",
+      "bin_3": "Pack the job into bin 3",
+      "bin_4": "Pack the job into bin 4",
+      "bin_5": "Pack the job into bin 5",
+      "bin_6": "Pack the job into bin 6",
+      "bin_7": "Pack the job into bin 7"
+     },
+     "instructions": "Which bin should take this job?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s05-score",
+   "state": "Situation report PACK-87859 for infer-pool. The record shows free slots in gpu bin 5 = 4. The record shows free slots in gpu bin 3 = 2. The record shows free slots in gpu bin 6 = 3. The record shows free slots in gpu bin 2 = 1. The record shows free slots in gpu bin 0 = 3. The record shows free slots in gpu bin 4 = 2. The record shows free slots in gpu bin 1 = 1. The record shows slots the job requires in one bin = 2. The record shows the job is marked urgent = true. The record shows free slots in gpu bin 7 = 0.",
+   "questions": {
+    "pool_scarcity": {
+     "criteria": [
+      "plenty of room",
+      "tightening",
+      "scarce",
+      "almost full"
+     ],
+     "instructions": "Score pool scarcity, 0 to 3 (free slots 24+, 12-23, 4-11, <4).",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s06-boolean",
+   "state": "dump PACK-77783 (train-cluster)\nfield,value\nbin_0_free,0\nslots_needed,2\nbin_2_free,4\nbin_1_free,1\nbin_6_free,3\nbin_5_free,1\nbin_7_free,1\nbin_3_free,1\nurgent,no\nbin_4_free,3",
+   "questions": {
+    "bin_zero_fits": {
+     "criteria": {
+      "false": "bin 0 lacks the free slots",
+      "true": "bin 0 fits the job"
+     },
+     "instructions": "Can bin 0 take the job as-is?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s06-choice",
+   "state": "dump PACK-77783 (train-cluster)\nfield,value\nbin_0_free,0\nslots_needed,2\nbin_2_free,4\nbin_1_free,1\nbin_6_free,3\nbin_5_free,1\nbin_7_free,1\nbin_3_free,1\nurgent,no\nbin_4_free,3",
+   "questions": {
+    "target_bin": {
+     "criteria": {
+      "bin_0": "Pack the job into bin 0",
+      "bin_1": "Pack the job into bin 1",
+      "bin_2": "Pack the job into bin 2",
+      "bin_3": "Pack the job into bin 3",
+      "bin_4": "Pack the job into bin 4",
+      "bin_5": "Pack the job into bin 5",
+      "bin_6": "Pack the job into bin 6",
+      "bin_7": "Pack the job into bin 7"
+     },
+     "instructions": "Pick the bin the packing rule selects.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s06-score",
+   "state": "dump PACK-77783 (train-cluster)\nfield,value\nbin_0_free,0\nslots_needed,2\nbin_2_free,4\nbin_1_free,1\nbin_6_free,3\nbin_5_free,1\nbin_7_free,1\nbin_3_free,1\nurgent,no\nbin_4_free,3",
+   "questions": {
+    "pool_scarcity": {
+     "criteria": [
+      "plenty of room",
+      "tightening",
+      "scarce",
+      "almost full"
+     ],
+     "instructions": "Rate how scarce free capacity is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s07-boolean",
+   "state": "dump GPU-92044 (train-cluster)\nfield,value\nbin_1_free,4\nbin_7_free,1\nbin_3_free,0\nbin_2_free,4\nbin_4_free,1\nbin_5_free,3\nurgent,yes\nbin_6_free,2\nbin_0_free,4\nslots_needed,3",
+   "questions": {
+    "bin_zero_fits": {
+     "criteria": {
+      "false": "bin 0 lacks the free slots",
+      "true": "bin 0 fits the job"
+     },
+     "instructions": "Can bin 0 take the job as-is?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s07-choice",
+   "state": "dump GPU-92044 (train-cluster)\nfield,value\nbin_1_free,4\nbin_7_free,1\nbin_3_free,0\nbin_2_free,4\nbin_4_free,1\nbin_5_free,3\nurgent,yes\nbin_6_free,2\nbin_0_free,4\nslots_needed,3",
+   "questions": {
+    "target_bin": {
+     "criteria": {
+      "bin_0": "Pack the job into bin 0",
+      "bin_1": "Pack the job into bin 1",
+      "bin_2": "Pack the job into bin 2",
+      "bin_3": "Pack the job into bin 3",
+      "bin_4": "Pack the job into bin 4",
+      "bin_5": "Pack the job into bin 5",
+      "bin_6": "Pack the job into bin 6",
+      "bin_7": "Pack the job into bin 7"
+     },
+     "instructions": "Pick the bin the packing rule selects.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-gpu_batch_pack-s07-score",
+   "state": "dump GPU-92044 (train-cluster)\nfield,value\nbin_1_free,4\nbin_7_free,1\nbin_3_free,0\nbin_2_free,4\nbin_4_free,1\nbin_5_free,3\nurgent,yes\nbin_6_free,2\nbin_0_free,4\nslots_needed,3",
+   "questions": {
+    "pool_scarcity": {
+     "criteria": [
+      "plenty of room",
+      "tightening",
+      "scarce",
+      "almost full"
+     ],
+     "instructions": "Rate how scarce free capacity is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s00-boolean",
+   "state": "record:\n  ref: SCHED-88451\n  entity: sync-crons\n  kind: cron-storm\n  jittered: false\n  jobs_per_min: 7\n  window_overlap: false\n  misfires: 9\n  top_offender_share: 80",
+   "questions": {
+    "storm_in_progress": {
+     "instructions": "Is a cron storm in progress?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s00-choice",
+   "state": "record:\n  ref: SCHED-88451\n  entity: sync-crons\n  kind: cron-storm\n  jittered: false\n  jobs_per_min: 7\n  window_overlap: false\n  misfires: 9\n  top_offender_share: 80",
+   "questions": {
+    "storm_action": {
+     "criteria": {
+      "add_jitter": "Add start jitter to spread the load",
+      "healthy": "Schedule load is nominal",
+      "pause_scheduler": "Misfires are out of control: pause the scheduler",
+      "shard_schedule": "Shard the schedule across workers",
+      "shift_windows": "Separate the overlapping windows",
+      "stagger_top_offender": "Stagger the dominant schedule first"
+     },
+     "instructions": "What is the correct scheduler action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s00-score",
+   "state": "record:\n  ref: SCHED-88451\n  entity: sync-crons\n  kind: cron-storm\n  jittered: false\n  jobs_per_min: 7\n  window_overlap: false\n  misfires: 9\n  top_offender_share: 80",
+   "questions": {
+    "storm_band": {
+     "criteria": [
+      "calm",
+      "busy",
+      "storm"
+     ],
+     "instructions": "Score the storm band, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s01-boolean",
+   "state": "dump CRON-67196 (nightly-batch)\nfield,value\njobs_per_min,50\njittered,yes\ntop_offender_share,15\nwindow_overlap,no\nmisfires,18",
+   "questions": {
+    "storm_in_progress": {
+     "instructions": "Is a cron storm in progress?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s01-choice",
+   "state": "dump CRON-67196 (nightly-batch)\nfield,value\njobs_per_min,50\njittered,yes\ntop_offender_share,15\nwindow_overlap,no\nmisfires,18",
+   "questions": {
+    "storm_action": {
+     "criteria": {
+      "add_jitter": "Add start jitter to spread the load",
+      "healthy": "Schedule load is nominal",
+      "pause_scheduler": "Misfires are out of control: pause the scheduler",
+      "shard_schedule": "Shard the schedule across workers",
+      "shift_windows": "Separate the overlapping windows",
+      "stagger_top_offender": "Stagger the dominant schedule first"
+     },
+     "instructions": "What is the correct scheduler action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s01-score",
+   "state": "dump CRON-67196 (nightly-batch)\nfield,value\njobs_per_min,50\njittered,yes\ntop_offender_share,15\nwindow_overlap,no\nmisfires,18",
+   "questions": {
+    "storm_band": {
+     "criteria": [
+      "calm",
+      "busy",
+      "storm"
+     ],
+     "instructions": "Score the storm band, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s02-boolean",
+   "state": "Situation report SCHED-70061 for report-crons. The record shows schedules already carry start jitter = false. The record shows heavy schedules overlap in one window = true. The record shows jobs firing per minute = 50. The record shows misfired jobs in the last hour = 9. The record shows share of load from the busiest schedule, percent = 75.",
+   "questions": {
+    "storm_in_progress": {
+     "instructions": "Is a cron storm in progress?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s02-choice",
+   "state": "Situation report SCHED-70061 for report-crons. The record shows schedules already carry start jitter = false. The record shows heavy schedules overlap in one window = true. The record shows jobs firing per minute = 50. The record shows misfired jobs in the last hour = 9. The record shows share of load from the busiest schedule, percent = 75.",
+   "questions": {
+    "storm_action": {
+     "criteria": {
+      "add_jitter": "Add start jitter to spread the load",
+      "healthy": "Schedule load is nominal",
+      "pause_scheduler": "Misfires are out of control: pause the scheduler",
+      "shard_schedule": "Shard the schedule across workers",
+      "shift_windows": "Separate the overlapping windows",
+      "stagger_top_offender": "Stagger the dominant schedule first"
+     },
+     "instructions": "What is the correct scheduler action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s02-score",
+   "state": "Situation report SCHED-70061 for report-crons. The record shows schedules already carry start jitter = false. The record shows heavy schedules overlap in one window = true. The record shows jobs firing per minute = 50. The record shows misfired jobs in the last hour = 9. The record shows share of load from the busiest schedule, percent = 75.",
+   "questions": {
+    "storm_band": {
+     "criteria": [
+      "calm",
+      "busy",
+      "storm"
+     ],
+     "instructions": "Score the storm band, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s03-boolean",
+   "state": "record:\n  ref: CRON-65484\n  entity: sync-crons\n  kind: cron-storm\n  jittered: false\n  window_overlap: true\n  jobs_per_min: 87\n  top_offender_share: 20\n  misfires: 3",
+   "questions": {
+    "storm_in_progress": {
+     "criteria": {
+      "false": "no storm",
+      "true": "a storm is in progress"
+     },
+     "instructions": "Is the scheduler in a storm condition?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s03-choice",
+   "state": "record:\n  ref: CRON-65484\n  entity: sync-crons\n  kind: cron-storm\n  jittered: false\n  window_overlap: true\n  jobs_per_min: 87\n  top_offender_share: 20\n  misfires: 3",
+   "questions": {
+    "storm_action": {
+     "criteria": {
+      "add_jitter": "Add start jitter to spread the load",
+      "healthy": "Schedule load is nominal",
+      "pause_scheduler": "Misfires are out of control: pause the scheduler",
+      "shard_schedule": "Shard the schedule across workers",
+      "shift_windows": "Separate the overlapping windows",
+      "stagger_top_offender": "Stagger the dominant schedule first"
+     },
+     "instructions": "Pick the action the schedule policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s03-score",
+   "state": "record:\n  ref: CRON-65484\n  entity: sync-crons\n  kind: cron-storm\n  jittered: false\n  window_overlap: true\n  jobs_per_min: 87\n  top_offender_share: 20\n  misfires: 3",
+   "questions": {
+    "storm_band": {
+     "criteria": [
+      "calm",
+      "busy",
+      "storm"
+     ],
+     "instructions": "Rate the schedule storm, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s04-boolean",
+   "state": "[CRON-8104] nightly-batch cron-storm snapshot\n[CRON-8104] jittered=TRUE\n[CRON-8104] misfires=5\n[CRON-8104] jobs_per_min=111\n[CRON-8104] window_overlap=TRUE\n[CRON-8104] top_offender_share=30",
+   "questions": {
+    "storm_in_progress": {
+     "criteria": {
+      "false": "no storm",
+      "true": "a storm is in progress"
+     },
+     "instructions": "Is the scheduler in a storm condition?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s04-choice",
+   "state": "[CRON-8104] nightly-batch cron-storm snapshot\n[CRON-8104] jittered=TRUE\n[CRON-8104] misfires=5\n[CRON-8104] jobs_per_min=111\n[CRON-8104] window_overlap=TRUE\n[CRON-8104] top_offender_share=30",
+   "questions": {
+    "storm_action": {
+     "criteria": {
+      "add_jitter": "Add start jitter to spread the load",
+      "healthy": "Schedule load is nominal",
+      "pause_scheduler": "Misfires are out of control: pause the scheduler",
+      "shard_schedule": "Shard the schedule across workers",
+      "shift_windows": "Separate the overlapping windows",
+      "stagger_top_offender": "Stagger the dominant schedule first"
+     },
+     "instructions": "Pick the action the schedule policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s04-score",
+   "state": "[CRON-8104] nightly-batch cron-storm snapshot\n[CRON-8104] jittered=TRUE\n[CRON-8104] misfires=5\n[CRON-8104] jobs_per_min=111\n[CRON-8104] window_overlap=TRUE\n[CRON-8104] top_offender_share=30",
+   "questions": {
+    "storm_band": {
+     "criteria": [
+      "calm",
+      "busy",
+      "storm"
+     ],
+     "instructions": "Rate the schedule storm, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s05-boolean",
+   "state": "Situation report SCHED-91475 for report-crons. The record shows schedules already carry start jitter = true. The record shows share of load from the busiest schedule, percent = 10. The record shows heavy schedules overlap in one window = true. The record shows misfired jobs in the last hour = 1. The record shows jobs firing per minute = 33.",
+   "questions": {
+    "storm_in_progress": {
+     "instructions": "Is a cron storm in progress?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s05-choice",
+   "state": "Situation report SCHED-91475 for report-crons. The record shows schedules already carry start jitter = true. The record shows share of load from the busiest schedule, percent = 10. The record shows heavy schedules overlap in one window = true. The record shows misfired jobs in the last hour = 1. The record shows jobs firing per minute = 33.",
+   "questions": {
+    "storm_action": {
+     "criteria": {
+      "add_jitter": "Add start jitter to spread the load",
+      "healthy": "Schedule load is nominal",
+      "pause_scheduler": "Misfires are out of control: pause the scheduler",
+      "shard_schedule": "Shard the schedule across workers",
+      "shift_windows": "Separate the overlapping windows",
+      "stagger_top_offender": "Stagger the dominant schedule first"
+     },
+     "instructions": "What is the correct scheduler action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s05-score",
+   "state": "Situation report SCHED-91475 for report-crons. The record shows schedules already carry start jitter = true. The record shows share of load from the busiest schedule, percent = 10. The record shows heavy schedules overlap in one window = true. The record shows misfired jobs in the last hour = 1. The record shows jobs firing per minute = 33.",
+   "questions": {
+    "storm_band": {
+     "criteria": [
+      "calm",
+      "busy",
+      "storm"
+     ],
+     "instructions": "Score the storm band, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s06-boolean",
+   "state": "record:\n  ref: CRON-32979\n  entity: report-crons\n  kind: cron-storm\n  jobs_per_min: 29\n  jittered: true\n  window_overlap: true\n  misfires: 14\n  top_offender_share: 50",
+   "questions": {
+    "storm_in_progress": {
+     "criteria": {
+      "false": "no storm",
+      "true": "a storm is in progress"
+     },
+     "instructions": "Is the scheduler in a storm condition?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s06-choice",
+   "state": "record:\n  ref: CRON-32979\n  entity: report-crons\n  kind: cron-storm\n  jobs_per_min: 29\n  jittered: true\n  window_overlap: true\n  misfires: 14\n  top_offender_share: 50",
+   "questions": {
+    "storm_action": {
+     "criteria": {
+      "add_jitter": "Add start jitter to spread the load",
+      "healthy": "Schedule load is nominal",
+      "pause_scheduler": "Misfires are out of control: pause the scheduler",
+      "shard_schedule": "Shard the schedule across workers",
+      "shift_windows": "Separate the overlapping windows",
+      "stagger_top_offender": "Stagger the dominant schedule first"
+     },
+     "instructions": "Pick the action the schedule policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s06-score",
+   "state": "record:\n  ref: CRON-32979\n  entity: report-crons\n  kind: cron-storm\n  jobs_per_min: 29\n  jittered: true\n  window_overlap: true\n  misfires: 14\n  top_offender_share: 50",
+   "questions": {
+    "storm_band": {
+     "criteria": [
+      "calm",
+      "busy",
+      "storm"
+     ],
+     "instructions": "Rate the schedule storm, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s07-boolean",
+   "state": "record:\n  ref: CRON-19116\n  entity: sync-crons\n  kind: cron-storm\n  misfires: 0\n  top_offender_share: 100\n  jobs_per_min: 41\n  window_overlap: true\n  jittered: true",
+   "questions": {
+    "storm_in_progress": {
+     "instructions": "Is a cron storm in progress?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s07-choice",
+   "state": "record:\n  ref: CRON-19116\n  entity: sync-crons\n  kind: cron-storm\n  misfires: 0\n  top_offender_share: 100\n  jobs_per_min: 41\n  window_overlap: true\n  jittered: true",
+   "questions": {
+    "storm_action": {
+     "criteria": {
+      "add_jitter": "Add start jitter to spread the load",
+      "healthy": "Schedule load is nominal",
+      "pause_scheduler": "Misfires are out of control: pause the scheduler",
+      "shard_schedule": "Shard the schedule across workers",
+      "shift_windows": "Separate the overlapping windows",
+      "stagger_top_offender": "Stagger the dominant schedule first"
+     },
+     "instructions": "What is the correct scheduler action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-cron_storm-s07-score",
+   "state": "record:\n  ref: CRON-19116\n  entity: sync-crons\n  kind: cron-storm\n  misfires: 0\n  top_offender_share: 100\n  jobs_per_min: 41\n  window_overlap: true\n  jittered: true",
+   "questions": {
+    "storm_band": {
+     "criteria": [
+      "calm",
+      "busy",
+      "storm"
+     ],
+     "instructions": "Score the storm band, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s00-boolean",
+   "state": "record:\n  ref: PROMO-34019\n  entity: release-train\n  kind: artifact-promotion\n  soak_hours: 31\n  required_soak: 40\n  stage: 0\n  regressions: 9\n  signed: false\n  scan_clean: false",
+   "questions": {
+    "promotable_now": {
+     "criteria": {
+      "false": "a promotion gate is still open",
+      "true": "all gates cleared; promotable"
+     },
+     "instructions": "Has every promotion gate cleared?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s00-choice",
+   "state": "record:\n  ref: PROMO-34019\n  entity: release-train\n  kind: artifact-promotion\n  soak_hours: 31\n  required_soak: 40\n  stage: 0\n  regressions: 9\n  signed: false\n  scan_clean: false",
+   "questions": {
+    "promotion_step": {
+     "criteria": {
+      "continue_soak": "Keep soaking until the required hours elapse",
+      "hold_artifact": "Hold: unsigned or scan-dirty artifacts never promote",
+      "investigate_regressions": "Investigate the open regressions first",
+      "promote_next": "Promote to the next stage",
+      "publish": "All gates cleared at the final stage: publish"
+     },
+     "instructions": "Pick the step the promotion policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s00-score",
+   "state": "record:\n  ref: PROMO-34019\n  entity: release-train\n  kind: artifact-promotion\n  soak_hours: 31\n  required_soak: 40\n  stage: 0\n  regressions: 9\n  signed: false\n  scan_clean: false",
+   "questions": {
+    "blocker_count": {
+     "criteria": [
+      "no blockers",
+      "one blocker",
+      "two blockers",
+      "three blockers",
+      "four blockers"
+     ],
+     "instructions": "Rate how many promotion blockers remain, 0 to 4.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s01-boolean",
+   "state": "Situation report PROMO-47164 for sdk-artifacts. The record shows open regression reports = 0. The record shows the artifact is signed = true. The record shows required soak hours = 24. The record shows hours the artifact has soaked = 32. The record shows the vulnerability scan came back clean = true. The record shows current stage 0-2 (0 dev, 1 staging, 2 prod-candidate) = 1.",
+   "questions": {
+    "promotable_now": {
+     "criteria": {
+      "false": "a promotion gate is still open",
+      "true": "all gates cleared; promotable"
+     },
+     "instructions": "Has every promotion gate cleared?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s01-choice",
+   "state": "Situation report PROMO-47164 for sdk-artifacts. The record shows open regression reports = 0. The record shows the artifact is signed = true. The record shows required soak hours = 24. The record shows hours the artifact has soaked = 32. The record shows the vulnerability scan came back clean = true. The record shows current stage 0-2 (0 dev, 1 staging, 2 prod-candidate) = 1.",
+   "questions": {
+    "promotion_step": {
+     "criteria": {
+      "continue_soak": "Keep soaking until the required hours elapse",
+      "hold_artifact": "Hold: unsigned or scan-dirty artifacts never promote",
+      "investigate_regressions": "Investigate the open regressions first",
+      "promote_next": "Promote to the next stage",
+      "publish": "All gates cleared at the final stage: publish"
+     },
+     "instructions": "Pick the step the promotion policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s01-score",
+   "state": "Situation report PROMO-47164 for sdk-artifacts. The record shows open regression reports = 0. The record shows the artifact is signed = true. The record shows required soak hours = 24. The record shows hours the artifact has soaked = 32. The record shows the vulnerability scan came back clean = true. The record shows current stage 0-2 (0 dev, 1 staging, 2 prod-candidate) = 1.",
+   "questions": {
+    "blocker_count": {
+     "criteria": [
+      "no blockers",
+      "one blocker",
+      "two blockers",
+      "three blockers",
+      "four blockers"
+     ],
+     "instructions": "Rate how many promotion blockers remain, 0 to 4.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s02-boolean",
+   "state": "record:\n  ref: ART-38473\n  entity: release-train\n  kind: artifact-promotion\n  signed: true\n  scan_clean: true\n  required_soak: 32\n  stage: 1\n  regressions: 4\n  soak_hours: 44",
+   "questions": {
+    "promotable_now": {
+     "criteria": {
+      "false": "a promotion gate is still open",
+      "true": "all gates cleared; promotable"
+     },
+     "instructions": "Has every promotion gate cleared?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s02-choice",
+   "state": "record:\n  ref: ART-38473\n  entity: release-train\n  kind: artifact-promotion\n  signed: true\n  scan_clean: true\n  required_soak: 32\n  stage: 1\n  regressions: 4\n  soak_hours: 44",
+   "questions": {
+    "promotion_step": {
+     "criteria": {
+      "continue_soak": "Keep soaking until the required hours elapse",
+      "hold_artifact": "Hold: unsigned or scan-dirty artifacts never promote",
+      "investigate_regressions": "Investigate the open regressions first",
+      "promote_next": "Promote to the next stage",
+      "publish": "All gates cleared at the final stage: publish"
+     },
+     "instructions": "Pick the step the promotion policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s02-score",
+   "state": "record:\n  ref: ART-38473\n  entity: release-train\n  kind: artifact-promotion\n  signed: true\n  scan_clean: true\n  required_soak: 32\n  stage: 1\n  regressions: 4\n  soak_hours: 44",
+   "questions": {
+    "blocker_count": {
+     "criteria": [
+      "no blockers",
+      "one blocker",
+      "two blockers",
+      "three blockers",
+      "four blockers"
+     ],
+     "instructions": "Rate how many promotion blockers remain, 0 to 4.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s03-boolean",
+   "state": "dump ART-13989 (nightly-builds)\nfield,value\nregressions,0\nstage,1\nsoak_hours,28\nsigned,yes\nrequired_soak,40\nscan_clean,yes",
+   "questions": {
+    "promotable_now": {
+     "instructions": "Is the artifact promotable right now?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s03-choice",
+   "state": "dump ART-13989 (nightly-builds)\nfield,value\nregressions,0\nstage,1\nsoak_hours,28\nsigned,yes\nrequired_soak,40\nscan_clean,yes",
+   "questions": {
+    "promotion_step": {
+     "criteria": {
+      "continue_soak": "Keep soaking until the required hours elapse",
+      "hold_artifact": "Hold: unsigned or scan-dirty artifacts never promote",
+      "investigate_regressions": "Investigate the open regressions first",
+      "promote_next": "Promote to the next stage",
+      "publish": "All gates cleared at the final stage: publish"
+     },
+     "instructions": "What is the correct promotion step?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s03-score",
+   "state": "dump ART-13989 (nightly-builds)\nfield,value\nregressions,0\nstage,1\nsoak_hours,28\nsigned,yes\nrequired_soak,40\nscan_clean,yes",
+   "questions": {
+    "blocker_count": {
+     "criteria": [
+      "no blockers",
+      "one blocker",
+      "two blockers",
+      "three blockers",
+      "four blockers"
+     ],
+     "instructions": "Score the number of open blockers, capped at 4, 0 to 4.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s04-boolean",
+   "state": "[PROMO-55907] sdk-artifacts artifact-promotion snapshot\n[PROMO-55907] signed=TRUE\n[PROMO-55907] scan_clean=TRUE\n[PROMO-55907] stage=2\n[PROMO-55907] soak_hours=72\n[PROMO-55907] regressions=0\n[PROMO-55907] required_soak=16",
+   "questions": {
+    "promotable_now": {
+     "instructions": "Is the artifact promotable right now?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s04-choice",
+   "state": "[PROMO-55907] sdk-artifacts artifact-promotion snapshot\n[PROMO-55907] signed=TRUE\n[PROMO-55907] scan_clean=TRUE\n[PROMO-55907] stage=2\n[PROMO-55907] soak_hours=72\n[PROMO-55907] regressions=0\n[PROMO-55907] required_soak=16",
+   "questions": {
+    "promotion_step": {
+     "criteria": {
+      "continue_soak": "Keep soaking until the required hours elapse",
+      "hold_artifact": "Hold: unsigned or scan-dirty artifacts never promote",
+      "investigate_regressions": "Investigate the open regressions first",
+      "promote_next": "Promote to the next stage",
+      "publish": "All gates cleared at the final stage: publish"
+     },
+     "instructions": "What is the correct promotion step?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s04-score",
+   "state": "[PROMO-55907] sdk-artifacts artifact-promotion snapshot\n[PROMO-55907] signed=TRUE\n[PROMO-55907] scan_clean=TRUE\n[PROMO-55907] stage=2\n[PROMO-55907] soak_hours=72\n[PROMO-55907] regressions=0\n[PROMO-55907] required_soak=16",
+   "questions": {
+    "blocker_count": {
+     "criteria": [
+      "no blockers",
+      "one blocker",
+      "two blockers",
+      "three blockers",
+      "four blockers"
+     ],
+     "instructions": "Score the number of open blockers, capped at 4, 0 to 4.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s05-boolean",
+   "state": "[PROMO-22009] release-train artifact-promotion snapshot\n[PROMO-22009] soak_hours=43\n[PROMO-22009] regressions=6\n[PROMO-22009] signed=FALSE\n[PROMO-22009] scan_clean=TRUE\n[PROMO-22009] required_soak=48\n[PROMO-22009] stage=0",
+   "questions": {
+    "promotable_now": {
+     "instructions": "Is the artifact promotable right now?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s05-choice",
+   "state": "[PROMO-22009] release-train artifact-promotion snapshot\n[PROMO-22009] soak_hours=43\n[PROMO-22009] regressions=6\n[PROMO-22009] signed=FALSE\n[PROMO-22009] scan_clean=TRUE\n[PROMO-22009] required_soak=48\n[PROMO-22009] stage=0",
+   "questions": {
+    "promotion_step": {
+     "criteria": {
+      "continue_soak": "Keep soaking until the required hours elapse",
+      "hold_artifact": "Hold: unsigned or scan-dirty artifacts never promote",
+      "investigate_regressions": "Investigate the open regressions first",
+      "promote_next": "Promote to the next stage",
+      "publish": "All gates cleared at the final stage: publish"
+     },
+     "instructions": "What is the correct promotion step?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s05-score",
+   "state": "[PROMO-22009] release-train artifact-promotion snapshot\n[PROMO-22009] soak_hours=43\n[PROMO-22009] regressions=6\n[PROMO-22009] signed=FALSE\n[PROMO-22009] scan_clean=TRUE\n[PROMO-22009] required_soak=48\n[PROMO-22009] stage=0",
+   "questions": {
+    "blocker_count": {
+     "criteria": [
+      "no blockers",
+      "one blocker",
+      "two blockers",
+      "three blockers",
+      "four blockers"
+     ],
+     "instructions": "Score the number of open blockers, capped at 4, 0 to 4.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s06-boolean",
+   "state": "Situation report PROMO-35000 for sdk-artifacts. The record shows required soak hours = 40. The record shows the vulnerability scan came back clean = false. The record shows current stage 0-2 (0 dev, 1 staging, 2 prod-candidate) = 1. The record shows open regression reports = 0. The record shows hours the artifact has soaked = 56. The record shows the artifact is signed = false.",
+   "questions": {
+    "promotable_now": {
+     "instructions": "Is the artifact promotable right now?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s06-choice",
+   "state": "Situation report PROMO-35000 for sdk-artifacts. The record shows required soak hours = 40. The record shows the vulnerability scan came back clean = false. The record shows current stage 0-2 (0 dev, 1 staging, 2 prod-candidate) = 1. The record shows open regression reports = 0. The record shows hours the artifact has soaked = 56. The record shows the artifact is signed = false.",
+   "questions": {
+    "promotion_step": {
+     "criteria": {
+      "continue_soak": "Keep soaking until the required hours elapse",
+      "hold_artifact": "Hold: unsigned or scan-dirty artifacts never promote",
+      "investigate_regressions": "Investigate the open regressions first",
+      "promote_next": "Promote to the next stage",
+      "publish": "All gates cleared at the final stage: publish"
+     },
+     "instructions": "What is the correct promotion step?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s06-score",
+   "state": "Situation report PROMO-35000 for sdk-artifacts. The record shows required soak hours = 40. The record shows the vulnerability scan came back clean = false. The record shows current stage 0-2 (0 dev, 1 staging, 2 prod-candidate) = 1. The record shows open regression reports = 0. The record shows hours the artifact has soaked = 56. The record shows the artifact is signed = false.",
+   "questions": {
+    "blocker_count": {
+     "criteria": [
+      "no blockers",
+      "one blocker",
+      "two blockers",
+      "three blockers",
+      "four blockers"
+     ],
+     "instructions": "Score the number of open blockers, capped at 4, 0 to 4.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s07-boolean",
+   "state": "dump PROMO-70102 (driver-builds)\nfield,value\nstage,2\nsoak_hours,34\nregressions,2\nsigned,yes\nscan_clean,yes\nrequired_soak,40",
+   "questions": {
+    "promotable_now": {
+     "criteria": {
+      "false": "a promotion gate is still open",
+      "true": "all gates cleared; promotable"
+     },
+     "instructions": "Has every promotion gate cleared?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s07-choice",
+   "state": "dump PROMO-70102 (driver-builds)\nfield,value\nstage,2\nsoak_hours,34\nregressions,2\nsigned,yes\nscan_clean,yes\nrequired_soak,40",
+   "questions": {
+    "promotion_step": {
+     "criteria": {
+      "continue_soak": "Keep soaking until the required hours elapse",
+      "hold_artifact": "Hold: unsigned or scan-dirty artifacts never promote",
+      "investigate_regressions": "Investigate the open regressions first",
+      "promote_next": "Promote to the next stage",
+      "publish": "All gates cleared at the final stage: publish"
+     },
+     "instructions": "Pick the step the promotion policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-artifact_promotion-s07-score",
+   "state": "dump PROMO-70102 (driver-builds)\nfield,value\nstage,2\nsoak_hours,34\nregressions,2\nsigned,yes\nscan_clean,yes\nrequired_soak,40",
+   "questions": {
+    "blocker_count": {
+     "criteria": [
+      "no blockers",
+      "one blocker",
+      "two blockers",
+      "three blockers",
+      "four blockers"
+     ],
+     "instructions": "Rate how many promotion blockers remain, 0 to 4.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s00-boolean",
+   "state": "[POP-60604] anycast-net edge-route-shift snapshot\n[POP-60604] pop_3_load=100\n[POP-60604] pop_11_load=50\n[POP-60604] shift_pct=50\n[POP-60604] pop_5_load=65\n[POP-60604] pop_0_load=35\n[POP-60604] pop_6_load=5\n[POP-60604] pop_8_load=50\n[POP-60604] pop_2_load=35\n[POP-60604] pop_1_load=0\n[POP-60604] pop_4_load=60\n[POP-60604] pop_7_load=90\n[POP-60604] pop_9_load=100\n[POP-60604] pop_10_load=65",
+   "questions": {
+    "pop_zero_lightest": {
+     "criteria": {
+      "false": "another pop is lighter",
+      "true": "pop 00 is lightest"
+     },
+     "instructions": "Does pop 00 carry the lowest load?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s00-choice",
+   "state": "[POP-60604] anycast-net edge-route-shift snapshot\n[POP-60604] pop_3_load=100\n[POP-60604] pop_11_load=50\n[POP-60604] shift_pct=50\n[POP-60604] pop_5_load=65\n[POP-60604] pop_0_load=35\n[POP-60604] pop_6_load=5\n[POP-60604] pop_8_load=50\n[POP-60604] pop_2_load=35\n[POP-60604] pop_1_load=0\n[POP-60604] pop_4_load=60\n[POP-60604] pop_7_load=90\n[POP-60604] pop_9_load=100\n[POP-60604] pop_10_load=65",
+   "questions": {
+    "shift_target": {
+     "criteria": {
+      "pop_00": "Shift traffic to pop 00",
+      "pop_01": "Shift traffic to pop 01",
+      "pop_02": "Shift traffic to pop 02",
+      "pop_03": "Shift traffic to pop 03",
+      "pop_04": "Shift traffic to pop 04",
+      "pop_05": "Shift traffic to pop 05",
+      "pop_06": "Shift traffic to pop 06",
+      "pop_07": "Shift traffic to pop 07",
+      "pop_08": "Shift traffic to pop 08",
+      "pop_09": "Shift traffic to pop 09",
+      "pop_10": "Shift traffic to pop 10",
+      "pop_11": "Shift traffic to pop 11"
+     },
+     "instructions": "Pick the pop the routing rule selects.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s00-score",
+   "state": "[POP-60604] anycast-net edge-route-shift snapshot\n[POP-60604] pop_3_load=100\n[POP-60604] pop_11_load=50\n[POP-60604] shift_pct=50\n[POP-60604] pop_5_load=65\n[POP-60604] pop_0_load=35\n[POP-60604] pop_6_load=5\n[POP-60604] pop_8_load=50\n[POP-60604] pop_2_load=35\n[POP-60604] pop_1_load=0\n[POP-60604] pop_4_load=60\n[POP-60604] pop_7_load=90\n[POP-60604] pop_9_load=100\n[POP-60604] pop_10_load=65",
+   "questions": {
+    "best_load_band": {
+     "criteria": [
+      "at most 3 pops at 50% load or more",
+      "4-8 pops saturated",
+      "9-12 pops saturated"
+     ],
+     "instructions": "Rate how saturated the edge mesh is, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s01-boolean",
+   "state": "Situation report EDGE-95356 for edge-mesh-b. The record shows point-of-presence 3 load, percent = 40. The record shows share of traffic to move, percent = 15. The record shows point-of-presence 1 load, percent = 35. The record shows point-of-presence 4 load, percent = 100. The record shows point-of-presence 11 load, percent = 55. The record shows point-of-presence 7 load, percent = 80. The record shows point-of-presence 6 load, percent = 15. The record shows point-of-presence 8 load, percent = 100. The record shows point-of-presence 2 load, percent = 85. The record shows point-of-presence 9 load, percent = 35. The record shows point-of-presence 0 load, percent = 5. The record shows point-of-presence 5 load, percent = 90. The record shows point-of-presence 10 load, percent = 60.",
+   "questions": {
+    "pop_zero_lightest": {
+     "criteria": {
+      "false": "another pop is lighter",
+      "true": "pop 00 is lightest"
+     },
+     "instructions": "Does pop 00 carry the lowest load?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s01-choice",
+   "state": "Situation report EDGE-95356 for edge-mesh-b. The record shows point-of-presence 3 load, percent = 40. The record shows share of traffic to move, percent = 15. The record shows point-of-presence 1 load, percent = 35. The record shows point-of-presence 4 load, percent = 100. The record shows point-of-presence 11 load, percent = 55. The record shows point-of-presence 7 load, percent = 80. The record shows point-of-presence 6 load, percent = 15. The record shows point-of-presence 8 load, percent = 100. The record shows point-of-presence 2 load, percent = 85. The record shows point-of-presence 9 load, percent = 35. The record shows point-of-presence 0 load, percent = 5. The record shows point-of-presence 5 load, percent = 90. The record shows point-of-presence 10 load, percent = 60.",
+   "questions": {
+    "shift_target": {
+     "criteria": {
+      "pop_00": "Shift traffic to pop 00",
+      "pop_01": "Shift traffic to pop 01",
+      "pop_02": "Shift traffic to pop 02",
+      "pop_03": "Shift traffic to pop 03",
+      "pop_04": "Shift traffic to pop 04",
+      "pop_05": "Shift traffic to pop 05",
+      "pop_06": "Shift traffic to pop 06",
+      "pop_07": "Shift traffic to pop 07",
+      "pop_08": "Shift traffic to pop 08",
+      "pop_09": "Shift traffic to pop 09",
+      "pop_10": "Shift traffic to pop 10",
+      "pop_11": "Shift traffic to pop 11"
+     },
+     "instructions": "Pick the pop the routing rule selects.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s01-score",
+   "state": "Situation report EDGE-95356 for edge-mesh-b. The record shows point-of-presence 3 load, percent = 40. The record shows share of traffic to move, percent = 15. The record shows point-of-presence 1 load, percent = 35. The record shows point-of-presence 4 load, percent = 100. The record shows point-of-presence 11 load, percent = 55. The record shows point-of-presence 7 load, percent = 80. The record shows point-of-presence 6 load, percent = 15. The record shows point-of-presence 8 load, percent = 100. The record shows point-of-presence 2 load, percent = 85. The record shows point-of-presence 9 load, percent = 35. The record shows point-of-presence 0 load, percent = 5. The record shows point-of-presence 5 load, percent = 90. The record shows point-of-presence 10 load, percent = 60.",
+   "questions": {
+    "best_load_band": {
+     "criteria": [
+      "at most 3 pops at 50% load or more",
+      "4-8 pops saturated",
+      "9-12 pops saturated"
+     ],
+     "instructions": "Rate how saturated the edge mesh is, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s02-boolean",
+   "state": "dump POP-86070 (edge-mesh-b)\nfield,value\npop_10_load,30\npop_6_load,40\nshift_pct,35\npop_9_load,65\npop_11_load,35\npop_0_load,25\npop_8_load,80\npop_5_load,35\npop_4_load,25\npop_2_load,0\npop_7_load,15\npop_1_load,5\npop_3_load,25",
+   "questions": {
+    "pop_zero_lightest": {
+     "instructions": "Is pop 00 currently the lightest?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s02-choice",
+   "state": "dump POP-86070 (edge-mesh-b)\nfield,value\npop_10_load,30\npop_6_load,40\nshift_pct,35\npop_9_load,65\npop_11_load,35\npop_0_load,25\npop_8_load,80\npop_5_load,35\npop_4_load,25\npop_2_load,0\npop_7_load,15\npop_1_load,5\npop_3_load,25",
+   "questions": {
+    "shift_target": {
+     "criteria": {
+      "pop_00": "Shift traffic to pop 00",
+      "pop_01": "Shift traffic to pop 01",
+      "pop_02": "Shift traffic to pop 02",
+      "pop_03": "Shift traffic to pop 03",
+      "pop_04": "Shift traffic to pop 04",
+      "pop_05": "Shift traffic to pop 05",
+      "pop_06": "Shift traffic to pop 06",
+      "pop_07": "Shift traffic to pop 07",
+      "pop_08": "Shift traffic to pop 08",
+      "pop_09": "Shift traffic to pop 09",
+      "pop_10": "Shift traffic to pop 10",
+      "pop_11": "Shift traffic to pop 11"
+     },
+     "instructions": "Which pop should receive the shifted traffic?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s02-score",
+   "state": "dump POP-86070 (edge-mesh-b)\nfield,value\npop_10_load,30\npop_6_load,40\nshift_pct,35\npop_9_load,65\npop_11_load,35\npop_0_load,25\npop_8_load,80\npop_5_load,35\npop_4_load,25\npop_2_load,0\npop_7_load,15\npop_1_load,5\npop_3_load,25",
+   "questions": {
+    "best_load_band": {
+     "criteria": [
+      "at most 3 pops at 50% load or more",
+      "4-8 pops saturated",
+      "9-12 pops saturated"
+     ],
+     "instructions": "Score mesh saturation, 0 to 2 (<=3 pops at 50%+, 4-8, 9-12).",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s03-boolean",
+   "state": "dump EDGE-4579 (anycast-net)\nfield,value\npop_6_load,65\npop_10_load,70\npop_11_load,90\npop_5_load,20\npop_1_load,55\npop_3_load,80\npop_4_load,75\npop_7_load,40\nshift_pct,45\npop_2_load,50\npop_0_load,80\npop_8_load,50\npop_9_load,90",
+   "questions": {
+    "pop_zero_lightest": {
+     "criteria": {
+      "false": "another pop is lighter",
+      "true": "pop 00 is lightest"
+     },
+     "instructions": "Does pop 00 carry the lowest load?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s03-choice",
+   "state": "dump EDGE-4579 (anycast-net)\nfield,value\npop_6_load,65\npop_10_load,70\npop_11_load,90\npop_5_load,20\npop_1_load,55\npop_3_load,80\npop_4_load,75\npop_7_load,40\nshift_pct,45\npop_2_load,50\npop_0_load,80\npop_8_load,50\npop_9_load,90",
+   "questions": {
+    "shift_target": {
+     "criteria": {
+      "pop_00": "Shift traffic to pop 00",
+      "pop_01": "Shift traffic to pop 01",
+      "pop_02": "Shift traffic to pop 02",
+      "pop_03": "Shift traffic to pop 03",
+      "pop_04": "Shift traffic to pop 04",
+      "pop_05": "Shift traffic to pop 05",
+      "pop_06": "Shift traffic to pop 06",
+      "pop_07": "Shift traffic to pop 07",
+      "pop_08": "Shift traffic to pop 08",
+      "pop_09": "Shift traffic to pop 09",
+      "pop_10": "Shift traffic to pop 10",
+      "pop_11": "Shift traffic to pop 11"
+     },
+     "instructions": "Pick the pop the routing rule selects.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s03-score",
+   "state": "dump EDGE-4579 (anycast-net)\nfield,value\npop_6_load,65\npop_10_load,70\npop_11_load,90\npop_5_load,20\npop_1_load,55\npop_3_load,80\npop_4_load,75\npop_7_load,40\nshift_pct,45\npop_2_load,50\npop_0_load,80\npop_8_load,50\npop_9_load,90",
+   "questions": {
+    "best_load_band": {
+     "criteria": [
+      "at most 3 pops at 50% load or more",
+      "4-8 pops saturated",
+      "9-12 pops saturated"
+     ],
+     "instructions": "Rate how saturated the edge mesh is, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s04-boolean",
+   "state": "record:\n  ref: EDGE-24265\n  entity: edge-mesh-b\n  kind: edge-route-shift\n  pop_6_load: 55\n  pop_7_load: 0\n  pop_4_load: 0\n  pop_0_load: 100\n  pop_3_load: 0\n  pop_5_load: 65\n  pop_1_load: 90\n  pop_11_load: 45\n  pop_2_load: 70\n  pop_8_load: 15\n  shift_pct: 35\n  pop_9_load: 70\n  pop_10_load: 20",
+   "questions": {
+    "pop_zero_lightest": {
+     "instructions": "Is pop 00 currently the lightest?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s04-choice",
+   "state": "record:\n  ref: EDGE-24265\n  entity: edge-mesh-b\n  kind: edge-route-shift\n  pop_6_load: 55\n  pop_7_load: 0\n  pop_4_load: 0\n  pop_0_load: 100\n  pop_3_load: 0\n  pop_5_load: 65\n  pop_1_load: 90\n  pop_11_load: 45\n  pop_2_load: 70\n  pop_8_load: 15\n  shift_pct: 35\n  pop_9_load: 70\n  pop_10_load: 20",
+   "questions": {
+    "shift_target": {
+     "criteria": {
+      "pop_00": "Shift traffic to pop 00",
+      "pop_01": "Shift traffic to pop 01",
+      "pop_02": "Shift traffic to pop 02",
+      "pop_03": "Shift traffic to pop 03",
+      "pop_04": "Shift traffic to pop 04",
+      "pop_05": "Shift traffic to pop 05",
+      "pop_06": "Shift traffic to pop 06",
+      "pop_07": "Shift traffic to pop 07",
+      "pop_08": "Shift traffic to pop 08",
+      "pop_09": "Shift traffic to pop 09",
+      "pop_10": "Shift traffic to pop 10",
+      "pop_11": "Shift traffic to pop 11"
+     },
+     "instructions": "Which pop should receive the shifted traffic?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s04-score",
+   "state": "record:\n  ref: EDGE-24265\n  entity: edge-mesh-b\n  kind: edge-route-shift\n  pop_6_load: 55\n  pop_7_load: 0\n  pop_4_load: 0\n  pop_0_load: 100\n  pop_3_load: 0\n  pop_5_load: 65\n  pop_1_load: 90\n  pop_11_load: 45\n  pop_2_load: 70\n  pop_8_load: 15\n  shift_pct: 35\n  pop_9_load: 70\n  pop_10_load: 20",
+   "questions": {
+    "best_load_band": {
+     "criteria": [
+      "at most 3 pops at 50% load or more",
+      "4-8 pops saturated",
+      "9-12 pops saturated"
+     ],
+     "instructions": "Score mesh saturation, 0 to 2 (<=3 pops at 50%+, 4-8, 9-12).",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s05-boolean",
+   "state": "Situation report POP-81811 for edge-mesh-b. The record shows point-of-presence 1 load, percent = 80. The record shows point-of-presence 5 load, percent = 15. The record shows point-of-presence 8 load, percent = 50. The record shows point-of-presence 2 load, percent = 70. The record shows point-of-presence 0 load, percent = 90. The record shows point-of-presence 11 load, percent = 5. The record shows point-of-presence 3 load, percent = 100. The record shows share of traffic to move, percent = 15. The record shows point-of-presence 7 load, percent = 60. The record shows point-of-presence 4 load, percent = 5. The record shows point-of-presence 10 load, percent = 30. The record shows point-of-presence 6 load, percent = 15. The record shows point-of-presence 9 load, percent = 15.",
+   "questions": {
+    "pop_zero_lightest": {
+     "instructions": "Is pop 00 currently the lightest?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s05-choice",
+   "state": "Situation report POP-81811 for edge-mesh-b. The record shows point-of-presence 1 load, percent = 80. The record shows point-of-presence 5 load, percent = 15. The record shows point-of-presence 8 load, percent = 50. The record shows point-of-presence 2 load, percent = 70. The record shows point-of-presence 0 load, percent = 90. The record shows point-of-presence 11 load, percent = 5. The record shows point-of-presence 3 load, percent = 100. The record shows share of traffic to move, percent = 15. The record shows point-of-presence 7 load, percent = 60. The record shows point-of-presence 4 load, percent = 5. The record shows point-of-presence 10 load, percent = 30. The record shows point-of-presence 6 load, percent = 15. The record shows point-of-presence 9 load, percent = 15.",
+   "questions": {
+    "shift_target": {
+     "criteria": {
+      "pop_00": "Shift traffic to pop 00",
+      "pop_01": "Shift traffic to pop 01",
+      "pop_02": "Shift traffic to pop 02",
+      "pop_03": "Shift traffic to pop 03",
+      "pop_04": "Shift traffic to pop 04",
+      "pop_05": "Shift traffic to pop 05",
+      "pop_06": "Shift traffic to pop 06",
+      "pop_07": "Shift traffic to pop 07",
+      "pop_08": "Shift traffic to pop 08",
+      "pop_09": "Shift traffic to pop 09",
+      "pop_10": "Shift traffic to pop 10",
+      "pop_11": "Shift traffic to pop 11"
+     },
+     "instructions": "Which pop should receive the shifted traffic?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s05-score",
+   "state": "Situation report POP-81811 for edge-mesh-b. The record shows point-of-presence 1 load, percent = 80. The record shows point-of-presence 5 load, percent = 15. The record shows point-of-presence 8 load, percent = 50. The record shows point-of-presence 2 load, percent = 70. The record shows point-of-presence 0 load, percent = 90. The record shows point-of-presence 11 load, percent = 5. The record shows point-of-presence 3 load, percent = 100. The record shows share of traffic to move, percent = 15. The record shows point-of-presence 7 load, percent = 60. The record shows point-of-presence 4 load, percent = 5. The record shows point-of-presence 10 load, percent = 30. The record shows point-of-presence 6 load, percent = 15. The record shows point-of-presence 9 load, percent = 15.",
+   "questions": {
+    "best_load_band": {
+     "criteria": [
+      "at most 3 pops at 50% load or more",
+      "4-8 pops saturated",
+      "9-12 pops saturated"
+     ],
+     "instructions": "Score mesh saturation, 0 to 2 (<=3 pops at 50%+, 4-8, 9-12).",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s06-boolean",
+   "state": "Situation report POP-86127 for edge-mesh-b. The record shows point-of-presence 8 load, percent = 40. The record shows point-of-presence 10 load, percent = 80. The record shows point-of-presence 3 load, percent = 85. The record shows point-of-presence 9 load, percent = 90. The record shows point-of-presence 1 load, percent = 40. The record shows point-of-presence 11 load, percent = 100. The record shows point-of-presence 5 load, percent = 100. The record shows share of traffic to move, percent = 45. The record shows point-of-presence 7 load, percent = 0. The record shows point-of-presence 6 load, percent = 0. The record shows point-of-presence 0 load, percent = 10. The record shows point-of-presence 2 load, percent = 90. The record shows point-of-presence 4 load, percent = 80.",
+   "questions": {
+    "pop_zero_lightest": {
+     "instructions": "Is pop 00 currently the lightest?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s06-choice",
+   "state": "Situation report POP-86127 for edge-mesh-b. The record shows point-of-presence 8 load, percent = 40. The record shows point-of-presence 10 load, percent = 80. The record shows point-of-presence 3 load, percent = 85. The record shows point-of-presence 9 load, percent = 90. The record shows point-of-presence 1 load, percent = 40. The record shows point-of-presence 11 load, percent = 100. The record shows point-of-presence 5 load, percent = 100. The record shows share of traffic to move, percent = 45. The record shows point-of-presence 7 load, percent = 0. The record shows point-of-presence 6 load, percent = 0. The record shows point-of-presence 0 load, percent = 10. The record shows point-of-presence 2 load, percent = 90. The record shows point-of-presence 4 load, percent = 80.",
+   "questions": {
+    "shift_target": {
+     "criteria": {
+      "pop_00": "Shift traffic to pop 00",
+      "pop_01": "Shift traffic to pop 01",
+      "pop_02": "Shift traffic to pop 02",
+      "pop_03": "Shift traffic to pop 03",
+      "pop_04": "Shift traffic to pop 04",
+      "pop_05": "Shift traffic to pop 05",
+      "pop_06": "Shift traffic to pop 06",
+      "pop_07": "Shift traffic to pop 07",
+      "pop_08": "Shift traffic to pop 08",
+      "pop_09": "Shift traffic to pop 09",
+      "pop_10": "Shift traffic to pop 10",
+      "pop_11": "Shift traffic to pop 11"
+     },
+     "instructions": "Which pop should receive the shifted traffic?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s06-score",
+   "state": "Situation report POP-86127 for edge-mesh-b. The record shows point-of-presence 8 load, percent = 40. The record shows point-of-presence 10 load, percent = 80. The record shows point-of-presence 3 load, percent = 85. The record shows point-of-presence 9 load, percent = 90. The record shows point-of-presence 1 load, percent = 40. The record shows point-of-presence 11 load, percent = 100. The record shows point-of-presence 5 load, percent = 100. The record shows share of traffic to move, percent = 45. The record shows point-of-presence 7 load, percent = 0. The record shows point-of-presence 6 load, percent = 0. The record shows point-of-presence 0 load, percent = 10. The record shows point-of-presence 2 load, percent = 90. The record shows point-of-presence 4 load, percent = 80.",
+   "questions": {
+    "best_load_band": {
+     "criteria": [
+      "at most 3 pops at 50% load or more",
+      "4-8 pops saturated",
+      "9-12 pops saturated"
+     ],
+     "instructions": "Score mesh saturation, 0 to 2 (<=3 pops at 50%+, 4-8, 9-12).",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s07-boolean",
+   "state": "dump EDGE-55576 (edge-mesh-b)\nfield,value\npop_6_load,90\npop_8_load,65\npop_3_load,55\npop_11_load,85\npop_4_load,80\npop_1_load,100\npop_9_load,50\npop_0_load,75\nshift_pct,45\npop_7_load,15\npop_5_load,80\npop_10_load,100\npop_2_load,40",
+   "questions": {
+    "pop_zero_lightest": {
+     "criteria": {
+      "false": "another pop is lighter",
+      "true": "pop 00 is lightest"
+     },
+     "instructions": "Does pop 00 carry the lowest load?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s07-choice",
+   "state": "dump EDGE-55576 (edge-mesh-b)\nfield,value\npop_6_load,90\npop_8_load,65\npop_3_load,55\npop_11_load,85\npop_4_load,80\npop_1_load,100\npop_9_load,50\npop_0_load,75\nshift_pct,45\npop_7_load,15\npop_5_load,80\npop_10_load,100\npop_2_load,40",
+   "questions": {
+    "shift_target": {
+     "criteria": {
+      "pop_00": "Shift traffic to pop 00",
+      "pop_01": "Shift traffic to pop 01",
+      "pop_02": "Shift traffic to pop 02",
+      "pop_03": "Shift traffic to pop 03",
+      "pop_04": "Shift traffic to pop 04",
+      "pop_05": "Shift traffic to pop 05",
+      "pop_06": "Shift traffic to pop 06",
+      "pop_07": "Shift traffic to pop 07",
+      "pop_08": "Shift traffic to pop 08",
+      "pop_09": "Shift traffic to pop 09",
+      "pop_10": "Shift traffic to pop 10",
+      "pop_11": "Shift traffic to pop 11"
+     },
+     "instructions": "Pick the pop the routing rule selects.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-edge_route_shift-s07-score",
+   "state": "dump EDGE-55576 (edge-mesh-b)\nfield,value\npop_6_load,90\npop_8_load,65\npop_3_load,55\npop_11_load,85\npop_4_load,80\npop_1_load,100\npop_9_load,50\npop_0_load,75\nshift_pct,45\npop_7_load,15\npop_5_load,80\npop_10_load,100\npop_2_load,40",
+   "questions": {
+    "best_load_band": {
+     "criteria": [
+      "at most 3 pops at 50% load or more",
+      "4-8 pops saturated",
+      "9-12 pops saturated"
+     ],
+     "instructions": "Rate how saturated the edge mesh is, 0 to 2.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s00-boolean",
+   "state": "record:\n  ref: PRUNE-990\n  entity: fs-snaps\n  kind: snapshot-prune\n  policy_strict: true\n  oldest_age: 47\n  snap_count: 11\n  protected: 1\n  cap: 70",
+   "questions": {
+    "over_cap": {
+     "instructions": "Is the snapshot store over its cap?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s00-choice",
+   "state": "record:\n  ref: PRUNE-990\n  entity: fs-snaps\n  kind: snapshot-prune\n  policy_strict: true\n  oldest_age: 47\n  snap_count: 11\n  protected: 1\n  cap: 70",
+   "questions": {
+    "prune_action": {
+     "criteria": {
+      "compress_then_prune": "Compress old snapshots, then prune",
+      "no_prune": "Within cap: no pruning",
+      "prune_oldest": "Strict policy: prune the oldest first",
+      "raise_cap": "Too many pinned snapshots: raise the cap instead"
+     },
+     "instructions": "What is the correct pruning action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s00-score",
+   "state": "record:\n  ref: PRUNE-990\n  entity: fs-snaps\n  kind: snapshot-prune\n  policy_strict: true\n  oldest_age: 47\n  snap_count: 11\n  protected: 1\n  cap: 70",
+   "questions": {
+    "overflow_band": {
+     "criteria": [
+      "within cap",
+      "mild overflow",
+      "large overflow",
+      "severe overflow"
+     ],
+     "instructions": "Score the overflow band, 0 to 3 (none, <=20, <=60, >60).",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s01-boolean",
+   "state": "[PRUNE-7110] fs-snaps snapshot-prune snapshot\n[PRUNE-7110] snap_count=122\n[PRUNE-7110] cap=100\n[PRUNE-7110] oldest_age=21\n[PRUNE-7110] policy_strict=FALSE\n[PRUNE-7110] protected=9",
+   "questions": {
+    "over_cap": {
+     "criteria": {
+      "false": "within cap",
+      "true": "over the cap"
+     },
+     "instructions": "Does the count exceed the configured cap?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s01-choice",
+   "state": "[PRUNE-7110] fs-snaps snapshot-prune snapshot\n[PRUNE-7110] snap_count=122\n[PRUNE-7110] cap=100\n[PRUNE-7110] oldest_age=21\n[PRUNE-7110] policy_strict=FALSE\n[PRUNE-7110] protected=9",
+   "questions": {
+    "prune_action": {
+     "criteria": {
+      "compress_then_prune": "Compress old snapshots, then prune",
+      "no_prune": "Within cap: no pruning",
+      "prune_oldest": "Strict policy: prune the oldest first",
+      "raise_cap": "Too many pinned snapshots: raise the cap instead"
+     },
+     "instructions": "Pick the action the retention policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s01-score",
+   "state": "[PRUNE-7110] fs-snaps snapshot-prune snapshot\n[PRUNE-7110] snap_count=122\n[PRUNE-7110] cap=100\n[PRUNE-7110] oldest_age=21\n[PRUNE-7110] policy_strict=FALSE\n[PRUNE-7110] protected=9",
+   "questions": {
+    "overflow_band": {
+     "criteria": [
+      "within cap",
+      "mild overflow",
+      "large overflow",
+      "severe overflow"
+     ],
+     "instructions": "Rate how far over cap the store is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s02-boolean",
+   "state": "Situation report PRUNE-36556 for fs-snaps. The record shows snapshots currently stored = 32. The record shows snapshots pinned by policy = 0. The record shows the configured snapshot cap = 30. The record shows age of the oldest snapshot in days = 2. The record shows the strict pruning policy applies = true.",
+   "questions": {
+    "over_cap": {
+     "criteria": {
+      "false": "within cap",
+      "true": "over the cap"
+     },
+     "instructions": "Does the count exceed the configured cap?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s02-choice",
+   "state": "Situation report PRUNE-36556 for fs-snaps. The record shows snapshots currently stored = 32. The record shows snapshots pinned by policy = 0. The record shows the configured snapshot cap = 30. The record shows age of the oldest snapshot in days = 2. The record shows the strict pruning policy applies = true.",
+   "questions": {
+    "prune_action": {
+     "criteria": {
+      "compress_then_prune": "Compress old snapshots, then prune",
+      "no_prune": "Within cap: no pruning",
+      "prune_oldest": "Strict policy: prune the oldest first",
+      "raise_cap": "Too many pinned snapshots: raise the cap instead"
+     },
+     "instructions": "Pick the action the retention policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s02-score",
+   "state": "Situation report PRUNE-36556 for fs-snaps. The record shows snapshots currently stored = 32. The record shows snapshots pinned by policy = 0. The record shows the configured snapshot cap = 30. The record shows age of the oldest snapshot in days = 2. The record shows the strict pruning policy applies = true.",
+   "questions": {
+    "overflow_band": {
+     "criteria": [
+      "within cap",
+      "mild overflow",
+      "large overflow",
+      "severe overflow"
+     ],
+     "instructions": "Rate how far over cap the store is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s03-boolean",
+   "state": "dump PRUNE-45219 (db-clones)\nfield,value\ncap,40\nprotected,10\nsnap_count,49\npolicy_strict,no\noldest_age,30",
+   "questions": {
+    "over_cap": {
+     "criteria": {
+      "false": "within cap",
+      "true": "over the cap"
+     },
+     "instructions": "Does the count exceed the configured cap?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s03-choice",
+   "state": "dump PRUNE-45219 (db-clones)\nfield,value\ncap,40\nprotected,10\nsnap_count,49\npolicy_strict,no\noldest_age,30",
+   "questions": {
+    "prune_action": {
+     "criteria": {
+      "compress_then_prune": "Compress old snapshots, then prune",
+      "no_prune": "Within cap: no pruning",
+      "prune_oldest": "Strict policy: prune the oldest first",
+      "raise_cap": "Too many pinned snapshots: raise the cap instead"
+     },
+     "instructions": "Pick the action the retention policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s03-score",
+   "state": "dump PRUNE-45219 (db-clones)\nfield,value\ncap,40\nprotected,10\nsnap_count,49\npolicy_strict,no\noldest_age,30",
+   "questions": {
+    "overflow_band": {
+     "criteria": [
+      "within cap",
+      "mild overflow",
+      "large overflow",
+      "severe overflow"
+     ],
+     "instructions": "Rate how far over cap the store is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s04-boolean",
+   "state": "[SNAP-2360] db-clones snapshot-prune snapshot\n[SNAP-2360] protected=10\n[SNAP-2360] snap_count=128\n[SNAP-2360] oldest_age=75\n[SNAP-2360] policy_strict=TRUE\n[SNAP-2360] cap=90",
+   "questions": {
+    "over_cap": {
+     "instructions": "Is the snapshot store over its cap?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s04-choice",
+   "state": "[SNAP-2360] db-clones snapshot-prune snapshot\n[SNAP-2360] protected=10\n[SNAP-2360] snap_count=128\n[SNAP-2360] oldest_age=75\n[SNAP-2360] policy_strict=TRUE\n[SNAP-2360] cap=90",
+   "questions": {
+    "prune_action": {
+     "criteria": {
+      "compress_then_prune": "Compress old snapshots, then prune",
+      "no_prune": "Within cap: no pruning",
+      "prune_oldest": "Strict policy: prune the oldest first",
+      "raise_cap": "Too many pinned snapshots: raise the cap instead"
+     },
+     "instructions": "What is the correct pruning action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s04-score",
+   "state": "[SNAP-2360] db-clones snapshot-prune snapshot\n[SNAP-2360] protected=10\n[SNAP-2360] snap_count=128\n[SNAP-2360] oldest_age=75\n[SNAP-2360] policy_strict=TRUE\n[SNAP-2360] cap=90",
+   "questions": {
+    "overflow_band": {
+     "criteria": [
+      "within cap",
+      "mild overflow",
+      "large overflow",
+      "severe overflow"
+     ],
+     "instructions": "Score the overflow band, 0 to 3 (none, <=20, <=60, >60).",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s05-boolean",
+   "state": "dump PRUNE-667 (vm-fleet)\nfield,value\noldest_age,23\nsnap_count,200\npolicy_strict,yes\ncap,60\nprotected,8",
+   "questions": {
+    "over_cap": {
+     "instructions": "Is the snapshot store over its cap?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s05-choice",
+   "state": "dump PRUNE-667 (vm-fleet)\nfield,value\noldest_age,23\nsnap_count,200\npolicy_strict,yes\ncap,60\nprotected,8",
+   "questions": {
+    "prune_action": {
+     "criteria": {
+      "compress_then_prune": "Compress old snapshots, then prune",
+      "no_prune": "Within cap: no pruning",
+      "prune_oldest": "Strict policy: prune the oldest first",
+      "raise_cap": "Too many pinned snapshots: raise the cap instead"
+     },
+     "instructions": "What is the correct pruning action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s05-score",
+   "state": "dump PRUNE-667 (vm-fleet)\nfield,value\noldest_age,23\nsnap_count,200\npolicy_strict,yes\ncap,60\nprotected,8",
+   "questions": {
+    "overflow_band": {
+     "criteria": [
+      "within cap",
+      "mild overflow",
+      "large overflow",
+      "severe overflow"
+     ],
+     "instructions": "Score the overflow band, 0 to 3 (none, <=20, <=60, >60).",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s06-boolean",
+   "state": "dump SNAP-3978 (fs-snaps)\nfield,value\npolicy_strict,yes\noldest_age,25\nprotected,10\ncap,110\nsnap_count,196",
+   "questions": {
+    "over_cap": {
+     "criteria": {
+      "false": "within cap",
+      "true": "over the cap"
+     },
+     "instructions": "Does the count exceed the configured cap?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s06-choice",
+   "state": "dump SNAP-3978 (fs-snaps)\nfield,value\npolicy_strict,yes\noldest_age,25\nprotected,10\ncap,110\nsnap_count,196",
+   "questions": {
+    "prune_action": {
+     "criteria": {
+      "compress_then_prune": "Compress old snapshots, then prune",
+      "no_prune": "Within cap: no pruning",
+      "prune_oldest": "Strict policy: prune the oldest first",
+      "raise_cap": "Too many pinned snapshots: raise the cap instead"
+     },
+     "instructions": "Pick the action the retention policy dictates.",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s06-score",
+   "state": "dump SNAP-3978 (fs-snaps)\nfield,value\npolicy_strict,yes\noldest_age,25\nprotected,10\ncap,110\nsnap_count,196",
+   "questions": {
+    "overflow_band": {
+     "criteria": [
+      "within cap",
+      "mild overflow",
+      "large overflow",
+      "severe overflow"
+     ],
+     "instructions": "Rate how far over cap the store is, 0 to 3.",
+     "type": "score"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s07-boolean",
+   "state": "record:\n  ref: SNAP-71929\n  entity: fs-snaps\n  kind: snapshot-prune\n  protected: 1\n  oldest_age: 72\n  policy_strict: false\n  snap_count: 139\n  cap: 60",
+   "questions": {
+    "over_cap": {
+     "instructions": "Is the snapshot store over its cap?",
+     "type": "boolean"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s07-choice",
+   "state": "record:\n  ref: SNAP-71929\n  entity: fs-snaps\n  kind: snapshot-prune\n  protected: 1\n  oldest_age: 72\n  policy_strict: false\n  snap_count: 139\n  cap: 60",
+   "questions": {
+    "prune_action": {
+     "criteria": {
+      "compress_then_prune": "Compress old snapshots, then prune",
+      "no_prune": "Within cap: no pruning",
+      "prune_oldest": "Strict policy: prune the oldest first",
+      "raise_cap": "Too many pinned snapshots: raise the cap instead"
+     },
+     "instructions": "What is the correct pruning action?",
+     "type": "choice"
+    }
+   }
+  },
+  {
+   "id": "eh2-snapshot_prune-s07-score",
+   "state": "record:\n  ref: SNAP-71929\n  entity: fs-snaps\n  kind: snapshot-prune\n  protected: 1\n  oldest_age: 72\n  policy_strict: false\n  snap_count: 139\n  cap: 60",
+   "questions": {
+    "overflow_band": {
+     "criteria": [
+      "within cap",
+      "mild overflow",
+      "large overflow",
+      "severe overflow"
+     ],
+     "instructions": "Score the overflow band, 0 to 3 (none, <=20, <=60, >60).",
+     "type": "score"
+    }
+   }
+  }
+ ]
+}

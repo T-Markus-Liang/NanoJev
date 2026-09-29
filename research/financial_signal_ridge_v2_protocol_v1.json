@@ -1,0 +1,40 @@
+{
+  "cohort": {
+    "assets": "277 USDT-M perps (incl. delisted/renamed early-stops)",
+    "book_pnl": "label.forward_return_bps (1d gross close-to-close)",
+    "btc_series": "data/rc_futures_v1/BTC/BTCUSDT_1d.csv",
+    "fit_target": "label.forward_return_5d_bps (gross close-to-close)",
+    "path": "data/perp_pit_mega_v1/records.jsonl"
+  },
+  "created_utc": "2026-09-24T16:49:35Z",
+  "definitions": {
+    "book": "per test date: long pred>=q90 EW / short pred<=q10 EW, 0.5 notional per side, daily rebalance; cost = 5bps one-way on traded notional per leg (turnover = 0.5*sum|w_new-w_old| per leg); first day of a run is full entry. Days with <20 assets skipped.",
+    "embargo": "train rows in the last 5 days before each fold boundary dropped (5d label overlap); same embargo at inner CV boundaries",
+    "funding_level": "raw last_funding_rate x 1e4 (bps per funding interval); null -> 0.0, rate reported",
+    "funding_pct": "per-asset mid-rank pct of last_funding_rate vs trailing-180 non-null values (MIN_WINDOW=20); unusable -> neutral 0.5",
+    "inner_cv": "train-year dates -> 5 contiguous chunks; inner folds k=1..4 fit chunks[0:k]-embargo, validate chunk k; lambda = argmin mean val MSE; never touches test",
+    "long_only": "top-decile EW vs cash, same cost on one-way turnover; excess vs same-day EW universe mean also reported",
+    "mom5": "per-asset log(close_t/close_{t-5 bars}) on the PIT close series",
+    "vol20_pct": "same construction on vol20",
+    "xs_rank_*": "same-day cross-sectional mid-rank pct",
+    "xs_rank_logqvol": "XS mid-rank of log(quote_volume) (size/liquidity proxy)"
+  },
+  "forbidden": [
+    "trading",
+    "profitability claims",
+    "protocol edits post-run",
+    "network",
+    "lambda/model selection on test data"
+  ],
+  "purpose": "T127: deepen the T125 ML-viable ridge formulation and test net-of-cost tradability. 14 PIT features (v1's 7 plus mom5, vol20_pct, funding_level, xs_rank_mom20, xs_rank_logqvol, mom20*btc_ret20, btc_ret20^2); same walkforward/embargo/inner-CV lambda; per-fold coefficient stability; net tradability via daily EW top/bottom-decile books at 5bps/leg one-way turnover plus a long-only variant; parsimony ablation {dfh20, btc_ret20, dfh20*btc_ret20}. Measurement only.",
+  "schema_version": "nanojev-financial-signal-ridge-v2-protocol-v1",
+  "statistics": {
+    "caveats": [
+      "1d book returns autocorrelate little but legs overlap heavily day-to-day (high persistence); Sharpe is nominal, not a t-test",
+      "funding_level/funding_pct imputed on ~70% of rows (funding-covered subset ~52/277 symbols)",
+      "no borrow/funding-carry/slippage modeling beyond flat 5bps; short leg assumes perp shortability at index",
+      "pooled OOS concatenates folds with different train-fitted scales \u2014 descriptive",
+      "daily rebalance of ~28-name EW legs is turnover-heavy; net results are sensitive to the 5bps assumption"
+    ]
+  }
+}

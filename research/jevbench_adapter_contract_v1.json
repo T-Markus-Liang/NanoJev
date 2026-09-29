@@ -1,0 +1,183 @@
+{
+  "schema_version": "nanojev-jevbench-adapter-contract-v1",
+  "contract_id": "jevbench-adapter-contract-v1",
+  "status": "diagnostic_public_allowed_milestone_gated",
+  "purpose": "Freeze the JevBench-to-NanoJev adapter contract for roadmap tasks X0/X1: the pinned benchmark source, the task-to-question type mapping, probability output semantics, timing and cost accounting scope, the synthetic-fixture-only validation requirement, and the data quarantine flags. This satisfies the X0 review requirement that the adapter contract hash be recorded BEFORE any public JevBench task row is fetched or read. It authorizes nothing: no public milestone run, no maintainer-held-out submission, no training, no calibration fitting. Owner policy update: pinned public task rows may be consumed for diagnostic public-subset runs on unfrozen candidates; those runs are evidence only and do not count as the official milestone.",
+  "jevbench_source": {
+    "repo": "https://github.com/fstandhartinger/jevbench",
+    "license": "MIT",
+    "pinned_revision": "83831807458d7df424a1e53e5724f3a3ffe2cf89",
+    "revision_tag": "v1.2.4",
+    "protocol": "jevbench::v1.2",
+    "results_api": "https://benchmarkheaven.com/api/jevbench/v1.2",
+    "leaderboard": "https://benchmarkheaven.com/jev-models",
+    "decisions_per_full_run": 534,
+    "tier_counts": {
+      "easy": 72,
+      "standard": 96,
+      "judge": 146,
+      "hard": 220
+    },
+    "hard_tier_visibility": {
+      "public": 111,
+      "maintainer_held_out": 109
+    },
+    "raw_axes": [
+      "Intelligence",
+      "Calibration",
+      "Speed",
+      "Cost"
+    ],
+    "composite": "geometric mean, 25% per axis; NanoJev reports all four raw axes and never reduces the result to the composite rank",
+    "schema_reference": "jevbench/tasks.py (canonical Task record), jevbench/adapters/base.py (DecisionResult), jevbench/scoring.py (distribution validation) at the pinned revision; harness code and README were reviewed for this contract, no task rows were read"
+  },
+  "task_record_schema": {
+    "required_keys": [
+      "id",
+      "family",
+      "state",
+      "question",
+      "labels",
+      "expected",
+      "split",
+      "group",
+      "provenance"
+    ],
+    "question": {
+      "type_enum": [
+        "noul",
+        "choice",
+        "score"
+      ],
+      "fields": [
+        "type",
+        "instructions",
+        "criteria"
+      ]
+    },
+    "state": "string, JSON object or array; never contains the expected label (keys expected/label/ground_truth/answer_key are banned in object states)",
+    "labels": "ordered list of exact label strings; noul is exactly [\"no\",\"yes\"]; score is level index strings [\"0\"..\"k-1\"]; choice labels equal the criteria key set",
+    "expected": "label string for noul/choice, int level index for score, or null (unmeasured ground truth: kept for coverage, excluded from accuracy)",
+    "split": "upstream enum is public|private; this adapter adds 'synthetic' for hand-authored fixtures and accepts ONLY synthetic records in this phase",
+    "group": "paraphrase group id or null; paired items share a group"
+  },
+  "type_mapping": {
+    "noul": {
+      "nanojev_type": "boolean",
+      "criteria_rule": "JevBench noul criteria (object, keys a subset of false/true) passed through verbatim; absent criteria allowed",
+      "label_projection": "NanoJev probabilities {false, true} map to JevBench labels {no: p_false, yes: p_true}"
+    },
+    "choice": {
+      "nanojev_type": "choice",
+      "criteria_rule": "criteria object (2-255 entries, option key to description) passed through verbatim; option order is the task's own order",
+      "label_projection": "NanoJev probabilities are already keyed by criteria keys; output is re-emitted in task.labels order and must cover the exact label set"
+    },
+    "score": {
+      "nanojev_type": "score",
+      "criteria_rule": "criteria list (2-10 ordered level descriptions) passed through verbatim; level indices are never injected into the model-visible text",
+      "label_projection": "NanoJev positional candidate ids \"0\"..\"k-1\" equal the score labels; emitted in task.labels order"
+    },
+    "request_shape": "one NanoJev state per JevBench task: {\"states\": [{\"id\": task.id, \"state\": task.state, \"questions\": {\"decision\": mapped_question}}]}; the question key is fixed 'decision' per the upstream adapter convention",
+    "model_visible_boundary": "only {id, state, questions} enter the request; labels, expected, group, provenance and split never reach the model",
+    "renderer": "the frozen predictor renderer scripts/predict_toy_decisions.py:prepare_examples is used unchanged; no JevBench-specific prompt text is added",
+    "marker_head_alternate": "If checkpoint config set_head=marker, the adapter uses scripts/predict_jfast_modernbert.py plus scripts/jfast_modernbert_decision_v1.py. marker_placement is a checkpoint config field: before means [MASK] label:text; after means label:text [MASK]. Probabilities are the marker-head softmax over the exact label set. Labels, expected, split and provenance still never enter the request."
+  },
+  "probability_semantics": {
+    "output": "the full normalized distribution over the task's exact label set on every answered decision; probs_source is 'native' (softmax over candidate-leaf logits at temperature 1.0)",
+    "never": "no argmax-only answers, no verbalized probabilities, no post-hoc temperature or threshold fitted on benchmark data",
+    "normalization": "NanoJev softmax output is normalized by construction; the adapter re-checks each mapped distribution sums to 1 within 1e-5 and covers the label set exactly, failing the decision record closed otherwise",
+    "abstention": "NanoJev's 0.9 abstention threshold is NOT applied to suppress benchmark answers; each decision record carries abstention.would_abstain for reporting only"
+  },
+  "timing_scope": {
+    "per_decision_latency": "wall-clock seconds around the per-task predict call: request build, tokenization, forward pass(es) and softmax; this matches the upstream runner which times adapter.run(task)",
+    "excluded": "checkpoint and tokenizer load (reported once as model_load_s, counted nowhere in latency), fixture file IO, manifest/receipt writing",
+    "reported": "per-decision latency_s plus run-level min/max/mean/p50/p95; benchmark's self-hosted x2 latency adjustment is an upstream assumption applied downstream, never folded into these raw numbers",
+    "batching": "one decision per predict call in this phase; no cross-decision batching or prefix sharing, so latency is per-decision and unamortized",
+    "marker_head": "marker-head serial mode still measures one decision per predict call; bulk mode remains accuracy-only. Prefix sharing is inherent to marker construction, not the decoder leaf-path optimization."
+  },
+  "cost_scope": {
+    "basis": "local_mps_no_provider_tariff: local weights have no billable tariff; cost_usd is null, never 0 (unmetered is not free)",
+    "usage_reported": "for candidate-leaf checkpoints usage.input_tokens counts scored leaves; for set_head=marker it counts the packed marker sequence tokens actually encoded",
+    "downstream": "any benchmark cost estimate is computed later by the harness's own rules (size-class estimate), outside this adapter"
+  },
+  "validation_requirement": {
+    "synthetic_fixtures_only": true,
+    "fixtures": "research/jevbench_fixtures_v1/items.jsonl: hand-authored records covering noul/choice/score, 2/4/12/255-option choice, 2/5/10-level score, structured state, a paraphrase group pair and one expected=null item; every item carries split=synthetic and provenance.synthetic=true",
+    "rule": "the adapter's synthetic mode rejects any record whose split is not 'synthetic' or whose provenance.synthetic is not true, so the validation path is structurally unable to consume real benchmark rows",
+    "no_benchmark_rows_before_freeze": "no public or private JevBench task row may be fetched or read before this contract's contract_sha256 is computed and recorded; harness code, README and scoring documentation were the only upstream artifacts reviewed",
+    "public_diagnostic": "public_diagnostic mode accepts only split=public records supplied as a local JSONL; no private or held-out split is consumed"
+  },
+  "data_quarantine": {
+    "evaluation_only": true,
+    "training_allowed": false,
+    "calibration_fit_allowed": false,
+    "per_item_failure_tuning_allowed": false,
+    "applies_to": "all JevBench public and private task rows, per-task outcomes, and any external system's outputs; aggregate family/topic results may inform only the planning of independently authored new item families, never item copying or label reuse",
+    "manifest": "research/data_quarantine_manifest_v1.json"
+  },
+  "milestone_rule": {
+    "one_public_run_per_frozen_candidate": true,
+    "preconditions": [
+      "candidate frozen by the internal J-E1 selection gate",
+      "this contract hash recorded",
+      "X5 authorization issued"
+    ],
+    "fetch_path": "scripts/jevbench_adapter_v1.py:fetch_public_tasks and --mode milestone are the gated code path; both raise BenchmarkFetchGated in this revision",
+    "held_out": "maintainer-held-out evaluation is requested by the maintainer path after the internal release gate; the adapter never fetches private splits",
+    "public_diagnostic_run": "allowed on unfrozen candidates as diagnostic evidence; it is not the official milestone and does not authorize promotion",
+    "official_milestone": "still gated: one official public milestone run per internally frozen candidate"
+  },
+  "bound_artifacts": {
+    "adapter": {
+      "path": "scripts/jevbench_adapter_v1.py",
+      "sha256": "503cc0ea9c6b78637ff42d272d85e33a71cc719416e8d65ca40ecc68567794d0",
+      "execution_modes": [
+        "serial",
+        "bulk"
+      ],
+      "bulk_semantics": "bulk groups task questions for accuracy diagnostics; per-decision latency is not claimed",
+      "usage_accounting": "candidate_paths counts scored candidate leaves; noul has one scored leaf and labels map false=1-P(true), true=P(true)"
+    },
+    "fixtures": {
+      "path": "research/jevbench_fixtures_v1/items.jsonl",
+      "sha256": "995f0785dbfc6c183dbedad76cbf09373c712ea73a16e93825c96cbdc9157de8",
+      "items": 12
+    },
+    "fixture_builder": {
+      "path": "scripts/build_jevbench_fixtures_v1.py",
+      "sha256": "badd03083d74a1a75a544cd9afd0bda617e70c77fa6248372333c6b21d205c46"
+    },
+    "predictor": {
+      "path": "scripts/predict_toy_decisions.py",
+      "sha256": "701b192915f82ce684999bdb6d26219a26e5fbb18cacb8ede62b3e75f3d429ce",
+      "note": "same pinned predictor as the engineering adapter contract; renderer and DecisionPredictor are reused unchanged",
+      "shared_prefix": "owned parity validated on seed20: argmax flips 0, max probability delta 2.3245811462402344e-06"
+    },
+    "public_diagnostic_input": {
+      "path": "research/jevbench_v1_2_4_public/public_231.jsonl",
+      "sha256": "771ea8ac252af155606eeb09cad920b32b326c5c2b1e9c9af868be00fe8e2fad",
+      "items": 231
+    },
+    "jfast_marker_predictor": {
+      "path": "scripts/predict_jfast_modernbert.py",
+      "sha256": "564ccf8c6b3e2062dc9df8601ddb2cbbe2afd8fbc855735f0128d01973847ea3"
+    },
+    "jfast_marker_encoder": {
+      "path": "scripts/jfast_modernbert_decision_v1.py",
+      "sha256": "ba25d44bbdf704c3f2f8d9c10e91757f114744bd34fc4b894b7fc88ec798a292"
+    }
+  },
+  "authorization": {
+    "public_milestone_run_authorized": false,
+    "maintainer_heldout_submission_authorized": false,
+    "benchmark_fetch_authorized": true,
+    "training_authorized": false,
+    "calibration_fit_authorized": false,
+    "checkpoint_promotion_authorized": false,
+    "deployment_authorized": false,
+    "note": "flags change only by owner/orchestrator action; X1 is validated exclusively on synthetic fixtures",
+    "public_benchmark_fetch_authorized": true,
+    "public_benchmark_diagnostic_run_authorized": true
+  },
+  "contract_sha256": "09b6c6edb9caf0742aec2c61bf30a486d3c7cb8bc52adffd50dbec9ce5b7b114"
+}

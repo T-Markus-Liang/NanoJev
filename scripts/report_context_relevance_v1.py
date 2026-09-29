@@ -48,7 +48,8 @@ def join_predictions(records, predictions):
         if (pred["state_id"] != row["id"] or pred["split"] != row["split"]
                 or pred["family_id"] != row["family_id"] or pred["qid"] != "irrelevant"
                 or pred["candidate_ids"] != ["false", "true"] or pred["type"] != "boolean"
-                or pred["gold_index"] != int(row["gold"]["irrelevant"])):
+                or pred["gold_index"] != int(row["gold"].get("irrelevant",
+                                             row["gold"].get("irrelevant_0")))):
             raise ValueError("prediction target/order/provenance mismatch")
         probs = pred["student_probs"]
         if len(probs) != 2:

@@ -1,0 +1,71 @@
+{
+  "schema_version": "nanojev-v2-t9d-v7-seed21-22-amendment-v1",
+  "status": "draft_pending_owner_gpu_approval",
+  "recorded_utc": "2026-09-22T00:00Z",
+  "purpose": "Estimate corpus-v5 MiniCPM5-2B seed stability after seed20 completed local hash verification, CUDA-to-MPS owned parity, and one-shot heldout reads. Seed20 improved heldout_v1 but remained below promotion gates on heldout_v2; two additional seeds are needed only to determine whether the repair-arm effect is stable. This document does not authorize promotion.",
+  "basis": {
+    "corpus_v5_amendment": "research/nanojev_v2_t9d_v7_corpus_v5_amendment_v1.json",
+    "seed20_summary": "results/t9d_v7_minicpm_seed20_summary.json",
+    "seed20_summary_sha256": "e70ba784ddd90cb49551b6de3594400aa4d529620bbe6b03cb83ccac941b6380",
+    "seed20_manifest": "research/private_t9d_v7_minicpm2b_seed20_cuda_manifest.json",
+    "seed20_manifest_sha256": "3d0429f36bbd8212ac2297adeb08e67dc238fc93f0e6e9229893ad61fc57aaff",
+    "seed20_best_safetensors_sha256": "22ed7a020e70aaf4cfdfa115046deb7337382a131fe30e0c9603e558b4ddab13",
+    "seed20_dev_target_ce": 0.7979454373872168,
+    "seed20_merge_max_abs_logit_delta": 1.8715858459472656e-05,
+    "seed20_cuda_mps_parity_max_delta": 9.275972843170166e-07,
+    "seed20_heldout_v1_accuracy": 0.7536231884057971,
+    "seed20_heldout_v2_accuracy": 0.5224358974358975,
+    "seed20_heldout_v2_confident_wrong_at_0_9": 15
+  },
+  "recipe_delta_from_seed20": {
+    "seeds": [21, 22],
+    "device": "cuda",
+    "precision": "bf16",
+    "parameter_storage": "fp32",
+    "all_other_recipe_fields_unchanged": true
+  },
+  "execution_policy": {
+    "run_order": "seed21 then seed22; do not run concurrently unless separately reviewed",
+    "remote_output_dirs": {
+      "seed21": "/root/gpufree-data/nanojev/checkpoints/t9d_v7_minicpm2b_seed21_cuda",
+      "seed22": "/root/gpufree-data/nanojev/checkpoints/t9d_v7_minicpm2b_seed22_cuda"
+    },
+    "remote_logs": {
+      "seed21": "/root/gpufree-data/nanojev/logs/t9d_v7_minicpm2b_seed21_cuda.log",
+      "seed22": "/root/gpufree-data/nanojev/logs/t9d_v7_minicpm2b_seed22_cuda.log"
+    },
+    "remote_model_cache_offline": true,
+    "remote_heldout_access": false,
+    "checkpoint_download_required_before_promotion": true,
+    "local_heldout_read": "one read per completed seed only after local hash verification and MPS FP32 owned parity"
+  },
+  "commands": {
+    "seed21": ".venv/bin/python scripts/train_pipeline_decisions_v4.py --input research/engineering_judgment_corpus_v5/trainer_view --output-dir /root/gpufree-data/nanojev/checkpoints/t9d_v7_minicpm2b_seed21_cuda --model openbmb/MiniCPM5-2B --revision 12a3808a956f869c767195e9266b59c4d21d92e2 --objective gold_distribution --loss ce --steps 600 --head-steps 12 --batch-questions 16 --microbatch-questions 4 --max-microbatch-tokens 32768 --eval-every 50 --max-length 2048 --seed 21 --lora-rank 16 --lora-alpha 32 --lora-dropout 0.05 --lora-lr 5e-5 --backbone-lr 0 --head-lr 2e-4 --head-warmup-lr 2e-3 --device cuda --precision bf16 --gradient-checkpointing",
+    "seed22": ".venv/bin/python scripts/train_pipeline_decisions_v4.py --input research/engineering_judgment_corpus_v5/trainer_view --output-dir /root/gpufree-data/nanojev/checkpoints/t9d_v7_minicpm2b_seed22_cuda --model openbmb/MiniCPM5-2B --revision 12a3808a956f869c767195e9266b59c4d21d92e2 --objective gold_distribution --loss ce --steps 600 --head-steps 12 --batch-questions 16 --microbatch-questions 4 --max-microbatch-tokens 32768 --eval-every 50 --max-length 2048 --seed 22 --lora-rank 16 --lora-alpha 32 --lora-dropout 0.05 --lora-lr 5e-5 --backbone-lr 0 --head-lr 2e-4 --head-warmup-lr 2e-3 --device cuda --precision bf16 --gradient-checkpointing"
+  },
+  "success_criteria": {
+    "required_for_stability_report": [
+      "two completed runs",
+      "finite losses",
+      "merge parity <= 0.0001",
+      "checkpoint SHA-256 manifests",
+      "Mac MPS FP32 owned parity with zero argmax flips",
+      "one-shot heldout receipts per seed"
+    ],
+    "not_required_for_stability_report": [
+      "candidate promotion",
+      "deployment authorization",
+      "JevBench access"
+    ]
+  },
+  "authorization": {
+    "gpu_start_authorized": false,
+    "seed21_training_authorized": false,
+    "seed22_training_authorized": false,
+    "remote_heldout_access": false,
+    "candidate_promotion": false,
+    "deployment": false,
+    "jevbench": false,
+    "commit_or_push": false
+  }
+}

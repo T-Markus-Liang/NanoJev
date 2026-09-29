@@ -1,0 +1,493 @@
+{
+  "schema_version": "nanojev-offline-benchmark-bundle-v1",
+  "status": "offline_bundle_provenance_separated",
+  "generated_by": "scripts/build_offline_jevbench_bundle_v1.py",
+  "adapter_binding": {
+    "status": "match",
+    "adapter_sha256": "503cc0ea9c6b78637ff42d272d85e33a71cc719416e8d65ca40ecc68567794d0",
+    "contract_expected_adapter_sha256": "503cc0ea9c6b78637ff42d272d85e33a71cc719416e8d65ca40ecc68567794d0",
+    "contract_path": "research/jevbench_adapter_contract_v1.json",
+    "adapter_path": "scripts/jevbench_adapter_v1.py"
+  },
+  "tracks": [
+    {
+      "id": "official_jevbench_v1.2.4_public",
+      "kind": "official_public_benchmark",
+      "source_repo": "https://github.com/fstandhartinger/jevbench",
+      "pinned_revision": "83831807458d7df424a1e53e5724f3a3ffe2cf89",
+      "license": "MIT",
+      "evaluation_only": true,
+      "training_allowed": false,
+      "calibration_fit_allowed": false,
+      "rows": 231,
+      "files": [
+        {
+          "path": "official_jevbench_v1.2.4_public/original.jsonl",
+          "status": "present",
+          "bytes": 57237,
+          "sha256": "5c2414edb3006b8bfcb70fda433f0f9ca015759433849f8d3104328a1f7c4180",
+          "format": "jsonl",
+          "rows": 72
+        },
+        {
+          "path": "official_jevbench_v1.2.4_public/easy.jsonl",
+          "status": "present",
+          "bytes": 37220,
+          "sha256": "231df3c2c8e88a1a8c137ebe85de96ba70fabd330849098ac7b3c52c70b7172b",
+          "format": "jsonl",
+          "rows": 48
+        },
+        {
+          "path": "official_jevbench_v1.2.4_public/hard.jsonl",
+          "status": "present",
+          "bytes": 651848,
+          "sha256": "89e9e6becb33ed88c1de7d42dcc87531b2fb64cfaef4e1986faf7c37b3f80ebb",
+          "format": "jsonl",
+          "rows": 111
+        },
+        {
+          "path": "official_jevbench_v1.2.4_public/public_231.jsonl",
+          "status": "present",
+          "bytes": 746305,
+          "sha256": "771ea8ac252af155606eeb09cad920b32b326c5c2b1e9c9af868be00fe8e2fad",
+          "format": "jsonl",
+          "rows": 231
+        },
+        {
+          "path": "official_jevbench_v1.2.4_public/manifest.json",
+          "status": "present",
+          "bytes": 2891,
+          "sha256": "0983ad3e73a34e7c55b02b5d09ed983aeccabef0253bb31be43a2e6230d58f7b",
+          "format": "file"
+        },
+        {
+          "path": "official_jevbench_v1.2.4_public/LICENSE",
+          "status": "present",
+          "bytes": 1096,
+          "sha256": "3e5beed774bb0bcbfb2fcf24ba9554212c6ae112937d308040989465ab0c5784",
+          "format": "file"
+        }
+      ]
+    },
+    {
+      "id": "semif_owned",
+      "kind": "supplemental_open_project_authored",
+      "source_repo": "https://github.com/TheoLeeCJ/SemIf",
+      "pinned_revision": "ca3ba65f142967030ecb453346e94d6f476a69df",
+      "license": "MIT (code); fixture provenance retained per source manifests",
+      "evaluation_only": true,
+      "training_allowed": false,
+      "calibration_fit_allowed": false,
+      "rows": {
+        "authored144": 144,
+        "perturbations108": 108,
+        "shape777": 777
+      },
+      "files": [
+        {
+          "path": "semif_owned/authored144.jsonl",
+          "status": "present",
+          "bytes": 193250,
+          "sha256": "8162d1c73f925af64453f1ec05ef36d583b3815bf698e60f0d454bd11537e079",
+          "format": "jsonl",
+          "rows": 144
+        },
+        {
+          "path": "semif_owned/perturbations108.jsonl",
+          "status": "present",
+          "bytes": 103443,
+          "sha256": "1dd7ccf80518d0e34886478ca23982aa726e9daccd343b9e95cedaf6b569bec4",
+          "format": "jsonl",
+          "rows": 108
+        },
+        {
+          "path": "semif_owned/shape777.jsonl",
+          "status": "present",
+          "bytes": 6926125,
+          "sha256": "8dcf414b12fc2684e3c4ca5f3ebfd3f525f5346fec4a9bc67eb65138101f55f1",
+          "format": "jsonl",
+          "rows": 777
+        },
+        {
+          "path": "semif_owned/perturbations108-manifest.json",
+          "status": "present",
+          "bytes": 471,
+          "sha256": "f81f93b57e0b46b0164b6eb6d65a419604c6af37a5aaba55c413f76581f2fef8",
+          "format": "file"
+        },
+        {
+          "path": "semif_owned/shape777-manifest.json",
+          "status": "present",
+          "bytes": 7196,
+          "sha256": "a16adb23dee534ce5cfe131185c57c3adb43f2fd05e4a312d2d8e845b78fd281",
+          "format": "file"
+        },
+        {
+          "path": "semif_manifests/evaluation-matrix.jsonl",
+          "status": "present",
+          "bytes": 193303,
+          "sha256": "6daebbf2ab8d45c081e718dea2c19e07836695ab5bac0120dcd304ed279f22d3",
+          "format": "jsonl",
+          "rows": 706
+        },
+        {
+          "path": "semif_manifests/metric-contract.json",
+          "status": "present",
+          "bytes": 1465,
+          "sha256": "f725c6c5d8112608d898cdd62e5168d9652fcf471c88c0c99a54d1a68961435f",
+          "format": "file"
+        },
+        {
+          "path": "semif_manifests/source-selection.jsonl",
+          "status": "present",
+          "bytes": 192604,
+          "sha256": "81d98a4195971e1fe046673928730b7112a6a7677baf046505761f2504b424c7",
+          "format": "jsonl",
+          "rows": 562
+        }
+      ]
+    },
+    {
+      "id": "semif_external_sources",
+      "kind": "supplemental_external_source_snapshots",
+      "source_repo": "https://github.com/TheoLeeCJ/SemIf",
+      "pinned_revision": "ca3ba65f142967030ecb453346e94d6f476a69df",
+      "license": "see source licenses and manifests",
+      "evaluation_only": true,
+      "training_allowed": false,
+      "calibration_fit_allowed": false,
+      "files": [
+        {
+          "path": "semif_external_sources/wanli-test.jsonl",
+          "status": "present",
+          "bytes": 1233111,
+          "sha256": "4276e0af7fcdf657d1ab7beb54eaf025fda592a76c9ee86b63b7871953fc74fd",
+          "format": "jsonl",
+          "rows": 5000
+        },
+        {
+          "path": "semif_external_sources/every-experiments.json",
+          "status": "present",
+          "bytes": 505709,
+          "sha256": "32311398e800e2e22e8cb945d41ae5328aedebb46cc57193e2b332ec17ed78a0",
+          "format": "file"
+        },
+        {
+          "path": "semif_external_sources/every-source.zip",
+          "status": "present",
+          "bytes": 302313,
+          "sha256": "9fbf42e9d9e7cd3b072e0271a0959dbfdca85618e93fe4f0ca519d683c418bf0",
+          "format": "file"
+        }
+      ]
+    },
+    {
+      "id": "semif_rebuilt_external",
+      "kind": "supplemental_rebuilt_evaluation_rows",
+      "source_repo": "https://github.com/TheoLeeCJ/SemIf",
+      "pinned_revision": "ca3ba65f142967030ecb453346e94d6f476a69df",
+      "license": "see source licenses and manifests",
+      "evaluation_only": true,
+      "training_allowed": false,
+      "calibration_fit_allowed": false,
+      "rows": {
+        "wanli256": 256,
+        "every_inference204": 204,
+        "every_gold154": 154
+      },
+      "files": [
+        {
+          "path": "semif_rebuilt_external/wanli256.jsonl",
+          "status": "present",
+          "bytes": 224455,
+          "sha256": "40b795d82c8e53c0dbae132f5fc87c33bf0517340c69169474049e784f311c0f",
+          "format": "jsonl",
+          "rows": 256
+        },
+        {
+          "path": "semif_rebuilt_external/every_rows/inference204.jsonl",
+          "status": "present",
+          "bytes": 190757,
+          "sha256": "5874f09c5e15908d510497ac485cea5762c57680e2d5b1a7ba363fb089576f56",
+          "format": "jsonl",
+          "rows": 204
+        },
+        {
+          "path": "semif_rebuilt_external/every_rows/gold154.jsonl",
+          "status": "present",
+          "bytes": 153680,
+          "sha256": "8a557a4aabf47506a1945d33b76b6bda492647c8108561069792fe33d52545cf",
+          "format": "jsonl",
+          "rows": 154
+        },
+        {
+          "path": "semif_rebuilt_external/every_rows/firewall-actions.json",
+          "status": "present",
+          "bytes": 395,
+          "sha256": "bf2e362d6ec5c3d51feb0410d1d72d00348e99b1cb208ad0c790b1a3a342f505",
+          "format": "file"
+        },
+        {
+          "path": "semif_rebuilt_external/wanli256.jsonl",
+          "status": "present",
+          "bytes": 224455,
+          "sha256": "40b795d82c8e53c0dbae132f5fc87c33bf0517340c69169474049e784f311c0f",
+          "format": "jsonl",
+          "rows": 256
+        },
+        {
+          "path": "semif_rebuilt_external/every_rows/inference204.jsonl",
+          "status": "present",
+          "bytes": 190757,
+          "sha256": "5874f09c5e15908d510497ac485cea5762c57680e2d5b1a7ba363fb089576f56",
+          "format": "jsonl",
+          "rows": 204
+        },
+        {
+          "path": "semif_rebuilt_external/every_rows/gold154.jsonl",
+          "status": "present",
+          "bytes": 153680,
+          "sha256": "8a557a4aabf47506a1945d33b76b6bda492647c8108561069792fe33d52545cf",
+          "format": "jsonl",
+          "rows": 154
+        },
+        {
+          "path": "semif_rebuilt_external/every_rows/firewall-actions.json",
+          "status": "present",
+          "bytes": 395,
+          "sha256": "bf2e362d6ec5c3d51feb0410d1d72d00348e99b1cb208ad0c790b1a3a342f505",
+          "format": "file"
+        }
+      ]
+    },
+    {
+      "id": "typesafe_selected_102",
+      "kind": "not_included_external_snapshot",
+      "source": "SemIf source-selection.jsonl + build_typesafe.py",
+      "rows": 102,
+      "status": "blocked_missing_redistributable_snapshot",
+      "reason": "The required TypeSafe case snapshots are not shipped by SemIf; do not reconstruct from provider outputs without the source snapshots.",
+      "files": []
+    }
+  ],
+  "files": [
+    {
+      "path": "official_jevbench_v1.2.4_public/original.jsonl",
+      "status": "present",
+      "bytes": 57237,
+      "sha256": "5c2414edb3006b8bfcb70fda433f0f9ca015759433849f8d3104328a1f7c4180",
+      "format": "jsonl",
+      "rows": 72
+    },
+    {
+      "path": "official_jevbench_v1.2.4_public/easy.jsonl",
+      "status": "present",
+      "bytes": 37220,
+      "sha256": "231df3c2c8e88a1a8c137ebe85de96ba70fabd330849098ac7b3c52c70b7172b",
+      "format": "jsonl",
+      "rows": 48
+    },
+    {
+      "path": "official_jevbench_v1.2.4_public/hard.jsonl",
+      "status": "present",
+      "bytes": 651848,
+      "sha256": "89e9e6becb33ed88c1de7d42dcc87531b2fb64cfaef4e1986faf7c37b3f80ebb",
+      "format": "jsonl",
+      "rows": 111
+    },
+    {
+      "path": "official_jevbench_v1.2.4_public/public_231.jsonl",
+      "status": "present",
+      "bytes": 746305,
+      "sha256": "771ea8ac252af155606eeb09cad920b32b326c5c2b1e9c9af868be00fe8e2fad",
+      "format": "jsonl",
+      "rows": 231
+    },
+    {
+      "path": "official_jevbench_v1.2.4_public/manifest.json",
+      "status": "present",
+      "bytes": 2891,
+      "sha256": "0983ad3e73a34e7c55b02b5d09ed983aeccabef0253bb31be43a2e6230d58f7b",
+      "format": "file"
+    },
+    {
+      "path": "official_jevbench_v1.2.4_public/LICENSE",
+      "status": "present",
+      "bytes": 1096,
+      "sha256": "3e5beed774bb0bcbfb2fcf24ba9554212c6ae112937d308040989465ab0c5784",
+      "format": "file"
+    },
+    {
+      "path": "semif_owned/authored144.jsonl",
+      "status": "present",
+      "bytes": 193250,
+      "sha256": "8162d1c73f925af64453f1ec05ef36d583b3815bf698e60f0d454bd11537e079",
+      "format": "jsonl",
+      "rows": 144
+    },
+    {
+      "path": "semif_owned/perturbations108.jsonl",
+      "status": "present",
+      "bytes": 103443,
+      "sha256": "1dd7ccf80518d0e34886478ca23982aa726e9daccd343b9e95cedaf6b569bec4",
+      "format": "jsonl",
+      "rows": 108
+    },
+    {
+      "path": "semif_owned/shape777.jsonl",
+      "status": "present",
+      "bytes": 6926125,
+      "sha256": "8dcf414b12fc2684e3c4ca5f3ebfd3f525f5346fec4a9bc67eb65138101f55f1",
+      "format": "jsonl",
+      "rows": 777
+    },
+    {
+      "path": "semif_owned/perturbations108-manifest.json",
+      "status": "present",
+      "bytes": 471,
+      "sha256": "f81f93b57e0b46b0164b6eb6d65a419604c6af37a5aaba55c413f76581f2fef8",
+      "format": "file"
+    },
+    {
+      "path": "semif_owned/shape777-manifest.json",
+      "status": "present",
+      "bytes": 7196,
+      "sha256": "a16adb23dee534ce5cfe131185c57c3adb43f2fd05e4a312d2d8e845b78fd281",
+      "format": "file"
+    },
+    {
+      "path": "licenses/SemIf-LICENSE",
+      "status": "present",
+      "bytes": 1066,
+      "sha256": "f765f2140f8507a8f0d81ec0fd2c4bd72fe6a066841ef27883ff876a76bf61be",
+      "format": "file"
+    },
+    {
+      "path": "semif_manifests/evaluation-matrix.jsonl",
+      "status": "present",
+      "bytes": 193303,
+      "sha256": "6daebbf2ab8d45c081e718dea2c19e07836695ab5bac0120dcd304ed279f22d3",
+      "format": "jsonl",
+      "rows": 706
+    },
+    {
+      "path": "semif_manifests/metric-contract.json",
+      "status": "present",
+      "bytes": 1465,
+      "sha256": "f725c6c5d8112608d898cdd62e5168d9652fcf471c88c0c99a54d1a68961435f",
+      "format": "file"
+    },
+    {
+      "path": "semif_manifests/source-selection.jsonl",
+      "status": "present",
+      "bytes": 192604,
+      "sha256": "81d98a4195971e1fe046673928730b7112a6a7677baf046505761f2504b424c7",
+      "format": "jsonl",
+      "rows": 562
+    },
+    {
+      "path": "semif_external_sources/wanli-test.jsonl",
+      "status": "present",
+      "bytes": 1233111,
+      "sha256": "4276e0af7fcdf657d1ab7beb54eaf025fda592a76c9ee86b63b7871953fc74fd",
+      "format": "jsonl",
+      "rows": 5000
+    },
+    {
+      "path": "semif_external_sources/every-experiments.json",
+      "status": "present",
+      "bytes": 505709,
+      "sha256": "32311398e800e2e22e8cb945d41ae5328aedebb46cc57193e2b332ec17ed78a0",
+      "format": "file"
+    },
+    {
+      "path": "semif_external_sources/every-source.zip",
+      "status": "present",
+      "bytes": 302313,
+      "sha256": "9fbf42e9d9e7cd3b072e0271a0959dbfdca85618e93fe4f0ca519d683c418bf0",
+      "format": "file"
+    },
+    {
+      "path": "semif_rebuilt_external/wanli256.jsonl",
+      "status": "present",
+      "bytes": 224455,
+      "sha256": "40b795d82c8e53c0dbae132f5fc87c33bf0517340c69169474049e784f311c0f",
+      "format": "jsonl",
+      "rows": 256
+    },
+    {
+      "path": "semif_rebuilt_external/every_rows/inference204.jsonl",
+      "status": "present",
+      "bytes": 190757,
+      "sha256": "5874f09c5e15908d510497ac485cea5762c57680e2d5b1a7ba363fb089576f56",
+      "format": "jsonl",
+      "rows": 204
+    },
+    {
+      "path": "semif_rebuilt_external/every_rows/gold154.jsonl",
+      "status": "present",
+      "bytes": 153680,
+      "sha256": "8a557a4aabf47506a1945d33b76b6bda492647c8108561069792fe33d52545cf",
+      "format": "jsonl",
+      "rows": 154
+    },
+    {
+      "path": "semif_rebuilt_external/every_rows/firewall-actions.json",
+      "status": "present",
+      "bytes": 395,
+      "sha256": "bf2e362d6ec5c3d51feb0410d1d72d00348e99b1cb208ad0c790b1a3a342f505",
+      "format": "file"
+    },
+    {
+      "path": "tools/build_wanli.py",
+      "status": "present",
+      "bytes": 2693,
+      "sha256": "2dc7fc5e81008a9b959d5a33b486e335b4de7b0242e849318c8ac55da15b2c3a",
+      "format": "file"
+    },
+    {
+      "path": "tools/build_every.py",
+      "status": "present",
+      "bytes": 6284,
+      "sha256": "baf44ef8a46d1cfbd8f980be79c00ed5a8f7e083000443df07cca9340d8fdafd",
+      "format": "file"
+    },
+    {
+      "path": "semif_rebuilt_external/wanli256.jsonl",
+      "status": "present",
+      "bytes": 224455,
+      "sha256": "40b795d82c8e53c0dbae132f5fc87c33bf0517340c69169474049e784f311c0f",
+      "format": "jsonl",
+      "rows": 256
+    },
+    {
+      "path": "semif_rebuilt_external/every_rows/inference204.jsonl",
+      "status": "present",
+      "bytes": 190757,
+      "sha256": "5874f09c5e15908d510497ac485cea5762c57680e2d5b1a7ba363fb089576f56",
+      "format": "jsonl",
+      "rows": 204
+    },
+    {
+      "path": "semif_rebuilt_external/every_rows/gold154.jsonl",
+      "status": "present",
+      "bytes": 153680,
+      "sha256": "8a557a4aabf47506a1945d33b76b6bda492647c8108561069792fe33d52545cf",
+      "format": "jsonl",
+      "rows": 154
+    },
+    {
+      "path": "semif_rebuilt_external/every_rows/firewall-actions.json",
+      "status": "present",
+      "bytes": 395,
+      "sha256": "bf2e362d6ec5c3d51feb0410d1d72d00348e99b1cb208ad0c790b1a3a342f505",
+      "format": "file"
+    }
+  ],
+  "provenance_rules": [
+    "Official JevBench rows remain in the official track and are never mixed with SemIf rows.",
+    "All tracks are evaluation-only; no track may enter training or calibration fitting.",
+    "Official/provider outputs and probabilities are not bundled as labels.",
+    "The TypeSafe selected-102 track is not complete until its source snapshots are independently obtained and hash-verified."
+  ]
+}
