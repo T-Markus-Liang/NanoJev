@@ -872,8 +872,8 @@ exact files it touches and the command that proves it done.
 | T176 | joint-batch 契约回归迁移收尾 | A | S | — | ✅ done (W140)：`context_gate_v1.py` joint-batch 契约（`irrelevant_N`/`candidate_pointers`）重写遗留的 **13 项测试回归全部修复**（7 个文件 stub scorer 迁移 + 2 处 uncertain_score 语义更新：整单 bypass → 按段保留）+ `report_context_relevance` 契约改名兼容 + `predictor repin` 链 v2；`test_jevbench_adapter_v1` 为 torch 2.6.0 MPS 内核 SIGABRT（环境项，非回归） |
 | T177 | commit 审计执行 | ops | S | — | 🟡 待 owner 确认 commit：执行完毕——4 文档基础设施信息脱敏（IP/key → `<gpu-host>:<port>` 占位符）、12 处断链修复、26GB `remote_archive` 已确认忽略、handoff 脱轨；最终 add 白名单在 `docs/COMMIT_AUDIT_20260929.md` 执行结果节；**待决**：corpus_v3/v4/v5 (~119MB) 是否入库、deploy plists、审计文件本身 |
 | T178 | winnow 真实候选覆盖 | A | S | T174 | ✅ done (W140)：`scripts/rewindow_for_winnow_v1.py`（10 tests 全过）实测——winnow 上限 prefix ≤8,096（自身 tokenizer）；220 拒绝 + 22 边界带共 242 条重窗口后 **219 条装入 ≤8,000**（1 条保护集下限仍超，按设计弃权）→ 覆盖率 546/547 (99.8%)；`candidates_winnow_fit.jsonl` 已产出（opt-in，未被消费）；rescore 待 owner 决定（~2min） |
-| T179 | owner 复核打标（真实 eval 硬门禁） | A | S | T174 | 🟡 **owner action**（~30-60min）：`data/real_context_eval_v1/owner_labels_template.csv` 按 severity 序填 label 列 → `csv_to_labels_json.py` 转换 → `--first-pass --subagent-json --labeler markus --labeler-type human` 入库；仅 ~40 条顶部项含实质分歧 |
-| T180 | 真实 eval finalize + 分族报告 | A | S | T179 | ⬜ pending：owner 标签入库 → `--finalize` 出 `eval.jsonl` + `excluded.jsonl` → 真实 acc/FP/FN × 分族 × 四评分器 → 作为 T175 生产切换评审的唯一输入 |
+| T179 | owner 复核打标（真实 eval 硬门禁） | A | S | T174 | ✅ done (W140, owner 委托 agent 裁决)：547 标签全入库（525 scored：523 keep + 2 drop；22 uncertain 剔除）；provenance=agent-adjudicated-under-owner-delegation 已披露；owner 抽查修改则需重算 |
+| T180 | 真实 eval finalize + 分族报告 | A | S | T179 | ✅ done (W140)：`docs/REAL_CONTEXT_EVAL_RESULTS_V1.md`——首个真实数字：lora 0.9865 但 **FP=5（含 noul=0.92 高置信误删必需证据，模式=对短/空/负结果与纠错段过度判删）**；kev 0.9429 FP=30 TP=2；winnow 0.9873 FP=2（314 覆盖）；合成 vs 真实排名完全重排，证实合成不可外推；winnow refill 219 条补打中 |
 | T181 | 开源生态调研（复刻候选清单） | A | M | — | ✅ done (W140)：`docs/ECOSYSTEM_RESEARCH_V1.md`——18 候选全表 + Top-3 复刻项（ModernBERT×Provence 配方 / EXIT 句级决策 / LLMLingua-2 标注管线）+ 可借用 eval/真实分布语料（SWE-chat、OpenHands 轨迹、HotpotQA supporting-facts）+ v5 设计七条建议；关键外部证据：kev-0.8B train→new-source gap 15–18pp 实证我们的记忆化问题 |
 | T182 | 候选方案本机复刻+对标（Provence/EXIT/LLMLingua-2 管线） | A | L | T181 | 🟡 预研完成 (W140)：**Provence×ModernBERT** GO——ModernBERT-base MPS 冒烟通过（50.6ms/fwd @1159tok，22.9k tok/s），MVP 1.5–3 人日全量 5–9 人日（`docs/PROVENCE_REPRO_PREP_V1.md`）；**EXIT 配方** GO——配方级移植到现有 valen 契约 = S 工作量（纯数据活：`state`+`irrelevant` 问题已是 EXIT 条件化形状），不引入 Gemma 底座；**推荐合成**＝EXIT 数据配方（真值推导+2:1:1 难/随机负例）× valen 契约 + Provence 低阈值非对称操作点；LLMLingua-2 权重 CC-BY-NC-SA 只能借管线 |
 
@@ -1785,11 +1785,16 @@ N2/N3-S 或真实训练/量化/serving/deployment 门禁。
 **推进序列（当前阶段细化，2026-09-29）：**
 
 ```text
-Phase 0 — 真实 eval 出数（唯一硬门禁链）
-  T179 owner 打标 ~40 条实质分歧（人工 30-60min）
-    └─→ T180 finalize + 四评分器真实分族表
-        ├─→ T175 生产切换评审（真实表现好）
-        └─→ Phase 2（真实表现差 → 重新设计数据）
+Phase 0 — ✅ 完成 (2026-09-29)
+  T179 547 标签入库（owner 委托 agent 裁决，provenance 已披露）
+  T180 真实分族表已出（REAL_CONTEXT_EVAL_RESULTS_V1）——
+  关键发现：lora FP=5（短/空/负结果+纠错段过度判删，含 0.92 高置信误删）；
+  真实 vs 合成排名完全重排
+
+Phase 1 — 并行可做的本机工程（T178/T177 已完成）
+  T177 commit 已落地（5cdc203 + 129580f；held-back 文档与大语料保留未提交）
+  T178 winnow 重窗口完成，refill 219 条后台补打
+  T182a/b 预研完成（Provence GO / EXIT GO）
 
 Phase 1 — 并行可做的本机工程（不等 T179）
   T177 commit 审计执行：脱敏新文档基础设施信息 → owner 确认 → git add 白名单
