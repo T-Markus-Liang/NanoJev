@@ -17,9 +17,10 @@ SCORER_BACKENDS = {
     "winnow": ("127.0.0.1", 8091, "Winnow-12B"),
     "kev": ("127.0.0.1", 8092, "kev-latest"),
     "valen": ("127.0.0.1", 8093, "nano_sft_v2/valen-head@Qwen3.5-0.8B"),
-    "valen_lora": ("127.0.0.1", 8094, "nano_sft_text_v3_fp32/valen-head@Qwen3.5-0.8B"),
+    "valen_lora": ("127.0.0.1", 8094, "nano_sft_text_v4_fp32/valen-head@Qwen3.5-0.8B"),
 }
 DEFAULT_SCORER_BACKEND = "winnow"
+CONSENSUS_MEMBERS = ("valen_lora", "winnow")
 CASCADE_THRESHOLD = 0.95
 MAX_CONTEXT_GATE_BYTES = 2_000_000
 
@@ -106,9 +107,18 @@ def context_gate_eval(payload, scorer_timeout=30.0, scorer=None):
     wire = payload.get("wire_format") or "openai_chat"
     backend = payload.get("backend") or DEFAULT_SCORER_BACKEND
     from context_gate_v1 import serialized, shadow_request
-    from scorer_adapters_v1 import CascadeScorer, SystemOneHTTPScorer
+    from scorer_adapters_v1 import CascadeScorer, ConsensusScorer, SystemOneHTTPScorer
     if scorer is not None:
         pass  # injected scorer (tests)
+    elif backend == "consensus":
+        scorer = ConsensusScorer([
+            SystemOneHTTPScorer(
+                f"http://{SCORER_BACKENDS[name][0]}:{SCORER_BACKENDS[name][1]}",
+                timeout=scorer_timeout, model_id=SCORER_BACKENDS[name][2],
+                # eval-proven contract: heads consume the serialized state
+                # string verbatim (compiler wraps it as one user message)
+                parse_state=False)
+            for name in CONSENSUS_MEMBERS])
     elif backend == "cascade":
         scorer = CascadeScorer(
             SystemOneHTTPScorer(

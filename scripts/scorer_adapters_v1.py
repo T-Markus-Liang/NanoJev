@@ -42,7 +42,7 @@ from context_gate_v1 import serialized
 from predict_toy_decisions import reject_nonfinite, unique_object
 
 
-SCORER_KINDS = ("none", "http", "laya", "systemone", "cascade")
+SCORER_KINDS = ("none", "http", "laya", "systemone", "cascade", "consensus")
 DEFAULT_NANOJEV_URL = "http://127.0.0.1:8765"
 
 
@@ -206,9 +206,11 @@ class SystemOneHTTPScorer:
     and only permits literal loopback origins through ``_LoopbackJSONPoster``.
     """
 
-    def __init__(self, url, timeout=5.0, endpoint="/v1/systemone", model_id=None):
+    def __init__(self, url, timeout=5.0, endpoint="/v1/systemone", model_id=None,
+                 parse_state=True):
         self.endpoint = endpoint
         self.model_id = model_id
+        self.parse_state = parse_state
         self._poster = _LoopbackJSONPoster(url, endpoint, timeout)
 
     @staticmethod
@@ -257,7 +259,8 @@ class SystemOneHTTPScorer:
         for state in states:
             if not isinstance(state, dict) or not isinstance(state.get("id"), str):
                 raise ScorerError("systemone scorer received an invalid state")
-            request = {"state": self._state_value(state.get("state")),
+            request = {"state": (self._state_value(state.get("state"))
+                                 if self.parse_state else state.get("state")),
                        "questions": self._question_map(state.get("questions"))}
             if self.model_id is not None:
                 request["model"] = self.model_id
@@ -347,6 +350,68 @@ class CascadeScorer:
                 "states": output_states}
 
 
+class ConsensusScorer:
+    """Drop only when every member scorer independently says drop.
+
+    Each member is an ordinary gate scorer returning the shared
+    ``{"states": [{"id", "answers": {q: {"probabilities": {"false", "true"}}}}]}``
+    contract. For every state/question the combined ``true`` probability is
+    the **minimum** of the members' ``true`` probabilities — equivalent to an
+    AND of per-member threshold decisions at any operating point, which is the
+    "certainly-irrelevant only" semantics measured at FP=0 on the real-context
+    eval (docs/REAL_CONTEXT_EVAL_RESULTS_V1.md §ensemble).
+
+    A member failure or malformed response propagates as :class:`ScorerError`
+    so the gate fails open (retains the batch) — the safe direction.
+    """
+
+    def __init__(self, scorers):
+        if not isinstance(scorers, (list, tuple)) or len(scorers) < 2:
+            raise ValueError("consensus scorer requires at least two member scorers")
+        if not all(callable(s) for s in scorers):
+            raise TypeError("consensus members must be callable")
+        self.scorers = list(scorers)
+
+    def __call__(self, payload):
+        states = payload.get("states") if isinstance(payload, dict) else None
+        if not isinstance(states, list):
+            raise ScorerError("consensus scorer requires a states list")
+        responses = []
+        for member in self.scorers:
+            result = member(payload)
+            if not isinstance(result, dict) or not isinstance(result.get("states"), list):
+                raise ScorerError("consensus member returned no states")
+            responses.append({s.get("id"): s for s in result["states"] if isinstance(s, dict)})
+        output_states = []
+        for state in states:
+            state_id = state.get("id")
+            merged = {}
+            member_answers = []
+            for result in responses:
+                member_state = result.get(state_id)
+                answers = member_state.get("answers") if isinstance(member_state, dict) else None
+                if not isinstance(answers, dict) or not answers:
+                    raise ScorerError("consensus member returned no answers")
+                member_answers.append(answers)
+            question_names = set(member_answers[0])
+            for name in question_names:
+                true_probs = []
+                for answers in member_answers:
+                    answer = answers.get(name)
+                    probabilities = answer.get("probabilities") if isinstance(answer, dict) else None
+                    value = probabilities.get("true") if isinstance(probabilities, dict) else None
+                    if type(value) not in {int, float} or not math.isfinite(value):
+                        raise ScorerError("consensus member returned an invalid probability")
+                    true_probs.append(float(value))
+                combined = min(true_probs)
+                merged[name] = {"type": "boolean",
+                                "probabilities": {"false": 1.0 - combined, "true": combined}}
+            output_states.append({"id": state_id, "answers": merged})
+        return {"checkpoint": {"adapter": "consensus-and-drop",
+                               "members": len(self.scorers)},
+                "states": output_states}
+
+
 class LayaEncoderScorerAdapter:
     """Documented shape for a laya-style local encoder decision service. Not installed.
 
@@ -415,6 +480,16 @@ def build_scorer(kind="none", url=None, timeout=5.0, inprocess=None,
             SystemOneHTTPScorer(strong_url, timeout=timeout, endpoint=systemone,
                                 model_id=strong_model_id),
             fast_threshold=fast_threshold)
+    if kind == "consensus":
+        if url is None or strong_url is None:
+            raise ValueError(
+                "consensus scorer requires --scorer-url and --scorer-strong-url")
+        systemone = endpoint if endpoint != "/api/evaluate" else "/v1/systemone"
+        return ConsensusScorer([
+            SystemOneHTTPScorer(url, timeout=timeout, endpoint=systemone,
+                                model_id=model_id),
+            SystemOneHTTPScorer(strong_url, timeout=timeout, endpoint=systemone,
+                                model_id=strong_model_id)])
     if kind == "laya":
         return LayaEncoderScorerAdapter(url=url, timeout=timeout, endpoint=endpoint, model_id=model_id)
     if kind == "inprocess":
