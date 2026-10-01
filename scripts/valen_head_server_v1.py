@@ -18,7 +18,12 @@ Loopback only; no provider calls, no API keys. Advisory scorer — the
 service's shadow/fail-open semantics are unchanged.
 """
 import argparse
+import gc
 import json
+import os
+import resource
+import threading
+import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 import sys
@@ -59,9 +64,43 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, result)
         except Exception as exc:
             self._send(500, {"error": f"{type(exc).__name__}: {exc}"})
+        finally:
+            # MPS keeps allocator caches resident forever otherwise — the
+            # 55 GB compressor footprint on :8094 was mostly this. Return
+            # blocks to the OS after every request; cost is a small
+            # reallocation on the next call.
+            gc.collect()
+            try:
+                import torch
+                if torch.backends.mps.is_available():
+                    torch.mps.empty_cache()
+            except Exception:
+                pass
 
     def log_message(self, *args):
         pass
+
+
+def _rss_gb():
+    # ru_maxrss is bytes on macOS, KiB on Linux
+    v = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    return v / (1e9 if sys.platform == "darwin" else (1 << 20))
+
+
+def _watchdog(rss_restart_gb, check_seconds):
+    while True:
+        time.sleep(check_seconds)
+        try:
+            if _rss_gb() > rss_restart_gb:
+                # Clean exit; launchd KeepAlive relaunches a fresh process
+                # with an empty allocator. os._exit avoids hanging in
+                # atexit/torch teardown.
+                print(f"watchdog: rss {_rss_gb():.1f}GB > "
+                      f"{rss_restart_gb}GB — exiting for relaunch",
+                      flush=True)
+                os._exit(0)
+        except Exception:
+            pass
 
 
 def main():
@@ -72,6 +111,10 @@ def main():
                         default=scorer_mod.DEFAULT_CHECKPOINT)
     parser.add_argument("--device", default="mps")
     parser.add_argument("--dtype", default="bf16")
+    parser.add_argument("--rss-restart-gb", type=float, default=0.0,
+                        help="exit (for launchd relaunch) when RSS exceeds "
+                             "this many GB; 0 disables the watchdog")
+    parser.add_argument("--watchdog-seconds", type=float, default=60.0)
     args = parser.parse_args()
     if args.checkpoint != scorer_mod.DEFAULT_CHECKPOINT:
         global MODEL_ID
@@ -79,8 +122,14 @@ def main():
             f"{args.checkpoint.parent.name}/valen-head@Qwen3.5-0.8B")
     scorer_mod.get_scorer(checkpoint_dir=args.checkpoint,
                           device=args.device, dtype=args.dtype)
+    if args.rss_restart_gb > 0:
+        threading.Thread(
+            target=_watchdog,
+            args=(args.rss_restart_gb, args.watchdog_seconds),
+            daemon=True).start()
     print(f"valen-head sidecar on http://{args.host}:{args.port} "
-          f"(model {MODEL_ID})", flush=True)
+          f"(model {MODEL_ID}, rss_restart={args.rss_restart_gb}GB)",
+          flush=True)
     HTTPServer((args.host, args.port), Handler).serve_forever()
 
 
