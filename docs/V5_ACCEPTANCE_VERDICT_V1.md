@@ -36,3 +36,30 @@ the natural-distribution boundary.
 
 - Ablation: retrain minus F3 / minus F2 to localize the poison family
 - Or rebalance: F3 drop side is likely over-weighted vs real keep mass
+
+## Post-verdict forensics (W143)
+
+**FP signature analysis** (113 confident-FP rows, noul≥0.9):
+- 79/113 (70%) = short non-envelope segments ("继续", plan restatements,
+  micro-constraints) — NOT the boilerplate skeletons F3 targeted
+- 0/113 were also dropped by lora_v4 → damage is entirely new, not inherited
+- Training drop-mass added by v5: short drops f1+290 / f3+197 / mining+195
+  on top of v4_base's 8,091 — v5 taught "short surface text = drop" too hard
+
+**Mined-label audit** (data/v5_mining/label_audit.json):
+- F2 yes-proposals: 288 entered train as drop ground-truth; rule-audit shows
+  193 debatable / 91 likely_correct / 4 likely_wrong
+- `cross_task_reanchor` = main mass (261 yes), 67% debatable — foreign-task
+  segments under current anchor judged "droppable" by heuristic
+- F4: 60/76 likely_correct controls — mostly fine
+- Read: mined drops are borderline-grade data used as hard labels
+
+## Ablation experiment (running on L40)
+
+Two arms launched (~3.4h each, LoRA warmstart from nano_sft_v4):
+- `minus_f3` GPU0: v5 minus f3_boilerplate (19,663 train)
+- `minus_f2` GPU1: v5 minus mining drops (19,756 train)
+- Plus prepared (queued): minus_f1f3 (18,391), conservative (20,631, no mined drops)
+
+Prediction: if minus_f2 restores frozen-main boundary → mined labels were the
+poison; if minus_f3 restores it → boilerplate contrastive was the poison.
