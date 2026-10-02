@@ -63,3 +63,23 @@ Two arms launched (~3.4h each, LoRA warmstart from nano_sft_v4):
 
 Prediction: if minus_f2 restores frozen-main boundary → mined labels were the
 poison; if minus_f3 restores it → boilerplate contrastive was the poison.
+
+## Ablation verdict (W144 — four arms trained & scored)
+
+| arm | main | supp | v5ext | merged | confFP | dRec |
+|---|---|---|---|---|---|---|
+| v4 incumbent | .988/FP4 | .615/FP6 | .481/FP304 | .947 | 7 | .65 |
+| v5 | .670/FP172 | .492/FP6 | .929/FP40 | .651 | 118 | .50 |
+| minus_f2 | .478/FP272 | .815/FP6 | — | .515 | 253 | .89 |
+| minus_f3 | .726/FP142 | .477/FP2 | .991/FP3 | .698 | 110 | .41 |
+| minus_f1f3 | .912/FP44 | .354/FP1 | .990/FP4 | .851 | 22 | .24 |
+| **conservative** | **.996/FP0** | .169/FP0 | **.997/FP0** | .905 | **0** | .00 |
+
+**Causal chain**: conservative (synthetic drops kept, ALL mined drops removed,
+mined keeps kept) → FP=0 everywhere. Therefore:
+- f1/f3 synthetic drop labels are NOT the poison (conservative keeps them)
+- mined KEEPS are protective (minus_f2 removed them too → catastrophic FP 272)
+- the ~341 mined DROP labels (67% debatable per audit) are the poison
+
+**v7 recipe**: conservative + audit-verified mined drops only
+(91 F2 + 60 F4 likely_correct ≈ 150 rows). Expected: FP≈0 + nonzero recall.
