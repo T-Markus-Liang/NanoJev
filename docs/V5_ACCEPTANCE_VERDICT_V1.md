@@ -83,3 +83,24 @@ mined keeps kept) → FP=0 everywhere. Therefore:
 
 **v7 recipe**: conservative + audit-verified mined drops only
 (91 F2 + 60 F4 likely_correct ≈ 150 rows). Expected: FP≈0 + nonzero recall.
+
+## v7 verdict (W146 — mined-drop fix partially validated)
+
+| arm | main | supp | v5ext | merged | cFP | dRec |
+|---|---|---|---|---|---|---|
+| v4 incumbent | .988/FP4 | .615/FP6 | .481/FP304 | .947 | 7 | .65 |
+| v7 (conservative+151 verified drops) | .973/FP12 | .200/FP0 | .978/FP11 | .888 | 2 | .04 |
+| v7b (no synth families, same drops) | .977/FP10 | .200/FP0 | .997/FP0 | .892 | 5 | .04 |
+
+Threshold scan on v7: τ=0.05 → dRec .23 @ FP59 — no operating point rescues
+recall. Interpretation:
+- **Precision fixed**: cFP 2-5 ≈ v4's 7, far from v5's 118. Verified-label
+  hypothesis CONFIRMED for the FP side.
+- **Recall broken other way**: 151 drops insufficient — model learned
+  "keep almost everything" (dRec .04 vs v4 .65).
+- v7≈v7b → synthetic families contribute ~nothing on real tiers
+  (v7b slightly better on v5ext FP0 vs FP11).
+
+**Path to v8**: need more verified drop labels (target ≥1,000), or distill
+from a larger decision model (e.g. clef-flash 9B, Apache-2.0, now local)
+as an adjudication teacher for mined-drop candidates.
