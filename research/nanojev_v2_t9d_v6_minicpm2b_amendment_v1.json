@@ -1,0 +1,62 @@
+{
+  "schema_version": "nanojev-v2-t9d-v6-minicpm2b-amendment-v1",
+  "status": "single_seed_capacity_diagnostic_authorized",
+  "recorded_utc": "2026-09-21T00:00Z",
+  "purpose": "Run one controlled stronger-backbone capacity diagnostic after 0.6B LoRA v5 failed on independent heldout. This is not a promotion run. Seed17 only is authorized; seeds18/19 require a separate review after dev mechanics, memory, merge identity and one-shot owned evaluation are known.",
+  "bound_inputs": {
+    "ladder": {"path": "research/stronger_base_ladder_v1.json"},
+    "probe": {"path": "results/stronger_base_minicpm5_2b_probe_v1.json", "sha256": "3ebf80724808916a1a9c7f408d96ee688626446258eec311ab303e43dfdd07f1", "status": "passed"},
+    "corpus": "research/engineering_judgment_corpus_v4/trainer_view",
+    "corpus_content_sha256": "6a62432d8c932fd591d46df79da4d91aebf65c04d8661bbaf03656b14beb79bb",
+    "trainer": "scripts/train_pipeline_decisions_v4.py",
+    "trainer_sha256": "1946bd4acfac0ecd26b9af8c410bcd1839a202913510bee4ad9cea2f7bc9a7da"
+  },
+  "model": {
+    "id": "openbmb/MiniCPM5-2B",
+    "revision": "12a3808a956f869c767195e9266b59c4d21d92e2",
+    "license": "Apache-2.0",
+    "architecture": "LlamaModel",
+    "initialization": "pinned pretrained backbone plus freshly initialized attention decision head; no 0.6B checkpoint transfer",
+    "public_reference_boundary": "SemIf public aggregate motivates candidate order only; no SemIf/TypeSafe/JevBench rows, labels, probabilities or outputs enter this run"
+  },
+  "recipe": {
+    "seed": 17,
+    "objective": "gold_distribution",
+    "loss": "ce",
+    "head_steps": 12,
+    "steps": 600,
+    "eval_every": 50,
+    "batch_questions": 16,
+    "microbatch_questions": 4,
+    "max_microbatch_tokens": 32768,
+    "max_length": 2048,
+    "lora_rank": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "lora_lr": 0.00005,
+    "backbone_lr": 0.0,
+    "head_lr": 0.0002,
+    "head_warmup_lr": 0.002,
+    "gradient_checkpointing": true,
+    "device": "mps",
+    "precision": "fp32",
+    "selection": "minimum dev target CE only"
+  },
+  "execution_gates": {
+    "output_dir": "checkpoints/t9d_v6_minicpm2b_seed17",
+    "stop_on_mps_oom": true,
+    "stop_on_nonfinite": true,
+    "merge_max_abs_logit_delta": 0.0001,
+    "heldout_v1_read_once_after_dev_selection": true,
+    "heldout_v2_read_once_after_dev_selection": true,
+    "three_seed_expansion": "not authorized by this document"
+  },
+  "cli": "scripts/train_pipeline_decisions_v4.py --input research/engineering_judgment_corpus_v4/trainer_view --output-dir checkpoints/t9d_v6_minicpm2b_seed17 --model openbmb/MiniCPM5-2B --revision 12a3808a956f869c767195e9266b59c4d21d92e2 --objective gold_distribution --loss ce --steps 600 --head-steps 12 --batch-questions 16 --microbatch-questions 4 --max-microbatch-tokens 32768 --eval-every 50 --max-length 2048 --seed 17 --lora-rank 16 --lora-alpha 32 --lora-dropout 0.05 --lora-lr 5e-5 --backbone-lr 0 --head-lr 2e-4 --head-warmup-lr 2e-3 --device mps --precision fp32 --gradient-checkpointing",
+  "authorization": {
+    "single_seed_training_authorized": true,
+    "additional_seeds_authorized": false,
+    "deployment_authorized": false,
+    "jevbench_unlocked": false,
+    "provider_or_external_outputs_allowed": false
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "cohort": {
+    "assets": "277 USDT-M perps (incl. delisted/renamed early-stops)",
+    "btc_series": "data/rc_futures_v1/BTC/BTCUSDT_1d.csv",
+    "path": "data/perp_pit_mega_v1/records.jsonl",
+    "target": "label.forward_return_5d_bps (gross close-to-close)"
+  },
+  "created_utc": "2026-09-24T16:17:18Z",
+  "definitions": {
+    "baseline": "train-mean predictor MSE for mse_ratio",
+    "btc_ret20": "BTCUSDT close/close[t-20]-1 on the decision date, broadcast to all assets",
+    "embargo": "train rows in the last 5 days before each fold boundary dropped (5d label overlap); same embargo at inner CV boundaries",
+    "funding_pct": "per-asset mid-rank pct of last_funding_rate vs trailing-180 non-null values (MIN_WINDOW=20); unusable -> neutral 0.5 imputation, rate reported",
+    "inner_cv": "train-year dates -> 5 contiguous chunks; inner folds k=1..4 fit chunks[0:k]-embargo, validate chunk k; lambda = argmin mean val MSE; never touches test",
+    "top_decile": "pred >= quantile(pred,0.9) vs rest, mean fwd bps",
+    "xs_rank_dfh": "same-day cross-sectional mid-rank pct of dfh20"
+  },
+  "forbidden": [
+    "trading",
+    "profitability claims",
+    "protocol edits post-run",
+    "network",
+    "lambda/model selection on test data"
+  ],
+  "purpose": "T125: retry the T78 ridge-regression ML attempt on the 287k-row mega cohort now that the signal is known to be BTC-regime conditional. Ridge on continuous 5d fwd bps; features dfh20, mom20, vol20, funding_pct(trailing-180 mid-rank), btc_ret20 (broadcast), dfh20*btc_ret20 interaction, xs_rank_dfh. Strictly temporal walkforward 2021->22/22->23/23->24/24->25 with 5-day embargo; lambda {0.1,1,10,100} via in-train-year forward-chaining CV only. Arms: ridge_all, btc_ret20>0-gated, xs_rank_dfh-only. Verdict: consistent positive OOS rho + top-decile spread across all folds = first ML-viable formulation; else confirms T78 at scale. Measurement only.",
+  "schema_version": "nanojev-financial-signal-ml-probe-protocol-v1",
+  "statistics": {
+    "caveats": [
+      "5d overlapping labels autocorrelate ~4/5 of adjacent days; all metrics nominal",
+      "pooled OOS spearman concatenates folds with different train-fitted scales \u2014 descriptive, not a test",
+      "funding_pct imputed for ~70% of rows (funding-covered subset is ~52/277 symbols)",
+      "gated arm evaluates a state-conditional subset by design \u2014 its spread is not comparable to a full-universe strategy"
+    ]
+  }
+}

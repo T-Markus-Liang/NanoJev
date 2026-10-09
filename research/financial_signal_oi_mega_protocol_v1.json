@@ -1,0 +1,38 @@
+{
+  "cohort": {
+    "daily": "data/perp_pit_mega_v1/records.jsonl (T112 cohort): label.forward_return_5d_bps gross close-to-close and last_funding_rate joined on the snapshot date",
+    "metrics": "data/rc_futures_v1/{BASE}/metrics.csv, 5m bars on the 1st+15th of each month only; last non-null value per column per day; >=24 bars/day required"
+  },
+  "created_utc": "2026-09-24T14:05:01Z",
+  "definitions": {
+    "fdr_family": "8 cells: {oi_chg,retail_ls,taker_ls} pooled Spearmans + {oi_chg,retail_ls,toptrader_ls,taker_ls} XS decile 5d spreads + high-funding OI-direction Welch",
+    "funding_pct": "trailing-180-DAILY mid-rank of last_funding_rate (MIN_WINDOW=20; funding is daily, only the decision days are snapshots)",
+    "oi_chg_intraday": "dlog(oi_value) first->last 5m bar of the 24h snapshot session (descriptive only)",
+    "oi_chg_snap": "dlog(open_interest_value) previous snapshot -> this snapshot (~14-15d; honest analog of the spec's oi_chg_5d, impossible at this cadence)",
+    "oi_pct": "trailing-180-CALENDAR-day mid-rank of oi_value (~12 snapshots/window; MIN_SNAP_WINDOW=6)",
+    "toptrader/retail/taker_ls_pct": "same trailing-180d mid-rank on count_toptrader_long_short_ratio / count_long_short_ratio / sum_taker_long_short_vol_ratio",
+    "xs_decile": "per snapshot day with >=30 scored assets: mean fwd5(top decile) - mean fwd5(bottom decile); directions: oi_chg=long-top, retail_ls/taker_ls=contrarian long-bottom, toptrader_ls=long-top"
+  },
+  "forbidden": [
+    "fitting",
+    "trading",
+    "profitability claims",
+    "protocol edits post-run",
+    "network"
+  ],
+  "purpose": "T116: retry the T72 open-interest arm at mega scale. VERIFIED DATA FACT first: data/rc_futures_v1 metrics.csv exists for all 52 funding-covered symbols but contains 5m bars ONLY on the 1st and 15th of each month (twice-monthly full-day sessions). OI arms therefore run on ~2 decision days/month/symbol: pooled Spearmans on ~4.7k asset-snapshots plus XS decile ranks per snapshot day (>=30 assets, k=n//10), a T72-style high-funding x OI-direction interaction, crowding (retail/toptrader LS percentiles) and taker-flow percentile arms, BH-FDR over 8 headline cells, with a power calculation (per-arm MDE at 80%).",
+  "schema_version": "nanojev-financial-signal-oi-mega-protocol-v1",
+  "statistics": {
+    "caveats": [
+      "~98-120 decision days vs ~1460-1825 for a true daily panel: the time dimension is ~15x thinner; XS dof/day (30-52 assets) partially compensates",
+      "5d labels on 1st/15th overlap ~5/14 of the next window -- LESS autocorrelated than the daily runner's ~80%",
+      "snapshot sessions may be a sampled subset of the source feed, not a venue-defined event; 00:00-23:55 UTC assumed",
+      "toptrader ratio has a verified whole-day gap covering most 2022 snapshot days; taker gap early-2022",
+      "second-hand archive copy, not an as-of vintage"
+    ],
+    "interaction": "Welch on fwd5 within funding_pct>=0.80 rows split by oi_chg_snap sign + 3x3 funding-tercile x oi_chg-tercile grid (T72 convention)",
+    "placebo": "within-day score shuffle x3 seeds on the headline oi_chg XS arm",
+    "pooled": "Spearman rho + normal-approx p on all asset-snapshots; MDE |rho| at 80% = 2.802/sqrt(n-3)",
+    "xs": "mean daily decile spread + nominal t; MDE at 80% = 2.802*sd/sqrt(n_days); yearly folds"
+  }
+}

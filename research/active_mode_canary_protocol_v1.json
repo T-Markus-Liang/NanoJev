@@ -1,0 +1,153 @@
+{
+  "schema_version": "nanojev-active-mode-canary-protocol-v1",
+  "protocol_id": "active_mode_canary_v1",
+  "status": "protocol_valid_not_authorized",
+  "created_at": "2026-09-23",
+  "owner_authorization": {
+    "required": true,
+    "granted": false,
+    "grant_scope": null,
+    "note": "T22 passed as owner-authorized internal review, but this protocol does not authorize active filtering."
+  },
+  "review_gate": {
+    "decision_artifact": "results/track_a_review_decision_v1.json",
+    "decision_sha256": "fc9f342e3f86b4264fab3c5f62cdf865381e515aab6a9e50c9939b96706e66ec",
+    "required_status": "conditional_pass_owner_authorized_internal_review",
+    "replay_artifact": "results/track_a_review_replay_v1.json",
+    "replay_sha256": "148cd056a69f4fbbec8f2e0c0f519f8e90e7deb854733df58e24869b2669fe94",
+    "required_replay_ok": true
+  },
+  "cohorts": {
+    "development": {
+      "path": "research/context_filter_value_fixture_manifest_v2.json",
+      "sha256": "b4a4a11852fefd3cfe9f7725966c0167ba1cb343ae5d607b61cd52c5109eed69",
+      "case_count": 25
+    },
+    "heldout_synthetic": {
+      "path": "research/context_filter_value_fixture_manifest_v3.json",
+      "sha256": "805bd209a3c14bca6225d6284729da5f52603ce2c39df6266a391f6f35f6403e",
+      "case_count": 12
+    },
+    "real_context_holdout": {
+      "status": "pending",
+      "required_before_traffic_canary": true
+    }
+  },
+  "threshold_policy": {
+    "path": "research/context_filter_threshold_policy_v1.json",
+    "sha256": "fd0d32a9aae522557d6b46eafd483937d5abda856301fc9d857db9d676bdc8aa",
+    "diagnostic_threshold": 0.90,
+    "production_threshold": null
+  },
+  "phases": [
+    {
+      "id": "phase0_loopback_fake_upstream",
+      "mode": "active",
+      "upstream": "loopback_fake_only",
+      "provider_calls_allowed": false,
+      "requires_owner_authorization": false,
+      "required_cases": [
+        "active_eligible_drop",
+        "provider_accounting_baseline",
+        "anthropic_eligible_drop",
+        "responses_eligible_drop",
+        "unsupported_embeddings",
+        "active_no_reduction",
+        "shadow_control",
+        "kill_switch",
+        "scorer_error",
+        "malformed_sidecar",
+        "dependency_closure",
+        "uncertain_score",
+        "invalid_score_response",
+        "scorer_timeout",
+        "restore_manifest_too_large",
+        "oversized_request_body",
+        "internal_header_stripping"
+      ],
+      "purpose": "verify reduction applicator, restore header, receipts, supported wire formats, baseline accounting, unsupported-path bypass, no-reduction fallback, kill switch, dependency closure, scorer denial paths, request budgets, restore-header budget, and internal header stripping without provider calls"
+    },
+    {
+      "id": "phase1_shadow_provider_measure",
+      "mode": "shadow",
+      "upstream": "provider_or_local_main_model",
+      "provider_calls_allowed": false,
+      "requires_owner_authorization": true,
+      "purpose": "measure gate plan and provider-reported usage on original requests without sending reduced bytes"
+    },
+    {
+      "id": "phase2_paired_canary",
+      "mode": "active",
+      "upstream": "provider_or_local_main_model",
+      "provider_calls_allowed": false,
+      "requires_owner_authorization": true,
+      "purpose": "paired original/reduced provider accounting and downstream quality check; not authorized by this protocol"
+    }
+  ],
+  "provider_accounting": {
+    "actual_savings_requires_paired_provider_usage": true,
+    "baseline_header": "x-nanojev-baseline-provider-prompt-tokens",
+    "accepted_prompt_usage_fields": [
+      "usage.prompt_tokens",
+      "usage.input_tokens"
+    ],
+    "completion_usage_fields": [
+      "usage.completion_tokens",
+      "usage.output_tokens"
+    ],
+    "no_local_estimate_is_billing": true
+  },
+  "safety": {
+    "fail_open_required": true,
+    "kill_switch_env": "NANOJEV_GATEWAY_KILL_SWITCH",
+    "restore_manifest_header_max_bytes": 4096,
+    "scorer_timeout_seconds": 5.0,
+    "upstream_timeout_seconds": 60.0,
+    "max_requests_per_phase": 12,
+    "max_body_bytes": 65536,
+    "content_free_receipts_required": true,
+    "raw_prompt_response_logging_forbidden": true,
+    "protected_segment_veto_required": true,
+    "dependency_closure_required": true,
+    "round_trip_verification_required": true,
+    "sidecar_header": "x-nanojev-sidecar"
+  },
+  "stop_conditions": [
+    "any protected segment is proposed for removal",
+    "any required evidence string is missing from reduced request",
+    "any paired downstream answer regresses",
+    "any restore-manifest reconstruction fails",
+    "any scorer timeout, malformed output, or exception exceeds zero occurrences in phase0",
+    "any request body exceeds max_body_bytes",
+    "provider prompt-token usage is unavailable when actual savings is claimed",
+    "receipt contains raw prompt, response, credential, or tool-output text",
+    "owner revokes authorization or requests stop"
+  ],
+  "rollback": {
+    "primary": "set NANOJEV_GATEWAY_KILL_SWITCH=1 and restart or keep running with deterministic kill switch",
+    "fallback_mode": "shadow",
+    "restore": "use X-NanoJev-Restore-Manifest on reduced responses; original bytes remain with caller",
+    "expected_recovery_state": "all requests forwarded unchanged"
+  },
+  "scorers": {
+    "strong_path": {
+      "name": "Winnow-12B",
+      "revision": "b6ac22b0d51b69b18200acacb3fbdd98073fffe8",
+      "model_sha256": "b710efc4c0d048ee61eed92c5fef5ce323a4d17e7c51f9f0533cc72ae50818ea"
+    },
+    "optional_fast_path": {
+      "name": "Kev-4B",
+      "revision": "485ace8703592fcf405488b262449990824cfed1",
+      "adapter_sha256": "9797de69a42188e411b17b7b4fcb66a23374dcebc21d71a7a66f836b5d34df2b"
+    }
+  },
+  "prohibited": [
+    "active filtering before explicit owner operational authorization",
+    "production threshold selection",
+    "provider billing savings claim without paired provider-reported usage",
+    "benchmark rows or scorer outputs used as training/calibration data",
+    "raw prompt or generated response in public receipts",
+    "remote scorer URLs",
+    "redirect-following upstream calls"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "cohort": {
+    "book_pnl": "label.forward_return_bps (1d close-to-close)",
+    "btc_series": "data/rc_futures_v1/BTC/BTCUSDT_1d.csv",
+    "fit_target": "label.forward_return_5d_bps",
+    "path": "data/perp_pit_mega_v1/records.jsonl",
+    "train_history_start": "2021-01-01 (cohort start)"
+  },
+  "created_utc": "2026-09-25T14:39:03Z",
+  "definitions": {
+    "book": "per test date: long 2 highest preds / short 2 lowest, EW within leg, 0.5 notional per side, daily rebalance; cost = 5bps one-way on traded notional per leg (turnover = 0.5*sum|w_new-w_old|); days with <20 assets skipped; book runs continuously across month boundaries",
+    "coef_drift": "raw-space coefficient path (per-fit scaler folded back out); per-feature stats + L2 distance between successive fits",
+    "embargo": "train rows dated in the 5 days before each refit boundary are dropped (5d label overlap)",
+    "model": "ridge on 3 features standardized by each fit's own train mean/std; intercept unpenalized; lambda=100 fixed for all policies (no inner CV \u2014 policies differ only in window/cadence)",
+    "monthly_oos": "per test month: pooled spearman(pred, ret5d) over all rows + mean/median of per-day cross-sectional spearmans (days with >=10 assets)",
+    "policies": {
+      "expanding_monthly": "refit each test month on all rows < month_start - 5d",
+      "expanding_quarterly": "refit only at Jan/Apr/Jul/Oct month starts on all history; model held through the quarter",
+      "frozen_2021": "fit once on 2021 rows (embargoed vs 2022-01-01); never refit",
+      "rolling_1y": "refit each month on rows in [month_start-1y, month_start-5d)",
+      "rolling_2y": "refit each month on rows in [month_start-2y, month_start-5d)"
+    }
+  },
+  "forbidden": [
+    "trading",
+    "profitability claims",
+    "protocol edits post-run",
+    "network",
+    "model selection on test data"
+  ],
+  "purpose": "T136: month-by-month walkforward 2022-01..2025-12 comparing five ridge refit policies (frozen_2021, expanding_monthly, expanding_quarterly, rolling_2y, rolling_1y) on the static mega cohort; model ridge_min3 {dfh20, btc_ret20, dfh20*btc_ret20} lambda=100; answers whether periodic refits beat a frozen model and whether recency windows hurt (T130 prior: yes they hurt). Measurement only.",
+  "schema_version": "nanojev-financial-signal-refit-eval-protocol-v1",
+  "statistics": {
+    "caveats": [
+      "monthly pooled rho mixes cross-sectional and cross-day level effects; mean daily rho is the ranked-book metric; both reported",
+      "top2/bot2 book is concentrated (2 names/leg) \u2014 high idiosyncratic variance, turnover-heavy; net results are sensitive to the flat 5bps assumption",
+      "no borrow/funding-carry/slippage beyond flat 5bps; short leg assumes perp shortability at index",
+      "all policies see identical test rows; differences are purely the training window/cadence \u2014 paired comparison",
+      "coef drift in raw space is comparable across fits but raw dfh20*btc scale shifts with btc_ret20 dispersion"
+    ]
+  }
+}

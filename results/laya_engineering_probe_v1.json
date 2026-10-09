@@ -1,0 +1,122 @@
+{
+  "rows": [
+    [
+      "phase",
+      "next_phase",
+      0.0351,
+      "development"
+    ],
+    [
+      "phase",
+      "b0_first",
+      0.6564,
+      0.6564
+    ],
+    [
+      "phase",
+      "blocked",
+      0.9999,
+      0.0001
+    ],
+    [
+      "tests",
+      "which_test",
+      0.924,
+      "full"
+    ],
+    [
+      "tests",
+      "needs_new_test",
+      0.5415,
+      0.4585
+    ],
+    [
+      "routing",
+      "route",
+      0.6072,
+      "gate_bypass"
+    ],
+    [
+      "routing",
+      "safe_to_drop",
+      0.8778,
+      0.8778
+    ],
+    [
+      "failure",
+      "kind",
+      0.3671,
+      "test_bug"
+    ],
+    [
+      "failure",
+      "is_regression",
+      0.5162,
+      0.4838
+    ],
+    [
+      "risk",
+      "action",
+      0.9069,
+      "commit_push"
+    ],
+    [
+      "risk",
+      "check_secrets",
+      0.8952,
+      0.1048
+    ],
+    [
+      "quality",
+      "level",
+      0.1515,
+      1.5849
+    ],
+    [
+      "quality",
+      "token_savings",
+      0.8404,
+      0.1596
+    ]
+  ],
+  "confs": [
+    0.0351,
+    0.6564,
+    0.9999,
+    0.924,
+    0.5415,
+    0.6072,
+    0.8778,
+    0.3671,
+    0.5162,
+    0.9069,
+    0.8952,
+    0.1515,
+    0.8404
+  ],
+  "schema_version": "nanojev-laya-engineering-probe-v1",
+  "model": "convaiinnovations/laya (ModernBERT-large 421M, Apache-2.0), device mps:0, HF_HUB_OFFLINE=1",
+  "comparison": {
+    "nanojev_median_confidence": 0.505,
+    "nanojev_max_confidence": 0.736,
+    "nanojev_answered_at_0_9": "0/13",
+    "laya_answered_at_0_9": "3/13",
+    "laya_answered_at_0_5": "10/13"
+  },
+  "safety_relevant": {
+    "safe_to_drop (expected false)": {
+      "nanojev": "true @ 0.736 (WRONG)",
+      "laya": "true @ 0.878 (WRONG)"
+    },
+    "blocked (expected true)": {
+      "nanojev": "false @ 0.657 (WRONG)",
+      "laya": "false @ confidence 1.000 (WRONG)"
+    }
+  },
+  "limits": [
+    "13 questions, one checkpoint, one machine, no confidence interval",
+    "different primitives (noul vs boolean) so confidence is max-probability, not a like-for-like calibrated quantity",
+    "laya was not trained or fine-tuned here; its benchmark numbers were not reproduced",
+    "local inference only; no provider contacted"
+  ]
+}

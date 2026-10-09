@@ -1,0 +1,38 @@
+{
+  "cohort": {
+    "assets": "10 USDT-M perps (5 legacy + 5 T104-expanded)",
+    "builder": "scripts/build_xs_v1.py",
+    "forward_returns": "derived from the close series at h in {1,3,5,10}; fwd_1d/fwd_5d cross-checked vs record labels (max abs diff reported)",
+    "path": "data/perp_pit_xs_v1/records.jsonl",
+    "price_basis": "klines close as mark proxy (same as T104)"
+  },
+  "created_utc": "2026-09-24T09:59:51Z",
+  "definitions": {
+    "btc_regime": "BTCUSDT close/close[t-20]-1 sign on the decision day",
+    "day_gate": ">=8 assets with score AND forward return that day",
+    "dfhK": "close / max(close[i-K:i]) - 1, strictly-prior K bars; dfh20 recomputation verified vs the precomputed feature",
+    "placebo": "dfh20 values shuffled among the same day's assets",
+    "spread": "mean fwd(top-K) - mean fwd(bottom-K) in bps",
+    "turnover": "fraction of the 4 leg slots whose membership changes vs previous day; cost = 5bps * that fraction"
+  },
+  "forbidden": [
+    "fitting",
+    "trading",
+    "profitability claims",
+    "protocol edits post-run"
+  ],
+  "purpose": "T106: robustness battery on the T104 XS dfh-rank candidate (top-2 minus bottom-2 by dfh20 rank -> next-5d close spread, +54.1bps mean daily, t=3.34 nominal, 4/4 yearly folds, within-asset rho ~ 0). Battery: (1) daily-rebalanced long-top2/short-bot2 net sim, 5bps per unit one-sided leg turnover, computed turnover; (2) 1/3/5/10d horizons; (3) edge depth 1/2/3 + quintile-vs-quintile; (4) split by BTCUSDT 20d trend regime; (5) dfh20 at t vs t-3 staleness; (6) dfh vs 10d/60d prior highs; (7) within-day rank-shuffle placebo x3 seeds; (8) honest notes incl. overlapping labels, ~4-5 XS dof/day, and the fact that dfh20 was literature-suggested not searched. Measurement only.",
+  "schema_version": "nanojev-financial-signal-xs-dfh-robust-protocol-v1",
+  "statistics": {
+    "caveats": [
+      "h-day overlapping labels autocorrelate ~1-1/h of adjacent days",
+      "~4-5 effective XS dof/day on a 2-vs-2 edge over ~10 assets",
+      "dfh20 was literature-suggested, not lookback-searched; arm 6 samples neighbours but selection risk remains",
+      "no multiple-testing correction across battery arms",
+      "close-price basis; no funding cashflows/borrow in the net sim"
+    ],
+    "daily": "mean daily spread + nominal t across decision days",
+    "folds": "per-calendar-year fold mean spreads",
+    "portfolio": "gross/net mean, cumulative, max drawdown of the cumulative spread, Sharpe = mean/sd*sqrt(365)"
+  }
+}

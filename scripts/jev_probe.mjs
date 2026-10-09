@@ -1,10 +1,12 @@
-import { experimental_evaluate as evaluate } from 'ai';
 import { mkdir, appendFile, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { evaluateTeacher } from './teachers.mjs';
 
 // 默认离线，仅 --live 执行少量探测。原始响应不进入训练集或公开仓库。
+// 官方 Jev 只走直连 api.typesafe.ai（jev-latest）；Vercel 网关通道已移除。
 const live = process.argv.includes('--live');
-const price = 0.000000042; // USD/token，2026-09-17 网关公开精确价格
-const budget = 0.10;
+const price = 0.000000042; // USD/token，Jev 公开列表价
+const budget = Number(process.env.JEV_PROBE_BUDGET_USD ?? 0.10);
 const cases = [
   { id: 'refund_en', state: 'Please refund my payment. I was charged twice. The agent has not issued any refund yet.', expected: { requested: true, issued: false, route: 'billing' } },
   { id: 'refund_zh', state: '同一笔订单扣了两次钱，请退款。客服尚未办理退款。', expected: { requested: true, issued: false, route: 'billing' } },
@@ -25,13 +27,15 @@ for (const count of [1, 4, 16, 32]) for (let rep = 0; rep < 2; rep++) {
   runs.push({ id: `parallel_${count}_${rep}`, state: cases[0].state, questions: Object.fromEntries(Array.from({ length: count }, (_, i) => [`q${i}`, questions.issued])) });
 }
 await mkdir('research', { recursive: true });
-await writeFile('research/probe_plan.json', JSON.stringify({ model: 'typesafe-ai/jev', budget, runs }, null, 2));
+await writeFile('research/probe_plan.json', JSON.stringify({ model: 'jev-latest', channel: 'typesafe-direct', budget, runs }, null, 2));
 if (!live) {
   console.log(JSON.stringify({ mode: 'dry-run', requests: runs.length, questions: runs.reduce((n, r) => n + Object.keys(r.questions).length, 0), budget }, null, 2));
   process.exit(0);
 }
-if (!process.env.AI_GATEWAY_API_KEY) throw new Error('缺少 AI_GATEWAY_API_KEY');
-let reservedUsd = 0, usageUsd = 0, reportedUsd = 0, costReports = 0, checked = 0, correct = 0;
+const apiKey = process.env.TYPESAFE_API_KEY
+  ?? (existsSync(`${process.env.HOME}/.config/jev-eval/apikey`) ? '<file>' : null);
+if (!apiKey) throw new Error('缺少 TYPESAFE_API_KEY（或 ~/.config/jev-eval/apikey）');
+let reservedUsd = 0, usageUsd = 0, checked = 0, correct = 0;
 const rows = [];
 const stamp = new Date().toISOString().replaceAll(/[:.]/g, '-');
 const logPath = `research/private_jev_probe_${stamp}.jsonl`;
@@ -42,12 +46,10 @@ for (const run of runs) {
   reservedUsd += reserve;
   const start = performance.now();
   try {
-    const result = await evaluate({ model: 'typesafe-ai/jev', state: run.state, questions: run.questions, maxRetries: 0, abortSignal: AbortSignal.timeout(45000) });
+    const result = await evaluateTeacher({ teacher: 'jev', model: 'jev-latest', state: run.state, questions: run.questions });
     const elapsedMs = performance.now() - start;
     const estimatedCost = (result.usage.inputTokens ?? 0) * price;
     usageUsd += estimatedCost;
-    const gc = result.providerMetadata?.gateway?.cost;
-    if (gc != null && Number.isFinite(Number(gc))) { reportedUsd += Number(gc); costReports++; }
     const checks = [];
     for (const [name, expected] of Object.entries(run.expected ?? {})) {
       const a = result.answers[name];
@@ -59,13 +61,14 @@ for (const run of runs) {
     rows.push({ id: run.id, elapsedMs, inputTokens: result.usage.inputTokens, estimatedCost, checks, answers: result.answers });
     console.log(JSON.stringify({ id: run.id, elapsedMs: Math.round(elapsedMs), inputTokens: result.usage.inputTokens, answers: run.expected ? result.answers : undefined }));
   } catch (e) {
-    const error = { name: e.name, message: String(e.message).replaceAll(process.env.AI_GATEWAY_API_KEY, '[REDACTED]'), statusCode: e.statusCode };
+    const secret = process.env.TYPESAFE_API_KEY;
+    const error = { name: e.name, message: secret ? String(e.message).replaceAll(secret, '[REDACTED]') : String(e.message), statusCode: e.statusCode };
     rows.push({ id: run.id, error });
     await appendFile(logPath, JSON.stringify({ id: run.id, error }) + '\n');
     console.log(JSON.stringify({ id: run.id, error }));
     break; // 首次错误即停，不自动重试。
   }
 }
-const summary = { timestamp: new Date().toISOString(), model: 'typesafe-ai/jev', logPath, requests: rows.length, usageUsd, reportedUsd, costReports, reservedUsd, budget, checked, correct, caveat: '极小演示，不是准确率、校准或性能基准；计费以网关账单为准。', rows };
+const summary = { timestamp: new Date().toISOString(), model: 'jev-latest', channel: 'typesafe-direct', logPath, requests: rows.length, usageUsd, reservedUsd, budget, checked, correct, caveat: '极小演示，不是准确率、校准或性能基准；直连响应不含逐调用成本，费用按 token 估算。', rows };
 await writeFile('research/private_jev_probe_summary.json', JSON.stringify(summary, null, 2));
-console.log(JSON.stringify({ requests: rows.length, usageUsd, reportedUsd, costReports, checked, correct }, null, 2));
+console.log(JSON.stringify({ requests: rows.length, usageUsd, checked, correct }, null, 2));

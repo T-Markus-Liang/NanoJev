@@ -1,0 +1,50 @@
+{
+ "schema_version": "nanojev-financial-signal-hypotheses-protocol-v2",
+ "created_utc": "2026-09-24T00:00:00Z",
+ "purpose": "T63 second milestone: measure three new signal-hypothesis arms on the real PIT cohort, extending v1. Measurement only — no fitting, no trading. v1 runner and receipt are left untouched.",
+ "cohort": {
+  "path": "data/perp_pit_v1/records.jsonl",
+  "records": 6554,
+  "venue": "binance_um",
+  "label": "perp_forward_mark_return_up_25bps_1d_gross",
+  "derived_variable": "next-day mark-price return from consecutive per-asset records (verified to reproduce the stored label on all eligible pairs)"
+ },
+ "lookback_days": 180,
+ "arms": {
+  "h3_sharp_basis_close": {
+   "rule": "|mark_index_basis_bps| in top trailing-180d mid-rank decile",
+   "expect": "next-day mark return opposes sign(basis): P(sign agreement) > 0.5 and mean basis-closing-direction return > 0",
+   "note": "non-tautological version of v1 H3; tests whether the mark leg, not just |basis|, converges"
+  },
+  "h4_volume_squeeze_proxy": {
+   "rule": "quote_volume z >= +2 trailing 180d AND |1-day mark return| below trailing-180d median |1d return|",
+   "expect": "next-day |return| expands vs rest; P(up) reported vs rest (direction agnostic)",
+   "substitution": "intended open_interest_level / open_interest_log_change_1d features are absent from this cohort; quote_volume z is the documented activity proxy"
+  },
+  "h5_taker_bottom": {
+   "rule": "taker_buy_ratio in bottom trailing-180d mid-rank decile",
+   "expect": "next-day P(up > +25bps) differs from rest (contrarian long candidate)"
+  },
+  "h5_taker_top": {
+   "rule": "taker_buy_ratio in top trailing-180d mid-rank decile",
+   "expect": "next-day P(up > +25bps) differs from rest (momentum/fade candidate)"
+  }
+ },
+ "statistics": [
+  "outcome rates",
+  "Wilson 95% CI",
+  "two-proportion z",
+  "binomial sign test (H3-sharp)",
+  "mean basis-closing return with normal-approx t (H3-sharp)",
+  "mean |next-day return| arm vs rest (H4)",
+  "BH-FDR across arms",
+  "per frozen test-fold readout"
+ ],
+ "pit_safety": "trailing windows only; no forward data in feature construction; next-day returns used strictly as outcomes",
+ "forbidden": [
+  "fitting",
+  "trading",
+  "promotion claims",
+  "protocol edits post-measurement"
+ ]
+}

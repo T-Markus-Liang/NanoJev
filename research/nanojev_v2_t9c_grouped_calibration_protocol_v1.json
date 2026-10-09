@@ -1,0 +1,151 @@
+{
+  "schema_version": "nanojev-v2-t9c-grouped-calibration-protocol-v1",
+  "protocol_id": "nanojev-v2-t9c-grouped-calibration-v1",
+  "status": "frozen_research_protocol",
+  "purpose": "Read-only comparison of one temperature per question type and option count against the unchanged temperature-1.0 serving baseline.",
+  "mode": "read_only_measurement",
+  "frozen_before_inference": true,
+  "read_only": true,
+  "network_model_calls": 0,
+  "model": {
+    "checkpoint_id": "local_atomic_seed17",
+    "baseline_temperature": 1.0,
+    "service_files_may_change": false,
+    "candidate_checkpoint_write": false
+  },
+  "grouping": {
+    "keys": ["question_type", "option_count"],
+    "question_types": ["boolean", "choice", "score", "noul"],
+    "option_counts": [2, 3, 4],
+    "minimum_calibration_questions": 32,
+    "minimum_calibration_states": 8,
+    "missing_group_policy": "report_unestimated_and_keep_baseline",
+    "group_identity_source": "row.question_type plus len(row.options), recomputed from frozen input"
+  },
+  "split_roles": {
+    "train": {
+      "frozen": true,
+      "usable_for": ["model_fit_only"],
+      "description": "Model-training history; never used to fit or select a temperature."
+    },
+    "dev": {
+      "frozen": true,
+      "usable_for": ["protocol_diagnostics"],
+      "description": "Non-test diagnostic split; cannot select the reported candidate."
+    },
+    "calibration": {
+      "frozen": true,
+      "usable_for": ["fit_grouped_temperature"],
+      "description": "The only split allowed to fit grouped temperatures."
+    },
+    "test": {
+      "frozen": true,
+      "usable_for": ["evaluate"],
+      "description": "Held-out evaluation only; never fit, select, tune or calibrate."
+    },
+    "ood": {
+      "frozen": true,
+      "usable_for": ["evaluate", "abstain"],
+      "description": "Out-of-domain evaluation and abstention only; never fit, select, tune or calibrate."
+    }
+  },
+  "objectives": {
+    "primary": "nll",
+    "secondary": ["brier", "ece_fixed_10", "coverage_selective_risk"],
+    "search": {
+      "temperature_min": 0.05,
+      "temperature_max": 20.0,
+      "grid_points": 4000,
+      "refine_steps": 200,
+      "include_baseline_temperature": true
+    },
+    "thresholds": [0.5, 0.7, 0.9]
+  },
+  "uncertainty": {
+    "resampling_unit": "state_id",
+    "bootstrap_replicates": 2000,
+    "confidence_level": 0.95,
+    "paired_against": "temperature_1.0_same_row_and_same_group"
+  },
+  "controls": [
+    {
+      "control_id": "calibration_hash_and_split_guard",
+      "required": true,
+      "description": "Recompute split hashes and row split/state/source-group identity before fitting."
+    },
+    {
+      "control_id": "heldout_no_fit",
+      "required": true,
+      "description": "Test and OOD are evaluated after fitting and cannot affect search, selection or thresholds."
+    },
+    {
+      "control_id": "group_recomputed",
+      "required": true,
+      "description": "Question type and option count are recomputed from the visible row, never trusted from a report."
+    },
+    {
+      "control_id": "missing_group_baseline_fallback",
+      "required": true,
+      "description": "A group below the minimum sample count reports null candidate metrics and keeps temperature 1.0."
+    },
+    {
+      "control_id": "monotone_ordering_disclosure",
+      "required": true,
+      "description": "The report states that temperature scaling cannot repair semantic ordering or position artifacts."
+    },
+    {
+      "control_id": "protected_and_ood_reported",
+      "required": true,
+      "description": "Protected errors, OOD coverage and selective risk are reported per group and aggregate."
+    }
+  ],
+  "acceptance": {
+    "service_temperature_change": false,
+    "checkpoint_promotion": false,
+    "noninferiority_margin_must_be_preregistered": true,
+    "confidence_level_must_be_preregistered": true,
+    "protected_confident_error_limit": 0,
+    "ood_threshold_tuning": false,
+    "no_global_winner": true,
+    "review_required_before_any_serving_change": true
+  },
+  "receipt_fields": [
+    "protocol_id",
+    "checkpoint_id",
+    "group_key",
+    "split",
+    "fit_rows",
+    "fit_states",
+    "baseline_temperature",
+    "candidate_temperature",
+    "candidate_status",
+    "accuracy",
+    "nll",
+    "brier",
+    "ece_fixed_10",
+    "coverage",
+    "selective_risk",
+    "protected_error_count",
+    "network_model_calls",
+    "receipt_sha256"
+  ],
+  "boundaries": {
+    "training_authorized": false,
+    "deployment_authorized": false,
+    "production_pruning_authorized": false,
+    "active_pruning_authorized": false,
+    "promotion_authorized": false,
+    "authorizes_execution": false,
+    "authorizes_training": false,
+    "authorizes_deployment": false,
+    "model_weights_modified": false,
+    "checkpoint_written": false,
+    "network_allowed": false,
+    "shadow_only": true
+  },
+  "limitations": [
+    "This protocol does not establish engineering-task quality.",
+    "A missing or under-sized group is not evidence of good calibration.",
+    "A valid protocol is not a measurement receipt or a serving authorization."
+  ]
+}

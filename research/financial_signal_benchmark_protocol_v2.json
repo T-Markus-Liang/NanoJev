@@ -1,0 +1,33 @@
+{
+ "schema_version": "nanojev-financial-signal-benchmark-protocol-v2",
+ "created_utc": "2026-09-24T07:16:00Z",
+ "task": "T91",
+ "purpose": "T91: cross-scale unified Track B signal benchmark — replays the frozen T82 daily contract unchanged (v1 cohort pinned, 5d continuous label, frozen test folds, trailing-180 PIT, 5bps+funding cost, 10 cells) AND adds an intraday layer over the hourly cohort (trailing-90-record PIT, 4h forward mark bps label, 7 cells), plus a cross_scale replication block on funding_pct. Placebo controls, determinism double-run, PASS/ECON_ONLY/FAIL verdicts.",
+ "daily_contract": "identical to research/financial_signal_benchmark_protocol_v1.json (imported from scripts/financial_signal_benchmark_v1.py, not re-implemented)",
+ "intraday_contract": {
+  "cohort": "data/perp_pit_intraday_v1/records.jsonl (sha256 pinned in receipt)",
+  "label": "label.forward_return_bps — 4h forward mark move, bps (gross)",
+  "pit": "trailing-90-record mid-rank percentiles, per-asset, window excludes current record",
+  "cost": "5bps taker/side + funding accrual when ns_until_next_funding_settlement falls inside the 4h hold",
+  "folds": "3 contiguous equal-width ns windows over the eval span (no frozen validator folds exist at this scale)"
+ },
+ "intraday_cells": [
+  "funding_pct",
+  "basis_pct",
+  "rv_pct",
+  "taker_pct",
+  "abnvol_pct",
+  "mom_1h",
+  "mom_4h"
+ ],
+ "metrics_per_cell": "Spearman rho/t/p + Welch top-vs-bottom quintile + top-decile arm net stats + placebo rhos + verdict — same shape at both scales",
+ "cross_scale": "daily vs hourly funding_pct rho/p/sign; replication flag: replicated_both_scales | directional_only | not_replicated",
+ "fdr_families": "TWO separate BH-FDR families (alpha=0.05): 10 daily cells and 7 intraday cells — no cross-scale pooling",
+ "verdict_rules": "PASS = FDR-survive AND |rho|>placebo band; ECON_ONLY = beats always-long net but not FDR; else FAIL (same rule at both scales)",
+ "forbidden": [
+  "fitting",
+  "trading",
+  "claims",
+  "protocol edits post-run"
+ ]
+}

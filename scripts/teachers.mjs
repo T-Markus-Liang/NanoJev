@@ -1,7 +1,11 @@
 import { experimental_evaluate, generateText } from 'ai';
+import { readFileSync } from 'node:fs';
 
 export const MAX_OUTPUT_TOKENS = 1024;
 const TIMEOUT_MS = 45_000;
+const TYPESAFE_DIRECT_URL = 'https://api.typesafe.ai/v1/systemone';
+const TYPESAFE_DIRECT_MODEL = 'jev-latest';
+export const JEV_TOKEN_PRICE_USD = 0.000000042; // USD/token, Jev list price 2026-09-17
 const hasOwn = (value, key) => Object.hasOwn(value, key);
 const isRecord = value => value !== null && typeof value === 'object'
   && !Array.isArray(value)
@@ -161,11 +165,48 @@ function nativeProbabilities(result, questions) {
   }));
 }
 
+function typesafeApiKey() {
+  if (process.env.TYPESAFE_API_KEY) return process.env.TYPESAFE_API_KEY;
+  try {
+    const key = readFileSync(`${process.env.HOME}/.config/jev-eval/apikey`, 'utf8').trim();
+    if (key.startsWith('apikey_')) return key;
+  } catch { /* fall through */ }
+  reject('缺少 TYPESAFE_API_KEY（或 ~/.config/jev-eval/apikey）。', 'MISSING_CREDENTIAL');
+}
+
+/** 直连官方 TypeSafe API；线上 boolean 写作 noul，响应回填为 boolean 形状。 */
+async function evaluateJevDirect({ state, questions, abortSignal }) {
+  const wire = Object.fromEntries(Object.entries(questions).map(([id, q]) => [
+    id, { ...q, type: q.type === 'boolean' ? 'noul' : q.type },
+  ]));
+  const response = await fetch(TYPESAFE_DIRECT_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${typesafeApiKey()}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ state, model: TYPESAFE_DIRECT_MODEL, questions: wire }),
+    signal: abortSignal,
+  });
+  if (!response.ok) {
+    const error = new Error(`typesafe direct ${response.status}`);
+    error.statusCode = response.status;
+    throw error;
+  }
+  const result = await response.json();
+  const answers = Object.fromEntries(Object.entries(result.answers ?? {}).map(([id, a]) => [
+    id,
+    a.type === 'noul' ? { type: 'boolean', probability: a.noul } : a,
+  ]));
+  return { model: result.model ?? TYPESAFE_DIRECT_MODEL, answers, usage: result.usage };
+}
+
 /**
  * 单次教师调用；无 .env 读取、无自动重试、无批量采集。
  * JeV: native_probs + rounding，绝不称为 raw logits。
  * LLM: hard_labels；自报概率、解释及额外字段均拒绝。
- * model 可为 Gateway ID，也可为 SDK 模型实例；凭据由调用者配置。
+ * jev + 字符串模型 ID → 官方直连 API；jev + SDK 实例 → experimental_evaluate
+ * （仅用于自托管提供方或离线 mock）。凭据由调用者配置。
  */
 export async function evaluateTeacher({ teacher, model, state, questions, signal } = {}) {
   let usage;
@@ -177,6 +218,34 @@ export async function evaluateTeacher({ teacher, model, state, questions, signal
     abortSignal.throwIfAborted();
     const requestedModel = typeof model === 'string' ? model : model.modelId;
     if (teacher === 'jev') {
+      if (typeof model === 'string') {
+        const result = await evaluateJevDirect({ ...input, abortSignal });
+        usage = numericUsage({
+          inputTokens: result.usage?.input_tokens,
+          outputTokens: result.usage?.output_tokens,
+          totalTokens: result.usage?.total_tokens,
+        });
+        const directResult = { answers: result.answers };
+        const estimatedCostUsd = (usage.inputTokens ?? 0) * JEV_TOKEN_PRICE_USD;
+        return {
+          teacher,
+          model: result.model,
+          requested_model: requestedModel,
+          channel: 'typesafe-direct',
+          label_source: 'jev_native_evaluation',
+          target_kind: 'native_probabilities',
+          native_probs: nativeProbabilities(directResult, input.questions),
+          answers: result.answers,
+          rounding: null,
+          confidence: null,
+          provider_metadata: {
+            typesafe_direct: { model: result.model, estimated_cost_usd: estimatedCostUsd },
+          },
+          estimated_cost_usd: estimatedCostUsd,
+          warnings: [],
+          usage,
+        };
+      }
       const result = await experimental_evaluate({
         model, ...input, maxRetries: 0, abortSignal,
       });
@@ -185,6 +254,7 @@ export async function evaluateTeacher({ teacher, model, state, questions, signal
         teacher,
         model: result.response?.modelId ?? requestedModel,
         requested_model: requestedModel,
+        channel: 'sdk-instance',
         label_source: 'jev_native_evaluation',
         target_kind: result.rounding?.probabilityDecimals !== undefined
           ? 'rounded_probabilities' : 'native_probabilities',

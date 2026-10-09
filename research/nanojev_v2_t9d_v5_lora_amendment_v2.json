@@ -1,0 +1,64 @@
+{
+  "schema_version": "nanojev-v2-t9d-v5-lora-amendment-v2",
+  "amendment_id": "nanojev-v2-t9d-domain-adaptation-v5-lora-corpus-v4-amendment-v2",
+  "amendment_version": "v2",
+  "status": "versioned_amendment_single_arm_research_run_supersedes_v1_for_execution",
+  "recorded_utc": "2026-09-21T00:00Z",
+  "purpose": "Execution fix on top of amendment v1: the v1 run OOM'd on MPS (182.66 GiB) inside a 255-candidate microbatch during seed17 step ~2. Amendment v1's token budget (32768) correctly covers the complete-question footprint (max measured 29070) but nothing bounds activation memory for a 28k-token single forward+backward on unified memory. The trainer already carries an opt-in --gradient-checkpointing flag (use_reentrant=false) that recomputes backbone activations during backward, cutting peak activation memory by ~an order of magnitude while leaving the loss, normalization, selection rule and checkpoint format bit-identical. This amendment adds that flag to the run CLI. All other v1 parameters are inherited verbatim.",
+  "bound_protocol": {
+    "documents": [
+      {
+        "document": "research/nanojev_v2_t9d_fp32_mps_protocol_v2.json",
+        "protocol_sha256": "7d687325040159241d7c92df1103cbdf04f4e85f0e3654e8576c41f8aed02b1a",
+        "relationship": "base frozen protocol; selection/reporting rules inherited verbatim"
+      },
+      {
+        "document": "research/nanojev_v2_t9d_v5_lora_amendment_v1.json",
+        "relationship": "immediately superseded for execution only; v1 remains the record of the corpus-v4/step/token-budget decisions this run still uses"
+      }
+    ]
+  },
+  "evidence_receipts": {
+    "v1_oom_failure": {
+      "source": "logs/t9d_v5_lora.log, checkpoints/t9d_v5_lora_seed17_failed_oom/",
+      "finding": "seed17 completed initial dev eval (target_ce 1.344) then died at training step ~2: RuntimeError MPS out of memory, 182.66 GiB allocated, inside a batch_grid_255 microbatch (255 leaves x ~110 tokens). Failed checkpoint dir renamed to *_failed_oom for evidence; not overwritten."
+    }
+  },
+  "design": {
+    "trainer": "scripts/train_pipeline_decisions_v4.py",
+    "trainer_sha256": "1946bd4acfac0ecd26b9af8c410bcd1839a202913510bee4ad9cea2f7bc9a7da",
+    "gradient_checkpointing": {
+      "flag": "--gradient-checkpointing",
+      "mechanism": "backbone.gradient_checkpointing_enable(use_reentrant=false): activations recomputed during backward; LoRA A/B and head grads still flow; loss/optimizer/selection unchanged",
+      "justification": "Only viable path that keeps the complete-question softmax contract on a 255-candidate family within MPS unified memory; alternative (split softmax / drop family / shrink context) would violate the no-split rule or silently reduce contract coverage",
+      "expected_cost": "~30% step-time recompute overhead; acceptable"
+    },
+    "inherited_from_v1": {
+      "corpus": "research/engineering_judgment_corpus_v4/trainer_view (sha256 pins in v1)",
+      "arm": "LoRA r16 alpha32 dropout0.05 lr5e-5 on frozen backbone (--backbone-lr 0), head lr 2e-4, warm start checkpoints/local_atomic_seed17/variants/local_atomic_seed17",
+      "objective_loss": "gold_distribution + ce",
+      "steps": 600,
+      "eval_every": 50,
+      "batch_questions": 16,
+      "microbatch_questions": 4,
+      "max_microbatch_tokens": 32768,
+      "max_length": 2048,
+      "seeds": [17, 18, 19],
+      "device_precision": "mps / fp32",
+      "selection": "minimum dev target CE; heldout_v1 (69q) and heldout_v2 (312q) each read once per checkpoint",
+      "baselines": {"atomic_heldout_v1": 0.464, "v3_lora_heldout_v1_mean": 0.536, "v3_lora_heldout_v1_best": 0.580}
+    },
+    "output_dirs": [
+      "checkpoints/t9d_v5_lora_seed17",
+      "checkpoints/t9d_v5_lora_seed18",
+      "checkpoints/t9d_v5_lora_seed19"
+    ],
+    "cli": "scripts/train_pipeline_decisions_v4.py --input research/engineering_judgment_corpus_v4/trainer_view --output-dir checkpoints/t9d_v5_lora_seed{N} --init-checkpoint checkpoints/local_atomic_seed17/variants/local_atomic_seed17 --objective gold_distribution --loss ce --steps 600 --head-steps 0 --batch-questions 16 --microbatch-questions 4 --max-microbatch-tokens 32768 --eval-every 50 --max-length 2048 --seed {N} --lora-rank 16 --lora-alpha 32 --lora-dropout 0.05 --lora-lr 5e-5 --backbone-lr 0 --head-lr 2e-4 --device mps --precision fp32 --gradient-checkpointing"
+  },
+  "authorization": {
+    "training_authorized_by_this_document": true,
+    "deployment_authorized": false,
+    "external_model_outputs_in_corpus": false,
+    "heldout_reads": "heldout_v1 and heldout_v2 once each per checkpoint, after dev-only selection"
+  }
+}

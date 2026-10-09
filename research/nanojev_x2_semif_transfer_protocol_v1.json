@@ -1,0 +1,80 @@
+{
+  "schema_version": "nanojev-x2-semif-transfer-protocol-v1",
+  "created_utc": "2026-09-22",
+  "task": "X2 SemIf-style architecture transfer ablation (docs/NANOJEV_V2_ROADMAP.md row X2)",
+  "reference": {
+    "repo": "github.com/TheoLeeCJ/SemIf",
+    "license": "MIT",
+    "pinned": "ca3ba65f142967030ecb453346e94d6f476a69df",
+    "note": "direct native-logit readout; its letter-token path caps at 26 options"
+  },
+  "arms": {
+    "A": {
+      "name": "LoRA r16 seed18 + scalar/attention head (existing)",
+      "checkpoint": "checkpoints/domain_adaptation_v4_lora_seed18",
+      "note": "frozen receipts; no retraining"
+    },
+    "B": {
+      "name": "SemIf-style direct native-logit readout, zero learned parameters",
+      "implementation": "scripts/x2_semif_readout.py",
+      "serialization": "identical State:/Question type:/Question: prefix segments as predict_toy_decisions.prepare_examples; single-pass 'Candidates:' block; closing marker 'Decision:' (primary) and 'Answer:' (elicitation diagnostic)",
+      "labels": {
+        "boolean": "False/True -> ids false/true (candidate order)",
+        "choice": "A..Z -> criteria keys in insertion order",
+        "score": "0..k-1 -> level index strings"
+      },
+      "over_26_choice_fallback": "per-candidate leaf path (byte-identical to prepare_examples leaves); scalar = EOS logit at the pre-EOS decision position; softmax over candidates. Contract-preserving for k<=255; documented limitation: EOS-acceptance is a path-plausibility proxy, not a label readout. First-token-of-option-text was considered and rejected: first tokens can collide across candidates, silently merging option mass.",
+      "backbones": [
+        "base pinned snapshot c1899de2",
+        "local_atomic_seed17 (damage context)",
+        "domain_adaptation_v4_lora_seed18"
+      ]
+    },
+    "C": {
+      "name": "LoRA r16 (alpha32 dropout0.05 lr5e-5) on pinned base + minimal pointer head (T9b Option B, minimal form)",
+      "head": "query = hidden at anchor path 'prefix + Decision: + EOS'; keys = per-candidate leaf hidden states; score_i = (Wq q).(Wk h_i)/sqrt(128); boolean uses a learned zero-init null key for the 'false' slot",
+      "training": "corpus v3 train1080, gold_distribution CE, batch 16, microbatch 4 x 16384 tokens, max_length 2048, 300 steps, 12 head-warmup steps, dev-only best-step selection, MPS/FP32",
+      "seeds": [
+        17,
+        18,
+        19
+      ]
+    }
+  },
+  "data": {
+    "dev": {
+      "path": "research/engineering_judgment_corpus_v3/trainer_view/dev.jsonl",
+      "sha256": "d946096fcb01ab39c2eb37108f72013ffcbb6d406e11008d6d7cd23ed22b34f6"
+    },
+    "heldout_items": {
+      "path": "research/engineering_heldout_v1/items.jsonl",
+      "sha256": "4b29ac0a0bc79051965c7c2a02bde633323aa1c2540817c9ee7b2bfd9f7c8b47"
+    },
+    "heldout_predict_input": {
+      "path": "research/engineering_heldout_v1/predict_input.json",
+      "sha256": "120f02ee49446bb154bba496768a521dd4c600048c576158029117875680b23b"
+    }
+  },
+  "discipline": [
+    "dev-only model selection",
+    "heldout read once per arm/checkpoint",
+    "MPS/FP32 only",
+    "no network model calls",
+    "report worst-seed not just best",
+    "honest negatives recorded"
+  ],
+  "metrics": [
+    "accuracy overall + per type",
+    "cov@0.9 (answered_at_0.90)",
+    "confident_wrong",
+    "mean confidence",
+    "label_vocabulary_mass (Arm B)"
+  ],
+  "files": {
+    "arm_b_readout": "scripts/x2_semif_readout.py",
+    "arm_b_tests": "scripts/test_x2_semif_readout.py",
+    "pointer_tests": "scripts/test_x2_pointer_head.py",
+    "comparison": "scripts/score_x2_arms.py",
+    "receipt_dir": "results/x2_semif_transfer/"
+  }
+}

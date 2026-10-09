@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key><string>ai.nanojev.valen-lora</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/markus/Documents/NanoJev/external/valen/.venv/bin/python</string>
+        <string>/Users/markus/Documents/NanoJev/scripts/valen_head_server_v1.py</string>
+        <string>--host</string><string>127.0.0.1</string>
+        <string>--port</string><string>8094</string>
+        <string>--checkpoint</string><string>external/valen/output_v4/output/nano_sft_text_v4_fp32/latest</string>
+        <string>--device</string><string>mps</string>
+        <string>--rss-restart-gb</string><string>24</string>
+        <string>--watchdog-seconds</string><string>60</string>
+    </array>
+    <key>WorkingDirectory</key><string>/Users/markus/Documents/NanoJev</string>
+    <key>EnvironmentVariables</key>
+    <dict><key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string></dict>
+    <key>RunAtLoad</key><true/>
+    <key>KeepAlive</key><true/>
+    <key>StandardOutPath</key><string>/tmp/valen-lora-server.log</string>
+    <key>StandardErrorPath</key><string>/tmp/valen-lora-server.log</string>
+</dict>
+</plist>

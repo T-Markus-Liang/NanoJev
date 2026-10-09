@@ -1,0 +1,151 @@
+{
+  "schema_version": "nanojev-v2-t9d-v3-amendment-v1",
+  "amendment_id": "nanojev-v2-t9d-domain-adaptation-v3-two-arm-amendment",
+  "amendment_version": "v1",
+  "status": "versioned_amendment_two_arm_research_run",
+  "recorded_utc": "2026-09-20",
+  "purpose": "Amendment to the frozen T9d FP32/MPS protocol v2: retry domain-adaptation training on engineering-judgment corpus v3 (1080/324/216/324) with two arms that isolate the two competing explanations of the W42 failure — backbone damage under full fine-tuning (Arm A controls for it) versus insufficient data scale (Arm B controls for it).",
+  "bound_protocol": {
+    "document": "research/nanojev_v2_t9d_fp32_mps_protocol_v2.json",
+    "protocol_sha256": "7d687325040159241d7c92df1103cbdf04f4e85f0e3654e8576c41f8aed02b1a",
+    "relationship": "amendment: inherits the frozen recipe (objective, loss, steps, eval cadence, batching, budgets, runtime, selection and reporting rules) verbatim; changes only (a) the training corpus version and (b) the per-arm backbone update rule. Every other parameter is identical across arms and identical to protocol v2."
+  },
+  "evidence_receipts": {
+    "w42_full_backbone_v2_corpus": {
+      "source": "docs/EXECUTION_REVIEW_LOG.md W42 (2026-09-20), logs/t9d_train.log, checkpoints/domain_adaptation_v1_seed{17,18,19}, results/heldout_v1_post_train_seed17.json",
+      "finding": "Full-backbone FP32 training on corpus v2 (102 train questions) overfit instantly: train loss collapsed to ~1e-4 while dev CE rose from ~1.15-1.21 to 2.7-3.1; dev selection picked step 0 for 2 of 3 seeds; the only non-zero selection (seed17) regressed the independent heldout to 0.362 vs the 0.464 atomic baseline; coverage@0.9 remained 0/69."
+    },
+    "jd5_backbone_attribution": {
+      "source": "results/jd5_backbone_attribution/",
+      "finding": "Head/training is the gap, not backbone capacity: full fine-tuning damaged the backbone's native readout. Motivates a frozen-backbone arm."
+    },
+    "w43c_corpus_v3": {
+      "source": "docs/EXECUTION_REVIEW_LOG.md W43-C, research/engineering_judgment_corpus_v3/manifest.json",
+      "finding": "Corpus v3 built: 1944 items / 324 components / 18 families, isolation audit green (zero overlap with heldout_v1 and corpus v2), preflight status passed_not_training_authorized."
+    }
+  },
+  "design": {
+    "type": "two_arm_factorial_diagnostic",
+    "common_parameters": {
+      "model": "Qwen/Qwen3-0.6B",
+      "initial_checkpoint": "checkpoints/local_atomic_seed17/variants/local_atomic_seed17",
+      "initial_checkpoint_weights_sha256": "2b06e4423861f47da7ca53ad9c23a26aebdbfe79de3a238b36c2954ae9c6abf0",
+      "training_seeds": [
+        17,
+        18,
+        19
+      ],
+      "objective": "gold_distribution",
+      "loss": "ce",
+      "steps": 300,
+      "eval_every": 50,
+      "head_steps": 0,
+      "batch_questions": 16,
+      "microbatch_questions": 4,
+      "max_microbatch_tokens": 16384,
+      "max_length": 2048,
+      "head_lr": 0.0002,
+      "device": "mps",
+      "precision": "fp32",
+      "parameter_storage": "float32",
+      "autocast": "disabled"
+    },
+    "arm_A_head_only": {
+      "arm_id": "headonly",
+      "backbone_lr": 0.0,
+      "freeze_backbone": true,
+      "trainer": "scripts/train_pipeline_decisions_v3.py",
+      "trainer_sha256": "d99443d9150a5a9e1899d99dd1881b000d31deaa5816d984661738cd45d4bd85",
+      "output_dirs": [
+        "checkpoints/domain_adaptation_v3_headonly_seed17",
+        "checkpoints/domain_adaptation_v3_headonly_seed18",
+        "checkpoints/domain_adaptation_v3_headonly_seed19"
+      ],
+      "hypothesis": "If head/training is the gap (J-D5) and the backbone already encodes usable features, training only the decision head should improve dev CE and heldout without damaging the backbone's native readout. A negative result here means the head alone cannot close the gap at this head capacity or that the backbone features are not linearly/head-separable for engineering judgment.",
+      "script_delta_vs_frozen_trainer": "train_pipeline_decisions_v3.py is a byte-copy of the frozen trainer plus exactly one feature: --freeze-backbone keeps backbone parameters out of the gradient graph (requires_grad False for the entire run) and accepts --backbone-lr 0; the phase label records 'head_frozen_backbone'. Optimizer param groups, loss, batching, evaluation and selection code paths are untouched. Frozen trainer hash d1942528…dd0a is not modified."
+    },
+    "arm_B_full_backbone_v3_scale": {
+      "arm_id": "full",
+      "backbone_lr": 2e-05,
+      "freeze_backbone": false,
+      "trainer": "scripts/train_pipeline_decisions.py",
+      "trainer_sha256": "d1942528411bf9ad6d762ef1660f7bac3003cb8f9191f160c4cc07ec2746dd0a",
+      "output_dirs": [
+        "checkpoints/domain_adaptation_v3_full_seed17",
+        "checkpoints/domain_adaptation_v3_full_seed18",
+        "checkpoints/domain_adaptation_v3_full_seed19"
+      ],
+      "hypothesis": "W42 failed at 102 train questions; corpus v3 provides 1080 (10.6x) with 324 dev / 216 calibration / 324 test. If the W42 failure was primarily a data-scale artifact, the identical full-backbone recipe on v3 should dev-select a non-zero step and improve heldout; if it still overfits instantly and selects step 0, the failure is attributable to the update rule itself, not scale."
+    }
+  },
+  "data_contract": {
+    "corpus": "research/engineering_judgment_corpus_v3",
+    "trainer_input": "research/engineering_judgment_corpus_v3/trainer_view",
+    "catalog_version": "engineering-judgment-catalog-v3-scaled",
+    "manifest_content_sha256": "968538738075417e56882f391ddfe58ba72162368936f0a36f8826e24fa91cf6",
+    "trainer_view_sha256": {
+      "train.jsonl": "c9ac29faf1548b6136a4357bc27e30c8739ee95dd9aec27d4082d344019a9d00",
+      "dev.jsonl": "d946096fcb01ab39c2eb37108f72013ffcbb6d406e11008d6d7cd23ed22b34f6",
+      "calibration.jsonl": "10f2c4f8d03dfc97b1479e168b8eed66d043e3ece0ac6778d4faccd0a62ed7a5",
+      "test.jsonl": "8e54d5d2c6d26bdc6870a9d4ec4fb3286f1fd6df5c0563c69a211541a683858a"
+    },
+    "questions_by_split": {
+      "train": 1080,
+      "dev": 324,
+      "calibration": 216,
+      "test": 324
+    },
+    "validated_by": "train_pipeline_decisions_v3.py --validate-only: 1944 records, all questions eligible for gold_distribution",
+    "heldout": {
+      "predict_input": "research/engineering_heldout_v1/predict_input.json",
+      "predict_input_sha256": "120f02ee49446bb154bba496768a521dd4c600048c576158029117875680b23b",
+      "items_sha256": "4b29ac0a0bc79051965c7c2a02bde633323aa1c2540817c9ee7b2bfd9f7c8b47",
+      "role": "independent heldout; evaluation only, never trained on"
+    }
+  },
+  "selection_and_reporting": {
+    "selection_split": "dev",
+    "selection_metric": "target cross-entropy (inherited from protocol v2, unchanged)",
+    "include_step_zero": true,
+    "tie_break": "earliest step",
+    "last_point_rule": "If the minimum is the final registered evaluation point, report budget exhaustion and lack of convergence; do not add steps after observing results.",
+    "all_seeds_reported": true,
+    "temperature": 1.0,
+    "threshold": 0.9,
+    "post_hoc_threshold_fit": false,
+    "post_run_evaluation": [
+      "heldout_v1 predict per seed via scripts/predict_toy_decisions.py (fp32/mps, batch-questions 8, max-length 2048) -> results/heldout_v1_post_v3_{arm}_seed{N}.json; accuracy, coverage@0.9, mean confidence vs the 0.464 G4 heldout baseline (results/heldout_v1_g4_baseline.json)",
+      "corpus v3 test accuracy per question type from predictions_test.jsonl in each run dir vs the 0.44 atomic eng-test reference",
+      "receipt: results/t9d_v3_run_summary.json"
+    ],
+    "mps_contention_rule": "No predict or lifecycle calls while a training run occupies MPS; evaluations run strictly after each arm completes."
+  },
+  "honest_prior": {
+    "statement": "W42 is a documented negative result for this recipe at 102-question scale, and W43-B falsified grouped calibration at current scale. Prior belief: Arm B is more likely than not to overfit again (full backbone + 300 steps is a large update budget even at 1080 questions); Arm A is the more plausible arm but may still fail if the gap is not head-separable. This run is a diagnostic, not an expected promotion.",
+    "preregistered_interpretation": {
+      "A_wins_B_fails": "supports J-D5 (update rule damaged the backbone); next lever is head-only or adapter training",
+      "B_wins": "W42 was a data-scale artifact; full-backbone at v3 scale is viable",
+      "both_fail": "neither scale nor freezing suffices; next levers are LoRA/adapter, curriculum, or representation-level approaches",
+      "both_pass": "report per-seed minima; promotion still requires the protocol v2 paired gates, which this amendment does not run"
+    }
+  },
+  "authorization": {
+    "scope": "research training run of exactly the two arms and three seeds declared above, plus the listed post-run measurements",
+    "training_authorized_for_declared_arms": true,
+    "checkpoint_promotion_authorized": false,
+    "deployment_authorized": false,
+    "active_context_removal_authorized": false,
+    "live_trading_authorized": false,
+    "overwrite_existing_outputs": false,
+    "shared_docs_modified_by_this_amendment": false
+  },
+  "nanojev_lifecycle_receipt": {
+    "stage": "development",
+    "event_id": "b3b53f1f-cc88-449d-bd4b-a144a5d55194",
+    "outcome": "abstained (confidence 0.402 < 0.9 gate); proceeded deterministically per AGENTS.md; advisory only, no authorization taken from the local model"
+  },
+  "document_sha256": {
+    "convention": "sha256 of this file with document_sha256.value set to null",
+    "value": "2f57ac65df4a24e3a2f9a74e5a44330664715ad7d3e0c554746e5a17c4e8f42a"
+  }
+}

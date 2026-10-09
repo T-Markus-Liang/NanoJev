@@ -1,0 +1,535 @@
+{
+  "schema_version": "nanojev-context-shadow-benchmark-v1",
+  "stress": {
+    "checks": 3000,
+    "seed": 17,
+    "cases_per_format": 1000,
+    "failures": 0,
+    "scope": "deterministic stub invariants, not learned relevance quality",
+    "case_counts": {
+      "anthropic_messages/0/shadow_only": 100,
+      "anthropic_messages/1/no_eligible_segments": 100,
+      "anthropic_messages/2/uncertain_score": 100,
+      "anthropic_messages/3/scorer_error": 100,
+      "anthropic_messages/4/invalid_score_response": 100,
+      "anthropic_messages/5/unknown_segment_reference": 100,
+      "anthropic_messages/6/unsupported_content": 100,
+      "anthropic_messages/7/invalid_json": 100,
+      "anthropic_messages/8/no_eligible_segments": 100,
+      "anthropic_messages/9/unsupported_envelope_fields": 100,
+      "openai_chat/0/shadow_only": 100,
+      "openai_chat/1/no_eligible_segments": 100,
+      "openai_chat/2/uncertain_score": 100,
+      "openai_chat/3/scorer_error": 100,
+      "openai_chat/4/invalid_score_response": 100,
+      "openai_chat/5/unknown_segment_reference": 100,
+      "openai_chat/6/unsupported_content": 100,
+      "openai_chat/7/invalid_json": 100,
+      "openai_chat/8/no_eligible_segments": 100,
+      "openai_chat/9/unsupported_envelope_fields": 100,
+      "openai_responses/0/shadow_only": 100,
+      "openai_responses/1/no_eligible_segments": 100,
+      "openai_responses/2/uncertain_score": 100,
+      "openai_responses/3/scorer_error": 100,
+      "openai_responses/4/invalid_score_response": 100,
+      "openai_responses/5/unknown_segment_reference": 100,
+      "openai_responses/6/unsupported_content": 100,
+      "openai_responses/7/invalid_json": 100,
+      "openai_responses/8/no_eligible_segments": 100,
+      "openai_responses/9/unsupported_envelope_fields": 100
+    }
+  },
+  "real_model": {
+    "scope": "24 constructed fixtures from 8 underlying scenarios; three dialects, one checkpoint, no main-model quality evaluation",
+    "transport": "temporary loopback HTTP server /api/evaluate, using the real handler and checkpoint; no proxy inheritance",
+    "rows": [
+      {
+        "format": "anthropic_messages",
+        "scenario": "test_command",
+        "expected": "retain",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7631011605262756,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "c572738b-e64b-4774-aa94-ecb588f82d12",
+        "scorer_event_id": "6eac518d-64b0-462a-aefe-01c931177be7",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "anthropic_messages",
+        "scenario": "test_command",
+        "expected": "drop",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7661415338516235,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "f899fc52-15cb-46c5-8365-3aa74a71b0f3",
+        "scorer_event_id": "23dfbe75-e909-46a9-9d2a-de46c7c725f0",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "anthropic_messages",
+        "scenario": "order_total",
+        "expected": "retain",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7767011523246765,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "a5ffd84f-c387-4e56-9af2-e1863909a495",
+        "scorer_event_id": "bb94d8de-691c-468b-9bb9-69e1e34a6d51",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "anthropic_messages",
+        "scenario": "order_total",
+        "expected": "drop",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7645428776741028,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "6619b2da-ca9a-4274-b90a-259022fa9636",
+        "scorer_event_id": "7b0d6630-eb02-40b5-abc5-d0fc9cf081a4",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "anthropic_messages",
+        "scenario": "chinese",
+        "expected": "retain",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7062374949455261,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "77819c28-2525-491e-ba50-eb379d636a86",
+        "scorer_event_id": "60efcbfd-2b58-44d2-9943-5e962f02b23e",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "anthropic_messages",
+        "scenario": "chinese",
+        "expected": "drop",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7586450576782227,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "81792dd1-1465-4b30-a4c3-9cf1265c0436",
+        "scorer_event_id": "0080cb85-c243-4efd-bb2e-31d14ccb9719",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "anthropic_messages",
+        "scenario": "risk_limit",
+        "expected": "retain",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7825829386711121,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "9650b5be-95b9-45f4-ba35-6ba79812d064",
+        "scorer_event_id": "7b58d860-d415-40a7-bfc5-00f86eb152e4",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "anthropic_messages",
+        "scenario": "risk_limit",
+        "expected": "drop",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7710068225860596,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "dca764b3-3d19-484f-b8f7-186d36b199dc",
+        "scorer_event_id": "45bfb96c-5fd8-4faa-bbae-1e5c08fc78be",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "openai_chat",
+        "scenario": "test_command",
+        "expected": "retain",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7834102511405945,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "17b1ae4c-a221-4f56-8a30-9979dd4216a3",
+        "scorer_event_id": "6200df54-3e70-40ec-878f-f86076472831",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "openai_chat",
+        "scenario": "test_command",
+        "expected": "drop",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7880269289016724,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "839143be-3c41-40ce-a910-ee68f9e54a9b",
+        "scorer_event_id": "0ba41e4b-4025-4e11-be23-2822eae1ca21",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "openai_chat",
+        "scenario": "order_total",
+        "expected": "retain",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7834721207618713,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "33cf6f0c-79aa-4673-9819-d136ba5ad244",
+        "scorer_event_id": "fecd75f0-4b9f-4b2e-be5d-b8710c88c262",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "openai_chat",
+        "scenario": "order_total",
+        "expected": "drop",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7820100784301758,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "cad603e2-073f-44dd-ad4a-f776771cb258",
+        "scorer_event_id": "2f59f841-2f86-458a-8825-e948200e11fb",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "openai_chat",
+        "scenario": "chinese",
+        "expected": "retain",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7421865463256836,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "8d8d5ab3-e8b4-4be9-be0d-03455728a68f",
+        "scorer_event_id": "f6f97eb7-f28d-4e2d-91c3-682c34df9800",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "openai_chat",
+        "scenario": "chinese",
+        "expected": "drop",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7815292477607727,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "cdd838c2-58f3-4ec5-a723-a0bf422e35dc",
+        "scorer_event_id": "bbf3281d-57d1-4b53-83a7-ec52c30ffb80",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "openai_chat",
+        "scenario": "risk_limit",
+        "expected": "retain",
+        "suggestion": "retain",
+        "p_irrelevant": 0.8230774402618408,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "074c1170-7011-47b5-a637-fbdbd11077b5",
+        "scorer_event_id": "52fbad1a-f73a-41de-86f6-700b8cbc8d59",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "openai_chat",
+        "scenario": "risk_limit",
+        "expected": "drop",
+        "suggestion": "retain",
+        "p_irrelevant": 0.8085766434669495,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "ffdab53f-2b16-46eb-9b09-7a2b8e46d0c8",
+        "scorer_event_id": "12067697-636e-4e59-ab9c-e484781f24b7",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "openai_responses",
+        "scenario": "test_command",
+        "expected": "retain",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7624534964561462,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "30ed3d42-3eee-42e9-80da-9a8653486269",
+        "scorer_event_id": "be0ec32b-5621-4493-9666-bf5429849f3f",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "openai_responses",
+        "scenario": "test_command",
+        "expected": "drop",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7655519247055054,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "57374445-6fec-4bbc-8d36-d07c4ae1d91e",
+        "scorer_event_id": "aea7c8e1-ccd3-4491-8b2a-709b75cf043b",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "openai_responses",
+        "scenario": "order_total",
+        "expected": "retain",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7745617628097534,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "f1ab9239-632b-4dea-8f2e-ea0eb1d76d01",
+        "scorer_event_id": "421e1f64-8ae1-4004-b123-40504498b078",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "openai_responses",
+        "scenario": "order_total",
+        "expected": "drop",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7650564312934875,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "92b314fc-9a20-4e3b-896d-1d10c05a5ba5",
+        "scorer_event_id": "aae534e4-15fa-4699-b83e-e6ebcdaa2b20",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "openai_responses",
+        "scenario": "chinese",
+        "expected": "retain",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7113208770751953,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "1898b786-f266-4f85-84df-420cbd68ed52",
+        "scorer_event_id": "d324b3f7-7b57-4535-9352-2342e828d4b3",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "openai_responses",
+        "scenario": "chinese",
+        "expected": "drop",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7595179080963135,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "4a44c1e6-4956-40c4-9da1-c7690a1a4005",
+        "scorer_event_id": "e526fc12-7061-450d-9304-6ed36b10304f",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "openai_responses",
+        "scenario": "risk_limit",
+        "expected": "retain",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7795245051383972,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "81033135-7acd-4d19-a391-0d48f868437c",
+        "scorer_event_id": "a4f8b97f-5bb2-4eec-bab3-4b03346d14fe",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      },
+      {
+        "format": "openai_responses",
+        "scenario": "risk_limit",
+        "expected": "drop",
+        "suggestion": "retain",
+        "p_irrelevant": 0.7672848105430603,
+        "status": "bypass",
+        "reason": "uncertain_score",
+        "event_id": "b89b83c8-a96d-4d0a-9b08-d75b03210fc6",
+        "scorer_event_id": "7ebd3d88-7d22-43cc-bbb1-5a5e0a9ed546",
+        "token_counts": {
+          "scope": "isolated_segment_text_only_not_provider_billing",
+          "tokenizer_sha256": "18de3abc0ef7d0614ce838de2067128cecf91193b73d71f04418b9a25ebbcbc6",
+          "proposed_text_tokens": 0
+        }
+      }
+    ],
+    "fixture_sha256": "8d9cd5f2d2040f6a5936daef82a59e674139417c408ecc515b6817325828fc1c",
+    "model_load_ms": 7401.88254090026,
+    "latency_ms": {
+      "p50": 32.457875087857246,
+      "p95": 37.67402049852535
+    },
+    "proposed_drops": 0,
+    "required_context_proposed_drops": 0,
+    "actual_saved_tokens": 0,
+    "status_counts": {
+      "uncertain_score": 24
+    },
+    "usage": {
+      "path": "/Users/markus/Documents/NanoJev/data/context_shadow_v1_final_usage.jsonl",
+      "bytes": 27735,
+      "sha256": "a2b5ff58732cb271557e1049b2b33699ba3ea52c69d82f98f4685022eec4e2d7"
+    },
+    "shadow_receipts": {
+      "path": "/Users/markus/Documents/NanoJev/data/context_shadow_v1_final_receipts.jsonl",
+      "bytes": 36745,
+      "sha256": "59a866c78da8f0796ce02cffd9ebcd3c8eb63578d1698f4a90a813d6e48e04e3"
+    },
+    "checkpoint_files": [
+      {
+        "path": "/Users/markus/Documents/NanoJev/checkpoints/local_atomic_seed17/variants/local_atomic_seed17/config.json",
+        "bytes": 2498,
+        "sha256": "3a6b014a77eaa3a79155a9c0c84ce2c005b5a5c66fdf88445067657ac9def176"
+      },
+      {
+        "path": "/Users/markus/Documents/NanoJev/checkpoints/local_atomic_seed17/variants/local_atomic_seed17/best.safetensors",
+        "bytes": 2385039280,
+        "sha256": "2b06e4423861f47da7ca53ad9c23a26aebdbfe79de3a238b36c2954ae9c6abf0"
+      },
+      {
+        "path": "/Users/markus/Documents/NanoJev/checkpoints/local_atomic_seed17/variants/local_atomic_seed17/backbone_config/config.json",
+        "bytes": 1417,
+        "sha256": "30c011854471509747858ac07ffb8a4dab2bc6c04035b184729b69500c557c54"
+      },
+      {
+        "path": "/Users/markus/Documents/NanoJev/checkpoints/local_atomic_seed17/variants/local_atomic_seed17/tokenizer/tokenizer.json",
+        "bytes": 11422650,
+        "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506"
+      },
+      {
+        "path": "/Users/markus/Documents/NanoJev/checkpoints/local_atomic_seed17/variants/local_atomic_seed17/tokenizer/tokenizer_config.json",
+        "bytes": 692,
+        "sha256": "1cc816812993bff176eb4f7495433b736f06fba9b6e7b05cac7b4a1780650c95"
+      }
+    ],
+    "hardware": {
+      "system": "Darwin",
+      "release": "25.5.0",
+      "version": "Darwin Kernel Version 25.5.0: Mon Apr 27 20:41:12 PDT 2026; root:xnu-12377.121.6~2/RELEASE_ARM64_T6050",
+      "machine": "arm64",
+      "processor": "arm",
+      "python_implementation": "CPython",
+      "physical_memory_bytes": 137438953472,
+      "runtime_device": "mps",
+      "sha256": "e4bed9dc44861d65617e52a60938ec7725bfaf6227de523700472c06bbba1030"
+    },
+    "dependencies": {
+      "torch": "2.14.0",
+      "transformers": "5.17.0",
+      "safetensors": "0.8.0",
+      "numpy": "2.5.3"
+    }
+  },
+  "code": [
+    {
+      "path": "/Users/markus/Documents/NanoJev/scripts/context_gate_v1.py",
+      "bytes": 17478,
+      "sha256": "57a4ac856ee6511bcd44877499a9abcf036549c2ef24dbabe96024129bd80dc0"
+    },
+    {
+      "path": "/Users/markus/Documents/NanoJev/scripts/context_gate_local.py",
+      "bytes": 4995,
+      "sha256": "f151e105ec971ce3371586417a4ca8b3a7205bfc71c6e754b4222ea683d58b0e"
+    },
+    {
+      "path": "/Users/markus/Documents/NanoJev/scripts/benchmark_context_shadow_v1.py",
+      "bytes": 10871,
+      "sha256": "46d8631072d9e8aa4706a85cd82a2e95a4aae40a29a510a980b407dd08ba95ad"
+    },
+    {
+      "path": "/Users/markus/Documents/NanoJev/scripts/predict_toy_decisions.py",
+      "bytes": 19276,
+      "sha256": "701851b421eeca7611eb3241c47c06db779645a9771abf5f0074704b49c23514"
+    },
+    {
+      "path": "/Users/markus/Documents/NanoJev/scripts/train_toy_decisions.py",
+      "bytes": 20890,
+      "sha256": "4f39babd5575e43d7acf3eca357329a93c60041f334bc2bd7424929bf9c0da86"
+    },
+    {
+      "path": "/Users/markus/Documents/NanoJev/scripts/serve_decisions.py",
+      "bytes": 4374,
+      "sha256": "9a71c6ab58fc0b3f33dd7c53509f2f9c72fe526d2b012091d7d6dfe1a22a0a27"
+    }
+  ],
+  "helper": {
+    "path": "/Users/markus/Documents/NanoJev/integrations/codex-skill/nanojev-local-decider/scripts/nanojev_skill.py",
+    "bytes": 20006,
+    "sha256": "5302a8448e7880362f99d5443bc0c419f1a778a99aab5961b34d4875204f91a4"
+  }
+}

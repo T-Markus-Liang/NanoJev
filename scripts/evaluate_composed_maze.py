@@ -341,7 +341,7 @@ def main():
                 parser.error("Jev requires --env-file, --journal-dir, and a budget in (0,24]")
             from evaluate_scaled_games import LiveJev
             engine = LiveJev(args.env_file, args.journal_dir, args.budget_usd)
-            model_identity["model"] = "typesafe-ai/jev"
+            model_identity["model"] = "jev-latest"
         else:
             engine = ReferenceDiagnostics()
         result = run_composed(selected, engine, args.audit_every, args.window_size, args.batch_states, args.batch_questions)

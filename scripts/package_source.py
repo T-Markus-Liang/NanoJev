@@ -130,7 +130,7 @@ SECRET_PATTERNS = tuple(re.compile(pattern) for pattern in (
     rb"\bAIza[A-Za-z0-9_-]{30,}\b",
     rb"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----",
     rb"\bBearer[ \t]+[A-Za-z0-9_-]{20,}(?:\.[A-Za-z0-9_-]+)*",
-    rb"(?im)^[ \t]*(?:[\"']?)(?:AI_GATEWAY_API_KEY|OPENAI_API_KEY|ANTHROPIC_API_KEY|AWS_SECRET_ACCESS_KEY|GITHUB_TOKEN)(?:[\"']?)[ \t]*[:=][ \t]*[\"']?[A-Za-z0-9_./+~-]{20,}",
+    rb"(?im)^[ \t]*(?:[\"']?)(?:AI_GATEWAY_API_KEY|TYPESAFE_API_KEY|OPENAI_API_KEY|ANTHROPIC_API_KEY|AWS_SECRET_ACCESS_KEY|GITHUB_TOKEN)(?:[\"']?)[ \t]*[:=][ \t]*[\"']?[A-Za-z0-9_./+~-]{20,}",
 ))
 TEXT_SUFFIXES = {".py", ".mjs", ".js", ".json", ".jsonl", ".md", ".txt", ".html", ".css"}
 

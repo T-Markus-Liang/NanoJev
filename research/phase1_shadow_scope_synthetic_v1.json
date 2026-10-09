@@ -1,0 +1,27 @@
+{
+    "schema_version": "nanojev-phase1-shadow-scope-grant-v1",
+    "artifact_id": "phase1_shadow_scope_synthetic_v1",
+    "status": "granted_synthetic_scope_only",
+    "base_template": "research/phase1_shadow_authorization_v1.json",
+    "granted_at": "2026-09-23",
+    "granted_by": "owner-interactive-session",
+    "expires_at": "2026-09-24T00:00:00Z",
+    "scope": {
+        "traffic_source": "research/context_filter_value_fixture_manifest_v3.json (synthetic held-out fixtures only)",
+        "upstream": "loopback fake upstream only",
+        "scorer": "live Winnow-12B Q8 via SystemOneHTTPScorer on 127.0.0.1:8091",
+        "mode": "shadow",
+        "max_requests": 25,
+        "provider_calls_allowed": false,
+        "active_filtering_allowed": false,
+        "reduced_bytes_may_be_sent": false,
+        "real_user_data_allowed": false
+    },
+    "stop_conditions": [
+        "any request would send reduced bytes",
+        "any protected or required evidence pointer is proposed for removal",
+        "any restore round-trip fails",
+        "receipt contains raw prompt, response, credential, or tool-output text",
+        "owner revokes scope or requests stop"
+    ]
+}

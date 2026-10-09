@@ -18,7 +18,7 @@ import time
 
 from predict_toy_decisions import (
     local_checkpoint_files, prepare_examples, read_json, reject_nonfinite,
-    unique_object, validate_request,
+    unique_object, validate_request, resolve_runtime,
 )
 
 GOLD_PROB_KINDS = {"programmatic_conditional_distribution", "optimal_action_policy", "deterministic_truth"}
@@ -274,7 +274,7 @@ def evaluate_pipeline(model, examples, pad_token, args, objective, path=None):
     all_targets = {name: {"n": 0, "ce": 0.0, "kl": 0.0, "tv": 0.0} for name in ("teacher", "gold_distribution", "observed_outcome")}
     with torch.inference_mode():
         for group in pack_complete_questions(examples, args.microbatch_questions, args.max_microbatch_tokens):
-            with torch.autocast("cuda", dtype=torch.bfloat16, enabled=args.precision == "bf16"):
+            with torch.autocast(next(model.parameters()).device.type, dtype=torch.bfloat16, enabled=args.precision == "bf16"):
                 z, _ = model(group, pad_token)
             for ex, values in zip(group, z):
                 logits = values[:len(ex["candidate_ids"])].float().cpu().tolist()
@@ -381,6 +381,15 @@ def self_check():
     print(json.dumps({"schema_checks": "passed", "complete_question_budget": "passed", "numerical_checks": numerical}))
 
 
+def training_runtime(torch, device_name, precision, loss, disable_native_triton=False):
+    device, precision = resolve_runtime(torch, device_name, precision)
+    if device.type == "mps" and loss == "paired_brier_pg":
+        raise ValueError("MPS sampled policy-gradient training is not validated; use CPU or CUDA")
+    if disable_native_triton and device.type != "cuda":
+        raise ValueError("--disable-native-triton applies only to CUDA")
+    return device, precision
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--input")
@@ -405,6 +414,7 @@ def main():
     p.add_argument("--head-lr", type=float, default=2e-4)
     p.add_argument("--head-warmup-lr", type=float, default=1e-3)
     p.add_argument("--precision", choices=["bf16", "fp32"], default="bf16")
+    p.add_argument("--device", default="cuda", help="cuda (historical default), mps, cpu, or auto; MPS/CPU require fp32")
     p.add_argument("--disable-native-triton", action="store_true")
     p.add_argument("--validate-only", action="store_true", help="Stdlib schema/split/target audit only, no tokenizer/GPU")
     p.add_argument("--self-check", action="store_true", help="CPU-only necessary schema/numerical checks; no model download")
@@ -437,13 +447,13 @@ def main():
     from safetensors.torch import load_file, save_file
     from transformers import AutoConfig, AutoModel, AutoTokenizer
     from train_toy_decisions import DecisionModel
+    device, args.precision = training_runtime(torch, args.device, args.precision, args.loss, args.disable_native_triton)
     if args.disable_native_triton:
         from torch._native import triton_utils
         triton_utils.deregister_op_overrides()
-    if not torch.cuda.is_available() or (args.precision == "bf16" and not torch.cuda.is_bf16_supported()):
-        raise RuntimeError("A usable CUDA device with the requested precision is required")
-    torch.backends.cuda.matmul.allow_tf32 = False
-    random.seed(args.seed); torch.manual_seed(args.seed); torch.cuda.manual_seed_all(args.seed)
+    random.seed(args.seed); torch.manual_seed(args.seed)
+    if device.type == "cuda":
+        torch.cuda.manual_seed_all(args.seed)
     init_config = None
     if args.init_checkpoint:
         _, checkpoint_files = local_checkpoint_files(args.init_checkpoint)
@@ -484,14 +494,15 @@ def main():
     # Fail before training if even one complete question cannot satisfy the declared budget.
     for group in splits.values():
         pack_complete_questions(group, args.microbatch_questions, args.max_microbatch_tokens)
-    model.cuda()
+    model.to(device)
     config = {**vars(args), "schema_version": "openjev-decision-pipeline-v1",
               "model": init_config.get("model", args.model) if init_config else args.model,
               "resolved_model_revision": init_config.get("resolved_model_revision") if init_config else getattr(model.backbone.config, "_commit_hash", None),
               "initialization": "local DecisionModel warm start, fresh optimizer" if init_config else "pretrained backbone with new decision head",
               "data_sha256": {str(f): hashlib.sha256(f.read_bytes()).hexdigest() for f in files},
               "deps": {k: importlib.metadata.version(k) for k in ("torch", "transformers", "safetensors")},
-              "gpu": torch.cuda.get_device_name(0), "parameter_storage": "float32",
+              "gpu": torch.cuda.get_device_name(device) if device.type == "cuda" else str(device),
+              "runtime_device": str(device), "parameter_storage": "float32",
               "forward_autocast": "bfloat16" if args.precision == "bf16" else "disabled",
               "parameter_count": sum(t.numel() for t in model.parameters()),
               "train_questions": len(train), "all_train_questions": len(splits["train"]),
@@ -504,14 +515,20 @@ def main():
     tokenizer.save_pretrained(out / "tokenizer"); model.backbone.config.save_pretrained(out / "backbone_config")
     initial = evaluate_pipeline(model, splits["dev"], tokenizer.pad_token_id, args, args.objective, out / "initial_dev.jsonl")
     dump(out / "initial_dev_metrics.json", initial)
+    if initial["target_ce"] is None or not math.isfinite(initial["target_ce"]):
+        raise RuntimeError("Initial dev checkpoint has no finite selection metric")
     head = [param for name, param in model.named_parameters() if not name.startswith("backbone.")]
     body = list(model.backbone.parameters())
     optimizer = torch.optim.AdamW([{"params": body, "lr": args.backbone_lr}, {"params": head, "lr": args.head_lr}], weight_decay=.01)
-    best, best_step, logs = float("inf"), None, []
+    # A trained candidate must beat the unchanged initialization on dev, not win by default.
+    best, best_step, logs = initial["target_ce"], 0, []
+    save_file({k: v.detach().cpu().contiguous().clone() for k, v in model.state_dict().items()}, out / "best.safetensors")
     started = time.perf_counter()
     from calibrated_objectives import grouped_calibrated_loss
-    reward_generator = torch.Generator(device="cuda").manual_seed(args.seed + 104729)
-    torch.cuda.reset_peak_memory_stats()
+    reward_generator = (torch.Generator(device=device).manual_seed(args.seed + 104729)
+                        if args.loss == "paired_brier_pg" else None)
+    if device.type == "cuda":
+        torch.cuda.reset_peak_memory_stats(device)
     for step in range(args.head_steps + args.steps):
         warm = step < args.head_steps
         for param in body:
@@ -522,7 +539,7 @@ def main():
         model.train(); optimizer.zero_grad(set_to_none=True)
         loss_sum = 0.0
         for group in groups:
-            with torch.autocast("cuda", dtype=torch.bfloat16, enabled=args.precision == "bf16"):
+            with torch.autocast(device.type, dtype=torch.bfloat16, enabled=args.precision == "bf16"):
                 logits, _ = model(group, tokenizer.pad_token_id)
                 # A single denominator for the full optimizer update, regardless of microbatch sizes or K.
                 loss = grouped_calibrated_loss(logits, group, args.objective, args.loss,
@@ -558,7 +575,8 @@ def main():
     summary = {"best_step": best_step, "best_dev_target_ce": best, "selected_on": "dev target CE",
                "objective": args.objective, "metrics_by_split": final, "temperature": 1.0,
                "temperature_fitted": False, "training_seconds": time.perf_counter() - started,
-               "max_gpu_allocated_gb": torch.cuda.max_memory_allocated() / 1e9}
+               "max_gpu_allocated_gb": torch.cuda.max_memory_allocated(device) / 1e9 if device.type == "cuda" else None,
+               "runtime_device": str(device)}
     dump(out / "train_log.json", logs); dump(out / "summary.json", summary)
     print(json.dumps({"done": str(out), **summary}), flush=True)
 

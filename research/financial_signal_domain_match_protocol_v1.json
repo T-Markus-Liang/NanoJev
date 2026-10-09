@@ -1,0 +1,33 @@
+{
+  "caveats": [
+    "pooled spearman mixes cross-day prediction-level drift with within-day ranking; the book only consumes within-day ranks \u2014 both are reported",
+    "xs_rank_dfh on xs is a 10-asset rank vs the 277-asset training cross-section (v4's documented shift); affects the replica arm only \u2014 min3 uses raw dfh20",
+    "xs10_domain trains on the symbols' mega-cohort rows (same venue/feature construction), not the xs records",
+    "top30_qvol membership is recomputed inside each train window \u2014 PIT-safe but fold-dependent",
+    "xs 2026 eval window is Jan-Aug (238 labeled days), not a full year"
+  ],
+  "cohorts": {
+    "btc_train": "data/rc_futures_v1/BTC/BTCUSDT_1d.csv",
+    "btc_xs_eval": "BTCUSDT-PERP closes inside xs_v1 (v3 live convention)",
+    "eval_mega": "mega test-year rows, all symbols",
+    "eval_xs": "data/perp_pit_xs_v1/records.jsonl (10 majors, through 2026-08-26 fully labeled)",
+    "train": "data/perp_pit_mega_v1/records.jsonl (277 symbols; all train-side rows come from the mega cohort, including the xs10 variant's rows for the 10 ledger symbols)"
+  },
+  "created_utc": "2026-09-24T17:25:09Z",
+  "definitions": {
+    "live_window": "fit <= 2025-12-26 last fully labeled, eval xs 2026-01-01..2026-08-26",
+    "metrics": "pooled spearman(pred, ret5d) [v4 headline], mean/median per-day cross-sectional spearman, top-2/bottom-2 realized spread (v4 book construction) on 5d label and 1d return, ungated and btc_ret20>0 days; mega top-decile spread",
+    "model": "ridge_min3 {dfh20, btc_ret20, dfh20*btc_ret20}; replica arm = v4 ridge_all 7 features, lambda=100",
+    "variants": "all277_control / top30_qvol (per-fold PIT symbol selection by mean quote_volume inside the train window) / xs10_domain / recent_regime (train dates >= 2023-01-01)",
+    "walkforward": "T127 discipline: train year t -> test year t+1, 5d embargo at boundaries, lambda via in-train forward-chaining CV (5 chunks); never test"
+  },
+  "forbidden": [
+    "trading",
+    "profitability claims",
+    "protocol edits post-run",
+    "network",
+    "lambda/model selection on test data"
+  ],
+  "purpose": "T130: test whether domain-matched (top-30 by quote_volume, or the 10 ledger symbols) or regime-matched (2023+) training of ridge_min3 fixes the v4 OOS ranking inversion (pooled 2026 xs spearman ~-0.096) that all-277-symbol training produces on the live majors universe. Measurement only.",
+  "schema_version": "nanojev-financial-signal-domain-match-protocol-v1"
+}

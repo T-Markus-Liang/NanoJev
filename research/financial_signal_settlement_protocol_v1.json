@@ -1,0 +1,46 @@
+{
+ "schema_version": "nanojev-financial-signal-settlement-protocol-v1",
+ "created_utc": "2026-09-24T00:00:00Z",
+ "purpose": "T93 validation of the T89 post-settlement negative tilt on the expanded hourly PIT cohort: are bars 0-2h after an 8h funding settlement genuinely negative-tilted (alpha), a funding-payment/mark-index settlement mechanical artifact, or underpowered noise. Measurement only - no fitting, no trading, no profitability claims.",
+ "cohort": {
+  "path": "data/perp_pit_intraday_v1/records.jsonl",
+  "records": 17960,
+  "assets": ["BNBUSDT-PERP", "BTCUSDT-PERP", "ETHUSDT-PERP", "SOLUSDT-PERP", "XRPUSDT-PERP"],
+  "span_utc": "2026-04-02T00:59:59.999 .. 2026-08-31T19:59:59.999",
+  "label": "label.forward_return_bps (perp_forward_mark_return_up_25bps_4h_gross; numeric bps present on all 17960 records)",
+  "t89_finding_under_test": "post-settlement bars (decision_ms mod 28800000 < 7200000) vs rest: -4.8bps mean 4h forward tilt, p~0.005"
+ },
+ "checks": {
+  "V1_funding_sign_split": "post and rest bars split by settled last_funding_rate sign (>0/<0/=0); mechanical-artifact hypothesis predicts dip concentrated in funding>0. Auxiliary: mean mark_index_basis_bps post vs rest (basis discontinuity check)",
+  "V2_conditioning_grid": "post-vs-rest tilt within trailing-90-record per-asset mid-rank percentile terciles of last_funding_rate (funding_pct) and realized_vol_24h (rv_pct), and within each asset",
+  "V3_horizon": "forward mark returns recomputed from features.mark_price series at 1h/2h/4h per asset (mark-derived 4h verified against the label); tilt vs rest at each horizon",
+  "V4_economics": "compare gross tilt to 5bps/side taker assumption (10bps round trip); state tradability honestly and frame value as diagnostic contamination of other signals' evaluation windows",
+  "V5_stability": "per-UTC-month post-vs-rest tilt (sign report) plus full 8h cycle-position profile (sawtooth check: is the dip settlement-centered rather than uniquely post-settlement)"
+ },
+ "contrast_family": [
+  "C1_post_vs_rest_4h_label",
+  "C2_post_vs_rest_1h",
+  "C3_post_vs_rest_2h",
+  "C4_post_fundpos_vs_rest_fundpos",
+  "C5_post_fundneg_vs_rest_fundneg",
+  "C6_post_fundpos_vs_post_fundneg",
+  "C7_rv_pct_high_post_vs_rest",
+  "C8_rv_pct_low_post_vs_rest"
+ ],
+ "statistics": {
+  "test": "Welch two-sample t, normal-approx two-sided p (same convention as financial_signal_regime_v1 / financial_signal_funding_timing_v1); min n=10 per side",
+  "multiple_testing": "BH-FDR alpha=0.05 over the evaluated contrast family (<=8)",
+  "reported_per_arm": ["n", "mean_bps", "median_bps", "t", "p", "approx_mde80_bps"],
+  "caveats": [
+   "4h forward labels on 1h bars overlap ~4x (2x at 2h horizon) -> positive autocorrelation; Welch t nominal, p-values optimistic",
+   "cross-asset bars sharing a timestamp are correlated through the common market factor; pooled n overstates effective sample size",
+   "mark-derived forward returns reuse only features.mark_price already in the records; series tails lose the last ~4 bars per asset per horizon"
+  ]
+ },
+ "forbidden": [
+  "fitting",
+  "trading",
+  "profitability claims",
+  "protocol edits post-run"
+ ]
+}

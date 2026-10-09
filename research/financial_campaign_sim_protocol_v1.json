@@ -1,0 +1,57 @@
+{
+  "arms": {
+    "btc_hold": "buy-and-hold BTC over the sim calendar",
+    "composite": "full entry filter",
+    "no_filter": "entry = gate-on AND top-quintile only; identical pyramid/exits \u2014 isolates the entry filter's value"
+  },
+  "caveats": [
+    "close basis + daily bars: intra-day stops are coarse \u2014 an 8% trail can lose far more than 8% through a gap day",
+    "margined adds = implicit leverage up to ~1.75x notional",
+    "early-stopped symbols are kept (mega includes delisted \u2014 a PLUS for survivorship honesty); campaigns on them are reported explicitly",
+    "second-hand archive copy, not an as-of vintage"
+  ],
+  "cohort": {
+    "assets": "277 USDT-M perps, 2021-01-01 -> 2025-12-30, close basis; includes 11 delisted/renamed early-stoppers (listed/last_bar_date on every record)",
+    "btc_gate_source": "data/rc_futures_v1/BTC/BTCUSDT_1d.csv close/close[t-20]-1",
+    "path": "data/perp_pit_mega_v1/records.jsonl"
+  },
+  "created_utc": "2026-09-24T15:40:59Z",
+  "definitions": {
+    "concurrency": "MAX_CONCURRENT=1 \u2014 one campaign at a time, full equity deployed at entry (chosen over max-2 for a clean single-book equity curve)",
+    "costs": "5bps per fill; funding carry skipped (signal only)",
+    "entry": "BTC ret20>0 AND dfh20 XS mid-rank pct>=0.8 (top quintile, >=30 ranked) AND dfh20 in [-0.12,-0.03] AND close>prev_close AND (funding_pct<0.8 if funded). Highest rank wins; fill at signal-day close.",
+    "exit_order": [
+      "data_end (no bar -> last close)",
+      "btc_regime_off (BTC ret20<=0)",
+      "funding_euphoria (funding_pct>=0.95)",
+      "trailing_stop_8pct (close<0.92*max_close)",
+      "time_stop_30d (>=30 calendar days held)",
+      "rank_below_median (dfh20 pct<0.5/unranked)",
+      "end_of_sample (force-close at tail)"
+    ],
+    "fills": "all at day-t close on day-t PIT features \u2014 the same close basis as the cohort labels; 'next bar open' approximated by that close on daily bars",
+    "funding_pct": "per-asset mid-rank pct of last_funding_rate vs trailing-180 daily values (MIN_WINDOW=20)",
+    "pyramid": "unrealized>=+3% vs vwap AND gate-on AND still top-quintile -> add 50% of position (qty*0.5 at mark), max 2 adds, margined perp-style (cash goes negative, ~1.75x max notional)"
+  },
+  "forbidden": [
+    "fitting",
+    "trading",
+    "profitability claims",
+    "protocol edits post-run",
+    "network"
+  ],
+  "metrics": [
+    "n campaigns",
+    "win rate",
+    "mean/max campaign return",
+    "final compounded equity",
+    "max drawdown (daily equity)",
+    "time-in-market %",
+    "per-year table by exit year",
+    "avg adds/campaign",
+    "exit-reason histogram",
+    "determinism double-run"
+  ],
+  "purpose": "T119: rolling-campaign simulator \u2014 the full entry -> pyramid -> exit state machine \u2014 measured on the 277-symbol mega PIT cohort vs a no-entry-filter sibling and buy-and-hold BTC.",
+  "schema_version": "nanojev-financial-campaign-sim-protocol-v1"
+}

@@ -1,0 +1,3314 @@
+{
+  "schema_version": "nanojev-v2-benchmark-v1",
+  "checkpoint": "/Users/markus/Documents/NanoJev/runs/context_relevance_oracle_v1_seed18",
+  "input": "/Users/markus/Documents/NanoJev/dataset/games_v4/data/local_maze_v1",
+  "run": {
+    "seed_label": "seed-18",
+    "bootstrap_samples": 1000,
+    "bootstrap_seed": 20260919
+  },
+  "manifest": {
+    "schema_version": "nanojev-v2-benchmark-manifest-v1",
+    "input": {
+      "path": "/Users/markus/Documents/NanoJev/dataset/games_v4/data/local_maze_v1",
+      "files": [
+        {
+          "path": "/Users/markus/Documents/NanoJev/dataset/games_v4/data/local_maze_v1/ood.jsonl",
+          "bytes": 195310,
+          "sha256": "e6772998a189880c780b6408c0e348c77324a28204e390767dec54f475d61f4e"
+        },
+        {
+          "path": "/Users/markus/Documents/NanoJev/dataset/games_v4/data/local_maze_v1/test.jsonl",
+          "bytes": 232377,
+          "sha256": "be7783c395715f9fa2aae7c793c4e5b7c4b1dfe3fcb0880544b577e85b8f3b10"
+        }
+      ],
+      "sha256": "c315cb56446944bde714760e205803bf0f2f4ea39f55dc7a62b8a06219b21837"
+    },
+    "dataset_manifest": {
+      "path": "/Users/markus/Documents/NanoJev/dataset/games_v4/data/local_maze_v1/manifest.json",
+      "bytes": 8190,
+      "sha256": "5ad9b122421610f505960d7cb7d35111b3d19294f03dbc2e0260695ceaf1d177"
+    },
+    "checkpoint": {
+      "directory": "/Users/markus/Documents/NanoJev/runs/context_relevance_oracle_v1_seed18",
+      "files": [
+        {
+          "path": "/Users/markus/Documents/NanoJev/runs/context_relevance_oracle_v1_seed18/config.json",
+          "bytes": 2699,
+          "sha256": "e13ed5991cc8020181713f8f75a9a982f06bbbc9ba98ab4a70a38a1aff578e9e"
+        },
+        {
+          "path": "/Users/markus/Documents/NanoJev/runs/context_relevance_oracle_v1_seed18/best.safetensors",
+          "bytes": 2385039280,
+          "sha256": "f76d82a6162a68b20c1e8852bd356b80b1689ad565e06f9b84c401f4ab0ec659"
+        },
+        {
+          "path": "/Users/markus/Documents/NanoJev/runs/context_relevance_oracle_v1_seed18/backbone_config/config.json",
+          "bytes": 1417,
+          "sha256": "30c011854471509747858ac07ffb8a4dab2bc6c04035b184729b69500c557c54"
+        },
+        {
+          "path": "/Users/markus/Documents/NanoJev/runs/context_relevance_oracle_v1_seed18/tokenizer/tokenizer.json",
+          "bytes": 11422650,
+          "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506"
+        },
+        {
+          "path": "/Users/markus/Documents/NanoJev/runs/context_relevance_oracle_v1_seed18/tokenizer/tokenizer_config.json",
+          "bytes": 692,
+          "sha256": "1cc816812993bff176eb4f7495433b736f06fba9b6e7b05cac7b4a1780650c95"
+        }
+      ]
+    },
+    "benchmark_script": {
+      "path": "/Users/markus/Documents/NanoJev/scripts/benchmark_nanojev_v2.py",
+      "bytes": 15420,
+      "sha256": "f8416a6a3556561c1311dbdcf5411178e71c0b2ce4fb4e6a0a834bb613152d60"
+    },
+    "dependencies": {
+      "versions": {
+        "torch": "2.14.0",
+        "transformers": "5.17.0",
+        "safetensors": "0.8.0",
+        "numpy": "2.5.3"
+      },
+      "sha256": "49999d6d7e5fcca44f755df596574e1d3a321db09379e354f1246d04ecf4645e"
+    },
+    "python": {
+      "version": "3.14.6",
+      "executable": "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/bin/python3.14"
+    },
+    "hardware": {
+      "system": "Darwin",
+      "release": "25.5.0",
+      "version": "Darwin Kernel Version 25.5.0: Mon Apr 27 20:41:12 PDT 2026; root:xnu-12377.121.6~2/RELEASE_ARM64_T6050",
+      "machine": "arm64",
+      "processor": "arm",
+      "python_implementation": "CPython",
+      "physical_memory_bytes": 137438953472,
+      "runtime_device": "mps",
+      "sha256": "e4bed9dc44861d65617e52a60938ec7725bfaf6227de523700472c06bbba1030"
+    },
+    "manifest_sha256": "bfaf2a285448949b458e303d32d5145f2649ecb5878ff712b3087d6d00007bbe"
+  },
+  "execution": {
+    "device": "mps",
+    "precision": "fp32",
+    "load_ms": 8226.854207925498,
+    "requests": 8,
+    "cold_request_ms": 767.602999927476,
+    "warm_request_count": 7,
+    "warm_request_p50_ms": 652.8885418083519,
+    "warm_request_p95_ms": 702.0985920913517,
+    "warm_request_min_ms": 345.7080840598792,
+    "questions_per_second": 46.59743846250734,
+    "peak_rss_bytes": 5278760960,
+    "forward_passes": 8,
+    "network_model_calls": 0
+  },
+  "quality": {
+    "test": {
+      "questions": 176,
+      "accuracy": 0.7784090909090909,
+      "nll": 0.6465090923681891,
+      "brier": 0.34268409455742305,
+      "ece": 0.14248699898069556,
+      "invalid_outputs": 0
+    },
+    "ood": {
+      "questions": 64,
+      "accuracy": 0.765625,
+      "nll": 0.5743938157968084,
+      "brier": 0.3554088053748331,
+      "ece": 0.12839628104120498,
+      "invalid_outputs": 0
+    }
+  },
+  "confidence_intervals": {
+    "test": {
+      "method": "source_group_cluster_bootstrap",
+      "confidence": 0.95,
+      "resamples": 1000,
+      "clusters": 11,
+      "seed": 3416211301691988818,
+      "metrics": {
+        "accuracy": {
+          "low": 0.6931818181818182,
+          "high": 0.8579545454545454,
+          "valid_resamples": 1000
+        },
+        "nll": {
+          "low": 0.4499619529577327,
+          "high": 0.8470342389806031,
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "low": 0.23371422000684278,
+          "high": 0.4563912088442538,
+          "valid_resamples": 1000
+        },
+        "ece": {
+          "low": 0.09102926291525369,
+          "high": 0.221039951194755,
+          "valid_resamples": 1000
+        }
+      }
+    },
+    "ood": {
+      "method": "source_group_cluster_bootstrap",
+      "confidence": 0.95,
+      "resamples": 1000,
+      "clusters": 4,
+      "seed": 17584223914584130946,
+      "metrics": {
+        "accuracy": {
+          "low": 0.671875,
+          "high": 0.859375,
+          "valid_resamples": 1000
+        },
+        "nll": {
+          "low": 0.34757925108817783,
+          "high": 0.801208380505439,
+          "valid_resamples": 1000
+        },
+        "brier": {
+          "low": 0.22009120901652507,
+          "high": 0.5010168790209844,
+          "valid_resamples": 1000
+        },
+        "ece": {
+          "low": 0.07497341837733983,
+          "high": 0.24627158418297765,
+          "valid_resamples": 1000
+        }
+      }
+    }
+  },
+  "samples": [
+    {
+      "sample_id": "maze_state:0984da656b2437c647c52b18c127955ea24de75fb1f792aed30ec0a6fd485adb:clear_east",
+      "row_id": "maze_state:0984da656b2437c647c52b18c127955ea24de75fb1f792aed30ec0a6fd485adb",
+      "qid": "clear_east",
+      "split": "ood",
+      "source_group_id": "maze:50:c8994dc46f58bc6a995030835c8ae9565a96d151604e06692908c15c20a2bd32",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9312564134597778,
+        "true": 0.0687435194849968
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:0984da656b2437c647c52b18c127955ea24de75fb1f792aed30ec0a6fd485adb:clear_north",
+      "row_id": "maze_state:0984da656b2437c647c52b18c127955ea24de75fb1f792aed30ec0a6fd485adb",
+      "qid": "clear_north",
+      "split": "ood",
+      "source_group_id": "maze:50:c8994dc46f58bc6a995030835c8ae9565a96d151604e06692908c15c20a2bd32",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.7277918457984924,
+        "true": 0.27220818400382996
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:0984da656b2437c647c52b18c127955ea24de75fb1f792aed30ec0a6fd485adb:clear_south",
+      "row_id": "maze_state:0984da656b2437c647c52b18c127955ea24de75fb1f792aed30ec0a6fd485adb",
+      "qid": "clear_south",
+      "split": "ood",
+      "source_group_id": "maze:50:c8994dc46f58bc6a995030835c8ae9565a96d151604e06692908c15c20a2bd32",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8117082118988037,
+        "true": 0.18829183280467987
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:0984da656b2437c647c52b18c127955ea24de75fb1f792aed30ec0a6fd485adb:clear_west",
+      "row_id": "maze_state:0984da656b2437c647c52b18c127955ea24de75fb1f792aed30ec0a6fd485adb",
+      "qid": "clear_west",
+      "split": "ood",
+      "source_group_id": "maze:50:c8994dc46f58bc6a995030835c8ae9565a96d151604e06692908c15c20a2bd32",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9295982122421265,
+        "true": 0.07040181010961533
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:42634df48d305619904375ed03b26f6f02ddd7b1e1dbe7720d358c9218a78244:clear_east",
+      "row_id": "maze_state:42634df48d305619904375ed03b26f6f02ddd7b1e1dbe7720d358c9218a78244",
+      "qid": "clear_east",
+      "split": "ood",
+      "source_group_id": "maze:50:c8994dc46f58bc6a995030835c8ae9565a96d151604e06692908c15c20a2bd32",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.001458089565858245,
+        "true": 0.9985419511795044
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:42634df48d305619904375ed03b26f6f02ddd7b1e1dbe7720d358c9218a78244:clear_north",
+      "row_id": "maze_state:42634df48d305619904375ed03b26f6f02ddd7b1e1dbe7720d358c9218a78244",
+      "qid": "clear_north",
+      "split": "ood",
+      "source_group_id": "maze:50:c8994dc46f58bc6a995030835c8ae9565a96d151604e06692908c15c20a2bd32",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8338040113449097,
+        "true": 0.16619595885276794
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:42634df48d305619904375ed03b26f6f02ddd7b1e1dbe7720d358c9218a78244:clear_south",
+      "row_id": "maze_state:42634df48d305619904375ed03b26f6f02ddd7b1e1dbe7720d358c9218a78244",
+      "qid": "clear_south",
+      "split": "ood",
+      "source_group_id": "maze:50:c8994dc46f58bc6a995030835c8ae9565a96d151604e06692908c15c20a2bd32",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8915402293205261,
+        "true": 0.10845983028411865
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:42634df48d305619904375ed03b26f6f02ddd7b1e1dbe7720d358c9218a78244:clear_west",
+      "row_id": "maze_state:42634df48d305619904375ed03b26f6f02ddd7b1e1dbe7720d358c9218a78244",
+      "qid": "clear_west",
+      "split": "ood",
+      "source_group_id": "maze:50:c8994dc46f58bc6a995030835c8ae9565a96d151604e06692908c15c20a2bd32",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.000858654675539583,
+        "true": 0.9991413354873657
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:963771d16e333ece9d42c14d74f1f20407a594f43f182d06bc81f8e1da0db091:clear_east",
+      "row_id": "maze_state:963771d16e333ece9d42c14d74f1f20407a594f43f182d06bc81f8e1da0db091",
+      "qid": "clear_east",
+      "split": "ood",
+      "source_group_id": "maze:50:c8994dc46f58bc6a995030835c8ae9565a96d151604e06692908c15c20a2bd32",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9812095761299133,
+        "true": 0.018790429458022118
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:963771d16e333ece9d42c14d74f1f20407a594f43f182d06bc81f8e1da0db091:clear_north",
+      "row_id": "maze_state:963771d16e333ece9d42c14d74f1f20407a594f43f182d06bc81f8e1da0db091",
+      "qid": "clear_north",
+      "split": "ood",
+      "source_group_id": "maze:50:c8994dc46f58bc6a995030835c8ae9565a96d151604e06692908c15c20a2bd32",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.38155311346054077,
+        "true": 0.618446946144104
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:963771d16e333ece9d42c14d74f1f20407a594f43f182d06bc81f8e1da0db091:clear_south",
+      "row_id": "maze_state:963771d16e333ece9d42c14d74f1f20407a594f43f182d06bc81f8e1da0db091",
+      "qid": "clear_south",
+      "split": "ood",
+      "source_group_id": "maze:50:c8994dc46f58bc6a995030835c8ae9565a96d151604e06692908c15c20a2bd32",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.48050037026405334,
+        "true": 0.519499659538269
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:963771d16e333ece9d42c14d74f1f20407a594f43f182d06bc81f8e1da0db091:clear_west",
+      "row_id": "maze_state:963771d16e333ece9d42c14d74f1f20407a594f43f182d06bc81f8e1da0db091",
+      "qid": "clear_west",
+      "split": "ood",
+      "source_group_id": "maze:50:c8994dc46f58bc6a995030835c8ae9565a96d151604e06692908c15c20a2bd32",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.5664659738540649,
+        "true": 0.43353405594825745
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:23c176df28968b3d1c0028583b20ef971c2bc9074156775ba5e4bac19b2405d8:clear_east",
+      "row_id": "maze_state:23c176df28968b3d1c0028583b20ef971c2bc9074156775ba5e4bac19b2405d8",
+      "qid": "clear_east",
+      "split": "ood",
+      "source_group_id": "maze:50:c8994dc46f58bc6a995030835c8ae9565a96d151604e06692908c15c20a2bd32",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0005597875569947064,
+        "true": 0.9994402527809143
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:23c176df28968b3d1c0028583b20ef971c2bc9074156775ba5e4bac19b2405d8:clear_north",
+      "row_id": "maze_state:23c176df28968b3d1c0028583b20ef971c2bc9074156775ba5e4bac19b2405d8",
+      "qid": "clear_north",
+      "split": "ood",
+      "source_group_id": "maze:50:c8994dc46f58bc6a995030835c8ae9565a96d151604e06692908c15c20a2bd32",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8265297412872314,
+        "true": 0.17347024381160736
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:23c176df28968b3d1c0028583b20ef971c2bc9074156775ba5e4bac19b2405d8:clear_south",
+      "row_id": "maze_state:23c176df28968b3d1c0028583b20ef971c2bc9074156775ba5e4bac19b2405d8",
+      "qid": "clear_south",
+      "split": "ood",
+      "source_group_id": "maze:50:c8994dc46f58bc6a995030835c8ae9565a96d151604e06692908c15c20a2bd32",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8918400406837463,
+        "true": 0.10815994441509247
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:23c176df28968b3d1c0028583b20ef971c2bc9074156775ba5e4bac19b2405d8:clear_west",
+      "row_id": "maze_state:23c176df28968b3d1c0028583b20ef971c2bc9074156775ba5e4bac19b2405d8",
+      "qid": "clear_west",
+      "split": "ood",
+      "source_group_id": "maze:50:c8994dc46f58bc6a995030835c8ae9565a96d151604e06692908c15c20a2bd32",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0005640407907776535,
+        "true": 0.9994359612464905
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:bd4106fc7afb8cfaea3cb8edb4a620bb84e44c8070d0edd18647615d1e9bec6d:clear_east",
+      "row_id": "maze_state:bd4106fc7afb8cfaea3cb8edb4a620bb84e44c8070d0edd18647615d1e9bec6d",
+      "qid": "clear_east",
+      "split": "ood",
+      "source_group_id": "maze:50:9cca16e3c737724b9ee2464c400344b07bf6af39bb1261838217d14ef9b6aace",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9337977766990662,
+        "true": 0.06620225310325623
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:bd4106fc7afb8cfaea3cb8edb4a620bb84e44c8070d0edd18647615d1e9bec6d:clear_north",
+      "row_id": "maze_state:bd4106fc7afb8cfaea3cb8edb4a620bb84e44c8070d0edd18647615d1e9bec6d",
+      "qid": "clear_north",
+      "split": "ood",
+      "source_group_id": "maze:50:9cca16e3c737724b9ee2464c400344b07bf6af39bb1261838217d14ef9b6aace",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.13105317950248718,
+        "true": 0.8689467906951904
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:bd4106fc7afb8cfaea3cb8edb4a620bb84e44c8070d0edd18647615d1e9bec6d:clear_south",
+      "row_id": "maze_state:bd4106fc7afb8cfaea3cb8edb4a620bb84e44c8070d0edd18647615d1e9bec6d",
+      "qid": "clear_south",
+      "split": "ood",
+      "source_group_id": "maze:50:9cca16e3c737724b9ee2464c400344b07bf6af39bb1261838217d14ef9b6aace",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.139506533741951,
+        "true": 0.8604934215545654
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:bd4106fc7afb8cfaea3cb8edb4a620bb84e44c8070d0edd18647615d1e9bec6d:clear_west",
+      "row_id": "maze_state:bd4106fc7afb8cfaea3cb8edb4a620bb84e44c8070d0edd18647615d1e9bec6d",
+      "qid": "clear_west",
+      "split": "ood",
+      "source_group_id": "maze:50:9cca16e3c737724b9ee2464c400344b07bf6af39bb1261838217d14ef9b6aace",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9279468655586243,
+        "true": 0.07205310463905334
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:335886524074e74138e2fc9693344bc0c9e73b0184d595430ab135730f6e5bcf:clear_east",
+      "row_id": "maze_state:335886524074e74138e2fc9693344bc0c9e73b0184d595430ab135730f6e5bcf",
+      "qid": "clear_east",
+      "split": "ood",
+      "source_group_id": "maze:50:9cca16e3c737724b9ee2464c400344b07bf6af39bb1261838217d14ef9b6aace",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8985394835472107,
+        "true": 0.1014605313539505
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:335886524074e74138e2fc9693344bc0c9e73b0184d595430ab135730f6e5bcf:clear_north",
+      "row_id": "maze_state:335886524074e74138e2fc9693344bc0c9e73b0184d595430ab135730f6e5bcf",
+      "qid": "clear_north",
+      "split": "ood",
+      "source_group_id": "maze:50:9cca16e3c737724b9ee2464c400344b07bf6af39bb1261838217d14ef9b6aace",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.23993758857250214,
+        "true": 0.7600623965263367
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:335886524074e74138e2fc9693344bc0c9e73b0184d595430ab135730f6e5bcf:clear_south",
+      "row_id": "maze_state:335886524074e74138e2fc9693344bc0c9e73b0184d595430ab135730f6e5bcf",
+      "qid": "clear_south",
+      "split": "ood",
+      "source_group_id": "maze:50:9cca16e3c737724b9ee2464c400344b07bf6af39bb1261838217d14ef9b6aace",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.218352809548378,
+        "true": 0.7816472053527832
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:335886524074e74138e2fc9693344bc0c9e73b0184d595430ab135730f6e5bcf:clear_west",
+      "row_id": "maze_state:335886524074e74138e2fc9693344bc0c9e73b0184d595430ab135730f6e5bcf",
+      "qid": "clear_west",
+      "split": "ood",
+      "source_group_id": "maze:50:9cca16e3c737724b9ee2464c400344b07bf6af39bb1261838217d14ef9b6aace",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8896540999412537,
+        "true": 0.11034595221281052
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:116f8e46a579a9314c000e5503e8b3469efaf44e27315f241e71e30e8d371759:clear_east",
+      "row_id": "maze_state:116f8e46a579a9314c000e5503e8b3469efaf44e27315f241e71e30e8d371759",
+      "qid": "clear_east",
+      "split": "ood",
+      "source_group_id": "maze:50:9cca16e3c737724b9ee2464c400344b07bf6af39bb1261838217d14ef9b6aace",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.002285185270011425,
+        "true": 0.9977148771286011
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:116f8e46a579a9314c000e5503e8b3469efaf44e27315f241e71e30e8d371759:clear_north",
+      "row_id": "maze_state:116f8e46a579a9314c000e5503e8b3469efaf44e27315f241e71e30e8d371759",
+      "qid": "clear_north",
+      "split": "ood",
+      "source_group_id": "maze:50:9cca16e3c737724b9ee2464c400344b07bf6af39bb1261838217d14ef9b6aace",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9687679409980774,
+        "true": 0.031232019886374474
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:116f8e46a579a9314c000e5503e8b3469efaf44e27315f241e71e30e8d371759:clear_south",
+      "row_id": "maze_state:116f8e46a579a9314c000e5503e8b3469efaf44e27315f241e71e30e8d371759",
+      "qid": "clear_south",
+      "split": "ood",
+      "source_group_id": "maze:50:9cca16e3c737724b9ee2464c400344b07bf6af39bb1261838217d14ef9b6aace",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.979343056678772,
+        "true": 0.02065691538155079
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:116f8e46a579a9314c000e5503e8b3469efaf44e27315f241e71e30e8d371759:clear_west",
+      "row_id": "maze_state:116f8e46a579a9314c000e5503e8b3469efaf44e27315f241e71e30e8d371759",
+      "qid": "clear_west",
+      "split": "ood",
+      "source_group_id": "maze:50:9cca16e3c737724b9ee2464c400344b07bf6af39bb1261838217d14ef9b6aace",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0011044630082324147,
+        "true": 0.998895525932312
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:9b7f547073ae6b84e390644e3cf1fdf2401882f30aa37a256ee2c8009ca7ddc3:clear_east",
+      "row_id": "maze_state:9b7f547073ae6b84e390644e3cf1fdf2401882f30aa37a256ee2c8009ca7ddc3",
+      "qid": "clear_east",
+      "split": "ood",
+      "source_group_id": "maze:50:9cca16e3c737724b9ee2464c400344b07bf6af39bb1261838217d14ef9b6aace",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.999524712562561,
+        "true": 0.0004753348184749484
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:9b7f547073ae6b84e390644e3cf1fdf2401882f30aa37a256ee2c8009ca7ddc3:clear_north",
+      "row_id": "maze_state:9b7f547073ae6b84e390644e3cf1fdf2401882f30aa37a256ee2c8009ca7ddc3",
+      "qid": "clear_north",
+      "split": "ood",
+      "source_group_id": "maze:50:9cca16e3c737724b9ee2464c400344b07bf6af39bb1261838217d14ef9b6aace",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.015144377015531063,
+        "true": 0.984855592250824
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:9b7f547073ae6b84e390644e3cf1fdf2401882f30aa37a256ee2c8009ca7ddc3:clear_south",
+      "row_id": "maze_state:9b7f547073ae6b84e390644e3cf1fdf2401882f30aa37a256ee2c8009ca7ddc3",
+      "qid": "clear_south",
+      "split": "ood",
+      "source_group_id": "maze:50:9cca16e3c737724b9ee2464c400344b07bf6af39bb1261838217d14ef9b6aace",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.019528111442923546,
+        "true": 0.9804719090461731
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:9b7f547073ae6b84e390644e3cf1fdf2401882f30aa37a256ee2c8009ca7ddc3:clear_west",
+      "row_id": "maze_state:9b7f547073ae6b84e390644e3cf1fdf2401882f30aa37a256ee2c8009ca7ddc3",
+      "qid": "clear_west",
+      "split": "ood",
+      "source_group_id": "maze:50:9cca16e3c737724b9ee2464c400344b07bf6af39bb1261838217d14ef9b6aace",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9995419979095459,
+        "true": 0.00045806769048795104
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:3e4c972ddbf356a1380a1e569bbb7649c71be0fd418ddd18a03822a99a2886a2:clear_east",
+      "row_id": "maze_state:3e4c972ddbf356a1380a1e569bbb7649c71be0fd418ddd18a03822a99a2886a2",
+      "qid": "clear_east",
+      "split": "ood",
+      "source_group_id": "maze:50:5c7dc2062fc57e0609762b06404dc78b10ffddb255e190d843fdb11dd9e60c87",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9994624257087708,
+        "true": 0.000537592452019453
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:3e4c972ddbf356a1380a1e569bbb7649c71be0fd418ddd18a03822a99a2886a2:clear_north",
+      "row_id": "maze_state:3e4c972ddbf356a1380a1e569bbb7649c71be0fd418ddd18a03822a99a2886a2",
+      "qid": "clear_north",
+      "split": "ood",
+      "source_group_id": "maze:50:5c7dc2062fc57e0609762b06404dc78b10ffddb255e190d843fdb11dd9e60c87",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.010254422202706337,
+        "true": 0.9897454977035522
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:3e4c972ddbf356a1380a1e569bbb7649c71be0fd418ddd18a03822a99a2886a2:clear_south",
+      "row_id": "maze_state:3e4c972ddbf356a1380a1e569bbb7649c71be0fd418ddd18a03822a99a2886a2",
+      "qid": "clear_south",
+      "split": "ood",
+      "source_group_id": "maze:50:5c7dc2062fc57e0609762b06404dc78b10ffddb255e190d843fdb11dd9e60c87",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.013211628422141075,
+        "true": 0.9867883920669556
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:3e4c972ddbf356a1380a1e569bbb7649c71be0fd418ddd18a03822a99a2886a2:clear_west",
+      "row_id": "maze_state:3e4c972ddbf356a1380a1e569bbb7649c71be0fd418ddd18a03822a99a2886a2",
+      "qid": "clear_west",
+      "split": "ood",
+      "source_group_id": "maze:50:5c7dc2062fc57e0609762b06404dc78b10ffddb255e190d843fdb11dd9e60c87",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9994839429855347,
+        "true": 0.0005159982247278094
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:6ee3f501f86778b32c57917fb352832e08dc7bacad621356df267d568114ad57:clear_east",
+      "row_id": "maze_state:6ee3f501f86778b32c57917fb352832e08dc7bacad621356df267d568114ad57",
+      "qid": "clear_east",
+      "split": "ood",
+      "source_group_id": "maze:50:5c7dc2062fc57e0609762b06404dc78b10ffddb255e190d843fdb11dd9e60c87",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0010587171418592334,
+        "true": 0.9989412426948547
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:6ee3f501f86778b32c57917fb352832e08dc7bacad621356df267d568114ad57:clear_north",
+      "row_id": "maze_state:6ee3f501f86778b32c57917fb352832e08dc7bacad621356df267d568114ad57",
+      "qid": "clear_north",
+      "split": "ood",
+      "source_group_id": "maze:50:5c7dc2062fc57e0609762b06404dc78b10ffddb255e190d843fdb11dd9e60c87",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8170530796051025,
+        "true": 0.18294690549373627
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:6ee3f501f86778b32c57917fb352832e08dc7bacad621356df267d568114ad57:clear_south",
+      "row_id": "maze_state:6ee3f501f86778b32c57917fb352832e08dc7bacad621356df267d568114ad57",
+      "qid": "clear_south",
+      "split": "ood",
+      "source_group_id": "maze:50:5c7dc2062fc57e0609762b06404dc78b10ffddb255e190d843fdb11dd9e60c87",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8824476003646851,
+        "true": 0.11755233258008957
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:6ee3f501f86778b32c57917fb352832e08dc7bacad621356df267d568114ad57:clear_west",
+      "row_id": "maze_state:6ee3f501f86778b32c57917fb352832e08dc7bacad621356df267d568114ad57",
+      "qid": "clear_west",
+      "split": "ood",
+      "source_group_id": "maze:50:5c7dc2062fc57e0609762b06404dc78b10ffddb255e190d843fdb11dd9e60c87",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0007112814928404987,
+        "true": 0.9992886781692505
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:e8073deaea4fea2347d37051dc8e411fb5f6982646e18421099fbb5bbfea754c:clear_east",
+      "row_id": "maze_state:e8073deaea4fea2347d37051dc8e411fb5f6982646e18421099fbb5bbfea754c",
+      "qid": "clear_east",
+      "split": "ood",
+      "source_group_id": "maze:50:5c7dc2062fc57e0609762b06404dc78b10ffddb255e190d843fdb11dd9e60c87",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0015020057326182723,
+        "true": 0.9984979629516602
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:e8073deaea4fea2347d37051dc8e411fb5f6982646e18421099fbb5bbfea754c:clear_north",
+      "row_id": "maze_state:e8073deaea4fea2347d37051dc8e411fb5f6982646e18421099fbb5bbfea754c",
+      "qid": "clear_north",
+      "split": "ood",
+      "source_group_id": "maze:50:5c7dc2062fc57e0609762b06404dc78b10ffddb255e190d843fdb11dd9e60c87",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.967972993850708,
+        "true": 0.032027002424001694
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:e8073deaea4fea2347d37051dc8e411fb5f6982646e18421099fbb5bbfea754c:clear_south",
+      "row_id": "maze_state:e8073deaea4fea2347d37051dc8e411fb5f6982646e18421099fbb5bbfea754c",
+      "qid": "clear_south",
+      "split": "ood",
+      "source_group_id": "maze:50:5c7dc2062fc57e0609762b06404dc78b10ffddb255e190d843fdb11dd9e60c87",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9804310202598572,
+        "true": 0.01956900581717491
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:e8073deaea4fea2347d37051dc8e411fb5f6982646e18421099fbb5bbfea754c:clear_west",
+      "row_id": "maze_state:e8073deaea4fea2347d37051dc8e411fb5f6982646e18421099fbb5bbfea754c",
+      "qid": "clear_west",
+      "split": "ood",
+      "source_group_id": "maze:50:5c7dc2062fc57e0609762b06404dc78b10ffddb255e190d843fdb11dd9e60c87",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.000904761312995106,
+        "true": 0.9990952014923096
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:6cb16ec35df330032e48040cd32ba8effb8e15ea57c1c884f6c621cf0772d15c:clear_east",
+      "row_id": "maze_state:6cb16ec35df330032e48040cd32ba8effb8e15ea57c1c884f6c621cf0772d15c",
+      "qid": "clear_east",
+      "split": "ood",
+      "source_group_id": "maze:50:5c7dc2062fc57e0609762b06404dc78b10ffddb255e190d843fdb11dd9e60c87",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0011976747773587704,
+        "true": 0.9988023042678833
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:6cb16ec35df330032e48040cd32ba8effb8e15ea57c1c884f6c621cf0772d15c:clear_north",
+      "row_id": "maze_state:6cb16ec35df330032e48040cd32ba8effb8e15ea57c1c884f6c621cf0772d15c",
+      "qid": "clear_north",
+      "split": "ood",
+      "source_group_id": "maze:50:5c7dc2062fc57e0609762b06404dc78b10ffddb255e190d843fdb11dd9e60c87",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.6648686528205872,
+        "true": 0.33513134717941284
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:6cb16ec35df330032e48040cd32ba8effb8e15ea57c1c884f6c621cf0772d15c:clear_south",
+      "row_id": "maze_state:6cb16ec35df330032e48040cd32ba8effb8e15ea57c1c884f6c621cf0772d15c",
+      "qid": "clear_south",
+      "split": "ood",
+      "source_group_id": "maze:50:5c7dc2062fc57e0609762b06404dc78b10ffddb255e190d843fdb11dd9e60c87",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.7683318257331848,
+        "true": 0.2316681146621704
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:6cb16ec35df330032e48040cd32ba8effb8e15ea57c1c884f6c621cf0772d15c:clear_west",
+      "row_id": "maze_state:6cb16ec35df330032e48040cd32ba8effb8e15ea57c1c884f6c621cf0772d15c",
+      "qid": "clear_west",
+      "split": "ood",
+      "source_group_id": "maze:50:5c7dc2062fc57e0609762b06404dc78b10ffddb255e190d843fdb11dd9e60c87",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0007237897370941937,
+        "true": 0.9992762207984924
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:5ee0de3e770e9d194358649333103c357bc048516cf5e93e60624bd516bf8b23:clear_east",
+      "row_id": "maze_state:5ee0de3e770e9d194358649333103c357bc048516cf5e93e60624bd516bf8b23",
+      "qid": "clear_east",
+      "split": "ood",
+      "source_group_id": "maze:50:a35aa79614a2eb460958b0d39eab0c0fe1610f904857e6bf3967cdef9658975b",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0013600074453279376,
+        "true": 0.9986400008201599
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:5ee0de3e770e9d194358649333103c357bc048516cf5e93e60624bd516bf8b23:clear_north",
+      "row_id": "maze_state:5ee0de3e770e9d194358649333103c357bc048516cf5e93e60624bd516bf8b23",
+      "qid": "clear_north",
+      "split": "ood",
+      "source_group_id": "maze:50:a35aa79614a2eb460958b0d39eab0c0fe1610f904857e6bf3967cdef9658975b",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.7966281771659851,
+        "true": 0.2033718228340149
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:5ee0de3e770e9d194358649333103c357bc048516cf5e93e60624bd516bf8b23:clear_south",
+      "row_id": "maze_state:5ee0de3e770e9d194358649333103c357bc048516cf5e93e60624bd516bf8b23",
+      "qid": "clear_south",
+      "split": "ood",
+      "source_group_id": "maze:50:a35aa79614a2eb460958b0d39eab0c0fe1610f904857e6bf3967cdef9658975b",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8588595390319824,
+        "true": 0.14114053547382355
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:5ee0de3e770e9d194358649333103c357bc048516cf5e93e60624bd516bf8b23:clear_west",
+      "row_id": "maze_state:5ee0de3e770e9d194358649333103c357bc048516cf5e93e60624bd516bf8b23",
+      "qid": "clear_west",
+      "split": "ood",
+      "source_group_id": "maze:50:a35aa79614a2eb460958b0d39eab0c0fe1610f904857e6bf3967cdef9658975b",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0007598759257234633,
+        "true": 0.9992401599884033
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:291173d7ba4e426cfeb8925acc7183a2359f09c0c6019e9386f2f5f58f3c69f5:clear_east",
+      "row_id": "maze_state:291173d7ba4e426cfeb8925acc7183a2359f09c0c6019e9386f2f5f58f3c69f5",
+      "qid": "clear_east",
+      "split": "ood",
+      "source_group_id": "maze:50:a35aa79614a2eb460958b0d39eab0c0fe1610f904857e6bf3967cdef9658975b",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.004570016637444496,
+        "true": 0.9954299926757812
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:291173d7ba4e426cfeb8925acc7183a2359f09c0c6019e9386f2f5f58f3c69f5:clear_north",
+      "row_id": "maze_state:291173d7ba4e426cfeb8925acc7183a2359f09c0c6019e9386f2f5f58f3c69f5",
+      "qid": "clear_north",
+      "split": "ood",
+      "source_group_id": "maze:50:a35aa79614a2eb460958b0d39eab0c0fe1610f904857e6bf3967cdef9658975b",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.4326289892196655,
+        "true": 0.5673710107803345
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:291173d7ba4e426cfeb8925acc7183a2359f09c0c6019e9386f2f5f58f3c69f5:clear_south",
+      "row_id": "maze_state:291173d7ba4e426cfeb8925acc7183a2359f09c0c6019e9386f2f5f58f3c69f5",
+      "qid": "clear_south",
+      "split": "ood",
+      "source_group_id": "maze:50:a35aa79614a2eb460958b0d39eab0c0fe1610f904857e6bf3967cdef9658975b",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.5338610410690308,
+        "true": 0.46613895893096924
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:291173d7ba4e426cfeb8925acc7183a2359f09c0c6019e9386f2f5f58f3c69f5:clear_west",
+      "row_id": "maze_state:291173d7ba4e426cfeb8925acc7183a2359f09c0c6019e9386f2f5f58f3c69f5",
+      "qid": "clear_west",
+      "split": "ood",
+      "source_group_id": "maze:50:a35aa79614a2eb460958b0d39eab0c0fe1610f904857e6bf3967cdef9658975b",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0011255275458097458,
+        "true": 0.9988744854927063
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:2cfe879cc7f1dd5948d9c15c6e9bb9a8813a1e03cb5b08f84525e56d73cee720:clear_east",
+      "row_id": "maze_state:2cfe879cc7f1dd5948d9c15c6e9bb9a8813a1e03cb5b08f84525e56d73cee720",
+      "qid": "clear_east",
+      "split": "ood",
+      "source_group_id": "maze:50:a35aa79614a2eb460958b0d39eab0c0fe1610f904857e6bf3967cdef9658975b",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0010934820165857673,
+        "true": 0.9989064931869507
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:2cfe879cc7f1dd5948d9c15c6e9bb9a8813a1e03cb5b08f84525e56d73cee720:clear_north",
+      "row_id": "maze_state:2cfe879cc7f1dd5948d9c15c6e9bb9a8813a1e03cb5b08f84525e56d73cee720",
+      "qid": "clear_north",
+      "split": "ood",
+      "source_group_id": "maze:50:a35aa79614a2eb460958b0d39eab0c0fe1610f904857e6bf3967cdef9658975b",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.47256067395210266,
+        "true": 0.527439296245575
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:2cfe879cc7f1dd5948d9c15c6e9bb9a8813a1e03cb5b08f84525e56d73cee720:clear_south",
+      "row_id": "maze_state:2cfe879cc7f1dd5948d9c15c6e9bb9a8813a1e03cb5b08f84525e56d73cee720",
+      "qid": "clear_south",
+      "split": "ood",
+      "source_group_id": "maze:50:a35aa79614a2eb460958b0d39eab0c0fe1610f904857e6bf3967cdef9658975b",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.5533269643783569,
+        "true": 0.4466730058193207
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:2cfe879cc7f1dd5948d9c15c6e9bb9a8813a1e03cb5b08f84525e56d73cee720:clear_west",
+      "row_id": "maze_state:2cfe879cc7f1dd5948d9c15c6e9bb9a8813a1e03cb5b08f84525e56d73cee720",
+      "qid": "clear_west",
+      "split": "ood",
+      "source_group_id": "maze:50:a35aa79614a2eb460958b0d39eab0c0fe1610f904857e6bf3967cdef9658975b",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0006698850193060935,
+        "true": 0.9993301630020142
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:0cc19b0d392c1df73175282e246bebe15d8215d84b535aad657b04e52f194fe9:clear_east",
+      "row_id": "maze_state:0cc19b0d392c1df73175282e246bebe15d8215d84b535aad657b04e52f194fe9",
+      "qid": "clear_east",
+      "split": "ood",
+      "source_group_id": "maze:50:a35aa79614a2eb460958b0d39eab0c0fe1610f904857e6bf3967cdef9658975b",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.5820021629333496,
+        "true": 0.4179977774620056
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:0cc19b0d392c1df73175282e246bebe15d8215d84b535aad657b04e52f194fe9:clear_north",
+      "row_id": "maze_state:0cc19b0d392c1df73175282e246bebe15d8215d84b535aad657b04e52f194fe9",
+      "qid": "clear_north",
+      "split": "ood",
+      "source_group_id": "maze:50:a35aa79614a2eb460958b0d39eab0c0fe1610f904857e6bf3967cdef9658975b",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.2623894512653351,
+        "true": 0.7376104593276978
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:0cc19b0d392c1df73175282e246bebe15d8215d84b535aad657b04e52f194fe9:clear_south",
+      "row_id": "maze_state:0cc19b0d392c1df73175282e246bebe15d8215d84b535aad657b04e52f194fe9",
+      "qid": "clear_south",
+      "split": "ood",
+      "source_group_id": "maze:50:a35aa79614a2eb460958b0d39eab0c0fe1610f904857e6bf3967cdef9658975b",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.33490630984306335,
+        "true": 0.665093719959259
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:0cc19b0d392c1df73175282e246bebe15d8215d84b535aad657b04e52f194fe9:clear_west",
+      "row_id": "maze_state:0cc19b0d392c1df73175282e246bebe15d8215d84b535aad657b04e52f194fe9",
+      "qid": "clear_west",
+      "split": "ood",
+      "source_group_id": "maze:50:a35aa79614a2eb460958b0d39eab0c0fe1610f904857e6bf3967cdef9658975b",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.1581166833639145,
+        "true": 0.8418833017349243
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:a943f6e5b7f8a6138198928b208eed5361d54d0fe18e6c524a9f78f49daa78c1:clear_east",
+      "row_id": "maze_state:a943f6e5b7f8a6138198928b208eed5361d54d0fe18e6c524a9f78f49daa78c1",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:8:81d3affb126cd4da1a7f89054fa7adf1d1c013dccee63e18ac294edf78634f0c",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9946170449256897,
+        "true": 0.005382982548326254
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:a943f6e5b7f8a6138198928b208eed5361d54d0fe18e6c524a9f78f49daa78c1:clear_north",
+      "row_id": "maze_state:a943f6e5b7f8a6138198928b208eed5361d54d0fe18e6c524a9f78f49daa78c1",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:8:81d3affb126cd4da1a7f89054fa7adf1d1c013dccee63e18ac294edf78634f0c",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.6544040441513062,
+        "true": 0.34559598565101624
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:a943f6e5b7f8a6138198928b208eed5361d54d0fe18e6c524a9f78f49daa78c1:clear_south",
+      "row_id": "maze_state:a943f6e5b7f8a6138198928b208eed5361d54d0fe18e6c524a9f78f49daa78c1",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:8:81d3affb126cd4da1a7f89054fa7adf1d1c013dccee63e18ac294edf78634f0c",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.7502692937850952,
+        "true": 0.24973064661026
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:a943f6e5b7f8a6138198928b208eed5361d54d0fe18e6c524a9f78f49daa78c1:clear_west",
+      "row_id": "maze_state:a943f6e5b7f8a6138198928b208eed5361d54d0fe18e6c524a9f78f49daa78c1",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:8:81d3affb126cd4da1a7f89054fa7adf1d1c013dccee63e18ac294edf78634f0c",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.6064015030860901,
+        "true": 0.3935984969139099
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:a6a6bea5658a948b1ac06450fc6179c496cb690fe076a3f1c118f3680bf4e895:clear_east",
+      "row_id": "maze_state:a6a6bea5658a948b1ac06450fc6179c496cb690fe076a3f1c118f3680bf4e895",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:8:81d3affb126cd4da1a7f89054fa7adf1d1c013dccee63e18ac294edf78634f0c",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0004931516596116126,
+        "true": 0.9995068311691284
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:a6a6bea5658a948b1ac06450fc6179c496cb690fe076a3f1c118f3680bf4e895:clear_north",
+      "row_id": "maze_state:a6a6bea5658a948b1ac06450fc6179c496cb690fe076a3f1c118f3680bf4e895",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:8:81d3affb126cd4da1a7f89054fa7adf1d1c013dccee63e18ac294edf78634f0c",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.989732563495636,
+        "true": 0.010267454199492931
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:a6a6bea5658a948b1ac06450fc6179c496cb690fe076a3f1c118f3680bf4e895:clear_south",
+      "row_id": "maze_state:a6a6bea5658a948b1ac06450fc6179c496cb690fe076a3f1c118f3680bf4e895",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:8:81d3affb126cd4da1a7f89054fa7adf1d1c013dccee63e18ac294edf78634f0c",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9932577610015869,
+        "true": 0.006742194760590792
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:a6a6bea5658a948b1ac06450fc6179c496cb690fe076a3f1c118f3680bf4e895:clear_west",
+      "row_id": "maze_state:a6a6bea5658a948b1ac06450fc6179c496cb690fe076a3f1c118f3680bf4e895",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:8:81d3affb126cd4da1a7f89054fa7adf1d1c013dccee63e18ac294edf78634f0c",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0008061635307967663,
+        "true": 0.9991938471794128
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:91ed9b500eb8f32a013643bad9d7209049b9118d5b85b5f4953d784d8c6c09d8:clear_east",
+      "row_id": "maze_state:91ed9b500eb8f32a013643bad9d7209049b9118d5b85b5f4953d784d8c6c09d8",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:8:81d3affb126cd4da1a7f89054fa7adf1d1c013dccee63e18ac294edf78634f0c",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0016146840061992407,
+        "true": 0.9983853101730347
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:91ed9b500eb8f32a013643bad9d7209049b9118d5b85b5f4953d784d8c6c09d8:clear_north",
+      "row_id": "maze_state:91ed9b500eb8f32a013643bad9d7209049b9118d5b85b5f4953d784d8c6c09d8",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:8:81d3affb126cd4da1a7f89054fa7adf1d1c013dccee63e18ac294edf78634f0c",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9848812818527222,
+        "true": 0.015118753537535667
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:91ed9b500eb8f32a013643bad9d7209049b9118d5b85b5f4953d784d8c6c09d8:clear_south",
+      "row_id": "maze_state:91ed9b500eb8f32a013643bad9d7209049b9118d5b85b5f4953d784d8c6c09d8",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:8:81d3affb126cd4da1a7f89054fa7adf1d1c013dccee63e18ac294edf78634f0c",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.990038275718689,
+        "true": 0.009961768984794617
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:91ed9b500eb8f32a013643bad9d7209049b9118d5b85b5f4953d784d8c6c09d8:clear_west",
+      "row_id": "maze_state:91ed9b500eb8f32a013643bad9d7209049b9118d5b85b5f4953d784d8c6c09d8",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:8:81d3affb126cd4da1a7f89054fa7adf1d1c013dccee63e18ac294edf78634f0c",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0010420309845358133,
+        "true": 0.9989579916000366
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:fe7759d1cd794065852480e7b771a1d90907028acc454008ef503125f52c294f:clear_east",
+      "row_id": "maze_state:fe7759d1cd794065852480e7b771a1d90907028acc454008ef503125f52c294f",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:8:81d3affb126cd4da1a7f89054fa7adf1d1c013dccee63e18ac294edf78634f0c",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9994152784347534,
+        "true": 0.0005847524153068662
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:fe7759d1cd794065852480e7b771a1d90907028acc454008ef503125f52c294f:clear_north",
+      "row_id": "maze_state:fe7759d1cd794065852480e7b771a1d90907028acc454008ef503125f52c294f",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:8:81d3affb126cd4da1a7f89054fa7adf1d1c013dccee63e18ac294edf78634f0c",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.08400164544582367,
+        "true": 0.9159983992576599
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:fe7759d1cd794065852480e7b771a1d90907028acc454008ef503125f52c294f:clear_south",
+      "row_id": "maze_state:fe7759d1cd794065852480e7b771a1d90907028acc454008ef503125f52c294f",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:8:81d3affb126cd4da1a7f89054fa7adf1d1c013dccee63e18ac294edf78634f0c",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.13757343590259552,
+        "true": 0.8624265789985657
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:fe7759d1cd794065852480e7b771a1d90907028acc454008ef503125f52c294f:clear_west",
+      "row_id": "maze_state:fe7759d1cd794065852480e7b771a1d90907028acc454008ef503125f52c294f",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:8:81d3affb126cd4da1a7f89054fa7adf1d1c013dccee63e18ac294edf78634f0c",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9994221925735474,
+        "true": 0.0005778833292424679
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:20fa653670ee213486f4495f105d3ce1792965877283f3ab73b931ce002c5f52:clear_east",
+      "row_id": "maze_state:20fa653670ee213486f4495f105d3ce1792965877283f3ab73b931ce002c5f52",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:8:b27e3e4993a9f884cce5254f770e7df99d5cedac8f71378cf07848c5a98a712d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9997333884239197,
+        "true": 0.000266644376097247
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:20fa653670ee213486f4495f105d3ce1792965877283f3ab73b931ce002c5f52:clear_north",
+      "row_id": "maze_state:20fa653670ee213486f4495f105d3ce1792965877283f3ab73b931ce002c5f52",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:8:b27e3e4993a9f884cce5254f770e7df99d5cedac8f71378cf07848c5a98a712d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.07830457389354706,
+        "true": 0.9216954112052917
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:20fa653670ee213486f4495f105d3ce1792965877283f3ab73b931ce002c5f52:clear_south",
+      "row_id": "maze_state:20fa653670ee213486f4495f105d3ce1792965877283f3ab73b931ce002c5f52",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:8:b27e3e4993a9f884cce5254f770e7df99d5cedac8f71378cf07848c5a98a712d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.13393014669418335,
+        "true": 0.8660698533058167
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:20fa653670ee213486f4495f105d3ce1792965877283f3ab73b931ce002c5f52:clear_west",
+      "row_id": "maze_state:20fa653670ee213486f4495f105d3ce1792965877283f3ab73b931ce002c5f52",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:8:b27e3e4993a9f884cce5254f770e7df99d5cedac8f71378cf07848c5a98a712d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9997501969337463,
+        "true": 0.0002497489331290126
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:67ab3d3c1ae00b14892340edfda91b3ec8bb507514a144bc42d7aaadfe5af201:clear_east",
+      "row_id": "maze_state:67ab3d3c1ae00b14892340edfda91b3ec8bb507514a144bc42d7aaadfe5af201",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:8:b27e3e4993a9f884cce5254f770e7df99d5cedac8f71378cf07848c5a98a712d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9992096424102783,
+        "true": 0.0007903847726993263
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:67ab3d3c1ae00b14892340edfda91b3ec8bb507514a144bc42d7aaadfe5af201:clear_north",
+      "row_id": "maze_state:67ab3d3c1ae00b14892340edfda91b3ec8bb507514a144bc42d7aaadfe5af201",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:8:b27e3e4993a9f884cce5254f770e7df99d5cedac8f71378cf07848c5a98a712d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.000950065441429615,
+        "true": 0.999049961566925
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:67ab3d3c1ae00b14892340edfda91b3ec8bb507514a144bc42d7aaadfe5af201:clear_south",
+      "row_id": "maze_state:67ab3d3c1ae00b14892340edfda91b3ec8bb507514a144bc42d7aaadfe5af201",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:8:b27e3e4993a9f884cce5254f770e7df99d5cedac8f71378cf07848c5a98a712d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0012264644028618932,
+        "true": 0.9987735152244568
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:67ab3d3c1ae00b14892340edfda91b3ec8bb507514a144bc42d7aaadfe5af201:clear_west",
+      "row_id": "maze_state:67ab3d3c1ae00b14892340edfda91b3ec8bb507514a144bc42d7aaadfe5af201",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:8:b27e3e4993a9f884cce5254f770e7df99d5cedac8f71378cf07848c5a98a712d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9992218017578125,
+        "true": 0.0007782080792821944
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:ff63152c1fa9a41f12e9564906d36d395d7bfbdd6c42420c227e957a1a175d35:clear_east",
+      "row_id": "maze_state:ff63152c1fa9a41f12e9564906d36d395d7bfbdd6c42420c227e957a1a175d35",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:8:b27e3e4993a9f884cce5254f770e7df99d5cedac8f71378cf07848c5a98a712d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.002808762714266777,
+        "true": 0.9971912503242493
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:ff63152c1fa9a41f12e9564906d36d395d7bfbdd6c42420c227e957a1a175d35:clear_north",
+      "row_id": "maze_state:ff63152c1fa9a41f12e9564906d36d395d7bfbdd6c42420c227e957a1a175d35",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:8:b27e3e4993a9f884cce5254f770e7df99d5cedac8f71378cf07848c5a98a712d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.7758864164352417,
+        "true": 0.2241135537624359
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:ff63152c1fa9a41f12e9564906d36d395d7bfbdd6c42420c227e957a1a175d35:clear_south",
+      "row_id": "maze_state:ff63152c1fa9a41f12e9564906d36d395d7bfbdd6c42420c227e957a1a175d35",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:8:b27e3e4993a9f884cce5254f770e7df99d5cedac8f71378cf07848c5a98a712d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8392149209976196,
+        "true": 0.16078506410121918
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:ff63152c1fa9a41f12e9564906d36d395d7bfbdd6c42420c227e957a1a175d35:clear_west",
+      "row_id": "maze_state:ff63152c1fa9a41f12e9564906d36d395d7bfbdd6c42420c227e957a1a175d35",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:8:b27e3e4993a9f884cce5254f770e7df99d5cedac8f71378cf07848c5a98a712d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0011478076921775937,
+        "true": 0.9988521337509155
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:27acae5509e0822c228dffad9ad96b9aaec9054d976e279a00306f463d42fb7b:clear_east",
+      "row_id": "maze_state:27acae5509e0822c228dffad9ad96b9aaec9054d976e279a00306f463d42fb7b",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:8:b27e3e4993a9f884cce5254f770e7df99d5cedac8f71378cf07848c5a98a712d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9994675517082214,
+        "true": 0.0005324865924194455
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:27acae5509e0822c228dffad9ad96b9aaec9054d976e279a00306f463d42fb7b:clear_north",
+      "row_id": "maze_state:27acae5509e0822c228dffad9ad96b9aaec9054d976e279a00306f463d42fb7b",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:8:b27e3e4993a9f884cce5254f770e7df99d5cedac8f71378cf07848c5a98a712d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.011336088180541992,
+        "true": 0.9886639714241028
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:27acae5509e0822c228dffad9ad96b9aaec9054d976e279a00306f463d42fb7b:clear_south",
+      "row_id": "maze_state:27acae5509e0822c228dffad9ad96b9aaec9054d976e279a00306f463d42fb7b",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:8:b27e3e4993a9f884cce5254f770e7df99d5cedac8f71378cf07848c5a98a712d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.012788479216396809,
+        "true": 0.9872115254402161
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:27acae5509e0822c228dffad9ad96b9aaec9054d976e279a00306f463d42fb7b:clear_west",
+      "row_id": "maze_state:27acae5509e0822c228dffad9ad96b9aaec9054d976e279a00306f463d42fb7b",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:8:b27e3e4993a9f884cce5254f770e7df99d5cedac8f71378cf07848c5a98a712d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9994891881942749,
+        "true": 0.0005107554607093334
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:7458e8fe0d014acfb2c6aa3c1ab90870c6084c96b27080dd67793c7ab697aefc:clear_east",
+      "row_id": "maze_state:7458e8fe0d014acfb2c6aa3c1ab90870c6084c96b27080dd67793c7ab697aefc",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:8:36d7e0c6d65858b84aff57b1b5fdd7f55c2ab96be75e2ac1a062cc150179fa6f",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9653117060661316,
+        "true": 0.0346883162856102
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:7458e8fe0d014acfb2c6aa3c1ab90870c6084c96b27080dd67793c7ab697aefc:clear_north",
+      "row_id": "maze_state:7458e8fe0d014acfb2c6aa3c1ab90870c6084c96b27080dd67793c7ab697aefc",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:8:36d7e0c6d65858b84aff57b1b5fdd7f55c2ab96be75e2ac1a062cc150179fa6f",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.09761083126068115,
+        "true": 0.9023891687393188
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:7458e8fe0d014acfb2c6aa3c1ab90870c6084c96b27080dd67793c7ab697aefc:clear_south",
+      "row_id": "maze_state:7458e8fe0d014acfb2c6aa3c1ab90870c6084c96b27080dd67793c7ab697aefc",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:8:36d7e0c6d65858b84aff57b1b5fdd7f55c2ab96be75e2ac1a062cc150179fa6f",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.14471270143985748,
+        "true": 0.8552872538566589
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:7458e8fe0d014acfb2c6aa3c1ab90870c6084c96b27080dd67793c7ab697aefc:clear_west",
+      "row_id": "maze_state:7458e8fe0d014acfb2c6aa3c1ab90870c6084c96b27080dd67793c7ab697aefc",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:8:36d7e0c6d65858b84aff57b1b5fdd7f55c2ab96be75e2ac1a062cc150179fa6f",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9525802135467529,
+        "true": 0.047419823706150055
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:0906eacbdc3a039fa3b5f2d7cee652f10c9ac2aa57a3bcd828e061f256a8405b:clear_east",
+      "row_id": "maze_state:0906eacbdc3a039fa3b5f2d7cee652f10c9ac2aa57a3bcd828e061f256a8405b",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:8:36d7e0c6d65858b84aff57b1b5fdd7f55c2ab96be75e2ac1a062cc150179fa6f",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8195301294326782,
+        "true": 0.18046987056732178
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:0906eacbdc3a039fa3b5f2d7cee652f10c9ac2aa57a3bcd828e061f256a8405b:clear_north",
+      "row_id": "maze_state:0906eacbdc3a039fa3b5f2d7cee652f10c9ac2aa57a3bcd828e061f256a8405b",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:8:36d7e0c6d65858b84aff57b1b5fdd7f55c2ab96be75e2ac1a062cc150179fa6f",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.18631158769130707,
+        "true": 0.8136884570121765
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:0906eacbdc3a039fa3b5f2d7cee652f10c9ac2aa57a3bcd828e061f256a8405b:clear_south",
+      "row_id": "maze_state:0906eacbdc3a039fa3b5f2d7cee652f10c9ac2aa57a3bcd828e061f256a8405b",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:8:36d7e0c6d65858b84aff57b1b5fdd7f55c2ab96be75e2ac1a062cc150179fa6f",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.23674611747264862,
+        "true": 0.7632538676261902
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:0906eacbdc3a039fa3b5f2d7cee652f10c9ac2aa57a3bcd828e061f256a8405b:clear_west",
+      "row_id": "maze_state:0906eacbdc3a039fa3b5f2d7cee652f10c9ac2aa57a3bcd828e061f256a8405b",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:8:36d7e0c6d65858b84aff57b1b5fdd7f55c2ab96be75e2ac1a062cc150179fa6f",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8204618692398071,
+        "true": 0.17953817546367645
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:2b7da97093f2d81401bdcb558eab993d03397e3fc96518474afbae13801c28b0:clear_east",
+      "row_id": "maze_state:2b7da97093f2d81401bdcb558eab993d03397e3fc96518474afbae13801c28b0",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:8:36d7e0c6d65858b84aff57b1b5fdd7f55c2ab96be75e2ac1a062cc150179fa6f",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9744337797164917,
+        "true": 0.0255662240087986
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:2b7da97093f2d81401bdcb558eab993d03397e3fc96518474afbae13801c28b0:clear_north",
+      "row_id": "maze_state:2b7da97093f2d81401bdcb558eab993d03397e3fc96518474afbae13801c28b0",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:8:36d7e0c6d65858b84aff57b1b5fdd7f55c2ab96be75e2ac1a062cc150179fa6f",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0698128342628479,
+        "true": 0.9301871061325073
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:2b7da97093f2d81401bdcb558eab993d03397e3fc96518474afbae13801c28b0:clear_south",
+      "row_id": "maze_state:2b7da97093f2d81401bdcb558eab993d03397e3fc96518474afbae13801c28b0",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:8:36d7e0c6d65858b84aff57b1b5fdd7f55c2ab96be75e2ac1a062cc150179fa6f",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.09657002240419388,
+        "true": 0.9034299254417419
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:2b7da97093f2d81401bdcb558eab993d03397e3fc96518474afbae13801c28b0:clear_west",
+      "row_id": "maze_state:2b7da97093f2d81401bdcb558eab993d03397e3fc96518474afbae13801c28b0",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:8:36d7e0c6d65858b84aff57b1b5fdd7f55c2ab96be75e2ac1a062cc150179fa6f",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.5745744109153748,
+        "true": 0.42542555928230286
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:856a99db958ee53423aa2b5956b34a7b4f763f1487fdd8c41e09198833535db4:clear_east",
+      "row_id": "maze_state:856a99db958ee53423aa2b5956b34a7b4f763f1487fdd8c41e09198833535db4",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:8:36d7e0c6d65858b84aff57b1b5fdd7f55c2ab96be75e2ac1a062cc150179fa6f",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0014898499939590693,
+        "true": 0.9985101819038391
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:856a99db958ee53423aa2b5956b34a7b4f763f1487fdd8c41e09198833535db4:clear_north",
+      "row_id": "maze_state:856a99db958ee53423aa2b5956b34a7b4f763f1487fdd8c41e09198833535db4",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:8:36d7e0c6d65858b84aff57b1b5fdd7f55c2ab96be75e2ac1a062cc150179fa6f",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.969531238079071,
+        "true": 0.030468832701444626
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:856a99db958ee53423aa2b5956b34a7b4f763f1487fdd8c41e09198833535db4:clear_south",
+      "row_id": "maze_state:856a99db958ee53423aa2b5956b34a7b4f763f1487fdd8c41e09198833535db4",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:8:36d7e0c6d65858b84aff57b1b5fdd7f55c2ab96be75e2ac1a062cc150179fa6f",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9811387658119202,
+        "true": 0.018861182034015656
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:856a99db958ee53423aa2b5956b34a7b4f763f1487fdd8c41e09198833535db4:clear_west",
+      "row_id": "maze_state:856a99db958ee53423aa2b5956b34a7b4f763f1487fdd8c41e09198833535db4",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:8:36d7e0c6d65858b84aff57b1b5fdd7f55c2ab96be75e2ac1a062cc150179fa6f",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0008604455506429076,
+        "true": 0.9991395473480225
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:cc16f99ea270270edce7ca4530b7b7f9abb1eff9412cdac3c36bb5aad7992ab8:clear_east",
+      "row_id": "maze_state:cc16f99ea270270edce7ca4530b7b7f9abb1eff9412cdac3c36bb5aad7992ab8",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:16:67e07bac00595665ff2d0b9d09f35787c5fb2a57b4ea77fd0d61a01084bb0e4d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9994945526123047,
+        "true": 0.0005054640932939947
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:cc16f99ea270270edce7ca4530b7b7f9abb1eff9412cdac3c36bb5aad7992ab8:clear_north",
+      "row_id": "maze_state:cc16f99ea270270edce7ca4530b7b7f9abb1eff9412cdac3c36bb5aad7992ab8",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:16:67e07bac00595665ff2d0b9d09f35787c5fb2a57b4ea77fd0d61a01084bb0e4d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.02048460766673088,
+        "true": 0.9795153737068176
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:cc16f99ea270270edce7ca4530b7b7f9abb1eff9412cdac3c36bb5aad7992ab8:clear_south",
+      "row_id": "maze_state:cc16f99ea270270edce7ca4530b7b7f9abb1eff9412cdac3c36bb5aad7992ab8",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:16:67e07bac00595665ff2d0b9d09f35787c5fb2a57b4ea77fd0d61a01084bb0e4d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.02361905388534069,
+        "true": 0.9763809442520142
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:cc16f99ea270270edce7ca4530b7b7f9abb1eff9412cdac3c36bb5aad7992ab8:clear_west",
+      "row_id": "maze_state:cc16f99ea270270edce7ca4530b7b7f9abb1eff9412cdac3c36bb5aad7992ab8",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:16:67e07bac00595665ff2d0b9d09f35787c5fb2a57b4ea77fd0d61a01084bb0e4d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9995098114013672,
+        "true": 0.0004902438959106803
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:850c888d8c14b99de5034d1ecd955ad7de19402697d6ae208c7251e976d217d8:clear_east",
+      "row_id": "maze_state:850c888d8c14b99de5034d1ecd955ad7de19402697d6ae208c7251e976d217d8",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:16:67e07bac00595665ff2d0b9d09f35787c5fb2a57b4ea77fd0d61a01084bb0e4d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.000915119715500623,
+        "true": 0.9990848302841187
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:850c888d8c14b99de5034d1ecd955ad7de19402697d6ae208c7251e976d217d8:clear_north",
+      "row_id": "maze_state:850c888d8c14b99de5034d1ecd955ad7de19402697d6ae208c7251e976d217d8",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:16:67e07bac00595665ff2d0b9d09f35787c5fb2a57b4ea77fd0d61a01084bb0e4d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.986107349395752,
+        "true": 0.013892682269215584
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:850c888d8c14b99de5034d1ecd955ad7de19402697d6ae208c7251e976d217d8:clear_south",
+      "row_id": "maze_state:850c888d8c14b99de5034d1ecd955ad7de19402697d6ae208c7251e976d217d8",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:16:67e07bac00595665ff2d0b9d09f35787c5fb2a57b4ea77fd0d61a01084bb0e4d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9912168979644775,
+        "true": 0.008783110417425632
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:850c888d8c14b99de5034d1ecd955ad7de19402697d6ae208c7251e976d217d8:clear_west",
+      "row_id": "maze_state:850c888d8c14b99de5034d1ecd955ad7de19402697d6ae208c7251e976d217d8",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:16:67e07bac00595665ff2d0b9d09f35787c5fb2a57b4ea77fd0d61a01084bb0e4d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0007305976469069719,
+        "true": 0.999269425868988
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:10e94d5cad7405e31bbd0aa0ea376082c23aba6ea8d717d72e57873b589ae89d:clear_east",
+      "row_id": "maze_state:10e94d5cad7405e31bbd0aa0ea376082c23aba6ea8d717d72e57873b589ae89d",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:16:67e07bac00595665ff2d0b9d09f35787c5fb2a57b4ea77fd0d61a01084bb0e4d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9968352913856506,
+        "true": 0.003164769848808646
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:10e94d5cad7405e31bbd0aa0ea376082c23aba6ea8d717d72e57873b589ae89d:clear_north",
+      "row_id": "maze_state:10e94d5cad7405e31bbd0aa0ea376082c23aba6ea8d717d72e57873b589ae89d",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:16:67e07bac00595665ff2d0b9d09f35787c5fb2a57b4ea77fd0d61a01084bb0e4d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.04085223749279976,
+        "true": 0.9591478109359741
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:10e94d5cad7405e31bbd0aa0ea376082c23aba6ea8d717d72e57873b589ae89d:clear_south",
+      "row_id": "maze_state:10e94d5cad7405e31bbd0aa0ea376082c23aba6ea8d717d72e57873b589ae89d",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:16:67e07bac00595665ff2d0b9d09f35787c5fb2a57b4ea77fd0d61a01084bb0e4d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.06093363091349602,
+        "true": 0.9390664100646973
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:10e94d5cad7405e31bbd0aa0ea376082c23aba6ea8d717d72e57873b589ae89d:clear_west",
+      "row_id": "maze_state:10e94d5cad7405e31bbd0aa0ea376082c23aba6ea8d717d72e57873b589ae89d",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:16:67e07bac00595665ff2d0b9d09f35787c5fb2a57b4ea77fd0d61a01084bb0e4d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.7914665341377258,
+        "true": 0.20853351056575775
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:2edd03fd7639ba1505bd249db5828a1b06647879ca2862f00d3636baeae184ab:clear_east",
+      "row_id": "maze_state:2edd03fd7639ba1505bd249db5828a1b06647879ca2862f00d3636baeae184ab",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:16:67e07bac00595665ff2d0b9d09f35787c5fb2a57b4ea77fd0d61a01084bb0e4d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0038955779746174812,
+        "true": 0.9961044788360596
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:2edd03fd7639ba1505bd249db5828a1b06647879ca2862f00d3636baeae184ab:clear_north",
+      "row_id": "maze_state:2edd03fd7639ba1505bd249db5828a1b06647879ca2862f00d3636baeae184ab",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:16:67e07bac00595665ff2d0b9d09f35787c5fb2a57b4ea77fd0d61a01084bb0e4d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9715122580528259,
+        "true": 0.028487781062722206
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:2edd03fd7639ba1505bd249db5828a1b06647879ca2862f00d3636baeae184ab:clear_south",
+      "row_id": "maze_state:2edd03fd7639ba1505bd249db5828a1b06647879ca2862f00d3636baeae184ab",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:16:67e07bac00595665ff2d0b9d09f35787c5fb2a57b4ea77fd0d61a01084bb0e4d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9801554083824158,
+        "true": 0.019844574853777885
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:2edd03fd7639ba1505bd249db5828a1b06647879ca2862f00d3636baeae184ab:clear_west",
+      "row_id": "maze_state:2edd03fd7639ba1505bd249db5828a1b06647879ca2862f00d3636baeae184ab",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:16:67e07bac00595665ff2d0b9d09f35787c5fb2a57b4ea77fd0d61a01084bb0e4d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0016729533672332764,
+        "true": 0.9983270764350891
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:f96efbd20d06a9b253650f80848aea15c4f26a25b3d661d4843c517604e386b2:clear_east",
+      "row_id": "maze_state:f96efbd20d06a9b253650f80848aea15c4f26a25b3d661d4843c517604e386b2",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:16:2e81af9501bf8a56b519c6490807b7d5dd263d3a276bfcdc73e929c944f0c4b0",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.969337522983551,
+        "true": 0.030662469565868378
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:f96efbd20d06a9b253650f80848aea15c4f26a25b3d661d4843c517604e386b2:clear_north",
+      "row_id": "maze_state:f96efbd20d06a9b253650f80848aea15c4f26a25b3d661d4843c517604e386b2",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:16:2e81af9501bf8a56b519c6490807b7d5dd263d3a276bfcdc73e929c944f0c4b0",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.6315298080444336,
+        "true": 0.36847013235092163
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:f96efbd20d06a9b253650f80848aea15c4f26a25b3d661d4843c517604e386b2:clear_south",
+      "row_id": "maze_state:f96efbd20d06a9b253650f80848aea15c4f26a25b3d661d4843c517604e386b2",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:16:2e81af9501bf8a56b519c6490807b7d5dd263d3a276bfcdc73e929c944f0c4b0",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.7198734879493713,
+        "true": 0.2801264822483063
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:f96efbd20d06a9b253650f80848aea15c4f26a25b3d661d4843c517604e386b2:clear_west",
+      "row_id": "maze_state:f96efbd20d06a9b253650f80848aea15c4f26a25b3d661d4843c517604e386b2",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:16:2e81af9501bf8a56b519c6490807b7d5dd263d3a276bfcdc73e929c944f0c4b0",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.40366730093955994,
+        "true": 0.5963327288627625
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:3fc5ea86c9c78c358f1fbb5fba48878966c04107fcfe721a6a9e07e3d47b2660:clear_east",
+      "row_id": "maze_state:3fc5ea86c9c78c358f1fbb5fba48878966c04107fcfe721a6a9e07e3d47b2660",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:16:2e81af9501bf8a56b519c6490807b7d5dd263d3a276bfcdc73e929c944f0c4b0",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9990023970603943,
+        "true": 0.000997654628008604
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:3fc5ea86c9c78c358f1fbb5fba48878966c04107fcfe721a6a9e07e3d47b2660:clear_north",
+      "row_id": "maze_state:3fc5ea86c9c78c358f1fbb5fba48878966c04107fcfe721a6a9e07e3d47b2660",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:16:2e81af9501bf8a56b519c6490807b7d5dd263d3a276bfcdc73e929c944f0c4b0",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0005319412448443472,
+        "true": 0.9994680285453796
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:3fc5ea86c9c78c358f1fbb5fba48878966c04107fcfe721a6a9e07e3d47b2660:clear_south",
+      "row_id": "maze_state:3fc5ea86c9c78c358f1fbb5fba48878966c04107fcfe721a6a9e07e3d47b2660",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:16:2e81af9501bf8a56b519c6490807b7d5dd263d3a276bfcdc73e929c944f0c4b0",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0006809686310589314,
+        "true": 0.9993190765380859
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:3fc5ea86c9c78c358f1fbb5fba48878966c04107fcfe721a6a9e07e3d47b2660:clear_west",
+      "row_id": "maze_state:3fc5ea86c9c78c358f1fbb5fba48878966c04107fcfe721a6a9e07e3d47b2660",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:16:2e81af9501bf8a56b519c6490807b7d5dd263d3a276bfcdc73e929c944f0c4b0",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9990008473396301,
+        "true": 0.0009991232072934508
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:4355aa990abb3ad5324fa524752e21b36133bf4c13ee3205954df81b7617bd1b:clear_east",
+      "row_id": "maze_state:4355aa990abb3ad5324fa524752e21b36133bf4c13ee3205954df81b7617bd1b",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:16:2e81af9501bf8a56b519c6490807b7d5dd263d3a276bfcdc73e929c944f0c4b0",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9992069602012634,
+        "true": 0.0007930680294521153
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:4355aa990abb3ad5324fa524752e21b36133bf4c13ee3205954df81b7617bd1b:clear_north",
+      "row_id": "maze_state:4355aa990abb3ad5324fa524752e21b36133bf4c13ee3205954df81b7617bd1b",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:16:2e81af9501bf8a56b519c6490807b7d5dd263d3a276bfcdc73e929c944f0c4b0",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.05882399529218674,
+        "true": 0.9411760568618774
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:4355aa990abb3ad5324fa524752e21b36133bf4c13ee3205954df81b7617bd1b:clear_south",
+      "row_id": "maze_state:4355aa990abb3ad5324fa524752e21b36133bf4c13ee3205954df81b7617bd1b",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:16:2e81af9501bf8a56b519c6490807b7d5dd263d3a276bfcdc73e929c944f0c4b0",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.10351070016622543,
+        "true": 0.8964892625808716
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:4355aa990abb3ad5324fa524752e21b36133bf4c13ee3205954df81b7617bd1b:clear_west",
+      "row_id": "maze_state:4355aa990abb3ad5324fa524752e21b36133bf4c13ee3205954df81b7617bd1b",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:16:2e81af9501bf8a56b519c6490807b7d5dd263d3a276bfcdc73e929c944f0c4b0",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9992148876190186,
+        "true": 0.0007850732654333115
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:bf3c33374b989324b4ea58b0b91d1381536f01a49ec8b51f049d22b6d0cda902:clear_east",
+      "row_id": "maze_state:bf3c33374b989324b4ea58b0b91d1381536f01a49ec8b51f049d22b6d0cda902",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:16:2e81af9501bf8a56b519c6490807b7d5dd263d3a276bfcdc73e929c944f0c4b0",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.004361879546195269,
+        "true": 0.9956381916999817
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:bf3c33374b989324b4ea58b0b91d1381536f01a49ec8b51f049d22b6d0cda902:clear_north",
+      "row_id": "maze_state:bf3c33374b989324b4ea58b0b91d1381536f01a49ec8b51f049d22b6d0cda902",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:16:2e81af9501bf8a56b519c6490807b7d5dd263d3a276bfcdc73e929c944f0c4b0",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.989988386631012,
+        "true": 0.01001165620982647
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:bf3c33374b989324b4ea58b0b91d1381536f01a49ec8b51f049d22b6d0cda902:clear_south",
+      "row_id": "maze_state:bf3c33374b989324b4ea58b0b91d1381536f01a49ec8b51f049d22b6d0cda902",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:16:2e81af9501bf8a56b519c6490807b7d5dd263d3a276bfcdc73e929c944f0c4b0",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9932166934013367,
+        "true": 0.006783239543437958
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:bf3c33374b989324b4ea58b0b91d1381536f01a49ec8b51f049d22b6d0cda902:clear_west",
+      "row_id": "maze_state:bf3c33374b989324b4ea58b0b91d1381536f01a49ec8b51f049d22b6d0cda902",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:16:2e81af9501bf8a56b519c6490807b7d5dd263d3a276bfcdc73e929c944f0c4b0",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0017396814655512571,
+        "true": 0.9982603192329407
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:37da36de3adf8cedc3c30dc34df606eaa234a5bc75499b6390ee4f4908623559:clear_east",
+      "row_id": "maze_state:37da36de3adf8cedc3c30dc34df606eaa234a5bc75499b6390ee4f4908623559",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:16:8afdbbae3bd08fb1a857e53d617f13294e598d541bdd834c80cbd5a770c2bf6e",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9993776679039001,
+        "true": 0.0006223693490028381
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:37da36de3adf8cedc3c30dc34df606eaa234a5bc75499b6390ee4f4908623559:clear_north",
+      "row_id": "maze_state:37da36de3adf8cedc3c30dc34df606eaa234a5bc75499b6390ee4f4908623559",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:16:8afdbbae3bd08fb1a857e53d617f13294e598d541bdd834c80cbd5a770c2bf6e",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0708853155374527,
+        "true": 0.9291146993637085
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:37da36de3adf8cedc3c30dc34df606eaa234a5bc75499b6390ee4f4908623559:clear_south",
+      "row_id": "maze_state:37da36de3adf8cedc3c30dc34df606eaa234a5bc75499b6390ee4f4908623559",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:16:8afdbbae3bd08fb1a857e53d617f13294e598d541bdd834c80cbd5a770c2bf6e",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.10575317591428757,
+        "true": 0.8942468762397766
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:37da36de3adf8cedc3c30dc34df606eaa234a5bc75499b6390ee4f4908623559:clear_west",
+      "row_id": "maze_state:37da36de3adf8cedc3c30dc34df606eaa234a5bc75499b6390ee4f4908623559",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:16:8afdbbae3bd08fb1a857e53d617f13294e598d541bdd834c80cbd5a770c2bf6e",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9993782043457031,
+        "true": 0.0006217797053977847
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:7f6c7b6754ad744ad20dc574a746ea1383e4e8f8a86ca9819888aaa419e93a14:clear_east",
+      "row_id": "maze_state:7f6c7b6754ad744ad20dc574a746ea1383e4e8f8a86ca9819888aaa419e93a14",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:16:8afdbbae3bd08fb1a857e53d617f13294e598d541bdd834c80cbd5a770c2bf6e",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9738631844520569,
+        "true": 0.02613683044910431
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:7f6c7b6754ad744ad20dc574a746ea1383e4e8f8a86ca9819888aaa419e93a14:clear_north",
+      "row_id": "maze_state:7f6c7b6754ad744ad20dc574a746ea1383e4e8f8a86ca9819888aaa419e93a14",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:16:8afdbbae3bd08fb1a857e53d617f13294e598d541bdd834c80cbd5a770c2bf6e",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.3624033033847809,
+        "true": 0.6375967264175415
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:7f6c7b6754ad744ad20dc574a746ea1383e4e8f8a86ca9819888aaa419e93a14:clear_south",
+      "row_id": "maze_state:7f6c7b6754ad744ad20dc574a746ea1383e4e8f8a86ca9819888aaa419e93a14",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:16:8afdbbae3bd08fb1a857e53d617f13294e598d541bdd834c80cbd5a770c2bf6e",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.45144814252853394,
+        "true": 0.5485519170761108
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:7f6c7b6754ad744ad20dc574a746ea1383e4e8f8a86ca9819888aaa419e93a14:clear_west",
+      "row_id": "maze_state:7f6c7b6754ad744ad20dc574a746ea1383e4e8f8a86ca9819888aaa419e93a14",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:16:8afdbbae3bd08fb1a857e53d617f13294e598d541bdd834c80cbd5a770c2bf6e",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.5025572180747986,
+        "true": 0.49744272232055664
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:4f00b148927c3845ca34f8339d62d30a4cd5196658e4cd4ceedb371e7a74aa96:clear_east",
+      "row_id": "maze_state:4f00b148927c3845ca34f8339d62d30a4cd5196658e4cd4ceedb371e7a74aa96",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:16:8afdbbae3bd08fb1a857e53d617f13294e598d541bdd834c80cbd5a770c2bf6e",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.002454053843393922,
+        "true": 0.9975458979606628
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:4f00b148927c3845ca34f8339d62d30a4cd5196658e4cd4ceedb371e7a74aa96:clear_north",
+      "row_id": "maze_state:4f00b148927c3845ca34f8339d62d30a4cd5196658e4cd4ceedb371e7a74aa96",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:16:8afdbbae3bd08fb1a857e53d617f13294e598d541bdd834c80cbd5a770c2bf6e",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9677357077598572,
+        "true": 0.03226430341601372
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:4f00b148927c3845ca34f8339d62d30a4cd5196658e4cd4ceedb371e7a74aa96:clear_south",
+      "row_id": "maze_state:4f00b148927c3845ca34f8339d62d30a4cd5196658e4cd4ceedb371e7a74aa96",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:16:8afdbbae3bd08fb1a857e53d617f13294e598d541bdd834c80cbd5a770c2bf6e",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9783837199211121,
+        "true": 0.021616274490952492
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:4f00b148927c3845ca34f8339d62d30a4cd5196658e4cd4ceedb371e7a74aa96:clear_west",
+      "row_id": "maze_state:4f00b148927c3845ca34f8339d62d30a4cd5196658e4cd4ceedb371e7a74aa96",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:16:8afdbbae3bd08fb1a857e53d617f13294e598d541bdd834c80cbd5a770c2bf6e",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0012025847099721432,
+        "true": 0.9987974166870117
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:cae1d78e1545cfd1bd3152002c85a0fe14684bb73035fef3b11956182801ad80:clear_east",
+      "row_id": "maze_state:cae1d78e1545cfd1bd3152002c85a0fe14684bb73035fef3b11956182801ad80",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:16:8afdbbae3bd08fb1a857e53d617f13294e598d541bdd834c80cbd5a770c2bf6e",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9993731379508972,
+        "true": 0.0006269398145377636
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:cae1d78e1545cfd1bd3152002c85a0fe14684bb73035fef3b11956182801ad80:clear_north",
+      "row_id": "maze_state:cae1d78e1545cfd1bd3152002c85a0fe14684bb73035fef3b11956182801ad80",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:16:8afdbbae3bd08fb1a857e53d617f13294e598d541bdd834c80cbd5a770c2bf6e",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0020688166841864586,
+        "true": 0.9979312419891357
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:cae1d78e1545cfd1bd3152002c85a0fe14684bb73035fef3b11956182801ad80:clear_south",
+      "row_id": "maze_state:cae1d78e1545cfd1bd3152002c85a0fe14684bb73035fef3b11956182801ad80",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:16:8afdbbae3bd08fb1a857e53d617f13294e598d541bdd834c80cbd5a770c2bf6e",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0027788260485976934,
+        "true": 0.9972212314605713
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:cae1d78e1545cfd1bd3152002c85a0fe14684bb73035fef3b11956182801ad80:clear_west",
+      "row_id": "maze_state:cae1d78e1545cfd1bd3152002c85a0fe14684bb73035fef3b11956182801ad80",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:16:8afdbbae3bd08fb1a857e53d617f13294e598d541bdd834c80cbd5a770c2bf6e",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9993793964385986,
+        "true": 0.0006205778336152434
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:823343d98311adef8f5565f78ef95e9e709802a94595385458dceb1192d2fa12:clear_east",
+      "row_id": "maze_state:823343d98311adef8f5565f78ef95e9e709802a94595385458dceb1192d2fa12",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:16:1676875657aeb51388dc7084bfdeebed4f9a38a2d7ffcb56d2273d8baee164b4",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.5222453474998474,
+        "true": 0.477754682302475
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:823343d98311adef8f5565f78ef95e9e709802a94595385458dceb1192d2fa12:clear_north",
+      "row_id": "maze_state:823343d98311adef8f5565f78ef95e9e709802a94595385458dceb1192d2fa12",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:16:1676875657aeb51388dc7084bfdeebed4f9a38a2d7ffcb56d2273d8baee164b4",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.008580648340284824,
+        "true": 0.9914193153381348
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:823343d98311adef8f5565f78ef95e9e709802a94595385458dceb1192d2fa12:clear_south",
+      "row_id": "maze_state:823343d98311adef8f5565f78ef95e9e709802a94595385458dceb1192d2fa12",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:16:1676875657aeb51388dc7084bfdeebed4f9a38a2d7ffcb56d2273d8baee164b4",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.011744280345737934,
+        "true": 0.9882557392120361
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:823343d98311adef8f5565f78ef95e9e709802a94595385458dceb1192d2fa12:clear_west",
+      "row_id": "maze_state:823343d98311adef8f5565f78ef95e9e709802a94595385458dceb1192d2fa12",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:16:1676875657aeb51388dc7084bfdeebed4f9a38a2d7ffcb56d2273d8baee164b4",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.3519700765609741,
+        "true": 0.6480298638343811
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:8f352d54dfb7bb2b96c138c1a74c757d32365493a793034823be2e4a792bd9c2:clear_east",
+      "row_id": "maze_state:8f352d54dfb7bb2b96c138c1a74c757d32365493a793034823be2e4a792bd9c2",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:16:1676875657aeb51388dc7084bfdeebed4f9a38a2d7ffcb56d2273d8baee164b4",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0015886296750977635,
+        "true": 0.9984112977981567
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:8f352d54dfb7bb2b96c138c1a74c757d32365493a793034823be2e4a792bd9c2:clear_north",
+      "row_id": "maze_state:8f352d54dfb7bb2b96c138c1a74c757d32365493a793034823be2e4a792bd9c2",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:16:1676875657aeb51388dc7084bfdeebed4f9a38a2d7ffcb56d2273d8baee164b4",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0015486158663406968,
+        "true": 0.9984513521194458
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:8f352d54dfb7bb2b96c138c1a74c757d32365493a793034823be2e4a792bd9c2:clear_south",
+      "row_id": "maze_state:8f352d54dfb7bb2b96c138c1a74c757d32365493a793034823be2e4a792bd9c2",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:16:1676875657aeb51388dc7084bfdeebed4f9a38a2d7ffcb56d2273d8baee164b4",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0020723999477922916,
+        "true": 0.9979275465011597
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:8f352d54dfb7bb2b96c138c1a74c757d32365493a793034823be2e4a792bd9c2:clear_west",
+      "row_id": "maze_state:8f352d54dfb7bb2b96c138c1a74c757d32365493a793034823be2e4a792bd9c2",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:16:1676875657aeb51388dc7084bfdeebed4f9a38a2d7ffcb56d2273d8baee164b4",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0011924681020900607,
+        "true": 0.9988075494766235
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:150a3cdc45e1f68f39424146dbee23941aae7c4c429700eaeb719326086b240f:clear_east",
+      "row_id": "maze_state:150a3cdc45e1f68f39424146dbee23941aae7c4c429700eaeb719326086b240f",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:16:1676875657aeb51388dc7084bfdeebed4f9a38a2d7ffcb56d2273d8baee164b4",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0005775498575530946,
+        "true": 0.9994224309921265
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:150a3cdc45e1f68f39424146dbee23941aae7c4c429700eaeb719326086b240f:clear_north",
+      "row_id": "maze_state:150a3cdc45e1f68f39424146dbee23941aae7c4c429700eaeb719326086b240f",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:16:1676875657aeb51388dc7084bfdeebed4f9a38a2d7ffcb56d2273d8baee164b4",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8037253022193909,
+        "true": 0.19627465307712555
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:150a3cdc45e1f68f39424146dbee23941aae7c4c429700eaeb719326086b240f:clear_south",
+      "row_id": "maze_state:150a3cdc45e1f68f39424146dbee23941aae7c4c429700eaeb719326086b240f",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:16:1676875657aeb51388dc7084bfdeebed4f9a38a2d7ffcb56d2273d8baee164b4",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8744428157806396,
+        "true": 0.12555712461471558
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:150a3cdc45e1f68f39424146dbee23941aae7c4c429700eaeb719326086b240f:clear_west",
+      "row_id": "maze_state:150a3cdc45e1f68f39424146dbee23941aae7c4c429700eaeb719326086b240f",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:16:1676875657aeb51388dc7084bfdeebed4f9a38a2d7ffcb56d2273d8baee164b4",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0005753485602326691,
+        "true": 0.9994246959686279
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:f8a5d7beb108b5fef1ee7b68ad64b82710a97a89e8bf362891917eab72038c16:clear_east",
+      "row_id": "maze_state:f8a5d7beb108b5fef1ee7b68ad64b82710a97a89e8bf362891917eab72038c16",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:16:1676875657aeb51388dc7084bfdeebed4f9a38a2d7ffcb56d2273d8baee164b4",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.547953188419342,
+        "true": 0.4520467519760132
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:f8a5d7beb108b5fef1ee7b68ad64b82710a97a89e8bf362891917eab72038c16:clear_north",
+      "row_id": "maze_state:f8a5d7beb108b5fef1ee7b68ad64b82710a97a89e8bf362891917eab72038c16",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:16:1676875657aeb51388dc7084bfdeebed4f9a38a2d7ffcb56d2273d8baee164b4",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.05780884623527527,
+        "true": 0.9421911835670471
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:f8a5d7beb108b5fef1ee7b68ad64b82710a97a89e8bf362891917eab72038c16:clear_south",
+      "row_id": "maze_state:f8a5d7beb108b5fef1ee7b68ad64b82710a97a89e8bf362891917eab72038c16",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:16:1676875657aeb51388dc7084bfdeebed4f9a38a2d7ffcb56d2273d8baee164b4",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.05843788757920265,
+        "true": 0.9415620565414429
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:f8a5d7beb108b5fef1ee7b68ad64b82710a97a89e8bf362891917eab72038c16:clear_west",
+      "row_id": "maze_state:f8a5d7beb108b5fef1ee7b68ad64b82710a97a89e8bf362891917eab72038c16",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:16:1676875657aeb51388dc7084bfdeebed4f9a38a2d7ffcb56d2273d8baee164b4",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.5265756845474243,
+        "true": 0.4734242260456085
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:8dcc705af2830ec1a7f0d09fa33b04d2ba96ff846e74f1fafb3c777d6cdf2b66:clear_east",
+      "row_id": "maze_state:8dcc705af2830ec1a7f0d09fa33b04d2ba96ff846e74f1fafb3c777d6cdf2b66",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:32:b22be23983e9f812a7eb9e1a06cd93c52d79b1e1acb22b879cdb8e488e40b6f3",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8748210072517395,
+        "true": 0.1251790076494217
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:8dcc705af2830ec1a7f0d09fa33b04d2ba96ff846e74f1fafb3c777d6cdf2b66:clear_north",
+      "row_id": "maze_state:8dcc705af2830ec1a7f0d09fa33b04d2ba96ff846e74f1fafb3c777d6cdf2b66",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:32:b22be23983e9f812a7eb9e1a06cd93c52d79b1e1acb22b879cdb8e488e40b6f3",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.010467896237969398,
+        "true": 0.9895321130752563
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:8dcc705af2830ec1a7f0d09fa33b04d2ba96ff846e74f1fafb3c777d6cdf2b66:clear_south",
+      "row_id": "maze_state:8dcc705af2830ec1a7f0d09fa33b04d2ba96ff846e74f1fafb3c777d6cdf2b66",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:32:b22be23983e9f812a7eb9e1a06cd93c52d79b1e1acb22b879cdb8e488e40b6f3",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.011082382872700691,
+        "true": 0.9889175891876221
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:8dcc705af2830ec1a7f0d09fa33b04d2ba96ff846e74f1fafb3c777d6cdf2b66:clear_west",
+      "row_id": "maze_state:8dcc705af2830ec1a7f0d09fa33b04d2ba96ff846e74f1fafb3c777d6cdf2b66",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:32:b22be23983e9f812a7eb9e1a06cd93c52d79b1e1acb22b879cdb8e488e40b6f3",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8604996204376221,
+        "true": 0.13950036466121674
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:2a38ca712fbac337fa87ad03e35a5f4dfe88e3865c92254c45368f40ff4fd20a:clear_east",
+      "row_id": "maze_state:2a38ca712fbac337fa87ad03e35a5f4dfe88e3865c92254c45368f40ff4fd20a",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:32:b22be23983e9f812a7eb9e1a06cd93c52d79b1e1acb22b879cdb8e488e40b6f3",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9991247057914734,
+        "true": 0.0008753326255828142
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:2a38ca712fbac337fa87ad03e35a5f4dfe88e3865c92254c45368f40ff4fd20a:clear_north",
+      "row_id": "maze_state:2a38ca712fbac337fa87ad03e35a5f4dfe88e3865c92254c45368f40ff4fd20a",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:32:b22be23983e9f812a7eb9e1a06cd93c52d79b1e1acb22b879cdb8e488e40b6f3",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0007443891954608262,
+        "true": 0.9992555975914001
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:2a38ca712fbac337fa87ad03e35a5f4dfe88e3865c92254c45368f40ff4fd20a:clear_south",
+      "row_id": "maze_state:2a38ca712fbac337fa87ad03e35a5f4dfe88e3865c92254c45368f40ff4fd20a",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:32:b22be23983e9f812a7eb9e1a06cd93c52d79b1e1acb22b879cdb8e488e40b6f3",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0010753005044534802,
+        "true": 0.9989246726036072
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:2a38ca712fbac337fa87ad03e35a5f4dfe88e3865c92254c45368f40ff4fd20a:clear_west",
+      "row_id": "maze_state:2a38ca712fbac337fa87ad03e35a5f4dfe88e3865c92254c45368f40ff4fd20a",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:32:b22be23983e9f812a7eb9e1a06cd93c52d79b1e1acb22b879cdb8e488e40b6f3",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9991408586502075,
+        "true": 0.0008590642246417701
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:12d94be181b94f5d645ec61165329be25177907b3facb76ab5d45acd4f48469b:clear_east",
+      "row_id": "maze_state:12d94be181b94f5d645ec61165329be25177907b3facb76ab5d45acd4f48469b",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:32:b22be23983e9f812a7eb9e1a06cd93c52d79b1e1acb22b879cdb8e488e40b6f3",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8246578574180603,
+        "true": 0.17534209787845612
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:12d94be181b94f5d645ec61165329be25177907b3facb76ab5d45acd4f48469b:clear_north",
+      "row_id": "maze_state:12d94be181b94f5d645ec61165329be25177907b3facb76ab5d45acd4f48469b",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:32:b22be23983e9f812a7eb9e1a06cd93c52d79b1e1acb22b879cdb8e488e40b6f3",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.041333671659231186,
+        "true": 0.9586662650108337
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:12d94be181b94f5d645ec61165329be25177907b3facb76ab5d45acd4f48469b:clear_south",
+      "row_id": "maze_state:12d94be181b94f5d645ec61165329be25177907b3facb76ab5d45acd4f48469b",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:32:b22be23983e9f812a7eb9e1a06cd93c52d79b1e1acb22b879cdb8e488e40b6f3",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0402047261595726,
+        "true": 0.9597952961921692
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:12d94be181b94f5d645ec61165329be25177907b3facb76ab5d45acd4f48469b:clear_west",
+      "row_id": "maze_state:12d94be181b94f5d645ec61165329be25177907b3facb76ab5d45acd4f48469b",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:32:b22be23983e9f812a7eb9e1a06cd93c52d79b1e1acb22b879cdb8e488e40b6f3",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8146775960922241,
+        "true": 0.18532244861125946
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:f673ecc4571ea99a92a5e10b240c34497240c62d8f163e910e0acf94c0a830bc:clear_east",
+      "row_id": "maze_state:f673ecc4571ea99a92a5e10b240c34497240c62d8f163e910e0acf94c0a830bc",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:32:b22be23983e9f812a7eb9e1a06cd93c52d79b1e1acb22b879cdb8e488e40b6f3",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9993367791175842,
+        "true": 0.0006632398581132293
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:f673ecc4571ea99a92a5e10b240c34497240c62d8f163e910e0acf94c0a830bc:clear_north",
+      "row_id": "maze_state:f673ecc4571ea99a92a5e10b240c34497240c62d8f163e910e0acf94c0a830bc",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:32:b22be23983e9f812a7eb9e1a06cd93c52d79b1e1acb22b879cdb8e488e40b6f3",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0012187238316982985,
+        "true": 0.9987812638282776
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:f673ecc4571ea99a92a5e10b240c34497240c62d8f163e910e0acf94c0a830bc:clear_south",
+      "row_id": "maze_state:f673ecc4571ea99a92a5e10b240c34497240c62d8f163e910e0acf94c0a830bc",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:32:b22be23983e9f812a7eb9e1a06cd93c52d79b1e1acb22b879cdb8e488e40b6f3",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0017674227710813284,
+        "true": 0.9982326030731201
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:f673ecc4571ea99a92a5e10b240c34497240c62d8f163e910e0acf94c0a830bc:clear_west",
+      "row_id": "maze_state:f673ecc4571ea99a92a5e10b240c34497240c62d8f163e910e0acf94c0a830bc",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:32:b22be23983e9f812a7eb9e1a06cd93c52d79b1e1acb22b879cdb8e488e40b6f3",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.999352753162384,
+        "true": 0.000647266861051321
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:aa40833eb82d1d8b0d5bd65642032f77611702c817f0e64ddaa1110804c7a169:clear_east",
+      "row_id": "maze_state:aa40833eb82d1d8b0d5bd65642032f77611702c817f0e64ddaa1110804c7a169",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:32:4aff335e418d8628fc02267f2dbaa1c39f3305f6fcf3dee03c019e3db8349a3a",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.8985904455184937,
+        "true": 0.10140952467918396
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:aa40833eb82d1d8b0d5bd65642032f77611702c817f0e64ddaa1110804c7a169:clear_north",
+      "row_id": "maze_state:aa40833eb82d1d8b0d5bd65642032f77611702c817f0e64ddaa1110804c7a169",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:32:4aff335e418d8628fc02267f2dbaa1c39f3305f6fcf3dee03c019e3db8349a3a",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.42591696977615356,
+        "true": 0.5740830302238464
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:aa40833eb82d1d8b0d5bd65642032f77611702c817f0e64ddaa1110804c7a169:clear_south",
+      "row_id": "maze_state:aa40833eb82d1d8b0d5bd65642032f77611702c817f0e64ddaa1110804c7a169",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:32:4aff335e418d8628fc02267f2dbaa1c39f3305f6fcf3dee03c019e3db8349a3a",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.47726455330848694,
+        "true": 0.5227354168891907
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:aa40833eb82d1d8b0d5bd65642032f77611702c817f0e64ddaa1110804c7a169:clear_west",
+      "row_id": "maze_state:aa40833eb82d1d8b0d5bd65642032f77611702c817f0e64ddaa1110804c7a169",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:32:4aff335e418d8628fc02267f2dbaa1c39f3305f6fcf3dee03c019e3db8349a3a",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.895324170589447,
+        "true": 0.10467584431171417
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:567795308aa69e6c6166dccbeb720c1499033d04cbe0ae8bc0483b6e742cc78f:clear_east",
+      "row_id": "maze_state:567795308aa69e6c6166dccbeb720c1499033d04cbe0ae8bc0483b6e742cc78f",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:32:4aff335e418d8628fc02267f2dbaa1c39f3305f6fcf3dee03c019e3db8349a3a",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9992080330848694,
+        "true": 0.0007920163334347308
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:567795308aa69e6c6166dccbeb720c1499033d04cbe0ae8bc0483b6e742cc78f:clear_north",
+      "row_id": "maze_state:567795308aa69e6c6166dccbeb720c1499033d04cbe0ae8bc0483b6e742cc78f",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:32:4aff335e418d8628fc02267f2dbaa1c39f3305f6fcf3dee03c019e3db8349a3a",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0008629378862679005,
+        "true": 0.9991371035575867
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:567795308aa69e6c6166dccbeb720c1499033d04cbe0ae8bc0483b6e742cc78f:clear_south",
+      "row_id": "maze_state:567795308aa69e6c6166dccbeb720c1499033d04cbe0ae8bc0483b6e742cc78f",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:32:4aff335e418d8628fc02267f2dbaa1c39f3305f6fcf3dee03c019e3db8349a3a",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0011292019626125693,
+        "true": 0.9988707900047302
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:567795308aa69e6c6166dccbeb720c1499033d04cbe0ae8bc0483b6e742cc78f:clear_west",
+      "row_id": "maze_state:567795308aa69e6c6166dccbeb720c1499033d04cbe0ae8bc0483b6e742cc78f",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:32:4aff335e418d8628fc02267f2dbaa1c39f3305f6fcf3dee03c019e3db8349a3a",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9992190599441528,
+        "true": 0.0007809622911736369
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:f0b98046525ec488f013b857d4d0b2ba9413b11644881401cc4154f80d9f5e49:clear_east",
+      "row_id": "maze_state:f0b98046525ec488f013b857d4d0b2ba9413b11644881401cc4154f80d9f5e49",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:32:4aff335e418d8628fc02267f2dbaa1c39f3305f6fcf3dee03c019e3db8349a3a",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.001771779265254736,
+        "true": 0.9982282519340515
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:f0b98046525ec488f013b857d4d0b2ba9413b11644881401cc4154f80d9f5e49:clear_north",
+      "row_id": "maze_state:f0b98046525ec488f013b857d4d0b2ba9413b11644881401cc4154f80d9f5e49",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:32:4aff335e418d8628fc02267f2dbaa1c39f3305f6fcf3dee03c019e3db8349a3a",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9746383428573608,
+        "true": 0.025361625477671623
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:f0b98046525ec488f013b857d4d0b2ba9413b11644881401cc4154f80d9f5e49:clear_south",
+      "row_id": "maze_state:f0b98046525ec488f013b857d4d0b2ba9413b11644881401cc4154f80d9f5e49",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:32:4aff335e418d8628fc02267f2dbaa1c39f3305f6fcf3dee03c019e3db8349a3a",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9839909076690674,
+        "true": 0.01600911095738411
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:f0b98046525ec488f013b857d4d0b2ba9413b11644881401cc4154f80d9f5e49:clear_west",
+      "row_id": "maze_state:f0b98046525ec488f013b857d4d0b2ba9413b11644881401cc4154f80d9f5e49",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:32:4aff335e418d8628fc02267f2dbaa1c39f3305f6fcf3dee03c019e3db8349a3a",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0009728247532621026,
+        "true": 0.9990271329879761
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:56603931fcc0d337599687e002bb24448b59286385fac5a28c31474efcfe6458:clear_east",
+      "row_id": "maze_state:56603931fcc0d337599687e002bb24448b59286385fac5a28c31474efcfe6458",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:32:4aff335e418d8628fc02267f2dbaa1c39f3305f6fcf3dee03c019e3db8349a3a",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9995213747024536,
+        "true": 0.00047867835382930934
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:56603931fcc0d337599687e002bb24448b59286385fac5a28c31474efcfe6458:clear_north",
+      "row_id": "maze_state:56603931fcc0d337599687e002bb24448b59286385fac5a28c31474efcfe6458",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:32:4aff335e418d8628fc02267f2dbaa1c39f3305f6fcf3dee03c019e3db8349a3a",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.018917705863714218,
+        "true": 0.9810823202133179
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:56603931fcc0d337599687e002bb24448b59286385fac5a28c31474efcfe6458:clear_south",
+      "row_id": "maze_state:56603931fcc0d337599687e002bb24448b59286385fac5a28c31474efcfe6458",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:32:4aff335e418d8628fc02267f2dbaa1c39f3305f6fcf3dee03c019e3db8349a3a",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.025224784389138222,
+        "true": 0.9747751355171204
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:56603931fcc0d337599687e002bb24448b59286385fac5a28c31474efcfe6458:clear_west",
+      "row_id": "maze_state:56603931fcc0d337599687e002bb24448b59286385fac5a28c31474efcfe6458",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:32:4aff335e418d8628fc02267f2dbaa1c39f3305f6fcf3dee03c019e3db8349a3a",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9995367527008057,
+        "true": 0.000463273492641747
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:654a4894ae708735a9392667c5cc608daeb05a0a6cb661eaa21d0d998e43a7c5:clear_east",
+      "row_id": "maze_state:654a4894ae708735a9392667c5cc608daeb05a0a6cb661eaa21d0d998e43a7c5",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:32:3f0fbb9c675e803b0a0157536cf9de96fe3af648a78f80af6493990a2641a08d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9995394945144653,
+        "true": 0.00046057015424594283
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:654a4894ae708735a9392667c5cc608daeb05a0a6cb661eaa21d0d998e43a7c5:clear_north",
+      "row_id": "maze_state:654a4894ae708735a9392667c5cc608daeb05a0a6cb661eaa21d0d998e43a7c5",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:32:3f0fbb9c675e803b0a0157536cf9de96fe3af648a78f80af6493990a2641a08d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.026677625253796577,
+        "true": 0.9733223915100098
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:654a4894ae708735a9392667c5cc608daeb05a0a6cb661eaa21d0d998e43a7c5:clear_south",
+      "row_id": "maze_state:654a4894ae708735a9392667c5cc608daeb05a0a6cb661eaa21d0d998e43a7c5",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:32:3f0fbb9c675e803b0a0157536cf9de96fe3af648a78f80af6493990a2641a08d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.038373760879039764,
+        "true": 0.9616262316703796
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:654a4894ae708735a9392667c5cc608daeb05a0a6cb661eaa21d0d998e43a7c5:clear_west",
+      "row_id": "maze_state:654a4894ae708735a9392667c5cc608daeb05a0a6cb661eaa21d0d998e43a7c5",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:32:3f0fbb9c675e803b0a0157536cf9de96fe3af648a78f80af6493990a2641a08d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9995657801628113,
+        "true": 0.00043417763663455844
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:aec26e9b85ab37603e8897f530b861b840ceace449149410a759f6ee7d4b0b68:clear_east",
+      "row_id": "maze_state:aec26e9b85ab37603e8897f530b861b840ceace449149410a759f6ee7d4b0b68",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:32:3f0fbb9c675e803b0a0157536cf9de96fe3af648a78f80af6493990a2641a08d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9995461106300354,
+        "true": 0.0004538365174084902
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:aec26e9b85ab37603e8897f530b861b840ceace449149410a759f6ee7d4b0b68:clear_north",
+      "row_id": "maze_state:aec26e9b85ab37603e8897f530b861b840ceace449149410a759f6ee7d4b0b68",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:32:3f0fbb9c675e803b0a0157536cf9de96fe3af648a78f80af6493990a2641a08d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.002163673285394907,
+        "true": 0.9978362917900085
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:aec26e9b85ab37603e8897f530b861b840ceace449149410a759f6ee7d4b0b68:clear_south",
+      "row_id": "maze_state:aec26e9b85ab37603e8897f530b861b840ceace449149410a759f6ee7d4b0b68",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:32:3f0fbb9c675e803b0a0157536cf9de96fe3af648a78f80af6493990a2641a08d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.003915727604180574,
+        "true": 0.9960842132568359
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:aec26e9b85ab37603e8897f530b861b840ceace449149410a759f6ee7d4b0b68:clear_west",
+      "row_id": "maze_state:aec26e9b85ab37603e8897f530b861b840ceace449149410a759f6ee7d4b0b68",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:32:3f0fbb9c675e803b0a0157536cf9de96fe3af648a78f80af6493990a2641a08d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9995736479759216,
+        "true": 0.0004263618611730635
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:66a103045db29551dfd9ec9ac9e3d7c5b7110ac1b6b53d1771a410b001da7399:clear_east",
+      "row_id": "maze_state:66a103045db29551dfd9ec9ac9e3d7c5b7110ac1b6b53d1771a410b001da7399",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:32:3f0fbb9c675e803b0a0157536cf9de96fe3af648a78f80af6493990a2641a08d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9647890329360962,
+        "true": 0.03521095961332321
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:66a103045db29551dfd9ec9ac9e3d7c5b7110ac1b6b53d1771a410b001da7399:clear_north",
+      "row_id": "maze_state:66a103045db29551dfd9ec9ac9e3d7c5b7110ac1b6b53d1771a410b001da7399",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:32:3f0fbb9c675e803b0a0157536cf9de96fe3af648a78f80af6493990a2641a08d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.12084969133138657,
+        "true": 0.8791503310203552
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:66a103045db29551dfd9ec9ac9e3d7c5b7110ac1b6b53d1771a410b001da7399:clear_south",
+      "row_id": "maze_state:66a103045db29551dfd9ec9ac9e3d7c5b7110ac1b6b53d1771a410b001da7399",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:32:3f0fbb9c675e803b0a0157536cf9de96fe3af648a78f80af6493990a2641a08d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.16927461326122284,
+        "true": 0.8307254314422607
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:66a103045db29551dfd9ec9ac9e3d7c5b7110ac1b6b53d1771a410b001da7399:clear_west",
+      "row_id": "maze_state:66a103045db29551dfd9ec9ac9e3d7c5b7110ac1b6b53d1771a410b001da7399",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:32:3f0fbb9c675e803b0a0157536cf9de96fe3af648a78f80af6493990a2641a08d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.7144659757614136,
+        "true": 0.2855340540409088
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:9687c8c103773f719c3e7777ea21b7e233b86f607e1c20b4b888b76fb3125dd4:clear_east",
+      "row_id": "maze_state:9687c8c103773f719c3e7777ea21b7e233b86f607e1c20b4b888b76fb3125dd4",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:32:3f0fbb9c675e803b0a0157536cf9de96fe3af648a78f80af6493990a2641a08d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9990925788879395,
+        "true": 0.0009074065601453185
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:9687c8c103773f719c3e7777ea21b7e233b86f607e1c20b4b888b76fb3125dd4:clear_north",
+      "row_id": "maze_state:9687c8c103773f719c3e7777ea21b7e233b86f607e1c20b4b888b76fb3125dd4",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:32:3f0fbb9c675e803b0a0157536cf9de96fe3af648a78f80af6493990a2641a08d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0006454376270994544,
+        "true": 0.9993545413017273
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:9687c8c103773f719c3e7777ea21b7e233b86f607e1c20b4b888b76fb3125dd4:clear_south",
+      "row_id": "maze_state:9687c8c103773f719c3e7777ea21b7e233b86f607e1c20b4b888b76fb3125dd4",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:32:3f0fbb9c675e803b0a0157536cf9de96fe3af648a78f80af6493990a2641a08d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0008179144933819771,
+        "true": 0.9991820454597473
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:9687c8c103773f719c3e7777ea21b7e233b86f607e1c20b4b888b76fb3125dd4:clear_west",
+      "row_id": "maze_state:9687c8c103773f719c3e7777ea21b7e233b86f607e1c20b4b888b76fb3125dd4",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:32:3f0fbb9c675e803b0a0157536cf9de96fe3af648a78f80af6493990a2641a08d",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9991182684898376,
+        "true": 0.0008817830821499228
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:8a40cf87b2684679a8f9b4d646aad34962d35acd403191b647301649347d7ac1:clear_east",
+      "row_id": "maze_state:8a40cf87b2684679a8f9b4d646aad34962d35acd403191b647301649347d7ac1",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:32:2df5afdea37afaca69f5dc9f83b6fb9ca29180dd13265adc4e7f9bbb671d6fd7",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9994524121284485,
+        "true": 0.0005475327488966286
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:8a40cf87b2684679a8f9b4d646aad34962d35acd403191b647301649347d7ac1:clear_north",
+      "row_id": "maze_state:8a40cf87b2684679a8f9b4d646aad34962d35acd403191b647301649347d7ac1",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:32:2df5afdea37afaca69f5dc9f83b6fb9ca29180dd13265adc4e7f9bbb671d6fd7",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.06470666080713272,
+        "true": 0.9352933764457703
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:8a40cf87b2684679a8f9b4d646aad34962d35acd403191b647301649347d7ac1:clear_south",
+      "row_id": "maze_state:8a40cf87b2684679a8f9b4d646aad34962d35acd403191b647301649347d7ac1",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:32:2df5afdea37afaca69f5dc9f83b6fb9ca29180dd13265adc4e7f9bbb671d6fd7",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.10349017381668091,
+        "true": 0.8965097665786743
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:8a40cf87b2684679a8f9b4d646aad34962d35acd403191b647301649347d7ac1:clear_west",
+      "row_id": "maze_state:8a40cf87b2684679a8f9b4d646aad34962d35acd403191b647301649347d7ac1",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:32:2df5afdea37afaca69f5dc9f83b6fb9ca29180dd13265adc4e7f9bbb671d6fd7",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9994578957557678,
+        "true": 0.0005421147216111422
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:47919711a65150fa0fde78d1fb02c5c7d4b34a8b7c83e597cb86be095faf7f33:clear_east",
+      "row_id": "maze_state:47919711a65150fa0fde78d1fb02c5c7d4b34a8b7c83e597cb86be095faf7f33",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:32:2df5afdea37afaca69f5dc9f83b6fb9ca29180dd13265adc4e7f9bbb671d6fd7",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.005520911887288094,
+        "true": 0.9944790601730347
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:47919711a65150fa0fde78d1fb02c5c7d4b34a8b7c83e597cb86be095faf7f33:clear_north",
+      "row_id": "maze_state:47919711a65150fa0fde78d1fb02c5c7d4b34a8b7c83e597cb86be095faf7f33",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:32:2df5afdea37afaca69f5dc9f83b6fb9ca29180dd13265adc4e7f9bbb671d6fd7",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.3918839991092682,
+        "true": 0.6081159710884094
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:47919711a65150fa0fde78d1fb02c5c7d4b34a8b7c83e597cb86be095faf7f33:clear_south",
+      "row_id": "maze_state:47919711a65150fa0fde78d1fb02c5c7d4b34a8b7c83e597cb86be095faf7f33",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:32:2df5afdea37afaca69f5dc9f83b6fb9ca29180dd13265adc4e7f9bbb671d6fd7",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.46781811118125916,
+        "true": 0.5321818590164185
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:47919711a65150fa0fde78d1fb02c5c7d4b34a8b7c83e597cb86be095faf7f33:clear_west",
+      "row_id": "maze_state:47919711a65150fa0fde78d1fb02c5c7d4b34a8b7c83e597cb86be095faf7f33",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:32:2df5afdea37afaca69f5dc9f83b6fb9ca29180dd13265adc4e7f9bbb671d6fd7",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.0018437085673213005,
+        "true": 0.9981562495231628
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:30bf36966cb06fa3d79f545b8abbc41d51de7e5a3b93b8aabcb8cc79d77f26ea:clear_east",
+      "row_id": "maze_state:30bf36966cb06fa3d79f545b8abbc41d51de7e5a3b93b8aabcb8cc79d77f26ea",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:32:2df5afdea37afaca69f5dc9f83b6fb9ca29180dd13265adc4e7f9bbb671d6fd7",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9760368466377258,
+        "true": 0.023963123559951782
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:30bf36966cb06fa3d79f545b8abbc41d51de7e5a3b93b8aabcb8cc79d77f26ea:clear_north",
+      "row_id": "maze_state:30bf36966cb06fa3d79f545b8abbc41d51de7e5a3b93b8aabcb8cc79d77f26ea",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:32:2df5afdea37afaca69f5dc9f83b6fb9ca29180dd13265adc4e7f9bbb671d6fd7",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.035870686173439026,
+        "true": 0.9641293287277222
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:30bf36966cb06fa3d79f545b8abbc41d51de7e5a3b93b8aabcb8cc79d77f26ea:clear_south",
+      "row_id": "maze_state:30bf36966cb06fa3d79f545b8abbc41d51de7e5a3b93b8aabcb8cc79d77f26ea",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:32:2df5afdea37afaca69f5dc9f83b6fb9ca29180dd13265adc4e7f9bbb671d6fd7",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.057458437979221344,
+        "true": 0.9425415992736816
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:30bf36966cb06fa3d79f545b8abbc41d51de7e5a3b93b8aabcb8cc79d77f26ea:clear_west",
+      "row_id": "maze_state:30bf36966cb06fa3d79f545b8abbc41d51de7e5a3b93b8aabcb8cc79d77f26ea",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:32:2df5afdea37afaca69f5dc9f83b6fb9ca29180dd13265adc4e7f9bbb671d6fd7",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9608877897262573,
+        "true": 0.03911226615309715
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:1c7fd399b65e698175063ca0f813b1b41735384ae9ad3c6866256d6b9371170a:clear_east",
+      "row_id": "maze_state:1c7fd399b65e698175063ca0f813b1b41735384ae9ad3c6866256d6b9371170a",
+      "qid": "clear_east",
+      "split": "test",
+      "source_group_id": "maze:32:2df5afdea37afaca69f5dc9f83b6fb9ca29180dd13265adc4e7f9bbb671d6fd7",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.9386109113693237,
+        "true": 0.06138911470770836
+      },
+      "gold_index": 0
+    },
+    {
+      "sample_id": "maze_state:1c7fd399b65e698175063ca0f813b1b41735384ae9ad3c6866256d6b9371170a:clear_north",
+      "row_id": "maze_state:1c7fd399b65e698175063ca0f813b1b41735384ae9ad3c6866256d6b9371170a",
+      "qid": "clear_north",
+      "split": "test",
+      "source_group_id": "maze:32:2df5afdea37afaca69f5dc9f83b6fb9ca29180dd13265adc4e7f9bbb671d6fd7",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.20302866399288177,
+        "true": 0.796971321105957
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:1c7fd399b65e698175063ca0f813b1b41735384ae9ad3c6866256d6b9371170a:clear_south",
+      "row_id": "maze_state:1c7fd399b65e698175063ca0f813b1b41735384ae9ad3c6866256d6b9371170a",
+      "qid": "clear_south",
+      "split": "test",
+      "source_group_id": "maze:32:2df5afdea37afaca69f5dc9f83b6fb9ca29180dd13265adc4e7f9bbb671d6fd7",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.26093971729278564,
+        "true": 0.7390602231025696
+      },
+      "gold_index": 1
+    },
+    {
+      "sample_id": "maze_state:1c7fd399b65e698175063ca0f813b1b41735384ae9ad3c6866256d6b9371170a:clear_west",
+      "row_id": "maze_state:1c7fd399b65e698175063ca0f813b1b41735384ae9ad3c6866256d6b9371170a",
+      "qid": "clear_west",
+      "split": "test",
+      "source_group_id": "maze:32:2df5afdea37afaca69f5dc9f83b6fb9ca29180dd13265adc4e7f9bbb671d6fd7",
+      "family_id": "scaled_maze",
+      "probabilities": {
+        "false": 0.6011847257614136,
+        "true": 0.3988152742385864
+      },
+      "gold_index": 1
+    }
+  ],
+  "gates": {
+    "zero_invalid_outputs": true,
+    "nonempty_quality_reports": true,
+    "manifest_complete": true
+  }
+}

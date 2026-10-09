@@ -1,0 +1,31 @@
+{
+ "schema_version": "nanojev-financial-signal-labels-protocol-v4",
+ "created_utc": "2026-09-24T00:00:00Z",
+ "purpose": "T66 label-redesign: does a continuous/vol-normalized/longer-horizon target recover signal the 25bps/1d binary label destroys? Same cohort+features, only target changes.",
+ "cohort": {
+  "path": "data/perp_pit_v1/records.jsonl",
+  "records": 6554
+ },
+ "labels": {
+  "l1": "next-day mark log return",
+  "l2": "l1 / realized_vol_24bar",
+  "l3": "5-day forward mark log return"
+ },
+ "features": [
+  "funding_pct",
+  "abnvol_pct",
+  "dbasis_pct",
+  "rv_pct"
+ ],
+ "statistics": [
+  "Spearman rho pooled+per-test-fold",
+  "top/bottom-decile Welch t",
+  "BH-FDR over 12 cells"
+ ],
+ "pit_safety": "trailing windows only",
+ "forbidden": [
+  "fitting",
+  "trading",
+  "claims"
+ ]
+}

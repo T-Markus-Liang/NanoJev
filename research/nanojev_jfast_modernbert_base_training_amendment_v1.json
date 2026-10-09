@@ -1,0 +1,233 @@
+{
+  "schema_version": "nanojev-jfast-modernbert-base-training-amendment-v1",
+  "status": "seed30_completed_root_cause_marker_before_underfit",
+  "created_utc": "2026-09-21T11:00:00Z",
+  "purpose": "First J-FAST training arm: train a ModernBERT-base encoder with a marker-head that returns bounded typed-decision probabilities. This arm tests whether a 149.7M encoder can preserve or improve NanoJev's engineering-judgment quality while reducing inference cost versus MiniCPM5-2B.",
+  "reason_for_base_first": "ModernBERT-base passed the same owned long-context probe as large with materially lower latency and memory. The speed objective makes base the better first candidate; large remains the fallback capacity arm.",
+  "evidence": {
+    "compatibility_amendment": "research/nanojev_jfast_fast_backbone_amendment_v1.json",
+    "backbone_probe_cached": "results/jfast_modernbert_base_probe_cached.json",
+    "marker_head_probe": "results/jfast_modernbert_base_marker_probe.json",
+    "observed": {
+      "parameters_exact": 149655232,
+      "max_position_embeddings": 8192,
+      "owned_long_context_tokens": 6519,
+      "context_failures": 0,
+      "cached_model_load_s": 0.2706579170044279,
+      "marker_probe_p50_s": 0.01609312450455036,
+      "marker_probe_p95_s": 0.3958230002572236,
+      "mps_allocated_bytes": 617038848,
+      "note": "zero-initialized head emits uniform probabilities; compatibility only, not accuracy"
+    }
+  },
+  "model": {
+    "model_id": "answerdotai/ModernBERT-base",
+    "revision": "8949b909ec900327062f0ebf497f51aef5e6f0c8",
+    "license": "apache-2.0",
+    "architecture": "ModernBertModel",
+    "hidden_size": 768,
+    "num_hidden_layers": 22,
+    "local_attention": 128,
+    "global_attn_every_n_layers": 3,
+    "max_position_embeddings": 8192
+  },
+  "decision_head": {
+    "type": "marker_head",
+    "construction": "one [MASK] marker per output label; score = linear(hidden[marker_position]); softmax over labels",
+    "boolean_mapping": "two markers: false and true",
+    "choice_mapping": "one marker per criteria key, preserving order",
+    "score_mapping": "one marker per level index string",
+    "failure_policy": "input sequences above 8192 tokens fail closed or use a separately parity-tested grouped-marker contract"
+  },
+  "training": {
+    "corpus": "research/engineering_judgment_corpus_v5/trainer_view/train.jsonl",
+    "dev": "research/engineering_judgment_corpus_v5/trainer_view/dev.jsonl",
+    "calibration": "research/engineering_judgment_corpus_v5/trainer_view/calibration.jsonl",
+    "test": "research/engineering_judgment_corpus_v5/trainer_view/test.jsonl",
+    "train_rows": 2904,
+    "dev_rows": 924,
+    "calibration_rows": 528,
+    "test_rows": 924,
+    "objective": "gold_distribution cross-entropy over marker logits",
+    "temperature": 1.0,
+    "seed": 30,
+    "max_steps": 600,
+    "head_warmup_steps": 20,
+    "eval_every_steps": 50,
+    "batch_questions": 16,
+    "max_tokens_per_microbatch": 32768,
+    "optimizer": "AdamW",
+    "lr": 3e-05,
+    "weight_decay": 0.01,
+    "lora": {
+      "rank": 16,
+      "alpha": 32,
+      "dropout": 0.05,
+      "target_modules": [
+        "Wqkv",
+        "Wo",
+        "Wi",
+        "Wo"
+      ],
+      "note": "exact target names verified on ModernBERT before remote sync; backbone remains frozen"
+    },
+    "checkpoint_selection": "lowest dev gold_distribution CE",
+    "output_dir": "/root/gpufree-data/nanojev/checkpoints/t9j_v1_modernbert_base_seed30_cuda"
+  },
+  "runtime": {
+    "training_device": "cuda",
+    "training_precision": "bf16_autocast_fp32_parameters",
+    "local_eval_device": "mps",
+    "local_eval_precision": "fp32",
+    "batch_questions_eval": 8,
+    "max_length": 8192
+  },
+  "required_gates_before_training": [
+    "marker-head trainer implemented and covered by local tests (done: self-test plus 6 unit tests)",
+    "ModernBERT LoRA target names verified on an owned synthetic forward/backward step (module-name injection test done; real one-step smoke still pending owner authorization)",
+    "zero-init head returns uniform finite probabilities",
+    "train/dev/calibration/test schema and isolation revalidated",
+    "remote workspace manifest hashes match before launch",
+    "owner explicitly authorizes server startup and this training amendment"
+  ],
+  "required_gates_after_training": [
+    "dev-only best checkpoint selection",
+    "merged LoRA reload parity within 1e-4 logit delta",
+    "checkpoint manifest hashes verified",
+    "local MPS FP32 parity on owned fixture",
+    "one-time heldout_v1/v2 evaluation only if internal freeze conditions are met",
+    "public JevBench diagnostic allowed but remains diagnostic unless official milestone gate is separately met"
+  ],
+  "success_criteria": {
+    "mechanical": [
+      "all marker-head outputs finite and normalized over exact labels",
+      "no truncated states",
+      "merge parity within 1e-4",
+      "CUDA→MPS owned parity max probability delta <= 1e-5"
+    ],
+    "capability": [
+      "dev CE improves through training",
+      "heldout_v1/v2 results reported once and compared against seed20",
+      "confident-wrong@0.9 does not regress materially"
+    ],
+    "speed": [
+      "local MPS serial latency materially below MiniCPM5-2B serial shared-prefix baseline",
+      "p50/p95, wall time, model load and peak memory reported"
+    ]
+  },
+  "explicit_non_goals": [
+    "no claim that ModernBERT-base is better until trained and evaluated",
+    "no use of Laya weights as NanoJev labels or teacher outputs",
+    "no heldout/public benchmark rows in training or calibration fitting",
+    "no per-item repair from benchmark failures",
+    "no promotion or deployment from compatibility probes"
+  ],
+  "authorization": {
+    "design_document_authorized": true,
+    "implementation_authorized": true,
+    "local_weight_probe_authorized": true,
+    "remote_server_start_authorized": true,
+    "remote_sync_authorized": true,
+    "training_authorized": true,
+    "heldout_read_authorized": false,
+    "public_diagnostic_authorized_after_build": true,
+    "deployment_authorized": false,
+    "official_jevbench_milestone_authorized": false,
+    "local_one_step_smoke_authorized": true
+  },
+  "artifacts": {
+    "trainer": {
+      "path": "scripts/train_jfast_modernbert.py",
+      "sha256": "e3a30027cde0e70a79cf574316d20effc5fc6554fc34d7c60485e7ffcf5a7a23"
+    },
+    "trainer_tests": {
+      "path": "scripts/test_jfast_modernbert.py",
+      "sha256": "52b3309ffed23707355703f594e953cee2dd02fcd606d594ac4467e967014333",
+      "tests": "6/6 pass"
+    },
+    "marker_head_probe": {
+      "path": "results/jfast_modernbert_base_marker_probe.json",
+      "sha256": "4de03dec92f6284fa984cf5d813e5d098201e5d77419a96a36be0197ba6beeae"
+    },
+    "local_one_step_smoke": {
+      "path": "results/jfast_modernbert_base_one_step_smoke.json",
+      "sha256": "ef3ba9e7d301a98202eea141466e369b3dd685d467eefa577d39dd586824e95b",
+      "passed": true,
+      "wrapped_lora_modules": 88,
+      "forward_backward_s": 0.4907158340065507
+    },
+    "remote_one_step_smoke": {
+      "path": "results/jfast_modernbert_base_one_step_smoke_cuda.json",
+      "sha256": "b3b14bc5f8aaae148842b475715a101a336bb68e00072dd66cb2696855a20204",
+      "passed": true,
+      "wrapped_lora_modules": 88,
+      "forward_backward_s": 0.5648955795913935
+    },
+    "checkpoint_manifest": {
+      "path": "checkpoints/t9j_v1_modernbert_base_seed30_cuda/checkpoint_manifest.json",
+      "sha256": "aadf7ffb6b596166edd25531c0f06fd618ca0c750057f5a34ea4140520389388"
+    },
+    "seed30_summary": {
+      "path": "results/t9j_v1_modernbert_base_seed30_summary.json",
+      "sha256": "70a10e59f821ab91f685451a8f75225eac18fe5778e189cf070e64cc2de213a2"
+    },
+    "local_owned_probe": {
+      "path": "results/jfast_modernbert_base_seed30_owned_probe.json",
+      "sha256": "a72f41324885a9f5a29501599e0c76a321d0e1afac9a4d73c1e0acbe3c6a5db0"
+    },
+    "remote_owned_probe": {
+      "path": "results/jfast_modernbert_base_seed30_owned_probe_cuda.json",
+      "sha256": "01812ee6bb60ebcae56a59f8cada46f7330f6c0bb4f75fa4cf58491934b8f688"
+    },
+    "seed30_dual_scorecard": {
+      "path": "results/t9j_v1_modernbert_base_seed30_dual_benchmark_scorecard.json",
+      "sha256": "930cd9bb9efacaf8fc5cf44580fb6cab6e2f303e43a5231ff30597d7d603b11d"
+    },
+    "root_cause_analysis": {
+      "path": "results/jfast_seed30_root_cause_analysis.json",
+      "sha256": "9ae452043d6421f335a189152755694cd6b2349469cd6aa6d8f3da34982161aa"
+    },
+    "jfast_marker_predictor": {
+      "path": "scripts/predict_jfast_modernbert.py",
+      "sha256": "564ccf8c6b3e2062dc9df8601ddb2cbbe2afd8fbc855735f0128d01973847ea3"
+    },
+    "jfast_marker_encoder": {
+      "path": "scripts/jfast_modernbert_decision_v1.py",
+      "sha256": "ba25d44bbdf704c3f2f8d9c10e91757f114744bd34fc4b894b7fc88ec798a292"
+    },
+    "offline_bundle_comparison": {
+      "path": "results/offline_bundle_seed20_vs_seed30_scorecard.json",
+      "sha256": "f164835eea1e701816c4512bb2831191ee2a827eacc99be0984570cc56f16802"
+    },
+    "offline_bundle_runner": {
+      "path": "scripts/run_offline_benchmark_bundle_v1.py",
+      "sha256": "56500464da612423c750266daf3d7bd85e4c3f5d5daaaedfdd674cb1a4d0d47d"
+    },
+    "offline_bundle_seed30": {
+      "summary": "results/offline_bundle_jfast_seed30_v3.summary.json",
+      "sha256": "189113267ad5ba63fc33c56985290b0b4136203d6ca21ec37c888139763e04b5"
+    }
+  },
+  "next_owner_decision": "After reviewing this amendment and trainer, owner may authorize a local one-step owned-fixture smoke and then an A100 startup for remote smoke + seed30.",
+  "owner_decision": "owner selected: both local one-step smoke and A100 remote smoke + seed30",
+  "remote_status": "A100 reachable; hashes verified; CUDA one-step smoke passed; seed30 launch authorized",
+  "result": {
+    "best_step": 600,
+    "dev_ce": 1.2836526036262512,
+    "dev_accuracy": 0.4145021645021645,
+    "cuda_mps_parity_max_delta": 1.0728836059570312e-06,
+    "argmax_flips": 0,
+    "heldout": "not_run_not_authorized",
+    "public_benchmark": "not_run_after_training",
+    "public_diagnostic": {
+      "receipt": "results/jevbench_public_diagnostic_jfast_seed30_v1.json",
+      "sha256": "e0fdb73f0da84f860f167de38377d3812c5fc5a7735ad8ec313d849d5617b906",
+      "accuracy": 0.2813852813852814,
+      "wall_s": 24.63715329200204,
+      "p50_s": 0.03216304100351408,
+      "p95_s": 0.5215177295031026,
+      "status": "diagnostic only"
+    },
+    "root_cause": "marker_before option representations are near-duplicates; train and dev both underfit, especially choice/high-k"
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "schema_version": "nanojev-v3-n3-readout-protocol-v1",
+  "protocol_id": "nanojev-v3-n3-readout-ladder-v1",
+  "status": "frozen_research_protocol",
+  "purpose": "Pre-registered, read-only comparison of three paired readout arms on frozen train/dev/calibration/test/OOD roles for the N3 architecture-and-readout ladder. It records accuracy, calibration, coverage, latency and memory per domain pack as a Pareto front. It is not a global winner selection, a training run, a deployment or a production pruning authorization.",
+  "mode": "read_only_measurement",
+  "frozen_before_inference": true,
+  "read_only": true,
+  "network_model_calls": 0,
+  "paired_arms": [
+    {
+      "arm_id": "trained_head",
+      "role": "incumbent_baseline",
+      "description": "Existing task-fitted decision head on the frozen backbone; the reference readout that candidates are paired against.",
+      "input_serialization": "typed state plus question schema consumed by the local predictor",
+      "readout": "task-head distribution over the declared option set",
+      "paired": true
+    },
+    {
+      "arm_id": "schema_readout",
+      "role": "candidate",
+      "description": "Schema-conditioned readout that renders the declared options into the prompt and scores their letter slots.",
+      "input_serialization": "typed state plus serialized option schema with letter slots",
+      "readout": "slot-restricted softmax over the declared options",
+      "paired": true
+    },
+    {
+      "arm_id": "encoder_router",
+      "role": "candidate",
+      "description": "Lightweight encoder/router that maps the frozen canonical model-visible input to a domain route or an explicit abstain.",
+      "input_serialization": "canonical model-visible input only",
+      "readout": "route distribution plus abstain mass",
+      "paired": true
+    }
+  ],
+  "pairing": {
+    "paired": true,
+    "same_frozen_splits": true,
+    "same_controls": true,
+    "same_receipt_fields": true,
+    "shared_prefill_allowed": true,
+    "isolated_per_request": true
+  },
+  "split_roles": {
+    "train": {
+      "description": "Fitting pool for candidate readouts; never scored and never used for threshold selection.",
+      "frozen": true,
+      "usable_for": ["fit"]
+    },
+    "dev": {
+      "description": "Development pool for configuration and threshold selection only.",
+      "frozen": true,
+      "usable_for": ["select"]
+    },
+    "calibration": {
+      "description": "Calibration pool for reliability, ECE and coverage-selective risk fitting only.",
+      "frozen": true,
+      "usable_for": ["calibrate"]
+    },
+    "test": {
+      "description": "Held-out in-domain evaluation pool; reported per task pack and never refit or reselected.",
+      "frozen": true,
+      "usable_for": ["evaluate"]
+    },
+    "ood": {
+      "description": "Out-of-domain evaluation pool for abstain behavior and protected error accounting only.",
+      "frozen": true,
+      "usable_for": ["evaluate", "abstain"]
+    }
+  },
+  "controls": [
+    {
+      "control_id": "option_permutation",
+      "kind": "permutation",
+      "applies_to": ["trained_head", "schema_readout", "encoder_router"],
+      "required": true,
+      "description": "Every declared option order is evaluated with semantic option ids held fixed; identity order is first."
+    },
+    {
+      "control_id": "label_permutation",
+      "kind": "permutation",
+      "applies_to": ["trained_head", "schema_readout", "encoder_router"],
+      "required": true,
+      "description": "Gold label assignments are permuted while the option set and label multiset are preserved, to detect label leakage."
+    },
+    {
+      "control_id": "boolean_coverage",
+      "kind": "coverage",
+      "applies_to": ["trained_head", "schema_readout", "encoder_router"],
+      "required": true,
+      "description": "Boolean questions with a two-option true/false readout are covered by every paired arm."
+    },
+    {
+      "control_id": "score_coverage",
+      "kind": "coverage",
+      "applies_to": ["trained_head", "schema_readout", "encoder_router"],
+      "required": true,
+      "description": "Ordinal Score questions with two to four ordered options are covered by every paired arm."
+    },
+    {
+      "control_id": "ood_cases",
+      "kind": "ood",
+      "applies_to": ["trained_head", "schema_readout", "encoder_router"],
+      "required": true,
+      "description": "Out-of-domain cases from the ood split must be scored and must trigger abstain rather than a confident answer."
+    },
+    {
+      "control_id": "protected_cases",
+      "kind": "protected",
+      "applies_to": ["trained_head", "schema_readout", "encoder_router"],
+      "required": true,
+      "description": "Protected test/OOD cases must be reported per arm and a confident protected error immediately rejects the arm."
+    },
+    {
+      "control_id": "constant_baselines",
+      "kind": "baseline",
+      "applies_to": ["trained_head", "schema_readout", "encoder_router"],
+      "required": true,
+      "description": "Constant true, constant false and abstain-all baselines are reported with the same paired receipt fields as every arm."
+    }
+  ],
+  "option_permutation": {
+    "enabled": true,
+    "identity_first": true,
+    "all_permutations": true,
+    "semantic_ids_fixed": true,
+    "max_options": 4,
+    "applies_to_question_types": ["boolean", "score", "choice"],
+    "note": "Letter slots are reassigned while semantic option ids stay fixed. A semantic argmax flip rejects the arm as a permutation-stable readout; a slot-only flip is a high-confidence position artifact and also rejects the arm."
+  },
+  "label_permutation": {
+    "enabled": true,
+    "preserve_option_set": true,
+    "preserve_label_multiset": true,
+    "expected_effect": "No calibrated coverage or accuracy gain beyond the constant baselines may survive a label permutation.",
+    "note": "Label permutation is a negative control for leakage; it is not a training augmentation."
+  },
+  "coverage": {
+    "boolean": {
+      "required": true,
+      "option_counts": [2],
+      "description": "Boolean questions must expose a two-option true/false decision."
+    },
+    "score": {
+      "required": true,
+      "option_counts": [2, 3, 4],
+      "ordinal": true,
+      "description": "Score questions must expose ordered ordinal options of size two to four."
+    }
+  },
+  "ood": {
+    "required": true,
+    "split": "ood",
+    "evaluated_on_arms": ["trained_head", "schema_readout", "encoder_router"],
+    "abstain_required": true,
+    "no_threshold_tuning_on_ood": true,
+    "description": "OOD cases measure domain-external abstain behavior, not accuracy; no threshold may be tuned on the ood split."
+  },
+  "protected_cases": [
+    {
+      "case_id": "protected_ood_secrets_001",
+      "split": "ood",
+      "reason": "Credential or secret-adjacent evidence must never receive a confident non-abstain decision."
+    },
+    {
+      "case_id": "protected_test_finance_001",
+      "split": "test",
+      "reason": "Financial-state classification is sensitive to confident-wrong errors and must be reported per arm."
+    },
+    {
+      "case_id": "protected_ood_newtask_001",
+      "split": "ood",
+      "reason": "Evidence for an unapproved task family must fail closed to abstain."
+    }
+  ],
+  "constant_baselines": [
+    "constant_true",
+    "constant_false",
+    "constant_majority",
+    "abstain_all"
+  ],
+  "paired_receipt_fields": [
+    "arm_id",
+    "arm_role",
+    "split",
+    "case_id",
+    "question_type",
+    "option_order",
+    "option_permutation_id",
+    "label_permutation_id",
+    "label_assignment",
+    "predicted_label",
+    "probabilities",
+    "confidence",
+    "coverage",
+    "correct",
+    "constant_true_correct",
+    "constant_false_correct",
+    "control_id",
+    "protected_case",
+    "latency_ms",
+    "memory_bytes",
+    "network_model_calls",
+    "receipt_sha256",
+    "training_authorized",
+    "deployment_authorized"
+  ],
+  "boundaries": {
+    "training_authorized": false,
+    "deployment_authorized": false,
+    "production_pruning_authorized": false,
+    "active_pruning_authorized": false,
+    "promotion_authorized": false,
+    "authorizes_execution": false,
+    "authorizes_training": false,
+    "authorizes_deployment": false,
+    "model_weights_modified": false,
+    "checkpoint_written": false,
+    "network_allowed": false,
+    "shadow_only": true
+  },
+  "decision_rule": "No arm is a global winner. An arm is only eligible for a per-pack Pareto front when every option permutation is semantically stable, every label permutation is neutral, Boolean and Score coverage is complete, OOD abstains, protected cases show zero confident errors, and constant baselines are reported with identical paired receipt fields. Any confident protected error, semantic argmax flip on permutation, probability non-normalization, or OOD confident-answer regression immediately rejects the arm for that pack. A clean protocol is necessary but not sufficient and never authorizes training, deployment or production pruning.",
+  "limitations": [
+    "This is a frozen protocol and schema contract, not a measured result; no arm has been trained or evaluated under it in this change.",
+    "The three arms necessarily differ in input serialization and scoring architecture, so a Pareto comparison is not an isolated causal test of readout alone.",
+    "The protected and OOD cases listed here are declarations; the corresponding frozen corpus and human review are separate N2/N3 gates.",
+    "Latency and memory fields are paired receipt fields only; they are not a deployment or packaging claim."
+  ]
+}

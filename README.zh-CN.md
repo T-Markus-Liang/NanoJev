@@ -6,57 +6,181 @@
 
 [模型](https://huggingface.co/C-Tianyu/NanoJev) · [数据集](https://huggingface.co/datasets/C-Tianyu/NanoJev-Data)
 
-**[打开在线三栏对照演示 →](https://nanojev.tianyuchen99.chatgpt.site)**
+## NanoJev 实测记录
 
-## 三个模型，同一场游戏
-
-[![Jev、NanoJev 与原始 Qwen 并排探索迷宫](assets/side_by_side_maze.png)](https://nanojev.tianyuchen99.chatgpt.site/#maze)
-
-[下载迷宫视频（MP4）](assets/side_by_side_maze.mp4) · 27 秒 · 1440 × 1120 · 30 fps
-
-[打开贪吃蛇](https://nanojev.tianyuchen99.chatgpt.site/#snake) · [探索 50×50 迷宫](https://nanojev.tianyuchen99.chatgpt.site/#maze) · [真实来源与回放核验](assets/side_by_side_data_manifest.json)
-
-独立的 ChatGPT Sites 网站以浅色三栏展示 **Jev、NanoJev 和原始 Qwen**。三个画面按同一环境步推进，已经结束的对局停留在真实终局。概率条展示产生当前画面的最后一次决策；各系统均包含共同的代码规划部分。
-
-新版迷宫对照使用真实的原始 Qwen3-0.6B：**4,726 次尝试、2,044 次碰撞后到达目标**。下方旧迷宫视频继续保留原来的**起始 NanoJev** 对照与实测数字。
-
-## 真实对局实录
-
-看模型判断与代码规划共同完成任务。每个游戏的三组系统都使用相同控制代码，回放保留实际动作、概率和完整终局。
+公开仓发布 NanoJev 指标，以及固定、可披露协议下的聚合对比结果。第三方模型原始输出
+和私有逐条收据保留在本地，不进入公开源码树。
 
 ### 找到出口：50×50 迷宫
 
-[![NanoJev、Jev 与起始 NanoJev 探索同一张 50×50 迷宫](assets/arcade_maze.gif)](assets/arcade_maze.mp4)
-
-[观看 MP4](assets/arcade_maze.mp4) · [交互回放](web/arcade.html)
-
-模型判断四个局部方向是否可通行；代码记住碰撞、探索未知边，并沿已经走通过的路径重新定位。
-
-| 系统 | 行动尝试 | 碰撞 | 结果 |
-|---|---:|---:|---|
-| **NanoJev** | **244** | **36** | **到达目标** |
-| [Jev](https://typesafe.ai/blog/introducing-system-one-models-and-jev) | 2,738 | 1,044 | 到达目标 |
-| 起始 NanoJev | 171 | 43 | 到达目标 |
-
-起始 NanoJev 是此前已经训练的 NanoJev checkpoint；新版模型进行了与局部输入对应的安全判断训练。
+模型判断四个局部方向是否可通行；代码记住碰撞、探索未知边，并沿已经走通过的
+路径重新定位。NanoJev 在记录运行中以 **244 次行动、36 次碰撞**到达目标。
 
 ### 持续成长：12×12 贪吃蛇
 
-[![NanoJev、Jev 与原始 Qwen 使用共同规划器玩贪吃蛇](assets/arcade_snake.gif)](assets/arcade_snake.mp4)
+共同规划器先排除立即碰撞的动作，再寻找通向当前食物的静态路径。模型在剩余候选
+之间选择；仅剩一个候选时由代码直接执行。在记录运行中（**种子 61005**、贪心控制），
+NanoJev 在 **256 步内吃到 27 个食物**，并在评测上限时保持存活。
 
-[观看 MP4](assets/arcade_snake.mp4) · [交互回放](web/arcade.html)
+## 本地决策 benchmark
 
-共同规划器先排除立即碰撞的动作，再寻找通向当前食物的静态路径。模型在剩余候选之间选择；仅剩一个候选时由代码直接执行。**种子：61005；控制方式：贪心选择。**
+仓库包含一个冻结的 **1,720 行 / 893 个有标签样本** 离线 bundle，覆盖 official JevBench public、SemIf authored/perturbation/shape、WANLI 和 Every retrieval。所有运行仅用于评测；公开内容只包含聚合指标，不发布 provider 原始响应或逐条收据。
 
-| 系统 | 吃到食物 | 步数 | 结果 |
-|---|---:|---:|---|
-| **NanoJev** | **27** | **256** | **达到上限时仍存活** |
-| [Jev](https://typesafe.ai/blog/introducing-system-one-models-and-jev) | 30 | 256 | 达到上限时仍存活 |
-| 原始 Qwen3-0.6B | 25 | 211 | 陷入死局 |
+| Rank | 系统 | Acc | Δ vs Jev | Speed× | BalAcc | NLL ↓ | Brier ↓ | Cov@0.9 | CW@0.9 | 扰动翻转 | Every R@1 | Wall s | p50/p95 s |
+|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| 1 | Official Jev direct | **0.8858** | — | 1.00× | **0.8443** | **0.9648** | **0.1775** | 0.7180 | **29** | **0.0000** | **1.0000** | 642.7* | 0.292 / 0.729 |
+| 2 | **Winnow-12B Q8** | **0.8824** | **-0.0034** | **1.30×** | **0.8374** | **0.9295** | 0.2069 | **0.8744** | 59 | 0.0278 | **1.0000** | **494.6** | **0.152 / 0.831** |
+| 3 | Kev-9B | 0.8186 | -0.0672 | 0.92× | 0.7548 | 0.9985 | 0.2599 | 0.5058 | 35 | 0.0093 | 1.0000 | 700.4 | 0.174 / 1.444 |
+| 4 | Kev-4B | 0.8018 | -0.0840 | 1.07× | 0.7048 | 1.1326 | 0.3055 | 0.4942 | 47 | 0.0185 | 1.0000 | 601.5 | 0.128 / 1.399 |
+| 5 | Decider-2B | 0.7917 | -0.0941 | 0.61× | 0.6875 | 1.1044 | 0.3142 | 0.5558 | 43 | 0.0370 | 1.0000 | 1051.7 | 0.282 / 1.163 |
+| 6 | Reflex stable | 0.7895 | -0.0963 | **2.61×** | 0.7803 | 1.0509 | 0.2913 | 0.2343 | **10** | 0.0741 | 1.0000 | **246.4** | **0.089 / 0.404** |
+| 7 | this-that-model-1.0 | 0.7850 | -0.1008 | 0.62× | 0.6366 | 1.4306 | 0.3658 | 0.7436 | 101 | 0.0278 | 0.9474 | 1037.9 | 0.229 / 1.195 |
+| 8 | SemIf Qwen3.5-4B MLX4 | 0.7671 | -0.1187 | 1.57× | 0.7423 | 1.1401 | 0.3365 | 0.5384 | 39 | 0.1389 | 1.0000 | 409.6 | 0.099 / 0.450 |
+| 13 | NanoJev MiniCPM seed20 | 0.6529 | -0.2329 | 0.26× | 0.6694 | 0.7705 | 0.4603 | 0.2721 | 21 | 0.0833 | 0.9474 | 2519.0 | 0.355 / 3.031 |
 
-原始 Qwen 使用未经本项目微调的预训练权重和原生语言模型输出头，概率条件限定为所提供的 A–D 候选 token。
+`*` Official Jev direct 使用远端响应延迟，和本机 wall time 不完全可比；`Cov@0.9` 是置信度阈值 0.9 下的覆盖率，`CW@0.9` 是高置信错误数。完整表见 [BENCHMARKS.md](BENCHMARKS.md)；bundle 在 [`data/jevbench_offline_bundle_v1`](data/jevbench_offline_bundle_v1)（manifest SHA-256 `1fc3234acf806016adfd9906fade547ca597f87acf749aecac1ba706f6dd8ee5`）。
 
-[案例、模型身份与轨迹核验记录](assets/arcade_data_manifest.json)
+## 域内训练决策头（Valen 训练栈）
+
+第二代实验：在开源 [Valen](https://github.com/Valen-Team) SFT+RLCD 栈上训练的
+轻量决策头（Qwen3.5 底座，head-only 阶段冻结 backbone）。以下数字全部在
+单卡 A100-80G / Apple Silicon MPS 上用同一套评测代码测得；官方 Jev 走
+TypeSafe 直连 API（`jev-latest`，实测版本 `jev-1.13.0`）。仅发布聚合结果——
+逐题原始输出保留在本地，不进公开仓库。
+
+### 上下文过滤任务 —— `valen_nano_v1` held-out eval（678 道 noul 题）
+
+自有 CC0 数据（`context_relevance_v1` + `oracle`，世界变体跨 train/eval 分裂）。
+目标用途：候选上下文相关性过滤。
+
+| 评分器 | Acc | Brier ↓ | NLL ↓ | 备注 |
+|---|---:|---:|---:|---|
+| **nano_rlcd_v2**（0.8B，SFT→RLCD） | **0.9012** | **0.1349** | **0.2058** | 当前 `:8093` sidecar 生产 backend |
+| nano_rlcd_2b（2B，SFT→RLCD） | 0.8953 | 0.1521 | 0.2529 | RLCD 比其 SFT 初始化 +3.4pp |
+| nano_sft_v2（0.8B，12 ep） | 0.8894 | 0.1570 | 0.2380 | |
+| nano_rlcd_v1（0.8B，RLCD pilot） | 0.8746 | — | — | ECE 0.0377 |
+| nano_sft_2b（2B，12 ep） | 0.8614 | 0.2032 | 0.3250 | 2B 在此任务不及 0.8B |
+| Winnow-12B Q8（生产） | 0.8599 | — | — | ECE 0.1191 |
+| 官方 Jev（`jev-1.13.0`） | 0.7341 | — | — | ECE 0.1038；662/678 作答，16 题 API ~5s 超时 |
+| nano_sft_v1（0.8B，4 ep） | 0.6445 | — | — | 欠拟合参照 |
+| Valen-Preview-0923 头 | 0.5100 | — | — | 通用域头，不迁移 |
+| 未训练头 | 0.5220 | — | — | |
+
+**在自有任务上，用约 1 万条域内数据训出的 0.8B 头以 +16.7pp 击败官方 Jev**，
+延迟也更优（本地 ~0.9s vs 远端 ~1.5s，免费、离线）。RLCD 在已收敛 SFT 之上
+仍有实测增益（+1.2pp acc，Brier/NLL 更优）；在欠拟合的 2B 初始化上增益 +3.4pp。
+
+*标签注意：v1 数字含至多 ~1.3pp 标签噪声水分——干净标签 `valen_nano_v2` 复测与 `valen_nano_v3` 重建见 `BENCHMARKS.md` / `docs/VALEN_NANO_V2_REEVAL_V1.md`。*
+
+### 上下文过滤 —— `valen_nano_v4`（4,251 道留出题）
+
+任务定义：给定一条用户请求、对话历史和一个候选上下文片段，判断该片段
+是无关（可安全丢弃）还是必需（必须保留）。两个错误方向：误删会丢失证
+据（高风险）；漏删会浪费上下文（低风险）。
+
+本评测取代 v3——4,251 题 = v3 的 2,950 条干净行 + 1,301 条新增困难
+家族样本。**请勿与上方 678 题 v1 表的数字直接比较**（数据 sha256 前
+缀见 `data/valen_nano_v4/manifest.json`）。
+
+| 评分器 | 这是什么 | 准确率 | 误删 | 漏删 | 延迟中位数 |
+|---|---|---:|---:|---:|---:|
+| nano_sft_text_v4 | NanoJev 0.8B + LoRA 微调主干 | 1.0000 | 0 | 0 | 70ms |
+| nano_rlcd_v4 | NanoJev 0.8B，偏好优化 | 0.8946 | 245 | 203 | 47ms |
+| Winnow-12B Q8 | 本地 12B 通用模型 | 0.8292 | 15 | 711 | 542ms |
+| JEMM-27B | 外部无决策头 27B 基线 | 0.8165 | 148 | 632 | 192ms |
+| Kev | 本地编码器后端 | 0.8022 | 375 | 466 | 1116ms |
+| nano_sft_v4 | NanoJev 0.8B 仅决策头 | 0.7944 | 765 | 109 | 45ms |
+| 官方 Jev 1.13.0 | TypeSafe 云端 API | 0.6765 | 0 | 1375 | 687ms |
+
+**说明：**
+
+1. 准确率 = 答对比例。误删 = 把必需片段错判为无关——丢失证据；漏删 =
+   把无关片段错误保留——浪费上下文。4,251 题 = v3 的 2,950 行 + 1,301
+   条新增困难家族样本（工具结果依赖、跨指针证据、长上下文稀释、话题
+   切换、对抗改写）。延迟为每请求中位数：NanoJev 各头为 A100 fp32
+   前向；Winnow/Kev 为本地 Mac；JEMM 为 bf16 分片于 2×L40；官方 Jev
+   为 API 往返。数据 sha256 前缀见 `data/valen_nano_v4/manifest.json`。
+2. 满分 1.0000 意味着这套合成套件再次饱和——包括新增困难家族。真实
+   转录评测仍待进行；应视为可学习基准的天花板，而非生产证明。
+3. 官方 Jev 的失败仍是结构性的：0 误删对 1,375 漏删——它几乎从不判
+   内容为可丢弃。JEMM 呈同方向的"保留偏置"（632 漏删对 148 误删），
+   但更弱。
+4. 旧 v2 头与无头读出对照仅在 v3 子集上测得（见下方归档 v3 表），未
+   带入 v4。
+5. JEMM-27B 跨硬件复现：A100 上 0.8165 对 L40×2 上 0.8167
+   （25/4,251 决策翻转）——同权重跨设备一致性确认。
+
+#### 归档：`valen_nano_v3` eval（2,950 道留出题）
+
+已被上方 v4 表取代；保留以存档未带入 v4 的旧 v2 头与读出对照行。
+
+任务定义：给定一条用户请求、对话历史和一个候选上下文片段，判断该片段
+是无关（可安全丢弃）还是必需（必须保留）。两个错误方向：误删会丢失证
+据（高风险）；漏删会浪费上下文（低风险）。
+
+本评测集更新、更难——**请勿与上方 678 题 v1 表的数字直接比较**
+（`data_sha256 c95286ff00512b28…`）。
+
+| 评分器 | 这是什么 | 准确率 | 误删 | 漏删 | 延迟中位数 |
+|---|---|---:|---:|---:|---:|
+| nano_sft_text_v3 | 自研 0.8B 模型，LoRA 微调主干 | 1.0000 | 0 | 0 | 228ms |
+| nano_rlcd_v3 | 自研 0.8B 模型，偏好微调 | 0.9847 | 34 | 11 | 213ms |
+| nano_sft_v3 | 自研 0.8B 模型，仅训练决策头 | 0.9173 | 5 | 239 | 219ms |
+| Kev | 本地通用编码器后端 | 0.8600 | 177 | 236 | 553ms |
+| Winnow-12B Q8 | 本地 12B 通用大模型 | 0.8166 | 7 | 534 | 425ms |
+| nano_sft_v2 | 上一代头，基于 v1 数据训练 | 0.7268 | 235 | 571 | 300ms |
+| nano_rlcd_v2 | 上一代头，当前生产环境 | 0.7210 | 307 | 516 | 266ms |
+| 官方 Jev 1.13.0 | TypeSafe 云端 API | 0.6871 | 0 | 923 | 625ms |
+| LM-head 读出，LoRA 主干 | 标签 token 读出对照组 | 0.5620 | — | — | — |
+| LM-head 读出，裸主干 | 完全未训练的空白对照 | 0.5530 | — | — | — |
+
+**说明：**
+
+1. 准确率 = 答对比例。误删 = 把必需片段错判为无关——丢失证据；漏删 =
+   把无关片段错误保留——浪费上下文。延迟为每请求中位数；本地行均在
+   Apple Silicon fp32 上测得，官方 Jev 经其云端 API 测得。
+2. 官方 Jev 的失败是系统性的而非噪声：0 误删对 923 漏删——它几乎从不
+   回答"无关"，属于系统性过度保留。
+3. 最下面两行是对照组：同一主干去掉训练头后塌缩为永远回答"保留"——
+   在 0.8B 规模上，真正承载技能的是训练头。
+4. 满分 1.0000 意味着这套合成基准已被完全学透（饱和），并不证明生产
+   环境表现；真实流量评测仍待进行。
+
+### 通用域对照 —— JevBench 公开 231 题
+
+同一个头跑官方 JevBench 公开集（139 choice / 74 noul / 18 score）。专项头
+**不迁移出域**——与上方 v1 表互为镜像：
+
+| 评分器 | Acc |
+|---|---:|
+| 官方 Jev 直连* | ~0.886 |
+| Winnow-12B Q8* | 0.8824 |
+| OmniJev-4B | 0.688 |
+| OmniJev-2B / NanoJev MiniCPM seed20 | 0.654 |
+| OmniJev-0.8B | 0.524 |
+| **nano_rlcd_v2** | **0.307** |
+
+`*` 在包含这些题目的冻结离线 bundle 上测得。专项头分题型：noul 0.473、
+choice 0.216、score 0.333。
+
+### 金融 regime 任务 —— `valen_fin_v1` eval（3,000 条 / 9,000 问）
+
+加密永续日频决策：`regime_gate`（从 state 读取 `btc_ret20`）、
+`fwd5_bucket`（5 日前向收益分桶，随机 0.25）、`xs_outperform_5d`
+（跑赢截面中位，随机 0.50）。
+
+| 评分器 | Overall | fwd5 | regime | xs5d |
+|---|---:|---:|---:|---:|
+| fin_sft_v1（0.8B） | **0.6202** | 0.329 | 0.9997 | 0.532 |
+| fin_rlcd_v1（0.8B） | 0.6086 | 0.300 | 1.0000 | 0.526 |
+| OmniJev-4B | 0.435 | 0.174 | 0.648 | 0.484 |
+
+`regime_gate` 主要是"读 state"而非市场预测；真正的前瞻预测题（`fwd5`、
+`xs5d`）信号很弱——与项目纸面账本的结论一致：信号在 regime/排序结构里。
+
+**结论**：架构是通用的，先验是域特异的。小的域内头在自己的任务上胜出
+（0.90 vs 0.73），在域外落败——这正是生产服务保留 Winnow 作通用默认、
+只把上下文过滤问题路由给专项头的原因。
 
 ## 核心能力
 
@@ -82,19 +206,13 @@
 
 局部安全模型的测试题准确率为 **77.84%**，50×50 OOD 题为 **76.56%**。概率学习先导中，成对适当奖励组的分布误差为 **测试 0.11844 / OOD 0.06202**；该误差是模型分布与模拟器事件概率之间的差值平方和。
 
-[原子判断与规划](docs/ATOMIC_PLANNING.md) · [大规模游戏流程](docs/SCALED_GAMES.md) · [RLCD 实现与结果](docs/RLCD_EXPERIMENT.md) · [输入契约](docs/TYPESAFE_CONTRACT.md) · [游戏结果](docs/DEVELOPMENT_RESULTS.md)
+[RLCD 实现与结果](docs/RLCD_EXPERIMENT.md) · [输入契约](docs/TYPESAFE_CONTRACT.md) · [V2 路线图](docs/NANOJEV_V2_ROADMAP.md)
 
-## 此前完整 40 图导航评测
+## 此前完整 40 图 NanoJev 导航评测
 
-**控制方式：T=1 概率采样。** 包含 20 张 4×4 测试地图和 20 张 6×6 OOD 地图。
-
-| 模型 | 4×4 测试地图 | 6×6 OOD 地图 |
-|---|---:|---:|
-| **NanoJev** | **19/20 · 95%** | **18/20 · 90%** |
-| [Jev](https://typesafe.ai/blog/introducing-system-one-models-and-jev) | 20/20 · 100% | 19/20 · 95% |
-| 原始 Qwen3-0.6B | 7/20 · 35% | 3/20 · 15% |
-
-[此前的对照回放](web/comparison.html) · [完整评测结果](research/nanojev_comparison_public.json)
+使用 T=1 概率采样时，NanoJev 完成 **19/20（95%）** 的 4×4 测试地图和
+**18/20（90%）** 的 6×6 OOD 地图。这些是固定 20-test/20-OOD cohort 上的
+NanoJev 自有指标。
 
 ## 实现流程
 
@@ -108,25 +226,13 @@
 
 [完整训练与运行手册（English）](research/pipeline_runbook.md)
 
-## 快速体验三栏对照
-
-交互回放只需 Python：
-
-```bash
-git clone https://github.com/TianyuCodings/NanoJev.git
-cd NanoJev
-python3 -m http.server 8080 --bind 127.0.0.1 --directory web
-```
-
-打开 **http://127.0.0.1:8080/side-by-side.html**，并排播放贪吃蛇与迷宫的三方实录。深色游戏厅保留在 **http://127.0.0.1:8080/arcade.html**，此前的导航对照页面位于 **http://127.0.0.1:8080/comparison.html**。
-
 ## 下载演示使用的模型
 
 | 用途 | [模型仓库](https://huggingface.co/C-Tianyu/NanoJev/tree/main/variants)中的检查点 |
 |---|---|
 | **50×50 迷宫演示** | `variants/local_atomic_seed17` |
 | **Snake 演示** | `variants/games_gold_seed17` |
-| 整图问题对照 | `variants/games_api_seed17` |
+| 整图问题评测 | `variants/games_api_seed17` |
 | 校准决策实验 | `variants/events_ce_seed17`、`variants/events_brier_seed17`、`variants/events_paired_seed17` |
 
 ```python
@@ -141,7 +247,7 @@ snapshot = snapshot_download(
 checkpoint_dir = Path(snapshot) / "variants" / variant
 ```
 
-[游戏数据包](https://huggingface.co/datasets/C-Tianyu/NanoJev-Data/tree/main/games_v4)包含匹配的训练分区、固定评测输入和全部六组 Snake 控制器实录。[下载、校验与复现命令](docs/GAME_RELEASE.md)。
+[游戏数据包](https://huggingface.co/datasets/C-Tianyu/NanoJev-Data/tree/main/games_v4)包含匹配的训练分区和固定评测输入。
 
 ## 下载并运行模型
 
@@ -175,13 +281,17 @@ python scripts/serve_decisions.py \
 
 打开 **http://127.0.0.1:8765**，或向 **`POST /api/evaluate`** 发送批量请求。模型只加载一次，后续请求复用权重。
 
-Apple Silicon 使用 MPS FP32 运行 checkpoint 推理，参见 [Apple Silicon 推理说明](docs/APPLE_SILICON.md)。需要公平比较本地模型与官方 Jev 时，使用 [Jev 对比协议](docs/JEV_COMPARISON_PROTOCOL.md)。
+Apple Silicon 使用 MPS FP32 运行 checkpoint 推理，参见 [Apple Silicon 推理说明](docs/APPLE_SILICON.md)。
 
 [完整手册](research/pipeline_runbook.md)包含数据生成、训练、评测、checkpoint 创建，以及从下载模型和数据继续运行的命令。
 
 ## 路线图
 
-- [x] **扩展数据：** 大迷宫、贪吃蛇、原子问题与观测事件数据集。
-- [x] **校准奖励原型：** 实现并验证成对适当奖励学习，提供 CE/Brier 对照。
-- [ ] **扩展 RLCD：** 更多语义任务、随机长程事件与模型种子。
-- [ ] **结构化输入：** 为结构化 instructions、criteria 和原生 Noul 接口建立新版编码器。
+当前计划维护在 [NANOJEV_V2_ROADMAP.md](docs/NANOJEV_V2_ROADMAP.md)。W45 之后，关键路径改为架构收敛与独立外部验收，不再自建另一套全模型排行榜。
+
+- [x] **建立本地基线：** 独立 heldout、head/full/LoRA 三 seed 训练，以及分组校准诊断。
+- [ ] **收敛 readout：** 比较 direct logits、当前 LoRA head 与 LoRA+pointer；候选顺序和 shared-prefix parity 必须通过。
+- [ ] **扩大独立证据：** 构建 corpus v4 和更大的工程 heldout，不使用 benchmark/provider 输出。
+- [ ] **外部验收：** 实现固定版本的 [JevBench](https://github.com/fstandhartinger/jevbench) adapter，完成一次冻结公开评测，再申请维护者 heldout。
+
+架构参考：[SemIf](https://github.com/TheoLeeCJ/SemIf)。本地应用与 runtime 参考：[laya-mlx](https://github.com/mizorewww/laya-mlx)。外部 benchmark 与排行榜：[Benchmark Heaven 的 JevBench](https://benchmarkheaven.com/jev-models)。

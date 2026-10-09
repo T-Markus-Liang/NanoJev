@@ -1,0 +1,121 @@
+{
+  "schema_version": "nanojev-spec-promotion-gate-v1",
+  "status": "gate_declared_predeclared_thresholds_pending_evidence",
+  "created_utc": "2026-09-26T00:00:00Z",
+  "declared_by": "T155",
+  "subject": {
+    "signal_name": "xs_dfh_carry_v1",
+    "candidate_spec": "research/financial_signal_spec_xs_dfh_v1.json",
+    "candidate_status": "spec_candidate_pending_review",
+    "candidate_freeze_utc": "2026-09-25T00:00:00Z",
+    "promotion_target": "spec_v2_frozen",
+    "promotion_meaning": "frozen measurement contract — the signal definition is locked for continued paper accounting; still paper-only, never a trading authorization, never RLCD/training authorization"
+  },
+  "evidence_windows": {
+    "oos_counting_rule": "count decision_date >= 2026-09-25 rows of results/forward_ledger_v2.jsonl; the ledger is append-only and idempotent so post-freeze rows are written only from data that did not exist at freeze time",
+    "primary_arm": {
+      "ledger": "results/forward_ledger_v2.jsonl",
+      "universe": "perp_pit_xs_v1, 10 USDT-M perps — the spec's own universe",
+      "accounting": "5bps per one-sided leg-unit traded, close basis (mark proxy), day_net_bps summed over decision days including flat days"
+    },
+    "secondary_arm": {
+      "ledger": "results/forward_ledger_v2_xs2.jsonl",
+      "universe": "perp_pit_xs_v2, 30-asset qvol universe — confirmation arm only; must not contradict (net > 0 over the same window), does not relax primary thresholds"
+    },
+    "context_window_not_counted": {
+      "range": "2026-08-31..2026-09-24",
+      "note": "refresh-fed decision days outside the T104-T108 measured window but written by backfill after freeze — directional context only, never counted toward min_oos_days"
+    }
+  },
+  "preconditions": {
+    "contract_conformance": {
+      "blocking": true,
+      "status": "open",
+      "issue": "the live ledger gates on BTC close > SMA20 (financial_forward_ledger_v2.py btc_sma_map; sleeve xs_dfh20_top2_bot2_btc_sma20_gate_v1) while the spec contract gates on BTC close/close[t-20]-1 > 0 (ret20). Measured divergence: the two gate definitions disagree on 211/1363 (15.5%) of xs_v1 decision days and on 2 days (2026-09-09, 2026-09-11) inside the current context window",
+      "resolution_required": "either (a) rebuild the forward ledger under the spec's ret20 gate so OOS evidence measures the actual contract, or (b) amend the v2 spec to the SMA20 gate with re-measured in-sample gated stats — no OOS day counts toward this gate until one is done and recorded"
+    },
+    "probe_freshness_floor": {
+      "probe": "scripts/check_forward_ledgers_all_v1.py -> results/forward_ledgers_all_v1_state.json",
+      "require_at_evaluation": [
+        "probe state file age <= 24h at evaluation time",
+        "v2 and v2_xs2 ledgers: latest decision bar age <= 72h (probe default 48h + refresh slack for open-month daily-zip gaps)",
+        "last ledger decision_date within 5 calendar days of evaluation",
+        "0 input dates missing from either ledger",
+        "no persistent skipped_insufficient_universe tail (universe < 6 means the sleeve is flat-by-degradation, not measuring)"
+      ]
+    }
+  },
+  "promotion_thresholds": {
+    "min_oos_days": 90,
+    "min_active_days": 30,
+    "net_sharpe_floor_annualized": 0.5,
+    "min_cumulative_net_bps": 0,
+    "max_drawdown_bps": 1200.0,
+    "gate_occupancy_bounds": [0.30, 0.80],
+    "gate_occupancy_hard_abort_bounds": [0.15, 0.90],
+    "concentration_caps": {
+      "week_definition": "ISO-week sum of day_net_bps",
+      "max_worst_week_share_of_net": 0.50,
+      "max_best_week_share_of_net": 0.40,
+      "note": "worst-week share = |min weekly net| / cumulative net — a single bad week must not erase more than half of accumulated net; best-week share = max weekly net / cumulative net — upside must not be one lucky week (T115 anatomy: 65.6% of PnL from 3 assets was noise, not edge)"
+    },
+    "comparator_requirements": {
+      "computed_over": "identical OOS decision dates, identical cost model where applicable",
+      "vs_ungated_book": {
+        "definition": "same top2/bot2 dfh20 book replayed with the BTC gate forced on",
+        "requirement": "net_gated > net_ungated (strict) — T106 measured uptrend +111.4bps vs downtrend -13.8bps; a gate that adds nothing OOS is dead weight and the candidate reverts to the ungated null"
+      },
+      "vs_equal_weight_long": {
+        "definition": "equal-weight long all ranked universe assets, same days, gross (no cost — passive comparator)",
+        "requirement": "gated cumulative net > 0 in EACH subwindow split by EW-long daily sign, provided that subwindow has >= 10 days — the dollar-neutral book must not be market beta in disguise; if one subwindow has < 10 days the check is deferred, not waived"
+      },
+      "vs_spec_v1_sleeve": {
+        "definition": "results/forward_ledger_v1.jsonl crowded_long_carry_follow_v1 realized net over the same window",
+        "requirement": "both sleeves cumulative net > 0 over the window — they share the same BTC master gate, so simultaneous survival is the sanity check that the shared regime gate still prices correctly; bps magnitudes are not comparable across the two accounting conventions and are not required to cross"
+      }
+    },
+    "secondary_arm_requirement": "v2_xs2 cumulative net > 0 over the same OOS window and same-sign mean day net as the primary arm"
+  },
+  "kill_demote_branch": {
+    "day_60_checkpoint": {
+      "at_oos_day": 60,
+      "demote_if": "cumulative net < 0 — half the measured in-sample drift (~13.5bps/day * 60 = +810bps expected) failing to even break even means OOS decay beyond any defensible bound",
+      "action": "demote to spec_candidate_under_review; investigate before further accumulation counts"
+    },
+    "hard_kill_anytime": {
+      "kill_if_any": [
+        "cumulative net < -800bps (~1.3x the measured full-history worst week of -604.4bps)",
+        "max_drawdown_bps > 1200 at any point",
+        "OOS book-level spearman(dfh20_rank, next-day close return) < 0 over the window with >= 30 active days — sign flip vs the measured positive cross-sectional effect means the ranked edge inverted"
+      ],
+      "action": "retire to graveyard (TRACK_B §3), requires owner sign-off; the spec is not silently deleted"
+    },
+    "demote_conditions": [
+      "ungated book net >= gated book net at evaluation — the load-bearing gate stopped adding value",
+      "gate_occupancy outside [0.15, 0.90] sustained >= 20 consecutive decision days — instrumentation break or regime dislocation; pause counting, do not score as signal failure",
+      "secondary arm (xs_v2) net < 0 while primary passes — promotion blocked pending explanation; the edge was measured on both universes"
+    ],
+    "infra_pause": "ledger staleness > 7 calendar days or missing input dates -> suspend OOS counting until the refresh chain recovers (infra fault, not signal evidence)"
+  },
+  "evaluation": {
+    "cadence": "checkpoint at oos_day 60; full evaluation at oos_day >= 90 or first date all thresholds are computable",
+    "evaluator": "deterministic recompute over the recorded append-only ledgers (no replay substitution — recorded day_net_bps is the accounting of record); comparator arms replay from the same merged inputs at evaluation time",
+    "all_thresholds_conjunctive": true,
+    "tail_drift_caveat": "append-only ledger never rewrites; late-arriving bars reprice recent fills — a spot-check fresh replay of the context window differed from recorded cumulative by ~355bps; evaluation uses recorded rows but reports the replay delta"
+  },
+  "forbidden_interpretations": [
+    "promotion is a frozen measurement contract, not a trading authorization",
+    "not a profitability or live-trading claim — paper accounting only",
+    "not authorization to train RLCD or fit any model on the ledger",
+    "thresholds are predeclared and must not be revised post-hoc to fit accumulating evidence; any change requires a new versioned gate file"
+  ],
+  "grounding": {
+    "in_sample_t106": {"net_mean_daily_bps": 13.467, "net_sharpe": 0.986, "turnover": 0.269, "cost_bps_day": 1.346, "gate_up_bps": 111.435, "gate_down_bps": -13.777, "gate_occupancy_insample": 0.539},
+    "ledger_v2_full_backfill": {"days": 1363, "net_bps": 11018.4, "mean_day_bps": 8.08, "sharpe": 1.481, "max_drawdown_bps": 1717.7, "occupancy": 0.533, "worst_week_bps": -604.4, "best_week_bps": 1270.2, "best_week_share": 0.115},
+    "ledger_v2_xs2_full_backfill": {"days": 2093, "net_bps": 35276.2, "sharpe": 1.269, "max_drawdown_bps": 4299.6, "occupancy": 0.499},
+    "context_window_2026_08_31_to_09_24_recorded": {"days": 25, "active": 16, "net_bps_v2": 439.2, "sharpe_v2": 2.72, "mdd_v2_bps": 563.8, "net_bps_xs2": 652.5, "mdd_xs2_bps": 484.9, "worst_week_share_v2": 0.93},
+    "context_window_comparators_fresh_replay": {"ungated_xs_v1_bps": -84.3, "ungated_xs2_bps": 26.5, "ew_long_xs_v1_bps": 2102.6, "ew_long_xs2_bps": 2899.6, "v1_sleeve_net_bps_9_exits": 802.4},
+    "post_freeze_days_accumulated": 0,
+    "as_of": "2026-09-26 (probe run; last ledger decision_date 2026-09-24)"
+  }
+}

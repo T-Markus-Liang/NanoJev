@@ -1,0 +1,261 @@
+{
+ "schema_version": "nanojev-selective-risk-layer-v1",
+ "layer_id": "selective_risk_v1",
+ "status": "advisory_measurement_layer",
+ "generated_at_utc": "2026-09-20T15:27:35Z",
+ "checkpoint": {
+  "checkpoint_id": "v4_lora_seed18",
+  "checkpoint_dir": "checkpoints/domain_adaptation_v4_lora_seed18"
+ },
+ "confidence_definition": "max softmax probability over the question's candidate set at temperature 1.0",
+ "threshold_source": {
+  "fitted_on_split": "calibration",
+  "fitted_on_file": "research/engineering_judgment_corpus_v4/trainer_view/calibration.jsonl",
+  "fitted_on_sha256": "0cc596c494803a6d642c3ed69b4b9f59adaaaaf5fb1278f38ceeba923417725a",
+  "fit_role": "calibration_fit_only",
+  "never_fitted_on": [
+   "heldout_v1",
+   "heldout_v2",
+   "test",
+   "ood",
+   "dev"
+  ],
+  "isolation": "fit/eval disjointness on (row_id,qid) and state_id enforced by hash check at fit time"
+ },
+ "operating_points": {
+  "boolean": {
+   "status": "estimated",
+   "fit_rows": 144,
+   "fit_states": 72,
+   "targets": {
+    "0.70": {
+     "status": "estimated",
+     "abstain_below": 0.92,
+     "expected_coverage_on_fit_split": 0.1736111111111111,
+     "selective_accuracy_on_fit_split": 0.72
+    },
+    "0.80": {
+     "status": "estimated",
+     "abstain_below": 0.94,
+     "expected_coverage_on_fit_split": 0.08333333333333333,
+     "selective_accuracy_on_fit_split": 0.8333333333333334
+    },
+    "0.90": {
+     "status": "unreachable_on_fit_split",
+     "abstain_below": null,
+     "best_achievable_on_fit_split": {
+      "threshold": 0.95,
+      "coverage": 0.04861111111111111,
+      "selective_accuracy": 0.8571428571428571
+     }
+    },
+    "0.95": {
+     "status": "unreachable_on_fit_split",
+     "abstain_below": null,
+     "best_achievable_on_fit_split": {
+      "threshold": 0.95,
+      "coverage": 0.04861111111111111,
+      "selective_accuracy": 0.8571428571428571
+     }
+    }
+   }
+  },
+  "choice": {
+   "status": "estimated",
+   "fit_rows": 144,
+   "fit_states": 72,
+   "targets": {
+    "0.70": {
+     "status": "unreachable_on_fit_split",
+     "abstain_below": null,
+     "best_achievable_on_fit_split": {
+      "threshold": 0.4,
+      "coverage": 0.2986111111111111,
+      "selective_accuracy": 0.37209302325581395
+     }
+    },
+    "0.80": {
+     "status": "unreachable_on_fit_split",
+     "abstain_below": null,
+     "best_achievable_on_fit_split": {
+      "threshold": 0.4,
+      "coverage": 0.2986111111111111,
+      "selective_accuracy": 0.37209302325581395
+     }
+    },
+    "0.90": {
+     "status": "unreachable_on_fit_split",
+     "abstain_below": null,
+     "best_achievable_on_fit_split": {
+      "threshold": 0.4,
+      "coverage": 0.2986111111111111,
+      "selective_accuracy": 0.37209302325581395
+     }
+    },
+    "0.95": {
+     "status": "unreachable_on_fit_split",
+     "abstain_below": null,
+     "best_achievable_on_fit_split": {
+      "threshold": 0.4,
+      "coverage": 0.2986111111111111,
+      "selective_accuracy": 0.37209302325581395
+     }
+    }
+   }
+  },
+  "overall": {
+   "status": "estimated",
+   "fit_rows": 432,
+   "fit_states": 72,
+   "targets": {
+    "0.70": {
+     "status": "estimated",
+     "abstain_below": 0.92,
+     "expected_coverage_on_fit_split": 0.05787037037037037,
+     "selective_accuracy_on_fit_split": 0.72
+    },
+    "0.80": {
+     "status": "estimated",
+     "abstain_below": 0.94,
+     "expected_coverage_on_fit_split": 0.027777777777777776,
+     "selective_accuracy_on_fit_split": 0.8333333333333334
+    },
+    "0.90": {
+     "status": "unreachable_on_fit_split",
+     "abstain_below": null,
+     "best_achievable_on_fit_split": {
+      "threshold": 0.95,
+      "coverage": 0.016203703703703703,
+      "selective_accuracy": 0.8571428571428571
+     }
+    },
+    "0.95": {
+     "status": "unreachable_on_fit_split",
+     "abstain_below": null,
+     "best_achievable_on_fit_split": {
+      "threshold": 0.95,
+      "coverage": 0.016203703703703703,
+      "selective_accuracy": 0.8571428571428571
+     }
+    }
+   }
+  },
+  "score": {
+   "status": "estimated",
+   "fit_rows": 144,
+   "fit_states": 72,
+   "targets": {
+    "0.70": {
+     "status": "estimated",
+     "abstain_below": 0.6,
+     "expected_coverage_on_fit_split": 0.05555555555555555,
+     "selective_accuracy_on_fit_split": 0.75
+    },
+    "0.80": {
+     "status": "estimated",
+     "abstain_below": 0.62,
+     "expected_coverage_on_fit_split": 0.041666666666666664,
+     "selective_accuracy_on_fit_split": 0.8333333333333334
+    },
+    "0.90": {
+     "status": "estimated",
+     "abstain_below": 0.66,
+     "expected_coverage_on_fit_split": 0.006944444444444444,
+     "selective_accuracy_on_fit_split": 1.0
+    },
+    "0.95": {
+     "status": "estimated",
+     "abstain_below": 0.66,
+     "expected_coverage_on_fit_split": 0.006944444444444444,
+     "selective_accuracy_on_fit_split": 1.0
+    }
+   }
+  }
+ },
+ "abstention_semantics": {
+  "gate_field": "abstain_below",
+  "rule": "confidence < abstain_below -> answer.status='abstained', value=null, choice=null",
+  "abstain_route": "caller_or_main_model",
+  "never_silently_answered": true,
+  "raw_probabilities_preserved": true,
+  "authorizes_execution": false
+ },
+ "protected_error_policy": {
+  "definition": "wrong argmax with confidence >= 0.9",
+  "limit": 0,
+  "measured_counts_location": "results/selective_risk_v1/ reports"
+ },
+ "ood_detector": {
+  "status": "placeholder_interface_not_implemented",
+  "interface": {
+   "input": "question record (state text, question type, candidate set)",
+   "output": {
+    "out_of_scope": "bool",
+    "score": "float|null",
+    "reason": "string|null"
+   },
+   "routing": "out_of_scope=true routes to caller_or_main_model identically to confidence abstention"
+  },
+  "note": "existing scope guard (integrations/codex-skill assess_question_scope) is a lexical heuristic, not a learned OOD detector"
+ },
+ "non_goals": [
+  "not a probability re-calibrator: probabilities are passed through unchanged at T=1.0",
+  "not an accuracy claim: selective accuracies are measured quantities, not guarantees",
+  "not a serving change: advisory/reporting layer like the existing abstention gate",
+  "not fitted on heldout/test: thresholds transfer is measured, never tuned, on eval cohorts"
+ ],
+ "transfer_measured": {
+  "heldout_v2": {
+   "targets_measured": 8,
+   "targets_met": 0,
+   "verdict": "transfer_gaps_present",
+   "receipt": "results/selective_risk_v1/ per-arm report JSON"
+  },
+  "heldout_v1": {
+   "targets_measured": 8,
+   "targets_met": 6,
+   "verdict": "transfer_gaps_present",
+   "receipt": "results/selective_risk_v1/ per-arm report JSON"
+  },
+  "corpus_v4_test": {
+   "targets_measured": 8,
+   "targets_met": 0,
+   "verdict": "transfer_gaps_present",
+   "receipt": "results/selective_risk_v1/ per-arm report JSON"
+  }
+ },
+ "fit_meta": {
+  "fit_rows": 432,
+  "fit_states": 72,
+  "isolation": {
+   "calibration|heldout_v2": {
+    "fit_records_sha256": "0ab80783703cec6827e0f5a107f386cf6c5710e6468882296ea46ef6b0fa2ba4",
+    "eval_records_sha256": "884d6696895e94211d96a05684e4ce1e79a241e816d296cdb832533d821bdd88",
+    "fit_questions": 432,
+    "eval_questions": 312,
+    "shared_question_identities": 0,
+    "shared_state_ids": 0
+   },
+   "calibration|heldout_v1": {
+    "fit_records_sha256": "0ab80783703cec6827e0f5a107f386cf6c5710e6468882296ea46ef6b0fa2ba4",
+    "eval_records_sha256": "a03a8ac3b65a3bdfece875d5bb703d7556e1aa39209d24deb2c8dbaa9c957584",
+    "fit_questions": 432,
+    "eval_questions": 69,
+    "shared_question_identities": 0,
+    "shared_state_ids": 0
+   },
+   "calibration|corpus_v4_test": {
+    "fit_records_sha256": "0ab80783703cec6827e0f5a107f386cf6c5710e6468882296ea46ef6b0fa2ba4",
+    "eval_records_sha256": "a256ce8271b542df45d3c76fa26a4e22f2b4451a9353925c8e8adf1b2eeef16c",
+    "fit_questions": 432,
+    "eval_questions": 756,
+    "shared_question_identities": 0,
+    "shared_state_ids": 0
+   }
+  }
+ },
+ "network_model_calls": 0,
+ "training_authorized": false,
+ "deployment_authorized": false,
+ "authorizes_execution": false
+}

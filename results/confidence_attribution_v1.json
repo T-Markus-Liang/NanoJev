@@ -1,0 +1,155 @@
+{
+  "states": [
+    "maze0_v0_plain",
+    "maze0_v1_padded",
+    "maze0_v2_reworded",
+    "maze0_v3_both",
+    "maze1_v0_plain",
+    "maze1_v1_padded",
+    "maze1_v2_reworded",
+    "maze1_v3_both",
+    "maze2_v0_plain",
+    "maze2_v1_padded",
+    "maze2_v2_reworded",
+    "maze2_v3_both",
+    "maze3_v0_plain",
+    "maze3_v1_padded",
+    "maze3_v2_reworded",
+    "maze3_v3_both",
+    "eng_phase_v0_plain",
+    "eng_routing_v0_plain"
+  ],
+  "median": {
+    "maze0_v0_plain": 0.6044995784759521,
+    "maze0_v1_padded": 0.5888560116291046,
+    "maze0_v2_reworded": 0.6053507924079895,
+    "maze0_v3_both": 0.6267445683479309,
+    "maze1_v0_plain": 0.8811131715774536,
+    "maze1_v1_padded": 0.8683557510375977,
+    "maze1_v2_reworded": 0.8769694566726685,
+    "maze1_v3_both": 0.8663536608219147,
+    "maze2_v0_plain": 0.8560396730899811,
+    "maze2_v1_padded": 0.8618612885475159,
+    "maze2_v2_reworded": 0.8539966940879822,
+    "maze2_v3_both": 0.8587079346179962,
+    "maze3_v0_plain": 0.7741516530513763,
+    "maze3_v1_padded": 0.7631529271602631,
+    "maze3_v2_reworded": 0.7528405785560608,
+    "maze3_v3_both": 0.7440092861652374,
+    "eng_phase_v0_plain": 0.27491164207458496,
+    "eng_routing_v0_plain": 0.44376328587532043
+  },
+  "raw": {
+    "maze0_v0_plain": [
+      0.7748558521270752,
+      0.6121233105659485,
+      0.5968758463859558,
+      0.536000669002533
+    ],
+    "maze0_v1_padded": [
+      0.7634989619255066,
+      0.5939330458641052,
+      0.583778977394104,
+      0.508923351764679
+    ],
+    "maze0_v2_reworded": [
+      0.7570632100105286,
+      0.5775582194328308,
+      0.5559312701225281,
+      0.6331433653831482
+    ],
+    "maze0_v3_both": [
+      0.7635985612869263,
+      0.5358811020851135,
+      0.5138240456581116,
+      0.7176080346107483
+    ],
+    "maze1_v0_plain": [
+      0.9868685603141785,
+      0.7584824562072754,
+      0.7753577828407288,
+      0.989855170249939
+    ],
+    "maze1_v1_padded": [
+      0.961852490901947,
+      0.7586137056350708,
+      0.7748590111732483,
+      0.9756330251693726
+    ],
+    "maze1_v2_reworded": [
+      0.986676037311554,
+      0.7572886943817139,
+      0.767262876033783,
+      0.9944413304328918
+    ],
+    "maze1_v3_both": [
+      0.9686244130134583,
+      0.7530324459075928,
+      0.7640829086303711,
+      0.9873803853988647
+    ],
+    "maze2_v0_plain": [
+      0.9813003540039062,
+      0.7222539186477661,
+      0.7307789921760559,
+      0.9928931593894958
+    ],
+    "maze2_v1_padded": [
+      0.9759035110473633,
+      0.7378835082054138,
+      0.7478190660476685,
+      0.9896813035011292
+    ],
+    "maze2_v2_reworded": [
+      0.9806870818138123,
+      0.7199866771697998,
+      0.7273063063621521,
+      0.9932059049606323
+    ],
+    "maze2_v3_both": [
+      0.9775350093841553,
+      0.7325598001480103,
+      0.7398808598518372,
+      0.9922654032707214
+    ],
+    "maze3_v0_plain": [
+      0.8724215626716614,
+      0.6763595938682556,
+      0.6547491550445557,
+      0.8719437122344971
+    ],
+    "maze3_v1_padded": [
+      0.866933286190033,
+      0.6602938175201416,
+      0.6438844799995422,
+      0.8660120368003845
+    ],
+    "maze3_v2_reworded": [
+      0.8597908020019531,
+      0.6459450125694275,
+      0.619412362575531,
+      0.8597361445426941
+    ],
+    "maze3_v3_both": [
+      0.8709028959274292,
+      0.6174023747444153,
+      0.5910107493400574,
+      0.8706161975860596
+    ],
+    "eng_phase_v0_plain": [
+      0.27491164207458496
+    ],
+    "eng_routing_v0_plain": [
+      0.44376328587532043
+    ]
+  },
+  "event_id": "7b868f9e-6f29-44a8-aaaf-1e77fe9c4a47",
+  "schema_version": "nanojev-confidence-attribution-v1",
+  "method": "in-domain maze states replayed in four surface forms (original, padded with an irrelevant engineering paragraph, rewritten in engineering prose, both) and out-of-domain engineering questions shortened to one clause with simplified wording",
+  "limits": [
+    "4 maze states (16 questions) per variant and 2 shortened engineering questions; a probe, not a study",
+    "one checkpoint, one device, single batch",
+    "padding text is irrelevant engineering prose, not real repository noise",
+    "confidence only; accuracy on the padded/reworded maze variants was not scored"
+  ]
+}

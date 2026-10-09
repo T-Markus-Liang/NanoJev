@@ -6,7 +6,7 @@ import { pathToFileURL } from 'node:url';
 // 默认只做离线预览。付费调用必须显式传 --live；此文件从不读取 .env。
 export const CONFIG = Object.freeze({
   schema_version: 1,
-  model: 'typesafe-ai/jev',
+  model: 'jev-latest',
   ks: [2, 5, 20, 64, 255],
   concurrency: 2,
   timeout_ms: 45_000,
@@ -161,7 +161,7 @@ export function analyzeCase(row, teacher) {
 }
 
 function providerCost(teacher) {
-  const value = teacher?.provider_metadata?.gateway?.cost;
+  const value = teacher?.provider_metadata?.gateway?.cost ?? teacher?.estimated_cost_usd;
   if (value === null || value === undefined || value === '') return null;
   const n = Number(value);
   return Number.isFinite(n) && n >= 0 ? n : null;

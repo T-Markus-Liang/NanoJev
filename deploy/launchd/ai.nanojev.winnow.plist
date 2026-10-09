@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key><string>ai.nanojev.winnow</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/opt/homebrew/bin/python3</string>
+        <string>/Users/markus/Documents/NanoJev/external/winnow-inference/scripts/serve.py</string>
+        <string>--model</string>
+        <string>/Users/markus/Documents/NanoJev/external/models/Winnow-12B/Winnow-12B-Q8_0.gguf</string>
+        <string>--context</string><string>8192</string>
+        <string>--decision-parallel</string><string>1</string>
+        <string>--chat-parallel</string><string>1</string>
+        <string>--memory</string><string>exclusive</string>
+    </array>
+    <key>WorkingDirectory</key><string>/Users/markus/Documents/NanoJev</string>
+    <key>RunAtLoad</key><true/>
+    <key>KeepAlive</key><true/>
+    <key>StandardOutPath</key><string>/tmp/winnow-server.log</string>
+    <key>StandardErrorPath</key><string>/tmp/winnow-server.log</string>
+</dict>
+</plist>

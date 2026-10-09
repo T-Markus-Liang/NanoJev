@@ -1,0 +1,1188 @@
+{
+  "accounting": {
+    "actual_provider_savings": null,
+    "gateway_rule_reference": "docs/MAIN_MODEL_GATEWAY_V1.md section 8",
+    "gateway_would_report": {
+      "basis": "no_reduction_sent",
+      "claim": "none",
+      "tokens": null,
+      "why": "nothing reduced was sent: no provider was contacted, and the existing gateway refuses this arm's plan reason and fails open"
+    },
+    "if_forced_through_the_unchanged_gateway": {
+      "basis": "no_reduction_sent",
+      "claim": "none",
+      "forward_reason": "protected_segment_in_removal_set"
+    },
+    "net_sent_token_saving": 0,
+    "net_sent_token_saving_basis": "no reduced bytes were sent to any provider",
+    "provider_contacted": false,
+    "reduced_bytes_sent_to_a_provider": 0,
+    "shadow_estimate_only": {
+      "basis": "shadow_estimate_only",
+      "claim": "estimate",
+      "note": "a labelled local estimate of removed segment text; not a saving, and zero on every real fixture measured here",
+      "tokens": 0
+    }
+  },
+  "arm": "scripts/safe_dedup_v1.py",
+  "bytes_sent_to_provider": 0,
+  "deterministic": true,
+  "fixtures": {
+    "a4_tool_history": {
+      "aggregate": {
+        "candidates_retained_not_reversible": 0,
+        "cases_bypassed": 3,
+        "cases_examined": 11,
+        "cases_parsed": 8,
+        "cases_with_removals": 0,
+        "characters": {
+          "canonical_original_chars": 6959,
+          "reduced_chars": 6959,
+          "reduction_chars": 0,
+          "reduction_percent": 0.0,
+          "removed_segment_text_chars": 0
+        },
+        "gateway_active_would_apply_any": false,
+        "no_op_manifest_checks_attempted": 8,
+        "no_op_manifest_checks_ok": 8,
+        "protected_segment_deletions": 0,
+        "round_trip_success_rate": null,
+        "round_trip_success_rate_note": "no removal occurred in this source, so no restoration was performed; the rate is undefined rather than 100%",
+        "round_trips_attempted": 0,
+        "round_trips_ok": 0,
+        "segments_arm_eligible": 8,
+        "segments_examined": 55,
+        "segments_removed": 0,
+        "tokens": {
+          "canonical_original_tokens": 2230,
+          "note": "real local BPE tokenizer; local estimate, not provider billing",
+          "reduced_tokens": 2230,
+          "reduction_percent": 0.0,
+          "reduction_tokens": 0,
+          "removed_segment_text_tokens": 0,
+          "status": "available"
+        },
+        "tool_linked_segment_deletions": 0
+      },
+      "cases": [
+        {
+          "bypass_reason": null,
+          "case_id": "success",
+          "characters": {
+            "canonical_original_chars": 563,
+            "reduced_chars": 563,
+            "reduction_chars": 0,
+            "removed_segment_text_chars": 0
+          },
+          "gateway": {
+            "reason": "the existing gateway accepts only role=assistant drops carrying the model reason high_irrelevance_score; this arm's deterministic reason is not a model score, so the active path fails open with this reason",
+            "removal_plan_error": null,
+            "would_apply": false
+          },
+          "no_op_manifest_check": {
+            "attempted": true,
+            "ok": true
+          },
+          "parse_status": "parsed",
+          "protected_segment_deletions": 0,
+          "removed_pointers": [],
+          "request_bytes": 815,
+          "request_sha256": "de7d65cc20680eb2132f2abccd33ae441d53cbd3763166e38aae12098eb1fdac",
+          "retained_not_reversible": 0,
+          "round_trip": {
+            "attempted": false,
+            "detail": "no_removal",
+            "ok": null
+          },
+          "segments_arm_eligible": 1,
+          "segments_examined": 6,
+          "segments_removed": 0,
+          "tokens": {
+            "basis": "local_real_tokenizer_full_canonical_body",
+            "canonical_original_tokens": 194,
+            "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+            "reduced_tokens": 194,
+            "reduction_tokens": 0,
+            "removed_segment_text_chars": 0,
+            "removed_segment_text_tokens": 0,
+            "status": "available"
+          },
+          "tool_linked_segment_deletions": 0,
+          "wire_format": "openai_chat"
+        },
+        {
+          "bypass_reason": null,
+          "case_id": "error",
+          "characters": {
+            "canonical_original_chars": 654,
+            "reduced_chars": 654,
+            "reduction_chars": 0,
+            "removed_segment_text_chars": 0
+          },
+          "gateway": {
+            "reason": "the existing gateway accepts only role=assistant drops carrying the model reason high_irrelevance_score; this arm's deterministic reason is not a model score, so the active path fails open with this reason",
+            "removal_plan_error": null,
+            "would_apply": false
+          },
+          "no_op_manifest_check": {
+            "attempted": true,
+            "ok": true
+          },
+          "parse_status": "parsed",
+          "protected_segment_deletions": 0,
+          "removed_pointers": [],
+          "request_bytes": 932,
+          "request_sha256": "33909c9e35b029d0760f3e7c0814e73b45131e8f1c19dd7bef5f9aa29df92216",
+          "retained_not_reversible": 0,
+          "round_trip": {
+            "attempted": false,
+            "detail": "no_removal",
+            "ok": null
+          },
+          "segments_arm_eligible": 1,
+          "segments_examined": 7,
+          "segments_removed": 0,
+          "tokens": {
+            "basis": "local_real_tokenizer_full_canonical_body",
+            "canonical_original_tokens": 182,
+            "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+            "reduced_tokens": 182,
+            "reduction_tokens": 0,
+            "removed_segment_text_chars": 0,
+            "removed_segment_text_tokens": 0,
+            "status": "available"
+          },
+          "tool_linked_segment_deletions": 0,
+          "wire_format": "openai_chat"
+        },
+        {
+          "bypass_reason": null,
+          "case_id": "parallel_calls",
+          "characters": {
+            "canonical_original_chars": 811,
+            "reduced_chars": 811,
+            "reduction_chars": 0,
+            "removed_segment_text_chars": 0
+          },
+          "gateway": {
+            "reason": "the existing gateway accepts only role=assistant drops carrying the model reason high_irrelevance_score; this arm's deterministic reason is not a model score, so the active path fails open with this reason",
+            "removal_plan_error": null,
+            "would_apply": false
+          },
+          "no_op_manifest_check": {
+            "attempted": true,
+            "ok": true
+          },
+          "parse_status": "parsed",
+          "protected_segment_deletions": 0,
+          "removed_pointers": [],
+          "request_bytes": 1283,
+          "request_sha256": "7465110436e185996a676d18d6912424a82b7cfd25869cc5392ba09a206030da",
+          "retained_not_reversible": 0,
+          "round_trip": {
+            "attempted": false,
+            "detail": "no_removal",
+            "ok": null
+          },
+          "segments_arm_eligible": 1,
+          "segments_examined": 8,
+          "segments_removed": 0,
+          "tokens": {
+            "basis": "local_real_tokenizer_full_canonical_body",
+            "canonical_original_tokens": 263,
+            "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+            "reduced_tokens": 263,
+            "reduction_tokens": 0,
+            "removed_segment_text_chars": 0,
+            "removed_segment_text_tokens": 0,
+            "status": "available"
+          },
+          "tool_linked_segment_deletions": 0,
+          "wire_format": "anthropic_messages"
+        },
+        {
+          "bypass_reason": "unresolved_tool_link",
+          "case_id": "duplicate_ids",
+          "characters": {
+            "canonical_original_chars": 653,
+            "reduced_chars": 653,
+            "reduction_chars": 0,
+            "removed_segment_text_chars": 0
+          },
+          "gateway": {
+            "removal_plan_error": "not_evaluated",
+            "would_apply": false
+          },
+          "no_op_manifest_check": {
+            "attempted": false,
+            "ok": null
+          },
+          "parse_status": "bypass",
+          "protected_segment_deletions": 0,
+          "removed_pointers": [],
+          "request_bytes": 998,
+          "request_sha256": "fdb6d83c1f1a48f1d0f2b904cc5d00a6259ce6287ef437ea1678d3eb47f70f12",
+          "retained_not_reversible": 0,
+          "round_trip": {
+            "attempted": false,
+            "detail": "bypass_vacuous",
+            "ok": null
+          },
+          "segments_arm_eligible": 0,
+          "segments_examined": 0,
+          "segments_removed": 0,
+          "tokens": {
+            "basis": "local_real_tokenizer_full_canonical_body",
+            "canonical_original_tokens": 201,
+            "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+            "reduced_tokens": 201,
+            "reduction_tokens": 0,
+            "removed_segment_text_chars": 0,
+            "removed_segment_text_tokens": 0,
+            "status": "available"
+          },
+          "tool_linked_segment_deletions": 0,
+          "wire_format": "openai_chat"
+        },
+        {
+          "bypass_reason": "unresolved_tool_link",
+          "case_id": "orphan_result",
+          "characters": {
+            "canonical_original_chars": 526,
+            "reduced_chars": 526,
+            "reduction_chars": 0,
+            "removed_segment_text_chars": 0
+          },
+          "gateway": {
+            "removal_plan_error": "not_evaluated",
+            "would_apply": false
+          },
+          "no_op_manifest_check": {
+            "attempted": false,
+            "ok": null
+          },
+          "parse_status": "bypass",
+          "protected_segment_deletions": 0,
+          "removed_pointers": [],
+          "request_bytes": 778,
+          "request_sha256": "588f16a5b3dec511d24c602103a830b5340412b0196d1481a982cbd01b8ddcc4",
+          "retained_not_reversible": 0,
+          "round_trip": {
+            "attempted": false,
+            "detail": "bypass_vacuous",
+            "ok": null
+          },
+          "segments_arm_eligible": 0,
+          "segments_examined": 0,
+          "segments_removed": 0,
+          "tokens": {
+            "basis": "local_real_tokenizer_full_canonical_body",
+            "canonical_original_tokens": 174,
+            "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+            "reduced_tokens": 174,
+            "reduction_tokens": 0,
+            "removed_segment_text_chars": 0,
+            "removed_segment_text_tokens": 0,
+            "status": "available"
+          },
+          "tool_linked_segment_deletions": 0,
+          "wire_format": "openai_chat"
+        },
+        {
+          "bypass_reason": "unresolved_tool_link",
+          "case_id": "pending_call",
+          "characters": {
+            "canonical_original_chars": 452,
+            "reduced_chars": 452,
+            "reduction_chars": 0,
+            "removed_segment_text_chars": 0
+          },
+          "gateway": {
+            "removal_plan_error": "not_evaluated",
+            "would_apply": false
+          },
+          "no_op_manifest_check": {
+            "attempted": false,
+            "ok": null
+          },
+          "parse_status": "bypass",
+          "protected_segment_deletions": 0,
+          "removed_pointers": [],
+          "request_bytes": 670,
+          "request_sha256": "9b012b6d0cd549255a0ea082ec8a711bd8b2b79d145204b99ade3ffd3924c3a1",
+          "retained_not_reversible": 0,
+          "round_trip": {
+            "attempted": false,
+            "detail": "bypass_vacuous",
+            "ok": null
+          },
+          "segments_arm_eligible": 0,
+          "segments_examined": 0,
+          "segments_removed": 0,
+          "tokens": {
+            "basis": "local_real_tokenizer_full_canonical_body",
+            "canonical_original_tokens": 136,
+            "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+            "reduced_tokens": 136,
+            "reduction_tokens": 0,
+            "removed_segment_text_chars": 0,
+            "removed_segment_text_tokens": 0,
+            "status": "available"
+          },
+          "tool_linked_segment_deletions": 0,
+          "wire_format": "openai_chat"
+        },
+        {
+          "bypass_reason": null,
+          "case_id": "non_repeatable_result",
+          "characters": {
+            "canonical_original_chars": 630,
+            "reduced_chars": 630,
+            "reduction_chars": 0,
+            "removed_segment_text_chars": 0
+          },
+          "gateway": {
+            "reason": "the existing gateway accepts only role=assistant drops carrying the model reason high_irrelevance_score; this arm's deterministic reason is not a model score, so the active path fails open with this reason",
+            "removal_plan_error": null,
+            "would_apply": false
+          },
+          "no_op_manifest_check": {
+            "attempted": true,
+            "ok": true
+          },
+          "parse_status": "parsed",
+          "protected_segment_deletions": 0,
+          "removed_pointers": [],
+          "request_bytes": 882,
+          "request_sha256": "a76a15b857cf4ba9f5b9fe619f59fe31f0f99a4e2d268d9797304e20cba24f13",
+          "retained_not_reversible": 0,
+          "round_trip": {
+            "attempted": false,
+            "detail": "no_removal",
+            "ok": null
+          },
+          "segments_arm_eligible": 1,
+          "segments_examined": 6,
+          "segments_removed": 0,
+          "tokens": {
+            "basis": "local_real_tokenizer_full_canonical_body",
+            "canonical_original_tokens": 200,
+            "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+            "reduced_tokens": 200,
+            "reduction_tokens": 0,
+            "removed_segment_text_chars": 0,
+            "removed_segment_text_tokens": 0,
+            "status": "available"
+          },
+          "tool_linked_segment_deletions": 0,
+          "wire_format": "openai_chat"
+        },
+        {
+          "bypass_reason": null,
+          "case_id": "mutable_file_read",
+          "characters": {
+            "canonical_original_chars": 608,
+            "reduced_chars": 608,
+            "reduction_chars": 0,
+            "removed_segment_text_chars": 0
+          },
+          "gateway": {
+            "reason": "the existing gateway accepts only role=assistant drops carrying the model reason high_irrelevance_score; this arm's deterministic reason is not a model score, so the active path fails open with this reason",
+            "removal_plan_error": null,
+            "would_apply": false
+          },
+          "no_op_manifest_check": {
+            "attempted": true,
+            "ok": true
+          },
+          "parse_status": "parsed",
+          "protected_segment_deletions": 0,
+          "removed_pointers": [],
+          "request_bytes": 860,
+          "request_sha256": "13a3aa8314c965365f92c70f44bd67ee286c8199c1db69e439270fdd6c265b97",
+          "retained_not_reversible": 0,
+          "round_trip": {
+            "attempted": false,
+            "detail": "no_removal",
+            "ok": null
+          },
+          "segments_arm_eligible": 1,
+          "segments_examined": 6,
+          "segments_removed": 0,
+          "tokens": {
+            "basis": "local_real_tokenizer_full_canonical_body",
+            "canonical_original_tokens": 199,
+            "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+            "reduced_tokens": 199,
+            "reduction_tokens": 0,
+            "removed_segment_text_chars": 0,
+            "removed_segment_text_tokens": 0,
+            "status": "available"
+          },
+          "tool_linked_segment_deletions": 0,
+          "wire_format": "openai_chat"
+        },
+        {
+          "bypass_reason": null,
+          "case_id": "stale_output",
+          "characters": {
+            "canonical_original_chars": 722,
+            "reduced_chars": 722,
+            "reduction_chars": 0,
+            "removed_segment_text_chars": 0
+          },
+          "gateway": {
+            "reason": "the existing gateway accepts only role=assistant drops carrying the model reason high_irrelevance_score; this arm's deterministic reason is not a model score, so the active path fails open with this reason",
+            "removal_plan_error": null,
+            "would_apply": false
+          },
+          "no_op_manifest_check": {
+            "attempted": true,
+            "ok": true
+          },
+          "parse_status": "parsed",
+          "protected_segment_deletions": 0,
+          "removed_pointers": [],
+          "request_bytes": 1026,
+          "request_sha256": "441232ce5eb73eff358678b808d7df5da9f214853d59ef655cfa43f8148d23fb",
+          "retained_not_reversible": 0,
+          "round_trip": {
+            "attempted": false,
+            "detail": "no_removal",
+            "ok": null
+          },
+          "segments_arm_eligible": 1,
+          "segments_examined": 8,
+          "segments_removed": 0,
+          "tokens": {
+            "basis": "local_real_tokenizer_full_canonical_body",
+            "canonical_original_tokens": 238,
+            "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+            "reduced_tokens": 238,
+            "reduction_tokens": 0,
+            "removed_segment_text_chars": 0,
+            "removed_segment_text_tokens": 0,
+            "status": "available"
+          },
+          "tool_linked_segment_deletions": 0,
+          "wire_format": "openai_chat"
+        },
+        {
+          "bypass_reason": null,
+          "case_id": "user_correction",
+          "characters": {
+            "canonical_original_chars": 744,
+            "reduced_chars": 744,
+            "reduction_chars": 0,
+            "removed_segment_text_chars": 0
+          },
+          "gateway": {
+            "reason": "the existing gateway accepts only role=assistant drops carrying the model reason high_irrelevance_score; this arm's deterministic reason is not a model score, so the active path fails open with this reason",
+            "removal_plan_error": null,
+            "would_apply": false
+          },
+          "no_op_manifest_check": {
+            "attempted": true,
+            "ok": true
+          },
+          "parse_status": "parsed",
+          "protected_segment_deletions": 0,
+          "removed_pointers": [],
+          "request_bytes": 1048,
+          "request_sha256": "e873e95b59d63cf0c5526f174028a3e2da5e85e07970e691fe98d83f36f5a2d6",
+          "retained_not_reversible": 0,
+          "round_trip": {
+            "attempted": false,
+            "detail": "no_removal",
+            "ok": null
+          },
+          "segments_arm_eligible": 1,
+          "segments_examined": 8,
+          "segments_removed": 0,
+          "tokens": {
+            "basis": "local_real_tokenizer_full_canonical_body",
+            "canonical_original_tokens": 267,
+            "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+            "reduced_tokens": 267,
+            "reduction_tokens": 0,
+            "removed_segment_text_chars": 0,
+            "removed_segment_text_tokens": 0,
+            "status": "available"
+          },
+          "tool_linked_segment_deletions": 0,
+          "wire_format": "openai_chat"
+        },
+        {
+          "bypass_reason": null,
+          "case_id": "secrets_credentials",
+          "characters": {
+            "canonical_original_chars": 596,
+            "reduced_chars": 596,
+            "reduction_chars": 0,
+            "removed_segment_text_chars": 0
+          },
+          "gateway": {
+            "reason": "the existing gateway accepts only role=assistant drops carrying the model reason high_irrelevance_score; this arm's deterministic reason is not a model score, so the active path fails open with this reason",
+            "removal_plan_error": null,
+            "would_apply": false
+          },
+          "no_op_manifest_check": {
+            "attempted": true,
+            "ok": true
+          },
+          "parse_status": "parsed",
+          "protected_segment_deletions": 0,
+          "removed_pointers": [],
+          "request_bytes": 848,
+          "request_sha256": "83fee0c36e9b8ca55f4fd0bd9a949d73bd48dfd011db0a7ba75c74e98865f1d0",
+          "retained_not_reversible": 0,
+          "round_trip": {
+            "attempted": false,
+            "detail": "no_removal",
+            "ok": null
+          },
+          "segments_arm_eligible": 1,
+          "segments_examined": 6,
+          "segments_removed": 0,
+          "tokens": {
+            "basis": "local_real_tokenizer_full_canonical_body",
+            "canonical_original_tokens": 176,
+            "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+            "reduced_tokens": 176,
+            "reduction_tokens": 0,
+            "removed_segment_text_chars": 0,
+            "removed_segment_text_tokens": 0,
+            "status": "available"
+          },
+          "tool_linked_segment_deletions": 0,
+          "wire_format": "openai_chat"
+        }
+      ],
+      "provenance": {
+        "materializer": "scripts/build_tool_history_fixtures_v1.py",
+        "note": "materialized in memory with the builder's own tag substitution; request bytes are the builder's non-canonical pretty-printed encoding",
+        "path": "/Users/markus/Documents/NanoJev/research/tool_history_fixture_manifest_v1.json",
+        "seed": 20260919,
+        "sha256": "0c8253c9424245315d3aaf1501a6c683b8cda39bc494f8c32005ab219adf89e0"
+      }
+    },
+    "context_relevance_corpus": {
+      "aggregate": {
+        "candidates_retained_not_reversible": 0,
+        "cases_bypassed": 0,
+        "cases_examined": 2400,
+        "cases_parsed": 2400,
+        "cases_with_removals": 0,
+        "characters": {
+          "canonical_original_chars": 1345414,
+          "reduced_chars": 1345414,
+          "reduction_chars": 0,
+          "reduction_percent": 0.0,
+          "removed_segment_text_chars": 0
+        },
+        "gateway_active_would_apply_any": false,
+        "no_op_manifest_checks_attempted": 2400,
+        "no_op_manifest_checks_ok": 2400,
+        "protected_segment_deletions": 0,
+        "round_trip_success_rate": null,
+        "round_trip_success_rate_note": "no removal occurred in this source, so no restoration was performed; the rate is undefined rather than 100%",
+        "round_trips_attempted": 0,
+        "round_trips_ok": 0,
+        "segments_arm_eligible": 0,
+        "segments_examined": 11400,
+        "segments_removed": 0,
+        "tokens": {
+          "canonical_original_tokens": 361029,
+          "note": "real local BPE tokenizer; local estimate, not provider billing",
+          "reduced_tokens": 361029,
+          "reduction_percent": 0.0,
+          "reduction_tokens": 0,
+          "removed_segment_text_tokens": 0,
+          "status": "available"
+        },
+        "tool_linked_segment_deletions": 0
+      },
+      "cases_sample": [
+        {
+          "bypass_reason": null,
+          "characters": {
+            "canonical_original_chars": 471,
+            "reduced_chars": 471,
+            "reduction_chars": 0,
+            "removed_segment_text_chars": 0
+          },
+          "gateway": {
+            "reason": "the existing gateway accepts only role=assistant drops carrying the model reason high_irrelevance_score; this arm's deterministic reason is not a model score, so the active path fails open with this reason",
+            "removal_plan_error": null,
+            "would_apply": false
+          },
+          "no_op_manifest_check": {
+            "attempted": true,
+            "ok": true
+          },
+          "parse_status": "parsed",
+          "protected_segment_deletions": 0,
+          "removed_pointers": [],
+          "request_bytes": 471,
+          "request_sha256": "903efbf6153db21f1217bc8e62444498e37db1cfa2df333a4dcd24c196551aae",
+          "retained_not_reversible": 0,
+          "round_trip": {
+            "attempted": false,
+            "detail": "no_removal",
+            "ok": null
+          },
+          "segments_arm_eligible": 0,
+          "segments_examined": 4,
+          "segments_removed": 0,
+          "tokens": {
+            "basis": "local_real_tokenizer_full_canonical_body",
+            "canonical_original_tokens": 128,
+            "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+            "reduced_tokens": 128,
+            "reduction_tokens": 0,
+            "removed_segment_text_chars": 0,
+            "removed_segment_text_tokens": 0,
+            "status": "available"
+          },
+          "tool_linked_segment_deletions": 0,
+          "wire_format": "openai_chat"
+        },
+        {
+          "bypass_reason": null,
+          "characters": {
+            "canonical_original_chars": 566,
+            "reduced_chars": 566,
+            "reduction_chars": 0,
+            "removed_segment_text_chars": 0
+          },
+          "gateway": {
+            "reason": "the existing gateway accepts only role=assistant drops carrying the model reason high_irrelevance_score; this arm's deterministic reason is not a model score, so the active path fails open with this reason",
+            "removal_plan_error": null,
+            "would_apply": false
+          },
+          "no_op_manifest_check": {
+            "attempted": true,
+            "ok": true
+          },
+          "parse_status": "parsed",
+          "protected_segment_deletions": 0,
+          "removed_pointers": [],
+          "request_bytes": 566,
+          "request_sha256": "ab203c3a76eb4cb84873766230ade32d10158a4c5e02826bef969c18238e7cca",
+          "retained_not_reversible": 0,
+          "round_trip": {
+            "attempted": false,
+            "detail": "no_removal",
+            "ok": null
+          },
+          "segments_arm_eligible": 0,
+          "segments_examined": 5,
+          "segments_removed": 0,
+          "tokens": {
+            "basis": "local_real_tokenizer_full_canonical_body",
+            "canonical_original_tokens": 156,
+            "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+            "reduced_tokens": 156,
+            "reduction_tokens": 0,
+            "removed_segment_text_chars": 0,
+            "removed_segment_text_tokens": 0,
+            "status": "available"
+          },
+          "tool_linked_segment_deletions": 0,
+          "wire_format": "openai_responses"
+        },
+        {
+          "bypass_reason": null,
+          "characters": {
+            "canonical_original_chars": 567,
+            "reduced_chars": 567,
+            "reduction_chars": 0,
+            "removed_segment_text_chars": 0
+          },
+          "gateway": {
+            "reason": "the existing gateway accepts only role=assistant drops carrying the model reason high_irrelevance_score; this arm's deterministic reason is not a model score, so the active path fails open with this reason",
+            "removal_plan_error": null,
+            "would_apply": false
+          },
+          "no_op_manifest_check": {
+            "attempted": true,
+            "ok": true
+          },
+          "parse_status": "parsed",
+          "protected_segment_deletions": 0,
+          "removed_pointers": [],
+          "request_bytes": 567,
+          "request_sha256": "36808dd1ad0ab526d5c35f56d89af0bffa94610e9988dbad4437af5feb2c87d5",
+          "retained_not_reversible": 0,
+          "round_trip": {
+            "attempted": false,
+            "detail": "no_removal",
+            "ok": null
+          },
+          "segments_arm_eligible": 0,
+          "segments_examined": 5,
+          "segments_removed": 0,
+          "tokens": {
+            "basis": "local_real_tokenizer_full_canonical_body",
+            "canonical_original_tokens": 160,
+            "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+            "reduced_tokens": 160,
+            "reduction_tokens": 0,
+            "removed_segment_text_chars": 0,
+            "removed_segment_text_tokens": 0,
+            "status": "available"
+          },
+          "tool_linked_segment_deletions": 0,
+          "wire_format": "anthropic_messages"
+        },
+        {
+          "bypass_reason": null,
+          "characters": {
+            "canonical_original_chars": 553,
+            "reduced_chars": 553,
+            "reduction_chars": 0,
+            "removed_segment_text_chars": 0
+          },
+          "gateway": {
+            "reason": "the existing gateway accepts only role=assistant drops carrying the model reason high_irrelevance_score; this arm's deterministic reason is not a model score, so the active path fails open with this reason",
+            "removal_plan_error": null,
+            "would_apply": false
+          },
+          "no_op_manifest_check": {
+            "attempted": true,
+            "ok": true
+          },
+          "parse_status": "parsed",
+          "protected_segment_deletions": 0,
+          "removed_pointers": [],
+          "request_bytes": 553,
+          "request_sha256": "81688b8b1414b1f190bcfa3685483e45aa4c17afc44081139c7893a796a05e8f",
+          "retained_not_reversible": 0,
+          "round_trip": {
+            "attempted": false,
+            "detail": "no_removal",
+            "ok": null
+          },
+          "segments_arm_eligible": 0,
+          "segments_examined": 4,
+          "segments_removed": 0,
+          "tokens": {
+            "basis": "local_real_tokenizer_full_canonical_body",
+            "canonical_original_tokens": 147,
+            "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+            "reduced_tokens": 147,
+            "reduction_tokens": 0,
+            "removed_segment_text_chars": 0,
+            "removed_segment_text_tokens": 0,
+            "status": "available"
+          },
+          "tool_linked_segment_deletions": 0,
+          "wire_format": "openai_chat"
+        },
+        {
+          "bypass_reason": null,
+          "characters": {
+            "canonical_original_chars": 554,
+            "reduced_chars": 554,
+            "reduction_chars": 0,
+            "removed_segment_text_chars": 0
+          },
+          "gateway": {
+            "reason": "the existing gateway accepts only role=assistant drops carrying the model reason high_irrelevance_score; this arm's deterministic reason is not a model score, so the active path fails open with this reason",
+            "removal_plan_error": null,
+            "would_apply": false
+          },
+          "no_op_manifest_check": {
+            "attempted": true,
+            "ok": true
+          },
+          "parse_status": "parsed",
+          "protected_segment_deletions": 0,
+          "removed_pointers": [],
+          "request_bytes": 554,
+          "request_sha256": "a573740432d96a6f49662382798316725ac8ca9bbceda6852b6c778df7e53b58",
+          "retained_not_reversible": 0,
+          "round_trip": {
+            "attempted": false,
+            "detail": "no_removal",
+            "ok": null
+          },
+          "segments_arm_eligible": 0,
+          "segments_examined": 5,
+          "segments_removed": 0,
+          "tokens": {
+            "basis": "local_real_tokenizer_full_canonical_body",
+            "canonical_original_tokens": 151,
+            "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+            "reduced_tokens": 151,
+            "reduction_tokens": 0,
+            "removed_segment_text_chars": 0,
+            "removed_segment_text_tokens": 0,
+            "status": "available"
+          },
+          "tool_linked_segment_deletions": 0,
+          "wire_format": "openai_responses"
+        }
+      ],
+      "cases_truncated": true,
+      "provenance": {
+        "files": [
+          {
+            "path": "/Users/markus/Documents/NanoJev/data/context_relevance_oracle_v1_seed20260919/calibration.jsonl",
+            "sha256": "b3bc31f14052fab85c9b4adc72ece635ebde6bc8af8ae10b4de5477ede943dbf"
+          },
+          {
+            "path": "/Users/markus/Documents/NanoJev/data/context_relevance_oracle_v1_seed20260919/dev.jsonl",
+            "sha256": "96d78bc4bf84b5a9783e8158bdd63a3a18ecc90a2475196c3df12de62cfd94c8"
+          },
+          {
+            "path": "/Users/markus/Documents/NanoJev/data/context_relevance_oracle_v1_seed20260919/ood.jsonl",
+            "sha256": "0cb2ef719e6619ad014858eef7bceae63a26ac395d8e3bbb0669e6c06025bf0f"
+          },
+          {
+            "path": "/Users/markus/Documents/NanoJev/data/context_relevance_oracle_v1_seed20260919/test.jsonl",
+            "sha256": "16e70b38a179780070acb51a086296dd714db1e26220b928bd77873d700716f4"
+          },
+          {
+            "path": "/Users/markus/Documents/NanoJev/data/context_relevance_oracle_v1_seed20260919/train.jsonl",
+            "sha256": "82bdb92bbf162305153cce7ada3712b735f4bcbfc873e9576773646418dd62df"
+          }
+        ],
+        "note": "every body in the largest request-shaped corpus in the repository; bodies are canonical and small (max measured 760 bytes), so this is NOT a long-context fixture",
+        "path": "/Users/markus/Documents/NanoJev/data/context_relevance_oracle_v1_seed20260919"
+      }
+    }
+  },
+  "gateway_compatibility": {
+    "arm_drop_reason": "exact_duplicate_retained_earlier",
+    "arm_plan_accepted_by_existing_gateway": false,
+    "gateway_accepted_drop_reason": "high_irrelevance_score",
+    "note": "the existing gateway's active path accepts only assistant drops whose receipt reason is the model reason high_irrelevance_score. This arm is model-free, so it does not and must not emit that reason. Unmodified, the gateway therefore fails open on every arm plan and forwards the ORIGINAL bytes. Enabling this arm on a real provider path would require a reviewed gateway change, which was out of scope here.",
+    "removal_plan_error_for_arm_plan": "protected_segment_in_removal_set"
+  },
+  "limitations": [
+    "no provider was contacted, so there are no actual provider-reported token counts and no actual saving; every token number is a local estimate from a real local BPE tokenizer over canonical JSON body text",
+    "there is no long-context fixture in this repository: the A4 bodies are 4-7 messages and the largest request corpus has bodies of at most 760 bytes",
+    "token counts are of the JSON body text, not of a provider chat-template render, and different providers use different tokenizers",
+    "the arm is not wired into the gateway (out of scope); the existing gateway fails open on its plan reason, so nothing is sent",
+    "the synthetic mechanism check exists only to prove the rule removes exact duplicates and restores them; its reductions are not savings",
+    "no independent review; this work has not been reviewed by the project's independent reviewer"
+  ],
+  "net_result": {
+    "character_reduction_on_real_fixtures": 0,
+    "net_sent_token_saving": 0,
+    "segments_removed_on_real_fixtures": 0,
+    "token_reduction_on_real_fixtures": 0,
+    "verdict": "the deterministic arm cannot beat zero on the fixtures available in this repository, and even where it does find exact duplicates the unchanged gateway cannot carry the plan to a provider"
+  },
+  "no_model_calls": true,
+  "no_network_calls": true,
+  "provider_calls_made": 0,
+  "repository_head": "7f65de889e4de60c969c367ebd3c3436e139a634",
+  "reused_modules": {
+    "gateway": "scripts/main_model_gateway_v1.py (build_reduced_request, removed_segments_from_raw, removal_plan, ReductionError) - imported, not modified",
+    "restore": "scripts/context_restore_v1.py (build_restore_manifest, restore_request, verify_round_trip, canonical_bytes) - imported, not modified",
+    "shadow_core": "scripts/context_gate_v1.py (parse_segments, sidecar_policy, protect_dependencies, Bypass) - imported, not modified"
+  },
+  "round_trip_summary": {
+    "no_op_manifest_checks": {
+      "attempted": 2414,
+      "note": "zero-removal requests still exercise the manifest contract with an empty plan; these are not restoration round-trips",
+      "ok": 2414
+    },
+    "note": "a real removal-then-restore round-trip is only attempted when the arm actually removes something; zero-removal sources are reported as undefined rather than 100%. Counts are per reduced request, not per removed segment.",
+    "per_source": {
+      "a4_tool_history": {
+        "attempted": 0,
+        "ok": 0
+      },
+      "context_relevance_corpus": {
+        "attempted": 0,
+        "ok": 0
+      },
+      "synthetic_mechanism_check": {
+        "attempted": 2,
+        "ok": 2
+      }
+    },
+    "reduced_requests_restored_byte_identically": 2,
+    "reduced_requests_round_tripped": 2,
+    "success_rate": 1.0
+  },
+  "rule": {
+    "drop_reason": "exact_duplicate_retained_earlier",
+    "eligibility": "core sidecar_policy assigns no reason (explicit eligible:true, unprotected, text-bearing, in restore grammar)",
+    "fail_closed": "any bypass, protection, dependency, irreversibility, tamper, or unknown input means retain",
+    "keep": "first occurrence in request order is always retained",
+    "match": "identical code points; same kind (message|text_part) and same role",
+    "normalization": "normalized_text(x) = x. Two segments match only when their texts are equal code point for code point; no case folding, Unicode normalization, whitespace collapsing, truncation, or tokenization is applied.",
+    "normalization_id": "identity-v1-exact-codepoint-equality",
+    "protected_segment_deletion_policy": "never; measured over every fixture",
+    "reversibility": "every removal is proven byte-identical via build_reduced_request + build_restore_manifest + removed_segments_from_raw + restore_request"
+  },
+  "schema_version": "nanojev-safe-dedup-measurement-v1",
+  "synthetic_mechanism_check": {
+    "aggregate": {
+      "candidates_retained_not_reversible": 2,
+      "cases_bypassed": 0,
+      "cases_examined": 8,
+      "cases_parsed": 8,
+      "cases_with_removals": 2,
+      "characters": {
+        "canonical_original_chars": 2615,
+        "reduced_chars": 2352,
+        "reduction_chars": 263,
+        "reduction_percent": 10.05736137667304,
+        "removed_segment_text_chars": 93
+      },
+      "gateway_active_would_apply_any": false,
+      "no_op_manifest_checks_attempted": 6,
+      "no_op_manifest_checks_ok": 6,
+      "protected_segment_deletions": 0,
+      "round_trip_success_rate": 1.0,
+      "round_trip_success_rate_note": "over every removal actually performed in this source",
+      "round_trips_attempted": 2,
+      "round_trips_ok": 2,
+      "segments_arm_eligible": 15,
+      "segments_examined": 43,
+      "segments_removed": 5,
+      "tokens": {
+        "canonical_original_tokens": 618,
+        "note": "real local BPE tokenizer; local estimate, not provider billing",
+        "reduced_tokens": 563,
+        "reduction_percent": 8.89967637540453,
+        "reduction_tokens": 55,
+        "removed_segment_text_tokens": 20,
+        "status": "available"
+      },
+      "tool_linked_segment_deletions": 0
+    },
+    "all_ok": true,
+    "cases": [
+      {
+        "case_id": "duplicate_status_lines",
+        "characters": {
+          "canonical_original_chars": 406,
+          "reduced_chars": 194,
+          "reduction_chars": 212,
+          "removed_segment_text_chars": 76
+        },
+        "expected_removed": 4,
+        "ok": true,
+        "protected_segment_deletions": 0,
+        "round_trip_ok": true,
+        "segments_examined": 7,
+        "segments_removed": 4,
+        "tokens": {
+          "basis": "local_real_tokenizer_full_canonical_body",
+          "canonical_original_tokens": 89,
+          "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+          "reduced_tokens": 45,
+          "reduction_tokens": 44,
+          "removed_segment_text_chars": 76,
+          "removed_segment_text_tokens": 16,
+          "status": "available"
+        },
+        "wire_format": "openai_chat"
+      },
+      {
+        "case_id": "duplicate_tool_call_text",
+        "characters": {
+          "canonical_original_chars": 416,
+          "reduced_chars": 365,
+          "reduction_chars": 51,
+          "removed_segment_text_chars": 17
+        },
+        "expected_removed": 1,
+        "ok": true,
+        "protected_segment_deletions": 0,
+        "round_trip_ok": true,
+        "segments_examined": 7,
+        "segments_removed": 1,
+        "tokens": {
+          "basis": "local_real_tokenizer_full_canonical_body",
+          "canonical_original_tokens": 101,
+          "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+          "reduced_tokens": 90,
+          "reduction_tokens": 11,
+          "removed_segment_text_chars": 17,
+          "removed_segment_text_tokens": 4,
+          "status": "available"
+        },
+        "wire_format": "openai_chat"
+      },
+      {
+        "case_id": "duplicate_tool_result_retained",
+        "characters": {
+          "canonical_original_chars": 597,
+          "reduced_chars": 597,
+          "reduction_chars": 0,
+          "removed_segment_text_chars": 0
+        },
+        "expected_removed": 0,
+        "ok": true,
+        "protected_segment_deletions": 0,
+        "round_trip_ok": null,
+        "segments_examined": 10,
+        "segments_removed": 0,
+        "tokens": {
+          "basis": "local_real_tokenizer_full_canonical_body",
+          "canonical_original_tokens": 147,
+          "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+          "reduced_tokens": 147,
+          "reduction_tokens": 0,
+          "removed_segment_text_chars": 0,
+          "removed_segment_text_tokens": 0,
+          "status": "available"
+        },
+        "wire_format": "openai_chat"
+      },
+      {
+        "case_id": "duplicate_user_retained",
+        "characters": {
+          "canonical_original_chars": 218,
+          "reduced_chars": 218,
+          "reduction_chars": 0,
+          "removed_segment_text_chars": 0
+        },
+        "expected_removed": 0,
+        "ok": true,
+        "protected_segment_deletions": 0,
+        "round_trip_ok": null,
+        "segments_examined": 4,
+        "segments_removed": 0,
+        "tokens": {
+          "basis": "local_real_tokenizer_full_canonical_body",
+          "canonical_original_tokens": 50,
+          "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+          "reduced_tokens": 50,
+          "reduction_tokens": 0,
+          "removed_segment_text_chars": 0,
+          "removed_segment_text_tokens": 0,
+          "status": "available"
+        },
+        "wire_format": "openai_chat"
+      },
+      {
+        "case_id": "not_explicitly_eligible_retained",
+        "characters": {
+          "canonical_original_chars": 228,
+          "reduced_chars": 228,
+          "reduction_chars": 0,
+          "removed_segment_text_chars": 0
+        },
+        "expected_removed": 0,
+        "ok": true,
+        "protected_segment_deletions": 0,
+        "round_trip_ok": null,
+        "segments_examined": 4,
+        "segments_removed": 0,
+        "tokens": {
+          "basis": "local_real_tokenizer_full_canonical_body",
+          "canonical_original_tokens": 54,
+          "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+          "reduced_tokens": 54,
+          "reduction_tokens": 0,
+          "removed_segment_text_chars": 0,
+          "removed_segment_text_tokens": 0,
+          "status": "available"
+        },
+        "wire_format": "openai_chat"
+      },
+      {
+        "case_id": "dependency_closure_retains_duplicate",
+        "characters": {
+          "canonical_original_chars": 246,
+          "reduced_chars": 246,
+          "reduction_chars": 0,
+          "removed_segment_text_chars": 0
+        },
+        "expected_removed": 0,
+        "ok": true,
+        "protected_segment_deletions": 0,
+        "round_trip_ok": null,
+        "segments_examined": 4,
+        "segments_removed": 0,
+        "tokens": {
+          "basis": "local_real_tokenizer_full_canonical_body",
+          "canonical_original_tokens": 54,
+          "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+          "reduced_tokens": 54,
+          "reduction_tokens": 0,
+          "removed_segment_text_chars": 0,
+          "removed_segment_text_tokens": 0,
+          "status": "available"
+        },
+        "wire_format": "openai_chat"
+      },
+      {
+        "case_id": "responses_output_text_irreversible",
+        "characters": {
+          "canonical_original_chars": 218,
+          "reduced_chars": 218,
+          "reduction_chars": 0,
+          "removed_segment_text_chars": 0
+        },
+        "expected_removed": 0,
+        "ok": true,
+        "protected_segment_deletions": 0,
+        "round_trip_ok": null,
+        "segments_examined": 3,
+        "segments_removed": 0,
+        "tokens": {
+          "basis": "local_real_tokenizer_full_canonical_body",
+          "canonical_original_tokens": 55,
+          "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+          "reduced_tokens": 55,
+          "reduction_tokens": 0,
+          "removed_segment_text_chars": 0,
+          "removed_segment_text_tokens": 0,
+          "status": "available"
+        },
+        "wire_format": "openai_responses"
+      },
+      {
+        "case_id": "anthropic_cache_control_irreversible",
+        "characters": {
+          "canonical_original_chars": 286,
+          "reduced_chars": 286,
+          "reduction_chars": 0,
+          "removed_segment_text_chars": 0
+        },
+        "expected_removed": 0,
+        "ok": true,
+        "protected_segment_deletions": 0,
+        "round_trip_ok": null,
+        "segments_examined": 4,
+        "segments_removed": 0,
+        "tokens": {
+          "basis": "local_real_tokenizer_full_canonical_body",
+          "canonical_original_tokens": 68,
+          "note": "real local BPE tokenizer over the canonical JSON body text; a local estimate, NOT provider billing and not a chat-template render",
+          "reduced_tokens": 68,
+          "reduction_tokens": 0,
+          "removed_segment_text_chars": 0,
+          "removed_segment_text_tokens": 0,
+          "status": "available"
+        },
+        "wire_format": "anthropic_messages"
+      }
+    ],
+    "label": "synthetic_mechanism_check_not_a_savings_claim",
+    "note": "bodies authored in this script purely to exercise the rule; they are not real transcripts and any reduction here is NOT a token saving"
+  },
+  "tokenizer": {
+    "kind": "local_real_bpe_tokenizer_not_a_provider_billing_tokenizer",
+    "model_type": "BPE",
+    "note": "counts tokens of canonical JSON body text; not a provider chat template and not provider billing",
+    "path": "/Users/markus/Documents/NanoJev/checkpoints/local_atomic_seed17/variants/local_atomic_seed17/tokenizer/tokenizer.json",
+    "searched": [
+      "/Users/markus/Documents/NanoJev/checkpoints/local_atomic_seed17/variants/local_atomic_seed17/tokenizer/tokenizer.json",
+      "/Users/markus/Documents/NanoJev/runs/context_relevance_v1_seed17/tokenizer/tokenizer.json"
+    ],
+    "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+    "status": "available",
+    "tiktoken_installed": false,
+    "vocab_size": 151669
+  }
+}

@@ -1,0 +1,226 @@
+{
+  "schema_version": "nanojev-context-filter-value-fixture-manifest-v1",
+  "status": "synthetic_shadow_only_v1",
+  "purpose": "Value-oriented context-filter fixtures: cases where an eligible segment is clearly irrelevant, plus adverse cases where a sidecar incorrectly marks needed evidence or ambiguous history as eligible.",
+  "seed": 20260923,
+  "provenance": {
+    "source": "self_authored_synthetic_conversation",
+    "license": "CC0-1.0",
+    "contains_real_user_data": false,
+    "contains_real_credentials": false,
+    "contains_real_tool_output": false
+  },
+  "gate_contract": {
+    "core": "scripts/context_gate_v1.py",
+    "entrypoint": "shadow_request",
+    "active_filtering": false,
+    "applied": false,
+    "probabilities_calibrated": false,
+    "note": "expected_suggestion is a semantic fixture expectation for diagnostics, not an authorization or fitted threshold."
+  },
+  "cases": [
+    {
+      "case_id": "clear_irrelevant_history",
+      "kind": "clear_irrelevant_history",
+      "wire_format": "openai_chat",
+      "description": "A long archived assistant note is unrelated to the current port question.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {"role": "system", "content": "Preserve all user constraints."},
+          {"role": "assistant", "content": "Project Nova currently uses local port 8123."},
+          {"role": "assistant", "content": "Archived restaurant research from an earlier task: a neighborhood cafe rotates seasonal soups, keeps a short pastry list, and updates its lunch board at noon. None of this mentions software, deployments, repositories, services, ports, or Nova."},
+          {"role": "user", "content": "What port does Project Nova use?"}
+        ]
+      },
+      "sidecar": {"segments": {"/messages/2/content": {"eligible": true}}},
+      "segments": [
+        {"pointer": "/messages/0/content", "role": "system", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "protected_structure"},
+        {"pointer": "/messages/1/content", "role": "assistant", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "not_explicitly_eligible"},
+        {"pointer": "/messages/2/content", "role": "assistant", "expected_status": "eligible", "expected_suggestion": "drop", "expected_reason_code": "high_irrelevance_score"},
+        {"pointer": "/messages/3/content", "role": "user", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "protected_structure"}
+      ],
+      "expected_gate": {"status": "scored", "reason": "shadow_only", "all_retain": false, "segments_observed": true},
+      "downstream": {"required_strings": ["8123", "Project Nova"], "expected_answer": "8123"}
+    },
+    {
+      "case_id": "required_evidence_marked_eligible",
+      "kind": "required_evidence_marked_eligible",
+      "wire_format": "openai_chat",
+      "description": "The sidecar wrongly marks the only evidence-bearing assistant segment as eligible; the scorer should retain it.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {"role": "system", "content": "Never invent values."},
+          {"role": "assistant", "content": "The current checkout order contains two items priced at 35 each, so the total is 70."},
+          {"role": "user", "content": "What is the total for the current order?"}
+        ]
+      },
+      "sidecar": {"segments": {"/messages/1/content": {"eligible": true}}},
+      "segments": [
+        {"pointer": "/messages/0/content", "role": "system", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "protected_structure"},
+        {"pointer": "/messages/1/content", "role": "assistant", "expected_status": "eligible", "expected_suggestion": "retain", "expected_reason_code": "model_retain"},
+        {"pointer": "/messages/2/content", "role": "user", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "protected_structure"}
+      ],
+      "expected_gate": {"status": "scored", "reason": "shadow_only", "all_retain": true, "segments_observed": true},
+      "downstream": {"required_strings": ["two items", "35", "70"], "expected_answer": "70"}
+    },
+    {
+      "case_id": "dependency_retains_stale_note",
+      "kind": "dependency_retains_stale_note",
+      "wire_format": "openai_chat",
+      "description": "A later correction depends on the stale value it corrects; dependency closure must retain the old note even if the scorer calls it irrelevant.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {"role": "system", "content": "Preserve corrections."},
+          {"role": "assistant", "content": "Draft note: endpoint alpha was configured on port 8123."},
+          {"role": "assistant", "content": "Correction to the previous draft: endpoint alpha is now configured on port 8124."},
+          {"role": "user", "content": "Which port should endpoint alpha use now?"}
+        ]
+      },
+      "sidecar": {"segments": {
+        "/messages/1/content": {"eligible": true},
+        "/messages/2/content": {"depends_on": ["/messages/1/content"]}
+      }},
+      "segments": [
+        {"pointer": "/messages/0/content", "role": "system", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "protected_structure"},
+        {"pointer": "/messages/1/content", "role": "assistant", "expected_status": "eligible", "expected_suggestion": "retain", "expected_reason_code": "required_dependency"},
+        {"pointer": "/messages/2/content", "role": "assistant", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "not_explicitly_eligible"},
+        {"pointer": "/messages/3/content", "role": "user", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "protected_structure"}
+      ],
+      "expected_gate": {"status": "scored", "reason": "shadow_only", "all_retain": true, "segments_observed": true},
+      "downstream": {"required_strings": ["8123", "Correction", "8124"], "expected_answer": "8124"}
+    },
+    {
+      "case_id": "tool_result_plus_irrelevant_note",
+      "kind": "tool_result_plus_irrelevant_note",
+      "wire_format": "openai_chat",
+      "description": "The tool call/result pair is required; a separate archived assistant note is removable.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {"role": "system", "content": "Use recorded tool results."},
+          {"role": "assistant", "tool_calls": [{"id": "call-sku-123", "type": "function", "function": {"name": "lookup_inventory", "arguments": "{\"sku\":\"123\"}"}}]},
+          {"role": "tool", "content": "sku=123; status=in_stock; quantity=18", "tool_call_id": "call-sku-123"},
+          {"role": "assistant", "content": "Archived travel note: a previous itinerary discussed rail stations and hotel breakfast times unrelated to inventory or SKU 123."},
+          {"role": "user", "content": "What is the current inventory status for SKU 123?"}
+        ]
+      },
+      "sidecar": {"segments": {"/messages/3/content": {"eligible": true}}},
+      "segments": [
+        {"pointer": "/messages/0/content", "role": "system", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "protected_structure"},
+        {"pointer": "/messages/1/tool_calls", "role": "control", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "protected_structure"},
+        {"pointer": "/messages/2/tool_call_id", "role": "control", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "protected_structure"},
+        {"pointer": "/messages/2/content", "role": "tool", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "protected_structure"},
+        {"pointer": "/messages/3/content", "role": "assistant", "expected_status": "eligible", "expected_suggestion": "drop", "expected_reason_code": "high_irrelevance_score"},
+        {"pointer": "/messages/4/content", "role": "user", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "protected_structure"}
+      ],
+      "expected_gate": {"status": "scored", "reason": "shadow_only", "all_retain": false, "segments_observed": true},
+      "downstream": {"required_strings": ["sku=123", "in_stock", "quantity=18"], "expected_answer": "in_stock"}
+    },
+    {
+      "case_id": "mixed_message_part",
+      "kind": "mixed_message_part",
+      "wire_format": "openai_chat",
+      "description": "Only the second text part of one assistant message is irrelevant and eligible for removal.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {"role": "system", "content": "Preserve required evidence."},
+          {"role": "assistant", "content": [
+            {"type": "text", "text": "The API contract uses endpoint /v1/status and timeout 30 seconds."},
+            {"type": "text", "text": "Unrelated aside: the earlier design meeting also debated a cafeteria menu."}
+          ]},
+          {"role": "user", "content": "Which endpoint and timeout does the API contract use?"}
+        ]
+      },
+      "sidecar": {"segments": {"/messages/1/content/1/text": {"eligible": true}}},
+      "segments": [
+        {"pointer": "/messages/0/content", "role": "system", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "protected_structure"},
+        {"pointer": "/messages/1/content/0/text", "role": "assistant", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "not_explicitly_eligible"},
+        {"pointer": "/messages/1/content/1/text", "role": "assistant", "expected_status": "eligible", "expected_suggestion": "drop", "expected_reason_code": "high_irrelevance_score"},
+        {"pointer": "/messages/2/content", "role": "user", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "protected_structure"}
+      ],
+      "expected_gate": {"status": "scored", "reason": "shadow_only", "all_retain": false, "segments_observed": true},
+      "downstream": {"required_strings": ["/v1/status", "30 seconds"], "expected_answer": "/v1/status and 30 seconds"}
+    },
+    {
+      "case_id": "exact_duplicate",
+      "kind": "exact_duplicate",
+      "wire_format": "openai_chat",
+      "description": "A later exact duplicate of an irrelevant assistant note is eligible; the deterministic dedup arm should keep the first and remove the second.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {"role": "system", "content": "Use the recorded order total."},
+          {"role": "assistant", "content": "Archived weather note: yesterday's forecast mentioned rain and wind."},
+          {"role": "assistant", "content": "The current order total is 70."},
+          {"role": "assistant", "content": "Archived weather note: yesterday's forecast mentioned rain and wind."},
+          {"role": "user", "content": "What is the current order total?"}
+        ]
+      },
+      "sidecar": {"segments": {
+        "/messages/1/content": {"eligible": true},
+        "/messages/3/content": {"eligible": true}
+      }},
+      "segments": [
+        {"pointer": "/messages/0/content", "role": "system", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "protected_structure"},
+        {"pointer": "/messages/1/content", "role": "assistant", "expected_status": "eligible", "expected_suggestion": "retain", "expected_reason_code": "model_retain"},
+        {"pointer": "/messages/2/content", "role": "assistant", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "not_explicitly_eligible"},
+        {"pointer": "/messages/3/content", "role": "assistant", "expected_status": "eligible", "expected_suggestion": "drop", "expected_reason_code": "high_irrelevance_score"},
+        {"pointer": "/messages/4/content", "role": "user", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "protected_structure"}
+      ],
+      "expected_gate": {"status": "scored", "reason": "shadow_only", "all_retain": false, "segments_observed": true},
+      "downstream": {"required_strings": ["order total", "70"], "expected_answer": "70"}
+    },
+    {
+      "case_id": "long_tail_noise",
+      "kind": "long_tail_noise",
+      "wire_format": "openai_chat",
+      "description": "A long irrelevant project note should provide measurable hypothetical savings if removed.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {"role": "system", "content": "Answer only from current evidence."},
+          {"role": "assistant", "content": "The billing service health check endpoint is /health/billing and it returns ok."},
+          {"role": "assistant", "content": "Archived planning note from an unrelated migration: we discussed office seating, badge printers, snack delivery, moving calendars, desk labels, cable bins, chair counts, plant placement, whiteboard markers, cleaning schedules, parking passes, guest wifi, meeting room names, storage closets, spare keyboards, and whether the lobby sign should use a brighter color. The note continues with printer toner vendors, reusable mugs, hallway plants, elevator notices, recycling instructions, badge lanyards, visitor stickers, and a long reminder about Friday desk cleanup. It does not mention billing, HTTP endpoints, health checks, service status, response payloads, or any technical detail needed for the current request."},
+          {"role": "user", "content": "What does the billing service health check return?"}
+        ]
+      },
+      "sidecar": {"segments": {"/messages/2/content": {"eligible": true}}},
+      "segments": [
+        {"pointer": "/messages/0/content", "role": "system", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "protected_structure"},
+        {"pointer": "/messages/1/content", "role": "assistant", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "not_explicitly_eligible"},
+        {"pointer": "/messages/2/content", "role": "assistant", "expected_status": "eligible", "expected_suggestion": "drop", "expected_reason_code": "high_irrelevance_score"},
+        {"pointer": "/messages/3/content", "role": "user", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "protected_structure"}
+      ],
+      "expected_gate": {"status": "scored", "reason": "shadow_only", "all_retain": false, "segments_observed": true},
+      "downstream": {"required_strings": ["/health/billing", "ok"], "expected_answer": "ok"}
+    },
+    {
+      "case_id": "ambiguous_history",
+      "kind": "ambiguous_history",
+      "wire_format": "openai_chat",
+      "description": "An old inventory note could be relevant, but it is not clearly irrelevant; the scorer should retain it.",
+      "body": {
+        "model": "synthetic",
+        "messages": [
+          {"role": "system", "content": "Prefer current evidence but preserve uncertainty."},
+          {"role": "assistant", "content": "Last month's archived inventory report said SKU 123 was out of stock pending supplier confirmation."},
+          {"role": "assistant", "content": "Today's recorded inventory result says SKU 123 is in stock with quantity 18."},
+          {"role": "user", "content": "Is SKU 123 currently in stock?"}
+        ]
+      },
+      "sidecar": {"segments": {"/messages/1/content": {"eligible": true}}},
+      "segments": [
+        {"pointer": "/messages/0/content", "role": "system", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "protected_structure"},
+        {"pointer": "/messages/1/content", "role": "assistant", "expected_status": "eligible", "expected_suggestion": "retain", "expected_reason_code": "model_retain"},
+        {"pointer": "/messages/2/content", "role": "assistant", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "not_explicitly_eligible"},
+        {"pointer": "/messages/3/content", "role": "user", "expected_status": "protected", "expected_suggestion": "retain", "expected_reason_code": "protected_structure"}
+      ],
+      "expected_gate": {"status": "scored", "reason": "shadow_only", "all_retain": true, "segments_observed": true},
+      "downstream": {"required_strings": ["Today's", "in stock", "quantity 18"], "expected_answer": "in stock"}
+    }
+  ]
+}

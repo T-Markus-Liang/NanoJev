@@ -1,0 +1,124 @@
+{
+  "schema_version": "nanojev-financial-baselines-protocol-v1",
+  "status": "frozen_preflight_not_fit_authorized",
+  "created_utc": "2026-09-20",
+  "purpose": "T11 B3/R3 event-probability baselines on the owner-frozen R1 cohort; no action utility, trading, or profitability claim",
+  "upstream_r1": {
+    "protocol_path": "research/financial_experiment_protocol_v2.json",
+    "protocol_sha256": "ab1eec401e14ee20d37a43ff4a5cca962dc60f58abc357a2f95fcc8fbcef1340",
+    "bound_receipt_path": "results/financial_pit_r1_bound_receipt_20260920_v5.json",
+    "bound_receipt_sha256": "424c18040c91703e8ce464ccb6bf668e6f702c572a9eed13f95d2974eb79e8a5",
+    "dataset_sha256": "ab38bae12eb79e2811fcd09293375c8372339015073eda2cb7c0858a3cfb395d",
+    "validator_sha256": "96e8be1998333e1ea16b80d754898ebe824f4df6be7d2529bf8734e307115c53",
+    "core_sha256": "480786b10ac50c7705da87f2bb501191af49642222f0b4148f7801ff7f8ad347",
+    "scope_note": "R1 receipt proves timestamp/label isolation and nonempty PIT phases only; it is not a baseline result or training authorization."
+  },
+  "cohort": {
+    "venue": "binance_um",
+    "contract": "USDT-linear perpetual",
+    "records": 3266,
+    "features": [
+      "funding_interval_hours",
+      "index_price",
+      "last_funding_rate",
+      "mark_index_basis_bps",
+      "mark_price",
+      "open_interest_level",
+      "open_interest_log_change_1d",
+      "quote_volume",
+      "realized_vol_24bar",
+      "taker_buy_ratio",
+      "trade_count"
+    ],
+    "label_event": "perp_forward_mark_return_up_25bps_1d_gross",
+    "model_input": "The T11 runner projects only the 11 feature values in the declared order. asset_id, venue, decision_ns, record ID, label, fold, group and regime metadata never enter a predictor. financial_pit_v1.model_input is an audit projection and must not be passed to an estimator."
+  },
+  "fold_policy": {
+    "source": "upstream_r1.pit_validator_core",
+    "phases": ["train", "dev", "calibration", "test"],
+    "selection": "dev metrics on primary instruments only; test is never used for model, seed, or threshold selection",
+    "calibration": "calibration metrics on primary instruments only; no fitted calibration transform is part of T11 v1",
+    "fit_rows": "Retained train rows from the unmodified R1 validator, restricted to primary instruments. No calendar stress exclusion is applied in T11.",
+    "step_zero": true,
+    "empty_phase_rule": "Any empty phase after instrument restriction is a hard preflight failure; no fold may be skipped."
+  },
+  "instrument_holdout": {
+    "key_encoding": "UTF-8 venue + ':linear:' + asset_id",
+    "hash_sort": "SHA-256 of the full key, ascending lexicographic digest then key",
+    "groups": {
+      "primary": [
+        "binance_um:linear:SOLUSDT-PERP",
+        "binance_um:linear:ETHUSDT-PERP"
+      ],
+      "holdout_instrument_A": [
+        "binance_um:linear:BNBUSDT-PERP",
+        "binance_um:linear:XRPUSDT-PERP"
+      ],
+      "holdout_instrument_B": [
+        "binance_um:linear:BTCUSDT-PERP"
+      ]
+    },
+    "groups_sha256": "4dcac918682cfae4964424edb319bc187472540e6f5b5973cd22e05afd1dd0c0",
+    "fit_rule": "Only primary enters fitting, development, and calibration. Holdout groups are untouched until test readout.",
+    "venue_holdout": "unsatisfiable in Binance-only V1; report as limitation, never silently imply venue generalization."
+  },
+  "calendar_stress_windows": {
+    "source": "upstream R1 C8 declared list",
+    "role_in_t11": "pre-registered descriptive test strata only; no row is removed from train/dev/calibration and no metric from a stress stratum may drive selection",
+    "reason": "The first R1 dev window overlaps the 2025 stress window. Treating it as a fitting holdout would make dev empty; changing or deleting the window after seeing this would be an in-place protocol repair.",
+    "regime_masks": "Deferred to T12 B5 real-data validation. T11 does not claim point-in-time regime labels or regime-holdout generalization.",
+    "windows": [
+      {"label": "2023-03 banking-sector stress", "start": "2023-03-01", "end_inclusive": "2023-04-15"},
+      {"label": "2023-10 to 2023-11 crypto risk-asset rally", "start": "2023-10-01", "end_inclusive": "2023-11-30"},
+      {"label": "2024-01 US spot bitcoin ETP launches", "start": "2024-01-05", "end_inclusive": "2024-02-15"},
+      {"label": "2024-04 bitcoin halving", "start": "2024-04-15", "end_inclusive": "2024-05-15"},
+      {"label": "2025-02 to 2025-04 tariff-driven risk-off", "start": "2025-02-15", "end_inclusive": "2025-04-30"}
+    ]
+  },
+  "candidates": {
+    "deterministic": [
+      "always_negative",
+      "always_positive",
+      "base_rate_train_only",
+      "random_base_rate_seeded",
+      "single_feature_basis_sign"
+    ],
+    "linear": {
+      "objectives": ["ce", "brier"],
+      "initialization": "all weights and bias exactly zero",
+      "standardization": "train-only mean and positive scale, then reuse unchanged for dev/calibration/test",
+      "steps": 200,
+      "learning_rate": 0.05,
+      "l2": 0.001,
+      "minibatch": 16,
+      "seeds": [1729, 2718, 3141],
+      "budget_rule": "same objective-independent step count, batch rule and seed permutation for CE/Brier pairs; report every seed"
+    },
+    "boosted_stumps": {
+      "name": "gradient_boosted_stumps",
+      "rounds": 30,
+      "learning_rate": 0.1,
+      "seed": null,
+      "threshold_rule": "deterministic train-only adjacent-value partitions; no test-derived thresholds"
+    }
+  },
+  "metrics": {
+    "probability": ["nll", "brier", "accuracy", "ece"],
+    "ece_bins": 10,
+    "cross_entropy_definition": "mean(-y*log(clip(p,1e-15,1-1e-15))-(1-y)*log(clip(1-p,1e-15,1-1e-15)))",
+    "brier_definition": "mean((p-y)^2) for the binary event",
+    "calibration_reporting": "raw probability metrics; fitted calibration is deferred and cannot use test",
+    "interval": "paired candidate-minus-baseline 95% percentile bootstrap over whole instrument groups, shared resampled indices, seed 1729, 1000 replicates; no row-iid bootstrap",
+    "report_dimensions": ["fold", "seed", "instrument_group", "instrument", "candidate", "metric"]
+  },
+  "authorization": {
+    "real_fit_performed": false,
+    "training_authorized": false,
+    "measurement_authorized": false,
+    "network_model_calls": 0,
+    "order_submission_authorized": false,
+    "live_trading_authorized": false,
+    "approval_note": "This is a T11 protocol/preflight artifact. It does not override project review gates or authorize fitting. A separate review receipt must flip fit authorization."
+  },
+  "change_rule": "Any change to upstream hashes, instrument group, stress role, fold use, candidate budget, seed list, metric definition or interval unit creates a new protocol version; no in-place repair."
+}

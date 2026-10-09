@@ -1,0 +1,56 @@
+{
+  "schema_version": "nanojev-t9d-v4-lora-amendment-v1",
+  "created_utc": "2026-09-21",
+  "status": "frozen_executor_written",
+  "amends": {
+    "v2_protocol": "research/nanojev_v2_t9d_fp32_mps_protocol_v2.json",
+    "v3_amendment": "research/nanojev_v2_t9d_v3_amendment_v1.json"
+  },
+  "rationale": [
+    "W42: full-backbone FP32 on 102-question train overfits instantly (dev selects step 0)",
+    "W44-C: at v3 scale (1080 train q) head-only arm wins on heldout (0.522 vs 0.464 baseline); full arm 0.473 no net gain — trainable-params vs data mismatch is the binding constraint",
+    "T9b Option B (kev-faithful): LoRA r16 on frozen backbone interpolates between head-only and full-backbone"
+  ],
+  "design": {
+    "arm": "lora_r16_frozen_backbone",
+    "trainer": "scripts/train_pipeline_decisions_v4.py",
+    "lora": {
+      "rank": 16,
+      "alpha": 32.0,
+      "dropout": 0.05,
+      "lr": 5e-05,
+      "targets": "all attention+MLP projections (kev-faithful)"
+    },
+    "merge": "LoRA merged into saved best.safetensors so predict_toy_decisions.py loads unmodified",
+    "init_checkpoint": "checkpoints/local_atomic_seed17/variants/local_atomic_seed17",
+    "input": "research/engineering_judgment_corpus_v3/trainer_view",
+    "objective": "gold_distribution",
+    "loss": "ce",
+    "steps": 300,
+    "head_steps": 0,
+    "eval_every": 50,
+    "batch_questions": 16,
+    "microbatch_questions": 4,
+    "max_microbatch_tokens": 16384,
+    "max_length": 2048,
+    "head_lr": 0.0002,
+    "device": "mps",
+    "precision": "fp32",
+    "seeds": [
+      17,
+      18,
+      19
+    ],
+    "output_dirs": "checkpoints/domain_adaptation_v4_lora_seed{17,18,19}"
+  },
+  "selection": "dev target CE only; test/heldout eval once",
+  "honest_limits": [
+    "heldout n=69 ±6pp",
+    "no Jev-teacher data",
+    "not promoted; no deployment authorization"
+  ],
+  "authorization": {
+    "training_authorized": true,
+    "by": "owner directive 2026-09-21 (按计划推进), standing local-experiment authorization recorded W32/W35"
+  }
+}

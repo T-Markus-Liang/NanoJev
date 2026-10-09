@@ -1,0 +1,36 @@
+# colab_requirements_v1.txt — Colab-adapted package list (2026-10-08)
+# Derived from research/remote_archive/pip_freeze_20260928.txt (L40 valen-venv).
+# Adaptations:
+#   - torch/torchvision/triton NOT pinned: Colab ships torch 2.11.0+cu130;
+#     L40 used 2.14.0+cu130. To upgrade for stricter parity, uncomment below.
+#   - nvidia-*-cu1x wheels omitted: provided by torch's own deps.
+#   - causal-conv1d NOT here: installed from patched sm89 sdist separately.
+#   - hf-mirror NOT needed: huggingface.co is reachable from Colab VMs.
+transformers==5.17.0
+accelerate==1.15.0
+peft==0.21.0
+fla-core==0.5.2
+flash-linear-attention==0.5.2
+einops==0.8.2
+tokenizers==0.23.2
+safetensors==0.8.0
+numpy==2.5.2
+av==16.1.0
+pillow==12.3.0
+psutil==7.2.2
+tqdm==4.70.1
+typer==0.27.2
+rich==15.0.0
+huggingface_hub==1.7.1
+hf-xet==1.6.0
+PyYAML==6.0.3
+regex==2026.9.10
+ninja==1.13.2
+packaging==26.3
+setuptools==78.1.0
+
+# Optional — only for JEMM serving comparisons (pulls its own deps):
+# jemm @ git+https://github.com/ypcypc/JEMM@6822fe0fd53c5e6670af6ba99fb2c857a661e532
+
+# Optional — strict torch parity with L40 (replaces preinstalled 2.11.0+cu130):
+# torch==2.14.0 --index-url https://download.pytorch.org/whl/cu130

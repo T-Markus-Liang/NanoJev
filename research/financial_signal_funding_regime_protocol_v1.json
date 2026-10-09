@@ -1,0 +1,54 @@
+{
+ "schema_version": "nanojev-financial-signal-funding-regime-protocol-v1",
+ "created_utc": "2026-09-30T00:00:00Z",
+ "purpose": "T94: formalize the funding-sign regime conditioning discovered in T89. T89 showed the hourly funding_pct signal exists only in positive-funding regimes (Jul-Aug ~87% positive funding) and halves/loses FDR when negative-funding months are added (Apr-Jun 44-50% positive). The daily-scale spec research/financial_signal_spec_v1.json gates on BTC trend; this task measures whether a funding-sign regime gate is the conditioning variable at hourly scale, and cross-checks the same gate on the daily cohort. Measurement only — no fitting, no trading, no profitability claims.",
+ "cohorts": {
+  "hourly": {
+   "path": "data/perp_pit_intraday_v1/records.jsonl",
+   "records": 17960,
+   "assets": ["BNBUSDT-PERP", "BTCUSDT-PERP", "ETHUSDT-PERP", "SOLUSDT-PERP", "XRPUSDT-PERP"],
+   "granularity": "1h",
+   "span": "2026-04-02T00 .. 2026-08-31T19 UTC",
+   "label": "label.forward_return_bps (4h forward mark move, bps, gross)"
+  },
+  "daily": {
+   "path": "data/perp_pit_v1/records.jsonl",
+   "records": 6554,
+   "assets": ["BNBUSDT-PERP", "BTCUSDT-PERP", "ETHUSDT-PERP", "SOLUSDT-PERP", "XRPUSDT-PERP"],
+   "granularity": "1d",
+   "span": "2023-01-25 .. 2026-08-30 UTC",
+   "label": "5d forward mark log return computed from features.mark_price (same construction as financial_signal_regime_v1 / labels_v4)"
+  }
+ },
+ "regime_definition": {
+  "rule": "At each record, share_pos = fraction of the trailing window with last_funding_rate > 0 (window EXCLUDES the current record; zeros count as non-positive). regime = positive if share_pos > 0.6, negative if share_pos < 0.4, mixed otherwise.",
+  "hourly_window": "trailing-90 records per asset (~90h)",
+  "daily_window": "trailing-180 records per asset (~180d)",
+  "daily_cells": "primary split is positive (share>0.6) vs non-positive (share<=0.6, i.e. mixed+negative pooled); the 3-way split is reported as detail"
+ },
+ "arms": {
+  "R1_coverage": "regime cell counts per asset and monthly positive-funding share (context tying to the T89 observation)",
+  "R2_hourly_spearman_by_regime": "funding_pct (trailing-90-record mid-rank pct of last_funding_rate, per asset) -> 4h fwd bps Spearman WITHIN each regime cell (positive/mixed/negative). Question: does rho live only in the positive regime?",
+  "R3_hourly_f2b2_by_regime": "hourly f2b2 analog: arm = funding_pct>=0.80 AND basis_pct>=0.66 (trailing-90 pcts); Welch mean-diff of 4h fwd bps, arm vs rest, within each regime cell",
+  "R4_daily_crosscheck": "daily cohort, per-asset trailing-180 sign share; funding_pct (trailing-180 mid-rank pct) -> 5d log(mark) Spearman within positive vs non-positive regime (3-way split as detail). Question: is the daily funding-follow signal also positive-regime-specific?"
+ },
+ "statistics": {
+  "spearman": "mid-rank Spearman rho, normal-approx t/p (project convention, same as financial_signal_intraday_v1); min n=10",
+  "welch": "Welch two-sample t on mean fwd bps, normal-approx two-sided p; min n=10 per side",
+  "multiple_testing": "BH-FDR alpha=0.05 per family: {R2: 3 cells}, {R3: 3 contrasts}, {R4: 2 cells} — families not pooled across arms",
+  "reported_per_cell": ["n", "rho", "t", "p", "fdr_pass"],
+  "reported_per_contrast": ["n_arm", "n_rest", "mean_arm_bps", "mean_rest_bps", "diff_bps", "t", "p", "fdr_pass"],
+  "caveats": [
+   "4h forward labels on 1h bars overlap ~4x and 5d labels on 1d bars overlap ~5x -> positive autocorrelation; p-values nominal/optimistic",
+   "regime and funding_pct share the same trailing funding window -> regime membership is mechanically correlated with the score; the split is a conditioning measurement, not an independent gate",
+   "BNBUSDT daily carries last_funding_rate=0 on ~56% of records across the full span; zeros count as non-positive share, so BNB never enters the positive regime",
+   "daily non-positive cell pools mixed+negative -> smaller n and heterogeneous composition; 3-way detail reported for transparency"
+  ]
+ },
+ "forbidden": [
+  "fitting",
+  "trading",
+  "profitability claims",
+  "protocol edits post-run"
+ ]
+}

@@ -1,0 +1,21 @@
+{
+ "schema_version": "nanojev-financial-signal-crossvenue-protocol-v1",
+ "created_utc": "2026-09-24T00:00:00Z",
+ "purpose": "T80: Binance-Bybit funding spread (PIT last-settlement at decision_ns) -> 5d forward mark return. Local pinned data only, no network.",
+ "inputs": {
+  "cohort": "data/perp_pit_v1/records.jsonl",
+  "bybit": "data/venue_perp_v1/bybit/*.funding.json (fetch_manifest hash-pinned)"
+ },
+ "arms": [
+  "spread_pct spearman",
+  "top/bottom decile vs mid",
+  "inside f2b2: spread>=0.5 vs <0.5",
+  "test-fold spearman"
+ ],
+ "forbidden": [
+  "fitting",
+  "trading",
+  "claims",
+  "network calls"
+ ]
+}

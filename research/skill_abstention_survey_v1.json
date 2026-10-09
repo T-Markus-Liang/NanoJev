@@ -1,0 +1,151 @@
+{
+  "schema_version": "nanojev-skill-abstention-survey-v1",
+  "purpose": "Thirteen bounded engineering-judgment questions used to measure the local skill's abstention rate. Recorded so the measurement is reproducible and independently checkable.",
+  "request": {
+    "states": [
+      {
+        "id": "phase",
+        "state": "NanoJev V2 work: B0 measurement integrity is not done; gateway, reversible filtering and A4 are delivered; user asked which phase comes next.",
+        "questions": {
+          "next_phase": {
+            "type": "choice",
+            "instructions": "Which engineering lifecycle phase should run next?",
+            "criteria": {
+              "development": "Write new implementation code",
+              "testing": "Run and extend tests",
+              "optimization": "Tune measured performance",
+              "deployment": "Ship to production"
+            }
+          },
+          "b0_first": {
+            "type": "boolean",
+            "instructions": "Should B0 measurement integrity be completed before financial baselines?",
+            "criteria": {}
+          },
+          "blocked": {
+            "type": "boolean",
+            "instructions": "Is the project currently blocked from making financial claims?",
+            "criteria": {}
+          }
+        }
+      },
+      {
+        "id": "tests",
+        "state": "A change touched scripts/paper_trade_perp_v1.py and scripts/financial_simulator_v1.py. The full suite has 380 tests.",
+        "questions": {
+          "which_test": {
+            "type": "choice",
+            "instructions": "Which test action is most appropriate?",
+            "criteria": {
+              "full": "Run the full unittest suite",
+              "targeted": "Run only the touched modules' tests",
+              "none": "Skip tests"
+            }
+          },
+          "needs_new_test": {
+            "type": "boolean",
+            "instructions": "Does a behavior change require a new test?",
+            "criteria": {}
+          }
+        }
+      },
+      {
+        "id": "routing",
+        "state": "A request is a long coding-agent history with about 400 scorable segments. The local gate can score at most 32 candidates.",
+        "questions": {
+          "route": {
+            "type": "choice",
+            "instructions": "Which component should handle this request?",
+            "criteria": {
+              "main_model": "Send all context to the main model",
+              "gate_bypass": "Let the gate bypass with scoring_budget_exceeded",
+              "batch_merge": "Batch the scoring and merge removal plans"
+            }
+          },
+          "safe_to_drop": {
+            "type": "boolean",
+            "instructions": "Is it safe to drop context without a validated gate?",
+            "criteria": {}
+          }
+        }
+      },
+      {
+        "id": "failure",
+        "state": "A test failed with AssertionError: expected {basis_blowout} but got {vol_high} in the regime priority test.",
+        "questions": {
+          "kind": {
+            "type": "choice",
+            "instructions": "What kind of problem is this?",
+            "criteria": {
+              "code_bug": "A bug in the implementation",
+              "test_bug": "The test expectation is wrong",
+              "data_bug": "The input data is wrong",
+              "flaky": "Non-deterministic flakiness"
+            }
+          },
+          "is_regression": {
+            "type": "boolean",
+            "instructions": "Does this indicate a product regression?",
+            "criteria": {}
+          }
+        }
+      },
+      {
+        "id": "risk",
+        "state": "A script is about to write results into the repository and push to a remote branch. The user authorized committing and pushing.",
+        "questions": {
+          "action": {
+            "type": "choice",
+            "instructions": "What should happen next?",
+            "criteria": {
+              "commit_push": "Commit and push as authorized",
+              "ask": "Ask the user again",
+              "abort": "Abort the operation"
+            }
+          },
+          "check_secrets": {
+            "type": "boolean",
+            "instructions": "Should the staged files be scanned for secrets before committing?",
+            "criteria": {}
+          }
+        }
+      },
+      {
+        "id": "quality",
+        "state": "Local model checkpoint local_atomic_seed17: local-maze test accuracy 77.84%, OOD 76.56%, ECE 0.0851, 0 invalid outputs. It proposes zero context removals.",
+        "questions": {
+          "level": {
+            "type": "score",
+            "instructions": "Rate the readiness of this checkpoint for production context filtering.",
+            "criteria": [
+              "not ready",
+              "early prototype",
+              "usable with supervision",
+              "production ready"
+            ]
+          },
+          "token_savings": {
+            "type": "boolean",
+            "instructions": "Does this checkpoint currently save tokens?",
+            "criteria": {}
+          }
+        }
+      }
+    ]
+  },
+  "expected_answers": {
+    "b0_first": "true",
+    "blocked": "true",
+    "needs_new_test": "true",
+    "safe_to_drop": "false",
+    "check_secrets": "true",
+    "token_savings": "false"
+  },
+  "expected_answers_note": "Only questions whose answer is fixed by this project's own recorded facts are listed. The other seven have no single defensible ground truth and are therefore excluded from any accuracy figure.",
+  "measured_2026_09_19": {
+    "abstained_at_0_9": "13/13",
+    "max_confidence": 0.736,
+    "accuracy_on_expected": "3/6",
+    "note": "see docs/NANOJEV_SKILL_READINESS_V1.md"
+  }
+}

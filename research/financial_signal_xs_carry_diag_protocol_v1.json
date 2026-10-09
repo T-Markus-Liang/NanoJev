@@ -1,0 +1,30 @@
+{
+  "cohort": {
+    "path": "data/perp_pit_mega_v1/records.jsonl",
+    "portfolio": "per decision day with >=30 ranked assets: long BOTTOM decile / short TOP decile of funding_pct, k=max(1,n//10), equal weight, daily rebalance; label fwd_5d_bps (1d shown only inside reused T112 helpers)",
+    "score": "funding_pct = per-asset mid-rank pct of last_funding_rate vs trailing-180 daily values (MIN_WINDOW=20), imported verbatim from financial_signal_xs_mega_v1.load_cohort",
+    "universe": "the ~52 symbols with non-null features.last_funding_rate (same as T112 funding arm)"
+  },
+  "created_utc": "2026-09-24T13:53:26Z",
+  "diagnostics": {
+    "D1": "per-year spread+legs; ex-2021 pooled; per-symbol contribution c_a=sum(+-fwd/k) with top-1/top-3 concentration shares; decile-membership frequency; funding-sign regime: day share_pos>0.6 positive, <0.4 negative (T94 thresholds), primary split positive vs non-positive, plus leg-level sign splits",
+    "D2": "pooled long-leg vs short-leg vs universe mean fwd_5d, per year; Welch; explicit carry-vs-reversal and leg-attribution interpretation",
+    "D3": "within-day 3x3 funding tercile x dfh20 tercile -> pooled mean fwd_5d per cell, marginals, within-dfh-tercile funding spreads and within-funding-tercile dfh spreads",
+    "D4": "per-asset funding_pct Pearson autocorr lags 1/5/10/20 (mean/median/pooled); between- vs within-symbol variance ICC (fixed-identity check); next-day decile-membership retention; stale-5-bar funding_pct re-rank spread vs fresh",
+    "D5": "mega.net_sim turnover + net at 5bps/leg overall and per year; breakeven cost = gross/turnover; reference dfh20/mom20 rank-book turnover restricted to the same 52 funded symbols",
+    "D6": "rule-based verdict over the D1-D5 evidence: (a) regime-dependent, (b) identity/slow-variable artifact, (c) noise/FDR luck; spec-candidate recommendation"
+  },
+  "forbidden": [
+    "fitting",
+    "trading",
+    "profitability claims",
+    "protocol edits post-run",
+    "network"
+  ],
+  "purpose": "T115: diagnose WHY the T112 XS funding_pct decile carry arm (+76.1bps/5d, t=3.58, FDR-pass, 3/5 folds) is unstable \u2014 fold decomposition, symbol concentration, funding-sign regime (T94), leg/direction check, dfh20 3x3 interaction, funding_pct persistence/identity-proxy and stale-rank test, turnover+net at 5bps/leg vs same-universe price-rank books; then verdict (a) regime-dependent / (b) identity artifact / (c) FDR luck and a spec-candidate recommendation.",
+  "schema_version": "nanojev-financial-signal-xs-carry-diag-protocol-v1",
+  "statistics": {
+    "nominal_only": "all t/p nominal \u2014 5d overlapping labels autocorrelate adjacent days; pooled asset-days correlate within a day",
+    "replication": "fresh-score spread must equal the T112 funding_pct_carry h5 run (mean 76.102bps, n=1785 days); checked in-report"
+  }
+}

@@ -1,0 +1,25 @@
+{
+ "schema_version": "nanojev-financial-signal-fit-protocol-v1",
+ "created_utc": "2026-09-24T00:00:00Z",
+ "purpose": "T78: ridge regression on continuous 5d mark-return label. First fitted-model step past the falsified binary label; features = trailing-180 percentiles + funding*basis cross (the confirmed signal).",
+ "cohort": {
+  "path": "data/perp_pit_v1/records.jsonl",
+  "records": 6554
+ },
+ "features": [
+  "funding_pct",
+  "basis_pct",
+  "rv_pct",
+  "abnvol_pct",
+  "taker_pct",
+  "funding_pct*basis_pct"
+ ],
+ "target": "log(mark[t+5]/mark[t])",
+ "discipline": "train fit / dev lambda-select / single test readout per frozen fold; zero-mean and train-mean baselines",
+ "forbidden": [
+  "trading",
+  "promotion claims",
+  "protocol edits post-fit",
+  "label peeking"
+ ]
+}

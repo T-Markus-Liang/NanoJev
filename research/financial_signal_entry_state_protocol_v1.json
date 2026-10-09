@@ -1,0 +1,50 @@
+{
+  "cohort": {
+    "assets": "277 USDT-M perps (>=200 daily bars), imported data/rc_futures_v1 archive copy; includes delisted/renamed early-stoppers",
+    "btc_gate_source": "data/rc_futures_v1/BTC/BTCUSDT_1d.csv",
+    "builder": "scripts/build_perp_pit_mega_v1.py",
+    "path": "data/perp_pit_mega_v1/records.jsonl",
+    "price_basis": "csv close as the mark proxy for every symbol",
+    "targets": "label.forward_return_5d_bps (5d gross close-to-close) plus close-series-derived 10d forward return, MFE_10d and MAE_10d"
+  },
+  "created_utc": "2026-09-24T15:40:35Z",
+  "definitions": {
+    "breaking": "mom20 > 0 AND dfh20 < -0.12",
+    "dfh20": "precomputed feature: close / max(close[i-20:i]) - 1 (strictly prior 20 contiguous bars)",
+    "euphoric": "dfh20 XS top-tercile AND funding_pct >= 2/3",
+    "extended": "dfh20 > -0.01",
+    "funding_pct": "per-asset mid-rank pct of last_funding_rate vs its trailing-180 daily values (MIN_WINDOW=20); tercile cutoffs fixed at 1/3 and 2/3; funded subset only (~52 syms)",
+    "gate": "BTC close/close[t-20]-1 > 0 on the decision day; analysis set = gate-ON asset-days (gate-off reported as context only)",
+    "mae_10d_bps": "min(close[t+1..t+10])/close[t]-1 in bps; same contiguity requirement",
+    "mfe_10d_bps": "max(close[t+1..t+10])/close[t]-1 in bps; requires 10 contiguous forward daily bars",
+    "mom20": "precomputed feature: close / close[i-20] - 1",
+    "pullback": "-0.12 <= dfh20 <= -0.03 AND close > previous contiguous day's close",
+    "quality_score": "mean_fwd_10d_bps x (mean_MFE / |mean_MAE|)",
+    "stealth_rally": "dfh20 XS top-tercile AND funding_pct <= 1/3",
+    "vol20": "precomputed feature: 20-bar close-return volatility",
+    "xs_tercile": "mid-rank pct of the feature among assets with non-null values on the same decision day (>=30 assets required): top >= 2/3, bottom <= 1/3"
+  },
+  "forbidden": [
+    "fitting",
+    "trading",
+    "profitability claims",
+    "protocol edits post-run",
+    "network"
+  ],
+  "purpose": "T117: measure entry STATES for a rolling-compounding long campaign on the mega cohort \u2014 'when to start rolling'. Within BTC-trend-up days (gate = BTC close ret20 > 0 from data/rc_futures_v1/BTC/BTCUSDT_1d.csv), score each asset-day on PIT-computable state dimensions (dfh20 XS tercile, pullback/extended/breaking states, funding_pct tercile on the funded subset, vol20 XS tercile) and report per-cell fwd 5d/10d returns plus 10d MFE/MAE path stats. Welch contrasts under a <=10-cell BH-FDR family; per-year folds for the top-3 cells; verdict ranks cells by mean_fwd10 x MFE/|MAE| and recommends a composite entry rule. Measurement only \u2014 no fitting, no trading, no profitability claims.",
+  "schema_version": "nanojev-financial-signal-entry-state-protocol-v1",
+  "statistics": {
+    "caveats": [
+      "pooled Welch treats same-day cross-asset returns as independent; they share market beta \u2014 nominal only",
+      "5d/10d overlapping labels autocorrelate adjacent days",
+      "MFE/MAE are close-to-close extrema, not intrabar; liq-relevant wicks are invisible at 1d granularity",
+      "state cells overlap (an asset-day can be pullback AND vol_low); cells are not a partition",
+      "universe composition changes as symbols list/delist; early stop = delisted OR renamed proxy",
+      "second-hand archive copy, not an as-of vintage"
+    ],
+    "cells": "n, mean, median, pos_frac per column; n_path = asset-days with the full 10d contiguous window",
+    "contrasts": "pooled Welch two-sample t on asset-day returns, 5 named contrasts x {5d,10d} = 10-cell family",
+    "fdr": "Benjamini-Hochberg alpha=0.05 over the 10 contrast cells",
+    "folds": "per-calendar-year means for the top-3 quality-ranked cells (n >= 200, n_path >= 150)"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "schema_version": "nanojev-dual-benchmark-protocol-v1",
+  "status": "public_diagnostic_runs_allowed_milestone_gated",
+  "purpose": "Every future NanoJev candidate must report two separate benchmark tracks: a pinned public benchmark for external interpretability and an independently authored deep benchmark for internal capability, calibration, OOD, and protected-error diagnosis. The two tracks are reported side by side and are never averaged into an unstated composite.",
+  "tracks": {
+    "public_benchmark": {
+      "name": "JevBench public milestone",
+      "contract": "research/jevbench_adapter_contract_v1.json",
+      "contract_sha256": "a3cb357964898ee706ff5695b72968bf28707ac0d4ecd13d9972da5855a7ba06",
+      "source": {
+        "repo": "https://github.com/fstandhartinger/jevbench",
+        "license": "MIT",
+        "pinned_revision": "83831807458d7df424a1e53e5724f3a3ffe2cf89",
+        "revision_tag": "v1.2.4",
+        "decisions_per_full_run": 534
+      },
+      "role": "external comparability; public diagnostic evidence now, official milestone evidence later",
+      "public_diagnostic_rule": "pinned public rows may be run on unfrozen candidates when needed; each diagnostic run is logged and is not promotion evidence",
+      "one_shot_rule": "one official milestone run per frozen candidate; no retries, no threshold tuning, no prompt changes, no per-item failure-driven repair",
+      "reporting_axes": ["Intelligence", "Calibration", "Speed", "Cost", "coverage", "abstention_would_trigger", "protected_errors"],
+      "quarantine": "public task rows, outcomes, and external outputs are evaluation-only and are never used for training, calibration fitting, or per-item tuning"
+    },
+    "custom_deep_benchmark": {
+      "name": "NanoJev engineering deep benchmark",
+      "role": "internal capability, calibration, OOD, cardinality-shift, and protected-error diagnosis",
+      "components": [
+        {
+          "id": "heldout_v1",
+          "items": "research/engineering_heldout_v1/items.jsonl",
+          "items_sha256": "4b29ac0a0bc79051965c7c2a02bde633323aa1c2540817c9ee7b2bfd9f7c8b47",
+          "predict_input": "research/engineering_heldout_v1/predict_input.json",
+          "predict_input_sha256": "120f02ee49446bb154bba496768a521dd4c600048c576158029117875680b23b",
+          "questions": 69
+        },
+        {
+          "id": "heldout_v2",
+          "items": "research/engineering_heldout_v2/items.jsonl",
+          "items_sha256": "36cf1a00f3843ab665c2b5d911dbb69d0c25af3021e99517be40663e38bc9319",
+          "predict_input": "research/engineering_heldout_v2/predict_input.json",
+          "predict_input_sha256": "9da0824c6ae73ed71f64f98017d35a1f1f3abfa2b05b8f411bf07b999acd53fa",
+          "questions": 312
+        }
+      ],
+      "read_rule": "one local read per completed candidate only after checkpoint hash and CUDA-to-MPS owned parity pass",
+      "reporting_axes": ["accuracy", "coverage_at_0.9", "confident_wrong_at_0.9", "confidence_mean", "by_type", "by_cardinality", "family_aggregates", "seed_agreement"],
+      "quarantine": "heldout items may diagnose aggregate failure families but must never be copied, paraphrased, or used as direct training labels"
+    }
+  },
+  "execution_rules": {
+    "candidate_freeze_before_public_diagnostic": false,
+    "candidate_freeze_before_official_public_milestone": true,
+    "same_predictor_and_renderer": true,
+    "same_temperature": 1.0,
+    "no_retries": true,
+    "no_per_item_prompt_patching": true,
+    "no_posthoc_threshold_or_temperature_fitting_on_benchmark_rows": true,
+    "record_model_identity": ["checkpoint_sha256", "base_model", "base_revision", "device", "precision", "runtime", "predictor_sha256"],
+    "record_efficiency": ["wall_time", "per_decision_latency", "token_usage", "peak_memory", "provider_cost_if_any"],
+    "record_safety": ["coverage", "abstention_rate", "confident_wrong_at_0.9", "out_of_scope_rate"]
+  },
+  "current_reference_result": {
+    "candidate": "MiniCPM5-2B corpus-v5 seed20",
+    "dual_scorecard": "results/t9d_v7_minicpm_seed20_dual_benchmark_scorecard.json",
+    "custom_deep_benchmark_status": "heldout_v1 0.7536; heldout_v2 0.5224; not promotable",
+    "public_benchmark_status": "diagnostic public-subset run complete: 231 rows, accuracy 0.6537; official full milestone still gated"
+  },
+  "authorization": {
+    "public_benchmark_fetch_authorized": true,
+    "public_benchmark_diagnostic_run_authorized": true,
+    "public_benchmark_official_milestone_authorized": false,
+    "custom_benchmark_read_authorized_only_after_candidate_gates": true,
+    "training_authorized": false,
+    "deployment_authorized": false,
+    "candidate_promotion_authorized": false
+  }
+}

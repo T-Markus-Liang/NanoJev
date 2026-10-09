@@ -1,0 +1,44 @@
+{
+  "cohort": {
+    "assets": "every rc_futures_v1 dir with >=1000 4h bars (~283); ~52 with funding.csv",
+    "builder": "scripts/build_perp_pit_mega_4h_v1.py",
+    "eval_window": "decision bar open in 2023-01-01..2025-12-31 UTC; features use strictly-prior history; labels may extend into Jan-2026",
+    "path": "data/perp_pit_mega_4h_v1/records.jsonl",
+    "price_basis": "csv close as the mark proxy for every symbol",
+    "targets": "fwd4/fwd12/fwd24 = gross close-to-close bps over 1/3/6 contiguous 4h bars"
+  },
+  "created_utc": "2026-09-24T16:36:14Z",
+  "definitions": {
+    "funding_pct": "same construction on funding_last",
+    "funding_regime": "share of trailing-180 strictly-prior bars with funding_last>0: pos>0.6 / neg<0.4 / mix (T94); funded symbols only",
+    "mom_4h": "m4 = log(close/close[i-1]), one 4h bar return",
+    "mom_4h_pct": "per-asset mid-rank pct of m4 vs trailing-180 records (excludes current, >=60 non-null)",
+    "placebo": "fwd4 shuffled within asset, 3 LCG seeds (T82/T88 generator)",
+    "settle_cell": "primary: htsg<=2 on the assumed 00/08/16 grid (on 4h bars resolves to bars closing on a settlement; fwd4 covers the post-settlement bar) vs htsg>2; secondary: actual funding.csv schedule on >=90%-8h-cadence funded symbols",
+    "xs_decile": "per 4h bar with >=30 assets, k=max(1,n//10); long bottom-decile m4 / short top-decile"
+  },
+  "forbidden": [
+    "fitting",
+    "trading",
+    "profitability claims",
+    "protocol edits post-run",
+    "network"
+  ],
+  "purpose": "T124: re-run the intraday signal arms at mega scale on the new 4h PIT cohort (~283 symbols x 2023-2025, ~1.28M records). Replicates T96 mom_4h reversal (with funding-regime split), T93 settlement sawtooth, T88 funding carry at 24h, and adds a per-bar XS reversal arm. Measurement only \u2014 no fitting, no trading, no profitability claims.",
+  "schema_version": "nanojev-financial-signal-mega-4h-protocol-v1",
+  "statistics": {
+    "caveats": [
+      "fwd labels overlap (4h/12h/24h on 4h bars) and cross-asset bars share a market factor \u2014 all t/p nominal/optimistic; effective n << record count",
+      "pooled Spearman mixes ~283 symbols with different vol/regime composition; regime splits only cover the 52 funded symbols",
+      "universe composition changes as symbols list/delist inside the window; XS decile size floats",
+      "second-hand archive copy, not an as-of vintage; close is a mark proxy",
+      "5 funded symbols deviate from the 8h grid (PAXG 4h, IMX/KAVA mixed, LRC/SOL >90% 8h with irregular stretches) \u2014 arm B secondary restricts to the 8h subset"
+    ],
+    "determinism": "run() executed twice, byte-compared",
+    "fdr": "BH alpha=0.05 over the 7-cell headline family {A_pooled, A_regime_neg, A_regime_pos, A_decile, B_grid, C_fundpct, D_spread}",
+    "folds": "per-calendar-year 2023/2024/2025",
+    "spearman": "mid-rank rho, normal-approx t/p, min n=10",
+    "welch": "Welch two-sample t on mean fwd bps, normal-approx p, min n=10/side",
+    "xs_primary": "t-test on the per-bar spread series (nominal; labels overlap ~4x within a symbol)"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schema_version": "nanojev-financial-signal-spec-addendum-v1",
+  "parent_spec": "research/financial_signal_spec_v1.json",
+  "addendum_type": "external_venue_replication",
+  "created_utc": "2026-09-24T00:00:00Z",
+  "summary": "crowded_long_carry_follow_v1 partially replicated OFF-Binance on local Hyperliquid data (T99). The BTC-20d-trend GATED variant replicates at rho=+0.0611 (p=0.0013, FDR-pass, n=2753) — STRONGER than the Binance reference rho=+0.0422. The UNGATED variant is a powered null (rho=+0.0061, p=0.66). Conclusion: the trend gate is the operative condition and it is portable across venues; the signal is not a Binance-specific artifact.",
+  "key_numbers": {
+    "gated_rho": 0.0611, "gated_p": 0.0013, "gated_n": 2753,
+    "ungated_rho": 0.0061, "ungated_p": 0.663,
+    "down_regime_ref_rho": -0.041,
+    "top_decile_gated_bps": 209.0,
+    "hl_binance_funding_spread_rho": -0.0096
+  },
+  "evidence": "results/financial_signal_hyperliquid_v1.json (sha256 b7a975f1...)",
+  "caveats": [
+    "HL eval window is shorter/later than Binance window (2023-11 onward)",
+    "close price used (no mark/index series on HL locally)",
+    "overlapping 5d labels -> nominal p-values",
+    "per-asset replication mixed/low-power (5 coins)"
+  ],
+  "does_not_change": [
+    "frozen entry/exit definition",
+    "residual_risks section (fold1 period effect still stands)",
+    "forbidden_interpretations"
+  ],
+  "updates_confidence": "raises external-validity confidence; the trend gate requirement is strengthened (ungated replication failed)"
+}

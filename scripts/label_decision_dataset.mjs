@@ -31,7 +31,7 @@ for (const event of journal) {
 for (const id of existing.keys()) unresolved.delete(id);
 if (unresolved.size) throw new Error('Unresolved prior requests: reconcile provider credits and journal before restarting');
 for (const r of rows) if (existing.has(r.id) && existing.get(r.id).input_sha256 !== sha(r)) throw new Error('Saved input changed; use a new directory');
-let spent = [...existing.values()].reduce((sum,r) => sum + Number(r.teacher.provider_metadata.gateway.cost), 0);
+let spent = [...existing.values()].reduce((sum,r) => sum + Number(r.teacher.provider_metadata?.gateway?.cost ?? r.teacher.estimated_cost_usd), 0);
 if (!Number.isFinite(spent)) throw new Error('Saved cost is invalid');
 const priorFailures = new Set(journal.filter(e => e.status === 'failed').map(e => e.id));
 const pending = rows.filter(r => !existing.has(r.id) && !(args['skip-prior-failures'] === 'true' && priorFailures.has(r.id)));
@@ -51,8 +51,8 @@ async function worker() {
     next++; attempted++; reserved += reserve;
     await append(journalfile, {id:row.id,status:'started',input_sha256:sha(row),at:new Date().toISOString()});
     try {
-      const teacher = await evaluateTeacher({teacher:'jev',model:'typesafe-ai/jev',state:row.state,questions:row.questions});
-      const cost = Number(teacher.provider_metadata?.gateway?.cost);
+      const teacher = await evaluateTeacher({teacher:'jev',model:'jev-latest',state:row.state,questions:row.questions});
+      const cost = Number(teacher.provider_metadata?.gateway?.cost ?? teacher.estimated_cost_usd);
       if (!Number.isFinite(cost) || cost < 0) throw new Error('missing_cost');
       spent += cost;
       await append(outfile, {...row,input_sha256:sha(row),teacher,labeled_at:new Date().toISOString()});

@@ -1,0 +1,119 @@
+{
+  "schema_version": "nanojev-vnext-architecture-decision-v1",
+  "status": "frozen_research_implementation_target_not_authorized_for_active_filtering",
+  "decision": "nanojev_controller_plus_optional_fast_path_plus_winnow_fallback",
+  "decision_scope": {
+    "owned_component": "NanoJev controller: segmentation, protected/dependency policy, scorer routing, receipts, restore manifests, and fail-open behavior",
+    "reference_fast_path": "Kev-4B local /v1/systemone service",
+    "strong_path": "Winnow-12B Q8 local /v1/systemone service",
+    "custom_nanojev_scorer": "deferred until independently trained/calibrated evidence beats the measured cascade on a declared development cohort"
+  },
+  "inputs": {
+    "public_scorecard": "BENCHMARKS.md",
+    "winnow_review": "docs/WINNOW_REVIEW_V1.md",
+    "shadow_gate_report": "docs/CONTEXT_GATE_WINNOW_SHADOW_V1.md",
+    "filter_value_report": "docs/CONTEXT_FILTER_VALUE_V2.md",
+    "threshold_policy": "docs/CONTEXT_FILTER_THRESHOLD_POLICY_V1.md",
+    "fast_path_comparison": "docs/FAST_PATH_CASCADE_COMPARISON_V1.md",
+    "local_pair_evaluator": "docs/LOCAL_MAIN_MODEL_PAIR_V1.md",
+    "local_generation_winnow_v2": [
+      "results/filter_value_v2_winnow_t090_localgen_qwen3_0p6b_v1.json",
+      "results/filter_value_v2_winnow_t090_localgen_qwen25_3b_v1.json",
+      "results/filter_value_v2_winnow_t090_localgen_qwen35_4b_v1.json"
+    ],
+    "cascade_replay": "results/cascade_simulation_winnow_fallback_v1.json"
+  },
+  "measured_candidates": {
+    "strong_path": {
+      "model": "winnow-12b-q8",
+      "accuracy_893": 0.8824188129899216,
+      "wall_s": 494.564,
+      "confident_wrong_at_0_9": 59,
+      "v2_removed_bytes_at_0_90": 5560,
+      "v2_removed_tokens_at_0_90": 1431,
+      "v2_unsafe_removals": 0,
+      "v2_paired_answers": "25/25"
+    },
+    "fast_paths": [
+      {
+        "model": "kev-4b",
+        "revision": "485ace8703592fcf405488b262449990824cfed1",
+        "accuracy_893": 0.8017917133258678,
+        "bundle_wall_s": 601.532,
+        "v2_direct_removed_bytes_at_0_90": 5560,
+        "v2_direct_removed_tokens_at_0_90": 1431,
+        "v2_direct_unsafe_removals": 0,
+        "v2_cascade_fast_threshold": 0.95,
+        "v2_cascade_fast_paths": 13,
+        "v2_cascade_strong_paths": 6,
+        "v2_cascade_removed_bytes": 5560,
+        "v2_scorer_p50_ms": 705.9733339992817
+      },
+      {
+        "model": "kev-9b",
+        "revision": "2629c06a5aeb0feb3b9783bafed17ed8f39ecf5c",
+        "accuracy_893": 0.8185890257558791,
+        "bundle_wall_s": 700.395,
+        "v2_direct_removed_bytes_at_0_90": 4799,
+        "v2_direct_removed_tokens_at_0_90": 1227,
+        "v2_direct_unsafe_removals": 0,
+        "v2_scorer_p50_ms": 1010.8596670033876
+      },
+      {
+        "model": "reflex_stable",
+        "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+        "accuracy_893": 0.7894736842105263,
+        "wall_s": 246.435,
+        "v2_cascade_fast_threshold": 0.95,
+        "v2_cascade_fast_paths": 0,
+        "v2_cascade_strong_paths": 19,
+        "v2_cascade_removed_bytes": 5560
+      },
+      {
+        "model": "semif_qwen35_4b_mlx4",
+        "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+        "accuracy_893": 0.7670772676371781,
+        "wall_s": 409.573,
+        "v2_cascade_fast_threshold": 0.8,
+        "v2_cascade_fast_paths": 1,
+        "v2_cascade_strong_paths": 18,
+        "v2_cascade_removed_bytes": 5278
+      },
+      {
+        "model": "decider-2b",
+        "revision": "b37f7e1ba3fbc9238004cf531fabbee2619973fd",
+        "accuracy_893": 0.7917133258678611,
+        "wall_s": 1051.704,
+        "v2_cascade_fast_threshold": 0.9,
+        "v2_cascade_fast_paths": 1,
+        "v2_cascade_strong_paths": 18,
+        "v2_cascade_removed_bytes": 5560
+      },
+      {
+        "model": "decider-0.8b",
+        "revision": "1ea54127d3bd52f6d753d9257b32a6380b873907",
+        "accuracy_893": 0.7256438969764838,
+        "wall_s": 989.806,
+        "v2_direct_removed_bytes_at_0_99": 0,
+        "v2_max_observed_p_irrelevant": 0.5753
+      }
+    ]
+  },
+  "constraints": [
+    "protected structure and dependencies are excluded before scoring",
+    "shadow mode forwards original bytes unchanged",
+    "uncertain scores fail open",
+    "threshold policy remains diagnostic only",
+    "no active filtering or deployment claim",
+    "Winnow training data remains private and cannot prove benchmark isolation",
+    "Kev-4B is a reference fast-path scorer, not a NanoJev-owned model",
+    "local-generation evidence remains limited to small pinned models and synthetic fixtures even though all three current backends preserve original answer counts"
+  ],
+  "next_measurements": [
+    "stronger representative downstream cohort or real-request holdout beyond the three small pinned local-generation backends",
+    "provider-reported prompt/completion tokens under a baseline header",
+    "scorer timeout/error/cache-eviction stress",
+    "memory pressure and end-to-end latency rather than scorer-call latency only",
+    "held-out fixture cohort before any operating-point selection"
+  ]
+}

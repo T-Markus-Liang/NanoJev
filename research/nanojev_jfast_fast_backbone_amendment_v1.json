@@ -1,0 +1,355 @@
+{
+  "schema_version": "nanojev-jfast-fast-backbone-amendment-v1",
+  "status": "seed30_root_cause_found_marker_after_variant_ready",
+  "created_utc": "2026-09-21T10:58:43Z",
+  "owner_decision": {
+    "selected_track": "A: local J-FAST design first",
+    "recorded_by": "owner message: 'a' after option A/B choice",
+    "server_start_requested": false,
+    "local_probe": "owner authorized ModernBERT base+large weight download and local owned probe"
+  },
+  "purpose": "Define a small, fast, local typed-decision architecture arm that preserves NanoJev's bounded probability contract. The arm compares the current MiniCPM5-2B LoRA + shared-prefix runtime against encoder-style and other lightweight decision models on the same owned workloads before any training or external benchmark milestone.",
+  "current_baseline": {
+    "candidate": "t9d_v7_minicpm2b_seed20_cuda",
+    "checkpoint_sha256_best": "22ed7a020e70aaf4cfdfa115046deb7337382a131fe30e0c9603e558b4ddab13",
+    "custom_deep_benchmark": {
+      "heldout_v1_accuracy": 0.7536231884057971,
+      "heldout_v2_accuracy": 0.5224358974358975,
+      "heldout_v2_confident_wrong_at_0_9": 15,
+      "status": "diagnostic candidate; not promoted"
+    },
+    "public_diagnostic": {
+      "scope": "231/534 public JevBench v1.2.4 rows",
+      "accuracy": 0.6536796536796536,
+      "reference_serial_wall_s": 284.46120925000287,
+      "serial_shared_prefix_wall_s": 69.72235525000724,
+      "bulk_shared_prefix_wall_s": 65.63891054199485,
+      "serial_shared_prefix_p50_s": 0.07533754101314116,
+      "serial_shared_prefix_p95_s": 1.2833001045000856,
+      "argmax_flips_vs_reference": 0,
+      "status": "diagnostic only; not official milestone"
+    }
+  },
+  "problem_statement": "MiniCPM5-2B produced a real capability improvement over the earlier 0.6B arm, and shared-prefix inference removed most duplicate-prefix work. However, the resulting candidate is still a 2.25B decoder-oriented backbone and the heldout_v2 result remains below the promotion gate. A separate fast arm should test whether a much smaller encoder/classifier or direct-decision architecture can preserve typed-decision quality while materially reducing latency and memory.",
+  "reference_boundaries": {
+    "laya": {
+      "role": "architecture and packaging reference only",
+      "public_metadata": "Convai Laya uses a ~421M bidirectional ModernBERT-large encoder plus learned decision head; English checkpoint context is 512 tokens and typed-decisions checkpoint is 1024 tokens; Apache-2.0 is publicly claimed",
+      "boundary": "no weights, rows, labels, outputs, calibration data, prompts or benchmark results are imported; context limits make it a speed reference, not automatically a NanoJev candidate"
+    },
+    "laya_mlx": {
+      "role": "Apple Silicon runtime reference only",
+      "public_metadata": "mizorewww/laya-mlx is an independent Apache-2.0 MLX port reporting short-decision millisecond latency on Apple Silicon",
+      "boundary": "runtime ideas may be reviewed; author benchmark claims are not NanoJev evidence"
+    },
+    "semif": {
+      "role": "direct-readout and prefix-sharing discipline reference",
+      "boundary": "MIT reference only; preserve 255-candidate contract and do not import upstream benchmark conclusions"
+    },
+    "jevbench": {
+      "role": "external diagnostic/milestone benchmark only",
+      "boundary": "public diagnostic rows may be consumed under the dual-benchmark protocol; they are never training, calibration-fit or per-item tuning inputs"
+    }
+  },
+  "candidate_arms": [
+    {
+      "id": "F0",
+      "name": "MiniCPM5-2B LoRA + serial shared-prefix runtime",
+      "status": "existing baseline",
+      "parameters_approx": 2249369600,
+      "context_observed_public_max_tokens": 3472,
+      "reason": "current best verified NanoJev capability and optimized local runtime baseline"
+    },
+    {
+      "id": "F1",
+      "name": "ModernBERT encoder + NanoJev typed decision head",
+      "status": "primary fast-arm candidate pending model selection",
+      "candidate_backbones": [
+        {
+          "model_id": "answerdotai/ModernBERT-base",
+          "revision": "8949b909ec900327062f0ebf497f51aef5e6f0c8",
+          "license": "apache-2.0",
+          "parameters_exact": 149655232,
+          "max_position_embeddings": 8192,
+          "architecture": "ModernBertForMaskedLM"
+        },
+        {
+          "model_id": "answerdotai/ModernBERT-large",
+          "revision": "45bb4654a4d5aaff24dd11d4781fa46d39bf8c13",
+          "license": "apache-2.0",
+          "parameters_exact": 395881664,
+          "max_position_embeddings": 8192,
+          "architecture": "ModernBertForMaskedLM"
+        }
+      ],
+      "head": "option-marker or candidate-span scorer returning one logit per bounded candidate; noul maps to false=1-P(true), true=P(true); score levels map to positional labels",
+      "reason": "bidirectional encoder may be substantially faster than a 2.25B decoder for state+candidate classification while preserving non-autoregressive typed outputs"
+    },
+    {
+      "id": "F2",
+      "name": "Laya-style pretrained encoder decision head",
+      "status": "compatibility probe only; not a training candidate without separate review",
+      "candidate_checkpoints": [
+        {
+          "model_id": "convaiinnovations/laya",
+          "context_limit": 512,
+          "revision": "1c5edc17a7acd8701df6fc341c0d179f1c62c982",
+          "license": "apache-2.0",
+          "parameters_exact": 421293830
+        },
+        {
+          "model_id": "convaiinnovations/laya-typed-decisions",
+          "context_limit": 1024,
+          "revision": "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2",
+          "license": "apache-2.0",
+          "parameters_exact": 421293830
+        },
+        {
+          "model_id": "convaiinnovations/laya-multilingual",
+          "context_limit": 1024,
+          "license": "apache-2.0",
+          "note": "bundled under convaiinnovations/laya multilingual/ at repo revision 1c5edc17a7acd8701df6fc341c0d179f1c62c982"
+        }
+      ],
+      "reason": "fast runtime reference and possible zero-shot lower bound",
+      "known_limitations": "context is far below the observed 3472-token JevBench hard rows and below the 255-candidate NanoJev contract; zero-shot typed-decision accuracy is publicly disclosed as near-chance for the generic checkpoint"
+    },
+    {
+      "id": "F3",
+      "name": "small decoder + shared-prefix / packed candidates",
+      "status": "fallback fast-arm candidate",
+      "candidate_backbones": [
+        {
+          "model_id": "Qwen/Qwen3-0.6B",
+          "revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+          "license": "Apache-2.0"
+        }
+      ],
+      "reason": "existing toolchain compatibility and lower parameter count than MiniCPM5-2B",
+      "known_limitations": "prior 0.6B engineering heldout quality was substantially below MiniCPM5-2B; speed alone is insufficient"
+    },
+    {
+      "id": "F4",
+      "name": "MLX-native decision runtime",
+      "status": "runtime port candidate after a semantic candidate is selected",
+      "references": [
+        "mizorewww/laya-mlx",
+        "TheoLeeCJ/SemIf"
+      ],
+      "reason": "Apple Silicon packaging, batched questions and low-overhead typed decisions are relevant once the model contract is frozen",
+      "constraint": "not selected by demo/gameplay speed alone; must reproduce NanoJev probabilities within tolerance"
+    }
+  ],
+  "owned_workloads": {
+    "compat_probe": {
+      "description": "small hand-authored typed questions covering boolean, choice k=3/6/12, score k=4/5/10, long state and structured state",
+      "allowed": true
+    },
+    "corpus_v5_dev": {
+      "path": "research/engineering_judgment_corpus_v5/trainer_view/dev.jsonl",
+      "role": "training/dev selection only after a training amendment is authorized",
+      "allowed_for_training": false,
+      "sha256": "c8af25062cd86a049051d99d22244796c58f818a872e4722c739ff92b07456e8"
+    },
+    "public_jevbench_diagnostic": {
+      "path": "research/jevbench_v1_2_4_public/public_231.jsonl",
+      "sha256": "771ea8ac252af155606eeb09cad920b32b326c5c2b1e9c9af868be00fe8e2fad",
+      "role": "diagnostic comparability only; no per-item repair or threshold fitting",
+      "allowed_before_freeze": true
+    },
+    "heldout_v1_v2": {
+      "role": "one-shot internal deep benchmark after candidate freeze",
+      "allowed_before_freeze": false
+    }
+  },
+  "required_contracts": [
+    "exact revision and license recorded before any model weight download",
+    "tokenizer/model loads without trust_remote_code unless separately reviewed",
+    "state+candidate input is never truncated; models below the required context fail closed or use an independently parity-tested chunking contract",
+    "emits a normalized probability map over the exact label set; no invented confidence scalar",
+    "supports at least 12 candidates for heldout_v2 coverage and 255 candidates for the NanoJev synthetic contract, or explicitly records a cardinality limitation",
+    "temperature remains 1.0 unless a separate calibration amendment is authorized",
+    "0.9 abstention threshold is not lowered to increase coverage",
+    "CUDA-to-MPS parity is required for any trained checkpoint before heldout evaluation"
+  ],
+  "evaluation_gates": {
+    "compatibility_gate": [
+      "finite probabilities on owned probe",
+      "exact labels preserved",
+      "zero-adapter or frozen-head parity where applicable",
+      "peak memory and latency recorded",
+      "no network model calls during inference"
+    ],
+    "diagnostic_gate": [
+      "owned probe parity vs reference implementation within 1e-5 probability delta or documented rationale",
+      "accuracy, coverage@0.9, confident-wrong@0.9 and mean confidence reported by type and cardinality",
+      "p50/p95 latency, wall time, model load, forward passes, peak memory and scored tokens reported",
+      "public JevBench diagnostic may be run but remains non-promotion evidence"
+    ],
+    "promotion_gate": [
+      "same corpus v5 train/dev isolation as prior arms",
+      "heldout_v1/v2 read once after internal freeze",
+      "heldout_v2 protected errors and accuracy must improve over seed20 or justify a different accepted tradeoff",
+      "serial shared-prefix latency must improve materially versus seed20 without changing output semantics",
+      "official JevBench milestone remains one-shot and post-freeze"
+    ]
+  },
+  "metrics": [
+    "accuracy overall and by question type",
+    "coverage@0.9 and confident-wrong@0.9",
+    "mean confidence and ECE/TVD where gold distributions exist",
+    "p50/p95 latency and wall time",
+    "model load seconds",
+    "peak memory",
+    "forward passes and scored candidate-leaf tokens",
+    "seed variance and CUDA→MPS parity"
+  ],
+  "risks": [
+    "encoder context limits may make Laya-style checkpoints unusable for JevBench hard rows without a new chunking contract",
+    "option-marker heads may degrade above ~50 options and cannot silently reduce the 255-candidate contract",
+    "a small backbone may be faster but less accurate; speed does not override protected-error gates",
+    "MLX parity may be numerically different from PyTorch MPS and needs independent verification",
+    "pretrained decision checkpoints may be optimized for different workflows and are not evidence of NanoJev capability"
+  ],
+  "next_steps": [
+    "draft/approve marker_after controlled ablation training amendment",
+    "if approved, power A100 and run seed31 marker_after",
+    "only after marker_after clears dev/public diagnostic consider heldout"
+  ],
+  "authorization": {
+    "local_documentation_authorized": true,
+    "model_weight_download_authorized": true,
+    "local_probe_authorized": true,
+    "training_authorized": false,
+    "heldout_read_authorized": false,
+    "public_jevbench_diagnostic_after_candidate_build_authorized": true,
+    "server_start_authorized": false,
+    "deployment_authorized": false,
+    "official_jevbench_milestone_authorized": false
+  },
+  "artifacts": {
+    "owned_probe_payload": {
+      "path": "research/jfast_owned_probe_v1.json",
+      "sha256": "2ce0da42b4dc30bb633a3810c1611198136acb1381b9d91f540cbbece4354e9f",
+      "questions": 6
+    },
+    "probe_script": {
+      "path": "scripts/probe_jfast_backbones_v1.py",
+      "sha256": "82a19b7a1f90eea871af104a3e30dd666af4e74110bcadd785d7841df8771b92"
+    },
+    "dry_run_receipt": {
+      "path": "results/jfast_owned_probe_dry_run.json",
+      "sha256": "df7944e556fec404cf49b964449f993fa53e53094a30f2f70b4a49102cb4e879",
+      "status": "dry_run_validated"
+    },
+    "modernbert_base_probe": {
+      "initial_receipt": {
+        "path": "results/jfast_modernbert_base_probe.json",
+        "sha256": "2a5140a4bfbdc92ddb89ff9b56b80a1a23811687a0853369a35398009bcbc14e"
+      },
+      "cached_receipt": {
+        "path": "results/jfast_modernbert_base_probe_cached.json",
+        "sha256": "480fda4dd035964f607369102307b29dbea1f4f1584bf0a58a0ce8ef31114ac3"
+      },
+      "status": "completed",
+      "context_failures": 0,
+      "long_context_tokens": 6516,
+      "cached_model_load_s": 0.2140634579991456,
+      "cached_p50_s": 0.01715712499571964,
+      "cached_p95_s": 0.3696667502554192,
+      "mps_allocated_bytes": 617068544
+    },
+    "modernbert_large_probe": {
+      "initial_receipt": {
+        "path": "results/jfast_modernbert_large_probe.json",
+        "sha256": "49b719a0adee6be882f15c50347463f113e3dc2efa3098168e3c1385e6df462d"
+      },
+      "cached_receipt": {
+        "path": "results/jfast_modernbert_large_probe_cached.json",
+        "sha256": "0d7a0070f5d52033efdfc09749bc05ac6db67eebbd0a6b87987efd843962e478"
+      },
+      "status": "completed",
+      "context_failures": 0,
+      "long_context_tokens": 6516,
+      "cached_model_load_s": 0.3250363339902833,
+      "cached_p50_s": 0.022163187502883375,
+      "cached_p95_s": 0.7188400935010577,
+      "mps_allocated_bytes": 1609378816
+    },
+    "marker_head_probe_script": {
+      "path": "scripts/jfast_modernbert_decision_v1.py",
+      "sha256": "ba25d44bbdf704c3f2f8d9c10e91757f114744bd34fc4b894b7fc88ec798a292"
+    },
+    "modernbert_base_marker_probe": {
+      "path": "results/jfast_modernbert_base_marker_probe.json",
+      "sha256": "4de03dec92f6284fa984cf5d813e5d098201e5d77419a96a36be0197ba6beeae",
+      "status": "completed",
+      "zero_head": true,
+      "p50_s": 0.01609312450455036,
+      "p95_s": 0.3958230002572236,
+      "long_context_tokens": 6519
+    },
+    "modernbert_large_marker_probe": {
+      "path": "results/jfast_modernbert_large_marker_probe.json",
+      "sha256": "bef02c55df8164b9922d23bb253133c9f0252ee33202549501a519016ca92236",
+      "status": "completed",
+      "zero_head": true,
+      "p50_s": 0.027554832995519973,
+      "p95_s": 0.7066914162460307,
+      "long_context_tokens": 6519
+    },
+    "modernbert_base_training_amendment": {
+      "path": "research/nanojev_jfast_modernbert_base_training_amendment_v1.json",
+      "sha256": "4230d9ffdd62a99010f8b9e57a555aa0c2aa0f2410f548b07c75c4cd5d03f7f8",
+      "status": "draft_no_training_or_server_authorized"
+    },
+    "trainer": {
+      "path": "scripts/train_jfast_modernbert.py",
+      "sha256": "e3a30027cde0e70a79cf574316d20effc5fc6554fc34d7c60485e7ffcf5a7a23"
+    },
+    "trainer_tests": {
+      "path": "scripts/test_jfast_modernbert.py",
+      "sha256": "52b3309ffed23707355703f594e953cee2dd02fcd606d594ac4467e967014333",
+      "tests": "6/6 pass"
+    },
+    "local_one_step_smoke": {
+      "path": "results/jfast_modernbert_base_one_step_smoke.json",
+      "sha256": "ef3ba9e7d301a98202eea141466e369b3dd685d467eefa577d39dd586824e95b",
+      "passed": true
+    },
+    "seed30_summary": {
+      "path": "results/t9j_v1_modernbert_base_seed30_summary.json",
+      "sha256": "70a10e59f821ab91f685451a8f75225eac18fe5778e189cf070e64cc2de213a2"
+    },
+    "seed30_public_diagnostic": {
+      "path": "results/jevbench_public_diagnostic_jfast_seed30_v1.json",
+      "sha256": "e0fdb73f0da84f860f167de38377d3812c5fc5a7735ad8ec313d849d5617b906",
+      "accuracy": 0.2813852813852814
+    },
+    "seed30_dual_scorecard": {
+      "path": "results/t9j_v1_modernbert_base_seed30_dual_benchmark_scorecard.json",
+      "sha256": "930cd9bb9efacaf8fc5cf44580fb6cab6e2f303e43a5231ff30597d7d603b11d"
+    },
+    "root_cause_analysis": {
+      "path": "results/jfast_seed30_root_cause_analysis.json",
+      "sha256": "9ae452043d6421f335a189152755694cd6b2349469cd6aa6d8f3da34982161aa"
+    },
+    "jfast_marker_predictor": {
+      "path": "scripts/predict_jfast_modernbert.py",
+      "sha256": "564ccf8c6b3e2062dc9df8601ddb2cbbe2afd8fbc855735f0128d01973847ea3"
+    },
+    "jfast_marker_encoder": {
+      "path": "scripts/jfast_modernbert_decision_v1.py",
+      "sha256": "ba25d44bbdf704c3f2f8d9c10e91757f114744bd34fc4b894b7fc88ec798a292"
+    },
+    "offline_bundle_comparison": {
+      "path": "results/offline_bundle_seed20_vs_seed30_scorecard.json",
+      "sha256": "f164835eea1e701816c4512bb2831191ee2a827eacc99be0984570cc56f16802"
+    },
+    "offline_bundle_runner": {
+      "path": "scripts/run_offline_benchmark_bundle_v1.py",
+      "sha256": "56500464da612423c750266daf3d7bd85e4c3f5d5daaaedfdd674cb1a4d0d47d"
+    }
+  },
+  "remote_status": "instance powered on, but SSH publickey auth was reset and root@<gpu-host>:<port> returns Permission denied; waiting for one-time root password or console key reinstall"
+}

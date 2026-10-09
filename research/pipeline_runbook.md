@@ -346,7 +346,7 @@ Open **http://127.0.0.1:8081** to inspect your completed runs and their recorded
 
 [Model: C-Tianyu/NanoJev](https://huggingface.co/C-Tianyu/NanoJev) · [Dataset: C-Tianyu/NanoJev-Data](https://huggingface.co/datasets/C-Tianyu/NanoJev-Data)
 
-The model and dataset are publicly downloadable. Install the dependencies in section 1 before continuing. The root checkpoint below reproduces the earlier navigation pipeline; the [game release guide](../docs/GAME_RELEASE.md) maps the Maze, Snake, and calibrated-decision variants to their exact data.
+The model and dataset are publicly downloadable. Install the dependencies in section 1 before continuing. The root checkpoint below reproduces the earlier navigation pipeline; the internal game-release guide (`docs/GAME_RELEASE.md`, local-only, not published) maps the Maze, Snake, and calibrated-decision variants to their exact data.
 
 Download the final model and the complete dataset into explicit local directories:
 

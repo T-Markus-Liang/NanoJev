@@ -1,0 +1,464 @@
+{
+  "schema_version": "nanojev-financial-source-manifest-v1",
+  "revision": 2,
+  "revision_note": "R1 scope change. Revision 1 surveyed fourteen cross-asset sources for a spot-era first market. Revision 2 is restricted by user decision to crypto secondary-market PERPETUAL CONTRACT trading only, never spot, across exactly four venues: Binance, Bybit, Aster, Hyperliquid. Equity, FX, macro, CME and other spot-era candidates are retained only inside a superseded-section pointer and are no longer candidate sources for this track.",
+  "status": "draft_pending_R1",
+  "created_utc": "2026-09-19",
+  "revised_utc": "2026-09-19",
+  "review_gate": "R1",
+  "work_package": "P1",
+  "instrument_scope": {
+    "asset_class": "crypto secondary-market perpetual contracts only",
+    "spot_excluded": true,
+    "spot_exclusion_note": "No spot instrument is a candidate source. Where a venue's index or oracle is built from spot prices, that is the venue's own reference construction and is consumed only as the index/oracle field, never as a traded instrument.",
+    "venue_set": ["Binance", "Bybit", "Aster", "Hyperliquid"],
+    "venue_count": 4
+  },
+  "companion_documents": [
+    "docs/FINANCIAL_DATA_PLAN_V1.md",
+    "research/financial_experiment_protocol_v1.json",
+    "docs/FINANCIAL_PIT_V1.md",
+    "docs/NANOJEV_V2_ROADMAP.md"
+  ],
+  "review_context": {
+    "reviewed_by": "automated research agent (draft only; not a legal review)",
+    "review_date": "2026-09-19",
+    "review_machine": "Apple M5 Max, 18 cores, 128 GB unified memory, macOS 26.5.1 arm64",
+    "venues_surveyed": 4,
+    "evidence_rule": "A license or terms claim is marked verified only where the operative text was retrieved from a primary URL and read. Anything else is recorded as unverified and listed in open_questions. No term is inferred from a reseller summary, a blog, a forum post, or prior model memory.",
+    "network_reachability_note": "Four of the reviewed terms pages were not reachable from the review environment at all. www.bybit.com did not connect on any path attempted; hyperliquid.xyz/terms returned HTTP 403 with an S3 AccessDenied body; docs.asterdex.com and www.asterdex.com did not connect; www.binance.com and fapi.binance.com did not connect; api.bybit.com timed out. The review environment could reach data.binance.vision, s3-ap-northeast-1.amazonaws.com, raw.githubusercontent.com, api.github.com, hyperliquid.gitbook.io and hyperliquid.xyz. Reachability from this sandbox is not evidence about a venue's terms; it is recorded because it determines what could be verified at all.",
+    "redistribution_note": "Redistribution posture in this file describes what the cited public terms say about licensing. It is not legal advice and not a permission grant."
+  },
+  "BINANCE_NONCOMMERCIAL_BANNER": {
+    "severity": "blocking_for_any_future_execution_phase",
+    "headline": "The previously recommended Binance Vision / Binance Data Collection archive is licensed CC BY-NC-SA 4.0 (NON-COMMERCIAL) and its section 4.2 prohibits live proprietary trading execution. It can support offline research and it CANNOT support a live or commercial trading program.",
+    "verified_from": "https://data.binance.vision/Binance_Vision-Terms_of_Use.pdf — 'BINANCE VISION DATASET TERMS', Version 1.0, Last Updated August 26, 2026. Downloaded and read in full on 2026-09-19 (4 pages).",
+    "operative_clauses": [
+      {"clause": "3.1", "quote": "Datasets are provided to You under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International Public License (\"CC BY-NC-SA 4.0\"), incorporated herein by reference, except where specifically designated otherwise."},
+      {"clause": "3.4", "quote": "Commercial licensing is strictly excluded under this agreement; any commercial utilization requires a separate, written enterprise data license agreement executed with Binance."},
+      {"clause": "4.1", "quote": "Permitted non-commercial uses are limited to academic research, non-monetized open educational projects, algorithmic historical backtesting for purely personal non-production research, and non-commercial open-source data science evaluations."},
+      {"clause": "4.2", "quote": "You shall not use the Datasets for live proprietary trading execution, automated commercial order generation, or signal distribution to third parties for direct or indirect compensation."},
+      {"clause": "4.3", "quote": "You shall not license, sub-license, sell, rent, lease, host, or commercially exploit the Datasets or any derivative real-time or historical data feeds."},
+      {"clause": "4.4", "quote": "You shall not integrate the Datasets into commercial financial products, hedge fund management tools, paid subscription newsletters, or commercial trading bot platforms."},
+      {"clause": "4.5", "quote": "You shall ensure that any redistributed derivative work based on the Datasets provides appropriate attribution to Binance Vision and remains licensed under the identical CC BY-NC-SA 4.0 terms."},
+      {"clause": "7.2", "quote": "You shall not deploy scraping routines, scripts, or continuous automated queries designed to circumvent rate restrictions or impair platform hosting operations."}
+    ],
+    "what_this_means_for_a_perpetual_trading_program": [
+      "This dataset may be used for non-commercial, personal, non-production historical backtesting and research. That is exactly what the P1/P2/P3 work packages are, so the archive is usable for the current stage.",
+      "It may NOT be used for live proprietary trading execution. Section 4.2 is explicit and unqualified by trading style, venue, or size. A perp trading program that eventually wants execution cannot be fed from this data under these terms.",
+      "It may NOT be used to generate orders automatically for commercial purposes ('automated commercial order generation'), nor may its outputs be distributed as signals for compensation.",
+      "It may NOT be integrated into a commercial trading bot platform or a hedge-fund management tool (section 4.4). A for-profit trading operation is squarely inside that prohibition.",
+      "Any redistribution of a derivative work must carry attribution and remain CC BY-NC-SA 4.0 (section 4.5), which is a copyleft-style obligation that propagates to derivative artifacts.",
+      "Consequence: choosing this archive as the only price source makes a later execution phase a data-rights migration, not an incremental step. The migration cost must be paid either now (choose a licensable source) or later (re-derive features and labels on a different price series). Re-deriving labels on a different price series invalidates earlier results, because mark price, bar boundaries and print selection all differ between a venue archive and a vendor feed.",
+      "The prohibition is on the DATASET, not on the venue's live API. Binance's live market-data endpoints and its trading API are governed by separate Binance terms which were NOT reachable from this environment and are marked unverified. Whether live API use would be permissible is therefore an open question, not a settled yes or no."
+    ],
+    "alternatives_ranked": [
+      {"rank": 1, "alternative": "Do offline research on the Binance archive now, and accept that any future execution phase requires a different data right", "cost": "USD 0 today", "risk": "Deferred migration; results tied to an archive price series may not transfer to the execution feed", "note": "This is the current plan's implicit position and it must be an explicit R1 decision rather than a default."},
+      {"rank": 2, "alternative": "Use each venue's own live REST/WebSocket market-data API for research and keep the archive only as a cross-check", "cost": "USD 0 if the venue's API terms allow it", "risk": "Terms for Bybit, Aster and Hyperliquid are unverified; Hyperliquid's candle endpoint returns only the most recent 5000 candles, which is far too short for the declared folds", "note": "Would not fix the licensing question, only move it."},
+      {"rank": 3, "alternative": "Obtain a written enterprise data licence from Binance (section 3.4 contemplates exactly this)", "cost": "unverified: quote_on_request, requires a sales conversation and a contract", "risk": "Cost and timeline unknown; nothing may be purchased under the current constraint", "note": "The only path that makes the Binance archive itself execution-compatible."},
+      {"rank": 4, "alternative": "Use a licensed third-party redistributor for the same venues (for example the commercial vendors surveyed in revision 1)", "cost": "unverified: quote_on_request", "risk": "Sales cycle; may be institutional-priced", "note": "Decouples data rights from the venue relationship."},
+      {"rank": 5, "alternative": "Change the venue set so that at least one venue's terms clearly permit the intended use", "cost": "unknown", "risk": "Requires the terms of Bybit, Aster and Hyperliquid to be read first, which this environment could not do", "note": "Cannot be evaluated until the terms are readable."}
+    ],
+    "open_questions_raised": [
+      "Does the project intend to ever execute live orders on perpetual contracts? If yes, the Binance archive cannot be the sole price source and this must be decided at R1, not after a model exists.",
+      "Are the venue API terms of Bybit, Aster and Hyperliquid permissive for automated algorithmic trading on one's own account, and do they permit retaining derived research artifacts? Unread.",
+      "Is a paid enterprise licence or a licensed redistributor in scope at all, given the current no-purchase constraint?"
+    ]
+  },
+  "verified_terminology": {
+    "license_verified": "The operative terms text was retrieved from a primary URL and read during this revision.",
+    "license_partial": "Some operative text was read but the governing document was not read in full.",
+    "unverified": "The terms page was not reachable or not readable from this environment. No claim of any kind is made about permitted or prohibited use.",
+    "reachability_asymmetry": "A terms page being unreachable from a sandbox says nothing about the venue. It does mean the corresponding permission question is unresolved and must be answered by a human before ingestion or any automated interaction."
+  },
+  "our_decision_vocabulary": {
+    "recommended_first_market": "Selected as the minimal first ingestion target for perpetual-contract pipeline validation at R1.",
+    "co_primary": "Equally valid ingestion target for the venue-diversified first cohort.",
+    "ranked_alternative": "Viable fallback if the recommended source is rejected; requires an explicit R1 decision on cost or licence.",
+    "supplementary_context_only": "Usable for contextual or regime features, not for the instrument price series that defines a decision label.",
+    "plumbing_fixture_only": "May be used to exercise loaders and fold logic. Must never be used to produce a reported financial metric.",
+    "deferred": "Not surveyed to sufficiency in this revision; revisit if R1 requests it.",
+    "rejected": "Surveyed and excluded, with the reason recorded.",
+    "blocked": "Required capability cannot be reached with the entitlements this project currently holds or with the terms that could be read."
+  },
+  "venues": [
+    {
+      "source_id": "binance_perp_bulk_archive",
+      "name": "Binance Data Collection public Bulk archive — perpetual-contract datasets only",
+      "venue": "Binance",
+      "url": "https://data.binance.vision/",
+      "additional_urls": [
+        "https://data.binance.vision/terms-of-use.html",
+        "https://data.binance.vision/Binance_Vision-Terms_of_Use.pdf",
+        "https://github.com/binance/binance-public-data/",
+        "https://github.com/binance/binance-futures-connector-python"
+      ],
+      "instruments": "USD-M linear perpetuals (USDT- or USDC-margined) and COIN-M inverse perpetuals. Delivery (quarterly) contracts share the same archive path family and must be filtered out by an explicit contractType check, never by symbol-name guessing.",
+      "access_method": "Public HTTPS object archive, no account and no key. S3-compatible bucket served through the data.binance.vision web index; the underlying bucket host is https://s3-ap-northeast-1.amazonaws.com/data.binance.vision. Each archive has a sibling .CHECKSUM file for integrity verification.",
+      "access_method_verified": true,
+      "access_evidence": "Unauthenticated HTTPS HEAD requests against data.binance.vision succeeded at the review time for the paths listed under perp_fields_verified. The data.binance.vision HTML index loads its listing from the S3 bucket host, which did NOT respond from this environment, so the directory listing could not be enumerated; archive paths were therefore probed one by one. This is a verification limitation, not a venue limitation.",
+      "license": "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0), per Binance Vision Dataset Terms v1.0 (last updated August 26 2026) section 3.1. Commercial licensing strictly excluded (section 3.4). See the BINANCE_NONCOMMERCIAL_BANNER object at the top of this file.",
+      "license_url": "https://data.binance.vision/Binance_Vision-Terms_of_Use.pdf",
+      "license_verified": true,
+      "license_evidence": "The 4-page PDF was downloaded from https://data.binance.vision/Binance_Vision-Terms_of_Use.pdf and read in full. Quoted clauses are reproduced verbatim in BINANCE_NONCOMMERCIAL_BANNER.operative_clauses.",
+      "permits_research_use": "yes_but_non_commercial_only",
+      "permits_research_use_evidence": "Section 4.1: 'Permitted non-commercial uses are limited to academic research, non-monetized open educational projects, algorithmic historical backtesting for purely personal non-production research, and non-commercial open-source data science evaluations.' Section 3.4 excludes commercial use entirely. Section 6.1: 'Datasets are provided exclusively for computational, educational, and research purposes.'",
+      "permits_algorithmic_trading": "no",
+      "permits_algorithmic_trading_evidence": "Section 4.2 prohibits 'automated commercial order generation'. Section 4.4 prohibits integration 'into commercial financial products, hedge fund management tools, paid subscription newsletters, or commercial trading bot platforms'. Offline historical backtesting for personal non-production research is permitted under 4.1, so research-time algorithmic evaluation is allowed while production order generation is not.",
+      "live_execution_clause": {
+        "present": true,
+        "clause": "4.2",
+        "quote": "You shall not use the Datasets for live proprietary trading execution, automated commercial order generation, or signal distribution to third parties for direct or indirect compensation.",
+        "reading": "An unconditional prohibition on live proprietary trading execution. It is not limited to redistribution and not limited to commercial account types. Nothing in the read terms grants an execution right in exchange for anything.",
+        "also_relevant": ["3.4 commercial licensing strictly excluded", "4.3 no commercial exploitation or hosting of derivative feeds", "4.4 no integration into commercial trading bot platforms or hedge-fund management tools", "7.3 Binance may ban IPs, revoke access keys, or throttle bandwidth for technical-access breaches"]
+      },
+      "cost": "USD 0. No account, API key, or payment required to read the archive listing or fetch a file.",
+      "cost_evidence": "Terms section 2.3: 'Binance grants any individual or legal entity (\"you\" or \"your\") access to the Datasets free of charge subject to the terms set forth in these Vision Dataset Terms.' Confirmed empirically by successful unauthenticated HEAD requests.",
+      "perp_fields_verified": {
+        "um_funding_rate": {"paths_confirmed_200": ["data/futures/um/monthly/fundingRate/BTCUSDT/BTCUSDT-fundingRate-2020-01.zip", "data/futures/um/monthly/fundingRate/BTCUSDT/BTCUSDT-fundingRate-2023-01.zip", "data/futures/um/monthly/fundingRate/BTCUSDT/BTCUSDT-fundingRate-2026-08.zip", "data/futures/cm/monthly/fundingRate/BTCUSD_PERP/BTCUSD_PERP-fundingRate-2024-06.zip"], "header_read": "calc_time,funding_interval_hours,last_funding_rate", "sample_rows_read": "2023-01 file: 93 data rows; first row 1672531200000,8,0.00010000. 2020-01 file: 93 data rows; first row 1577836800000,8,-0.00012359.", "granularity": "one row per funding settlement; funding_interval_hours is carried per row, so the interval is data rather than an assumption", "coverage_probe": "2020-01 through 2026-08 all returned 200; 2019-09 and 2019-12 returned 404, consistent with a data start around 2020 for this path family (not independently enumerated)"},
+        "um_klines": {"paths_confirmed_200": ["data/futures/um/monthly/klines/BTCUSDT/1d/BTCUSDT-1d-2023-01.zip", "data/futures/um/daily/klines/BTCUSDT/1d/BTCUSDT-1d-2023-01-02.zip"], "header_read": "open_time,open,high,low,close,volume,close_time,quote_volume,count,taker_buy_volume,taker_buy_quote_volume,ignore", "granularity": "last-traded-price bars at 1m/3m/5m/15m/30m/1h/2h/4h/6h/8h/12h/1d/3d/1w/1mo; 1s returned 404 for a monthly 2023-01 probe and must be re-probed per interval", "note": "This is LAST price. It is not mark price."},
+        "um_mark_price_klines": {"paths_confirmed_200": ["data/futures/um/monthly/markPriceKlines/BTCUSDT/1d/BTCUSDT-1d-2023-01.zip", "data/futures/um/monthly/markPriceKlines/BTCUSDT/1h/BTCUSDT-1h-2023-01.zip", "data/futures/um/daily/markPriceKlines/BTCUSDT/1d/BTCUSDT-1d-2023-01-02.zip", "data/futures/cm/monthly/markPriceKlines/BTCUSD_PERP/1d/BTCUSD_PERP-1d-2023-01.zip"], "header_read": "open_time,open,high,low,close,close_time,volume,quote_volume,count,taker_buy_volume,taker_buy_quote_volume,ignore (column names as emitted in the sampled file)", "sample_rows_read": "markprice_1h_2023_01: 745 rows; first row open 16537.60000000, close 16527.25387778", "note": "This is the price series the perpetual-scope label should use."},
+        "um_index_price_klines": {"paths_confirmed_200": ["data/futures/um/monthly/indexPriceKlines/BTCUSDT/1d/BTCUSDT-1d-2023-01.zip", "data/futures/um/monthly/indexPriceKlines/BTCUSDT/1h/BTCUSDT-1h-2023-01.zip", "data/futures/um/daily/indexPriceKlines/BTCUSDT/1d/BTCUSDT-1d-2023-01-02.zip"], "header_read": "open_time,open,high,low,close,close_time,volume,quote_volume,count,taker_buy_volume,taker_buy_quote_volume,ignore", "sample_rows_read": "indexprice_1h_2023_01: 745 rows; first row close 16530.90928429", "note": "The index is the venue's underlying reference and is the denominator of the basis feature. It is not a traded instrument."},
+        "um_premium_index_klines": {"paths_confirmed_200": ["data/futures/um/monthly/premiumIndexKlines/BTCUSDT/1d/BTCUSDT-1d-2023-01.zip", "data/futures/um/monthly/premiumIndexKlines/BTCUSDT/1h/BTCUSDT-1h-2023-01.zip", "data/futures/um/daily/premiumIndexKlines/BTCUSDT/1d/BTCUSDT-1d-2023-01-02.zip", "data/futures/cm/monthly/premiumIndexKlines/BTCUSD_PERP/1d/BTCUSD_PERP-1d-2023-01.zip"], "header_read": "same kline column family", "sample_rows_read": "premiumindex_1h_2023_01: 745 rows; first row close -0.00022221, i.e. a signed decimal, not basis points", "note": "The premium index is the funding driver. Its sign convention must be recorded per source. cm_index_price_klines returned 404 at the probed path, so COIN-M index coverage is UNVERIFIED and must be established before an inverse-contract cohort is built."},
+        "um_open_interest_and_positioning": {"paths_confirmed_200": ["data/futures/um/daily/metrics/BTCUSDT/BTCUSDT-metrics-2023-01-02.zip", "data/futures/um/daily/metrics/BTCUSDT/BTCUSDT-metrics-2023-01-02.zip.CHECKSUM", "data/futures/cm/daily/metrics/BTCUSD_PERP/BTCUSD_PERP-metrics-2023-01-02.zip"], "header_read": "create_time,symbol,sum_open_interest,sum_open_interest_value,count_toptrader_long_short_ratio,sum_toptrader_long_short_ratio,count_long_short_ratio,sum_taker_long_short_vol_ratio", "sample_rows_read": "um 2023-01-02: 288 rows, exactly 5-minute spacing from 00:00:00 to 23:55:00; create_time is a UTC string, NOT an integer epoch. cm 2023-01-02: 288 rows, with count_toptrader_long_short_ratio, sum_toptrader_long_short_ratio and count_long_short_ratio emitted as empty strings.", "granularity": "5 minutes, daily files only; a monthly metrics path returned 404", "coverage_gap_for_cm": "Three of the four positioning columns are empty for COIN-M. Any feature built on them has no inverse-contract coverage."},
+        "um_trades_and_aggtrades": {"paths_confirmed_200": ["data/futures/um/monthly/aggTrades/BTCUSDT/BTCUSDT-aggTrades-2023-01.zip", "data/futures/um/monthly/trades/BTCUSDT/BTCUSDT-trades-2023-01.zip", "data/futures/um/daily/trades/BTCUSDT/BTCUSDT-trades-2023-01-02.zip", "data/futures/cm/monthly/aggTrades/BTCUSD_PERP/BTCUSD_PERP-aggTrades-2023-01.zip"], "header_read_futures_aggtrades": "Aggregate tradeId,Price,Quantity,First tradeId,Last tradeId,Timestamp,Was the buyer the maker (from https://github.com/binance/binance-public-data/ README). Note the futures aggTrades header has SEVEN columns and no 'Was the trade the best price match' column, unlike spot.", "header_read_futures_trades": "USD-M: trade Id,price,qty,quoteQty,time,isBuyerMaker. COIN-M: trade Id,price,qty,baseQty,time,isBuyerMaker."},
+        "um_book_depth": {"paths_confirmed_200": ["data/futures/um/daily/bookDepth/BTCUSDT/BTCUSDT-bookDepth-2023-01-02.zip"], "header_read": "not read; file existence and size only", "note": "Depth-derived features would need a separate schema audit."}
+      },
+      "perp_fields_not_available": {
+        "liquidation_and_adl": "No liquidation file was found. Probes that all returned 404: data/futures/um/daily/liquidationSnapshot/... , data/futures/um/monthly/liquidationSnapshot/... , data/futures/um/daily/forceOrders/... , data/futures/um/monthly/liquidation/... , data/futures/cm/daily/liquidationSnapshot/... . Binance documents forced-liquidation data as a WebSocket forceOrder stream, which is not reconstructible historically from this archive. Liquidation/ADL history is therefore NOT available from this source at the probed paths, and a liquidation-intensity feature cannot be built from it without a different source.",
+        "book_ticker": "data/futures/um/daily/bookTicker/... and monthly bookTicker returned 404.",
+        "leverage_and_margin_mode": "Leverage brackets and margin mode are user-account state, not public market data. They are not in the archive; they belong to the P2 simulator as declared assumptions."
+      },
+      "contract_specifications_source": {
+        "archive_side": "Not present in the Bulk archive. exchangeInfo is a live-API endpoint and was not reachable from this environment.",
+        "live_api_side": "fapi.binance.com did not connect. Binance's own connector examples (https://github.com/binance/binance-futures-connector-python) confirm the endpoint families exist (funding_info, funding_rate, open_interest, open_interest_hist, mark_price, mark_price_klines, index_price_kline, taker_long_short_ratio, long_short_account_ratio, exchange_info) but do not document field-level semantics.",
+        "status": "unverified_at_field_level"
+      },
+      "timestamp_fields": {
+        "bulk_archive_unit": "Millisecond integer epoch in every futures sample read during this revision (13-digit values, for example 1672531200000 in fundingRate, klines, markPriceKlines, indexPriceKlines, premiumIndexKlines).",
+        "spot_microsecond_break_does_not_apply": "The binance-public-data README states 'The timestamp for SPOT Data from January 1st 2025 onwards will be in microseconds.' The note names SPOT only. Since this track uses futures paths exclusively, the known unit break is out of scope; the futures unit must still be asserted at ingestion rather than assumed, because the README does not state it and this review did not test a post-2025 futures file for unit.",
+        "exception": "The metrics files do NOT use integer epochs. Their create_time is a UTC datetime string of the form '2023-01-02 00:00:00'. A single loader that assumes integer milliseconds for every archive file will silently corrupt the open-interest series.",
+        "bar_close_semantics": "klines carry an inclusive open_time and an inclusive close_time. The observed example is a 1-hour bar 1672531200000 -> 1672534799999, i.e. close_time = open_time + interval - 1. A decision is therefore knowable at close_time + 1 unit, and decisions must be taken at bar close, not bar open."
+      },
+      "revision_policy": "No vendor as-of vintages exist. Terms section 5.3 reserves the right to 'modify, redact, or discontinue access to any specific market pair, dataset, or endpoint at any time without prior notice.' The binance-public-data README states the opposite of immutability for quality reasons: 'Archived files may be updated at a later date as a result of recently discovered issues', and it publishes an updates table with a 2022-08-08 kline update and a 2022-04-21 aggregate-trade update, each accompanied by CHECKSUMs of the replaced and replacement files. This is direct evidence that the archive HAS been rewritten in place, which strengthens the point-in-time warning rather than weakening it.",
+      "delisting_coverage": "Strong by construction for continuous symbols: archives for inactive symbols remain addressable, so delisted perpetuals can be deliberately included in the universe. The complete historical symbol list was not enumerated, and how a symbol whose history is removed is handled is unverified.",
+      "known_risks": [
+        "Non-commercial-only licence; section 4.2 prohibits live proprietary trading execution outright. See BINANCE_NONCOMMERCIAL_BANNER.",
+        "The archive has demonstrably been rewritten before (documented update table). Any unpinned historical read is a current snapshot, not an as-of vintage.",
+        "Two incompatible timestamp encodings coexist inside the same archive family (integer epoch in klines/fundingRate, datetime string in metrics).",
+        "No liquidation or ADL history is available from this source; no leverage or margin-mode state either.",
+        "Monthly archive cadence makes the frontier roughly 1 to 5 weeks stale; daily files appear the next day. Unsuitable for any live or paper phase.",
+        "Section 7.2 bans circumventing rate restrictions, so bulk retrieval must be throttled and respectful.",
+        "COIN-M index-price klines and COIN-M positioning columns are unverified or empty, so inverse-contract coverage must be established before it is relied on.",
+        "Delivery/quarterly contracts share the same archive path family and must be filtered out explicitly."
+      ],
+      "our_decision": "recommended_first_market"
+    },
+    {
+      "source_id": "bybit_v5_market_api",
+      "name": "Bybit V5 public market-data API (REST and WebSocket) for perpetuals",
+      "venue": "Bybit",
+      "url": "https://bybit-exchange.github.io/docs/v5/intro",
+      "additional_urls": [
+        "https://bybit-exchange.github.io/docs/v5/market/kline",
+        "https://bybit-exchange.github.io/docs/v5/market/history-fund-rate",
+        "https://bybit-exchange.github.io/docs/v5/market/open-interest",
+        "https://bybit-exchange.github.io/docs/v5/market/adl-alert",
+        "https://bybit-exchange.github.io/docs/v5/market/risk-limit",
+        "https://www.bybit.com/en/legal/terms-of-service",
+        "https://www.bybit.com/en/help-center",
+        "https://github.com/bybit-exchange/docs"
+      ],
+      "instruments": "USDT perpetual (linear), USDC perpetual (linear), and inverse perpetual contracts. The funding-history and mark-price endpoints are documented as covering perpetual contracts; the index-price endpoint also covers delivery contracts (symbol suffix Z22 style), so delivery instruments must be filtered by contractType.",
+      "access_method": "Public REST and WebSocket API. No public bulk historical archive comparable to Binance's was found; the market endpoints used here are documented as public (category and symbol are the only required inputs) and no authentication header appears in their request parameters. Historical depth is bounded per endpoint by pagination limits and by the instrument's launch time.",
+      "access_method_verified": false,
+      "access_evidence": "The API documentation was read from the venue's own documentation source at https://github.com/bybit-exchange/docs (pinned commit 75994fda16e052aaad6e3fade82fd1f6fd90288e), but api.bybit.com did not respond and www.bybit.com did not connect from the review environment, so no live request was issued and no endpoint was exercised. Public-ness is read from the documentation's parameter tables, which mark only category and symbol as required and specify no signature.",
+      "license": "unverified",
+      "license_url": "https://www.bybit.com/en/legal/terms-of-service",
+      "license_url_status": "unreachable_from_review_environment",
+      "license_verified": false,
+      "license_evidence": "NOT RETRIEVED. Every attempted path to the Bybit terms failed: https://www.bybit.com/en/legal/terms-of-service , https://www.bybit.com/en/legal/terms-of-service/ , https://www.bybit.com/terms-of-service , https://www.bybit.com/en/legal , https://www.bybit.com/en/legal/api-terms , https://www.bybit.com/en/help-center and https://www.bybit.com/api/legal/terms all returned HTTP 000 (no connection) from this environment, and web fetches failed with a hostname-resolution error. No terms text was read. NOTHING is asserted about Bybit's permitted or prohibited uses.",
+      "permits_research_use": "unverified",
+      "permits_algorithmic_trading": "unverified",
+      "live_execution_clause": {
+        "present": "unverified",
+        "quote": null,
+        "reading": "Not read. Bybit's Terms of Service, its API terms, and its help-centre articles on algorithmic trading were all unreachable. No clause is quoted because none was read, and no inference is drawn from the existence of API-key documentation: the existence of an API is not a licence to use it for a particular purpose.",
+        "what_a_reviewer_must_read": [
+          "The Bybit Terms of Service section governing API and automated/programmatic trading.",
+          "Any separate API or market-data terms, and whether market data may be retained or redistributed.",
+          "Any clause restricting automated order placement, latency-sensitive strategies, market making, or use from restricted jurisdictions.",
+          "Whether the venue requires KYC/account approval before API market data is served, and whether the historical windows differ between authenticated and unauthenticated callers."
+        ]
+      },
+      "cost": "unverified. The documentation pages read do not state a price for public market data, and no pricing page was reachable.",
+      "cost_evidence": "Not retrieved. No price is recorded because no pricing page rendered.",
+      "perp_fields_verified_from_documentation": {
+        "funding_rate_history": {"endpoint": "GET /v5/market/funding/history", "required_parameters": ["category (linear|inverse)", "symbol"], "optional": ["startTime", "endTime", "limit (1..200, default 200)"], "response_fields": ["category", "list[].symbol", "list[].fundingRate", "list[].fundingRateTimestamp"], "interval_carried": "NOT in this response. The documentation says 'Each symbol has a different funding interval' and directs the caller to the instruments-info endpoint for it.", "pagination_note": "Passing only startTime returns an error; passing only endTime returns 200 records up to endTime; passing neither returns the 200 records up to now. This is a real pagination trap: a naive loop over many funding settlements will silently return only the trailing 200 rows."},
+        "open_interest": {"endpoint": "GET /v5/market/open-interest", "required_parameters": ["category", "symbol", "intervalTime (5min|15min|30min|1h|4h|1d)"], "optional": ["startTime", "endTime", "limit (1..200, default 50)", "cursor"], "response_fields": ["category", "symbol", "list[].openInterest", "list[].singleOpenInterest", "list[].timestamp", "nextPageCursor"], "unit_rule_documented": "'The unit of value, e.g., BTCUSD(inverse) is USD, BTCUSDT(linear) is BTC' — i.e. linear open interest is in BASE COIN and inverse open interest is in USD. The response also distinguishes a both-sides aggregate (openInterest) from a one-sided value (singleOpenInterest), which is exactly the double-counting convention this manifest requires to be recorded.", "upper_bound_documented": "'The upper limit time you can query is the launch time of the symbol.'", "reliability_caveat_documented": "'During periods of extreme market volatility, this interface may experience increased latency or temporary delays in data delivery.'"},
+        "mark_price_klines": {"endpoint": "GET /v5/market/mark-price-kline", "intervals": ["1", "3", "5", "15", "30", "60", "120", "240", "360", "720", "D", "M", "W"], "limit": "1..1000, default 200", "response_fields": ["category", "symbol", "list[0] startTime", "list[1] openPrice", "list[2] highPrice", "list[3] lowPrice", "list[4] closePrice"], "covers": "USDT perpetual / USDC contract / Inverse contract", "note": "This is the perp label price series on this venue."},
+        "index_price_klines": {"endpoint": "GET /v5/market/index-price-kline", "intervals": ["1", "3", "5", "15", "30", "60", "120", "240", "360", "720", "D", "W", "M"], "limit": "1..1000, default 200", "covers": "USDT contract / USDC contract / Inverse contract", "note": "Covers delivery contracts too; the documented example uses BTCUSDZ22, a dated future. Filter by contractType."},
+        "premium_index_klines": {"endpoint": "GET /v5/market/premium-index-price-kline", "category": "linear only", "covers": "USDT and USDC perpetual", "note": "The premium index is the funding driver; it is NOT available for inverse contracts through this endpoint."},
+        "last_price_klines": {"endpoint": "GET /v5/market/kline", "volume_unit_documented": "'Trade volume USDT or USDC contract: unit is base coin (e.g., BTC). Inverse contract: unit is quote coin (e.g., USD)' and turnover is the mirror image. The units therefore SWAP between linear and inverse contracts — a cross-contract-type comparison without an explicit unit conversion is wrong."},
+        "tickers_snapshot": {"endpoint": "GET /v5/market/tickers", "fields": ["lastPrice", "indexPrice", "markPrice", "price24hPcnt", "openInterest", "openInterestValue", "singleOpenInterest", "singleOpenInterestValue", "fundingRate", "nextFundingTime"], "note": "This single response carries all three price references plus a current funding rate and both open-interest conventions. It is a snapshot endpoint, so it is usable for point-in-time capture going forward but not for reconstructing history."},
+        "adl_and_insurance": {"endpoints": ["GET /v5/market/adl-alert", "GET /v5/market/insurance"], "adl_covers": "USDT Perpetual / USDT Delivery / USDC Perpetual / USDC Delivery / Inverse Contracts", "adl_update_frequency": "every 1 minute", "adl_response_fields": ["updateTime", "list[].coin", "list[].symbol", "list[].balance", "list[].maxBalance (deprecated, always empty)", "list[].insurancePnlRatio", "list[].pnlRatio", "list[].adlTriggerThreshold", "list[].adlStopRatio"], "insurance": "Insurance pool balance, updated every 24 hours.", "critical_limit": "This is a CURRENT-STATE alert endpoint, not an event history. Bybit's documentation states ADL trigger and stop conditions but does not expose a queryable historical ADL or liquidation event log. A historical liquidation/ADL event series is therefore NOT available from Bybit's public market API, and the insurance-pool balance is at best a daily proxy for liquidation pressure.", "documentation_ambiguity": "The API examples on this page use api-testnet.bybit.com host names even under headings about production behaviour, so a reader must confirm the production host separately."},
+        "risk_limits": {"endpoint": "GET /v5/market/risk-limit", "note": "Documented leverage/risk-limit tiers per symbol; these are the venue's leverage caps and belong to simulator and universe inputs, not to the label."},
+        "instrument_specifications": {"endpoint": "GET /v5/market/instruments-info", "fields": ["contractType (for example LinearPerpetual)", "deliveryTime (documented as 'Expired futures delivery time' AND 'Perpetual delisting time')", "priceFilter.tickSize", "lotSizeFilter.minNotionalValue", "lotSizeFilter.maxOrderQty", "lotSizeFilter.minOrderQty", "lotSizeFilter.qtyStep", "fundingInterval (documented in MINUTES)"], "sample_value_read": "The official USDT Perpetual example shows tickSize 0.10, minOrderQty 0.001, qtyStep 0.001, minNotionalValue 5, fundingInterval 480.", "note": "fundingInterval 480 minutes = 8 hours, confirming the interval is per-symbol data and not a constant. deliveryTime doubling as a perpetual delisting timestamp is the point-in-time delisting signal this universe needs."}
+      },
+      "perp_fields_not_available": {
+        "liquidation_event_history": "Not exposed. A current 1-minute ADL-alert state and a 24-hour insurance-pool balance exist; no historical event log was found.",
+        "historical_archive": "No public bulk archive comparable to Binance's was found in the venue's documentation or its GitHub organisation.",
+        "leverage_and_margin_mode_per_account": "Account state, not public market data; belongs to the P2 simulator."
+      },
+      "timestamp_fields": "Millisecond integer epoch throughout the documented REST responses (startTime, fundingRateTimestamp, nextFundingTime, timestamp, updateTime). WebSocket streams add their own event times. No microsecond break is documented. Interval strings use Bybit's own vocabulary ('D', 'W', 'M' and minutes as bare integers), which must be mapped explicitly and not confused with Binance's ('1d', '1w', '1mo').",
+      "revision_policy": "unverified. No correction or restatement policy was read. The API serves current history rather than as-of vintages.",
+      "delisting_coverage": "instruments-info exposes contractType, status and deliveryTime, and the documentation describes deliveryTime as covering 'Perpetual delisting time'. That is a genuine point-in-time delisting signal, but it could not be exercised because the API was unreachable. Whether delisted symbols remain queryable through the historical market endpoints is unverified.",
+      "known_risks": [
+        "Terms of service, API terms and algorithmic-trading clauses are entirely unread. No research-use or automated-trading permission is established.",
+        "No bulk historical archive; history must be crawled from rate-limited public endpoints, which is itself a terms-compliance question given that the relevant terms were not readable.",
+        "The funding-history endpoint silently returns only the trailing 200 records in its default mode, and passing only startTime is an error. A naive pagination loop will under-collect without failing.",
+        "Units and volume conventions swap between linear and inverse contracts; open interest is base coin for linear and USD for inverse.",
+        "No historical liquidation or ADL event data; only a current state and a daily insurance balance.",
+        "The premium-index kline endpoint is linear-only, so inverse contracts have no premium-index series from it.",
+        "Millisecond timestamps and venue-specific interval strings must be normalized at the ingestion boundary."
+      ],
+      "our_decision": "co_primary"
+    },
+    {
+      "source_id": "aster_futures_api",
+      "name": "Aster (AsterDEX) perpetual futures public market API",
+      "venue": "Aster",
+      "url": "https://github.com/asterdex/api-docs",
+      "additional_urls": [
+        "https://github.com/asterdex/api-docs/blob/master/V3(Recommended)/EN/aster-finance-futures-api-v3.md",
+        "https://github.com/asterdex/api-docs/blob/master/Aster%20API%20Overview.md",
+        "https://docs.asterdex.com/resources/terms-and-conditions",
+        "https://www.asterdex.com/en/terms-of-service"
+      ],
+      "instruments": "USDT-margined perpetual futures. The API surface is an exchange-style futures API; the documentation read covers futures only for perps (a separate spot API exists and is out of scope for this track).",
+      "access_method": "Public REST and WebSocket API at base endpoint https://fapi.asterdex.com, documented as Binance-Futures-compatible in path, parameter and response shape (for example /fapi/v3/klines, /fapi/v3/fundingRate, /fapi/v3/premiumIndex, /fapi/v3/exchangeInfo). Public market-data endpoints require no signature; account, order and trade endpoints require API-wallet (EIP-712 style) or, in the legacy version, HMAC authentication. No public bulk historical archive was found.",
+      "access_method_verified": false,
+      "access_evidence": "The API documentation repository was read directly from GitHub at https://github.com/asterdex/api-docs. fapi.asterdex.com and www.asterdex.com did not connect from the review environment, so no endpoint was exercised and no coverage depth was measured.",
+      "deposit_gate_finding": {
+        "finding": "The API repository's README states: 'Starting from September 1, 2026, 00:00 UTC, all authenticated Spot V3 / Futures V3 endpoints (account, order, trade, and other USER_DATA / TRADE endpoints) are only accessible after the main wallet linked to the Aster account has completed a deposit. Agent Wallet and Builder endpoints, and public market data endpoints, are unaffected. Until the deposit is completed, affected requests return {\"code\":-5050,\"msg\":\"This function can only be used after deposit\"}.'",
+        "read_from": "https://github.com/asterdex/api-docs/blob/master/README.md",
+        "implication": "Public market data is explicitly unaffected, so historical research on public endpoints is not gated. But an authenticated force-orders call (the only REST route that returns liquidation/ADL orders) IS a USER_DATA endpoint and is therefore gated behind a wallet deposit. That deposit is an account action and is out of scope under the current no-purchase/no-account constraint.",
+        "also_noted": "The API overview states that from March 25 2026 new V1 API keys can no longer be created, while existing keys keep working. A future integration must target V3."
+      },
+      "license": "unverified",
+      "license_url": "https://docs.asterdex.com/resources/terms-and-conditions",
+      "license_url_status": "unreachable_from_review_environment",
+      "license_verified": false,
+      "license_evidence": "NOT RETRIEVED. https://docs.asterdex.com/resources/terms-and-conditions , https://www.asterdex.com/en/terms-of-service and https://docs.asterdex.com/ all failed to connect from this environment (HTTP 000), and a hosted web fetch failed with a connection error. A search result identified the canonical terms location as docs.asterdex.com/resources/terms-and-conditions, but the page itself was never served to this review. No terms text was read. NOTHING is asserted about Aster's permitted or prohibited uses.",
+      "permits_research_use": "unverified",
+      "permits_algorithmic_trading": "unverified",
+      "live_execution_clause": {
+        "present": "unverified",
+        "quote": null,
+        "reading": "Not read. No clause is quoted because none was read.",
+        "what_a_reviewer_must_read": [
+          "The Aster terms and conditions, specifically the clauses on API and automated trading.",
+          "Whether the terms restrict algorithmic order placement, self-trading, or market-making.",
+          "Whether the terms (or a separate data policy) permit retaining historical market data locally and publishing derived research.",
+          "Whether the venue is accessible from the intended jurisdiction at all, since Aster is a decentralised-style venue with its own chain."
+        ]
+      },
+      "cost": "unverified for data; the documentation read describes an account deposit requirement for authenticated endpoints, which is an account action and not authorized here.",
+      "cost_evidence": "No pricing page was reachable. The only cost-adjacent fact read is the deposit gate quoted above.",
+      "perp_fields_verified_from_documentation": {
+        "klines": {"endpoint": "GET /fapi/v3/klines", "note": "Binance-shaped kline endpoint; response fields not enumerated in this review."},
+        "mark_price_klines": {"endpoint": "GET /fapi/v3/markPriceKlines"},
+        "index_price_klines": {"endpoint": "GET /fapi/v3/indexPriceKlines"},
+        "premium_index_and_mark_price": {"endpoint": "GET /fapi/v3/premiumIndex", "response_fields_read": ["markPrice", "indexPrice", "lastFundingRate"], "note": "This single endpoint returns mark price, index price and the last funding rate per symbol, with a documented example response."},
+        "funding_rate_history": {"endpoint": "GET /fapi/v3/fundingRate", "parameters": ["symbol", "startTime", "endTime", "limit (default 100, max 1000)"], "response_fields": ["symbol", "fundingRate", "fundingTime"], "gap": "The historical response does NOT carry the funding interval. The interval is exposed only by a separate config endpoint."},
+        "funding_rate_config": {"endpoint": "GET /fapi/v3/fundingRateConfig", "response_fields": ["symbol", "interestRate", "time", "fundingIntervalHours", "fundingFeeCap", "fundingFeeFloor"], "note": "This is the only route read that carries fundingIntervalHours, and the documented sample shows two different symbols with different intervals (8 hours and 4 hours). The interval is therefore per-symbol data and it CHANGES over time, so a historical funding series needs a point-in-time interval join to be interpreted correctly.", "history_available": "unverified whether this endpoint returns historical interval changes or only the current configuration."},
+        "exchange_info_and_contract_specs": {"endpoint": "GET /fapi/v3/exchangeInfo", "fields_read": ["priceFilter.tickSize", "lotSizeFilter.stepSize", "minQty", "liquidationFee", "pricePrecision", "quantityPrecision", "rateLimits (RAW_REQUEST, REQUEST_WEIGHT, ORDER)"], "documentation_warning_read": "'pricePrecision' is explicitly annotated 'please do not use it as tickSize' and 'quantityPrecision' as 'please do not use it as stepSize'. That is a documented unit-confusion trap.", "note": "MIN_NOTIONAL is documented as a filter type in the enumerated filter list."},
+        "force_orders": {"endpoint": "GET /fapi/v3/forceOrders", "parameters_read": ["autoCloseType: 'LIQUIDATION' for liquidation orders, 'ADL' for ADL orders"], "exchange_messages_read": "Order status values include 'CALCULATED - Liquidation Execution', 'NEW_INSURANCE - Liquidation with Insurance Fund' and 'NEW_ADL - Counterparty Liquidation'.", "why_this_matters": "This is the only venue in the set whose read documentation exposes a queryable force-orders endpoint that names BOTH liquidation and ADL explicitly, which is a genuine advantage for the liquidation/ADL feature.", "hard_limit": "It is a USER_DATA endpoint and is therefore inside the deposit gate described above, and it requires authentication. It is unusable for historical research under the current constraint."},
+        "liquidation_streams": {"streams": ["<symbol>@forceOrder", "!forceOrder@arr"], "documentation_read": "The Liquidation Order Snapshot Streams push force liquidation order information. 'For each symbol, only the latest one liquidation order within 1000ms will be pushed as the snapshot. If no liquidation happens in the interval of 1000ms, no stream will be pushed.'", "critical_limit": "This is a 1000-millisecond down-sampling stream. It is lossy by construction for any symbol that liquidates more than once per second, so it is not an event-complete liquidation history even if it were recorded live."},
+        "trades_and_aggtrades": {"documentation_read": "'Market trades means trades filled in the order book. Only market trades will be returned, which means the insurance fund trades and ADL trades won't be returned.'", "implication": "ADL trades are excluded from the trade tape, so ADL activity cannot be recovered from trades either."}
+      },
+      "perp_fields_not_available": {
+        "open_interest": "NOT FOUND. The market-data section of the V3 futures API lists Noop, Test Connectivity, Check Server Time, Exchange Information, Order Book, Recent Trades, Old Trades Lookup, Compressed/Aggregate Trades, Kline/Candlestick, Index Price Kline, Mark Price Kline, Mark Price (premium index), Funding Rate History, Funding Rate Config, 24hr Ticker, Symbol Price Ticker, Symbol Order Book Ticker and Index Price References. No open-interest endpoint, no open-interest history endpoint, and no long/short-ratio endpoint appear in the read documentation. Open interest is therefore NOT available from Aster's documented public API, which is a material coverage gap for a perp data model.",
+        "historical_liquidation_events": "Only a 1000 ms down-sampled live stream and an authenticated, deposit-gated force-orders endpoint. No historical event history.",
+        "positioning_ratios": "No long/short account or position ratio endpoints were found, in contrast to Binance's metrics files."
+      },
+      "timestamp_fields": "Millisecond integer epoch throughout the documented responses (fundingTime 1570608000000 in the sample, time, startTime, endTime). The V3 nonce mechanism separately requires MICROSECOND precision for request nonces, which is an authentication detail and not a data timestamp.",
+      "revision_policy": "unverified. No correction or restatement policy was read.",
+      "delisting_coverage": "unverified. Instrument metadata exists, but no delisting or status history specific to perpetuals was read.",
+      "known_risks": [
+        "Terms entirely unread. No research-use or automated-trading permission is established.",
+        "Open interest is absent from the documented public API, so the perp data model cannot be completed for this venue from public endpoints.",
+        "Liquidation and ADL history is not obtainable: the only REST route is authenticated and now deposit-gated, and the public stream is down-sampled at 1000 ms.",
+        "The funding interval must be joined from a separate config endpoint whose own historical depth is unverified.",
+        "exchangeInfo carries pricePrecision and quantityPrecision fields that the documentation explicitly warns are NOT tickSize and stepSize; using them by name similarity is a documented trap.",
+        "The venue is Binance-API-shaped but is not Binance: identical field names do not imply identical semantics, oracle construction, or funding formula.",
+        "The API host was unreachable from this environment, so no coverage depth, latency, or rate-limit behaviour was measured."
+      ],
+      "our_decision": "co_primary"
+    },
+    {
+      "source_id": "hyperliquid_onchain",
+      "name": "Hyperliquid on-chain perpetual exchange: /info API plus the public S3 archive",
+      "venue": "Hyperliquid",
+      "url": "https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint/perpetuals",
+      "additional_urls": [
+        "https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint",
+        "https://hyperliquid.gitbook.io/hyperliquid-docs/historical-data",
+        "https://hyperliquid.gitbook.io/hyperliquid-docs/trading/funding",
+        "https://hyperliquid.gitbook.io/hyperliquid-docs/trading/liquidations",
+        "https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/tick-and-lot-size",
+        "https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/rate-limits-and-user-limits",
+        "https://hyperliquid.xyz/terms"
+      ],
+      "instruments": "On-chain perpetual contracts settled in USDC on HyperCore, plus builder-deployed perp dexs (HIP-3) whose assets are prefixed with a dex name such as xyz:XYZ100. Spot pairs exist on the same venue and are explicitly out of scope.",
+      "access_method": "Three complementary routes, all public: (1) POST https://api.hyperliquid.xyz/info for current and bounded historical queries; (2) a public S3 archive at s3://hyperliquid-archive maintained for advanced users; (3) on-chain/explorer APIs. The venue is a blockchain, so order flow is inherently attributable to blocks.",
+      "access_method_verified": "partial",
+      "access_evidence": "The API host responded to an unauthenticated request during this review (HTTP 405 for a bare GET on /info, which is the correct response for a POST-only route), so the endpoint is reachable and public. The documentation pages were read from hyperliquid.gitbook.io. No S3 object listing was enumerated and no candles or archive files were downloaded.",
+      "license": "unverified",
+      "license_url": "https://hyperliquid.xyz/terms",
+      "license_url_status": "http_403_s3_access_denied_from_review_environment",
+      "license_verified": false,
+      "license_evidence": "NOT RETRIEVED. https://hyperliquid.xyz/terms returned HTTP 403 with an S3 AccessDenied XML body from this environment, and a hosted fetch returned the same 403. https://app.hyperliquid.xyz/terms and https://app.hyperliquid.xyz/ did not connect. The project documentation site exposes no terms, legal or privacy page, and the foundation domain returned 404 for /terms-of-use and /legal/terms. A secondary source (an SEC filing that quotes third-party terms) indicates that the Hyperliquid interface's terms of use define a 'Restricted Persons' category, but that is a quotation inside another document and was NOT read from a primary page, so it is recorded as an unverified signal rather than a finding. No terms text was read. NOTHING is asserted about Hyperliquid's permitted or prohibited uses.",
+      "permits_research_use": "unverified",
+      "permits_algorithmic_trading": "unverified",
+      "live_execution_clause": {
+        "present": "unverified",
+        "quote": null,
+        "reading": "Not read. No clause is quoted because none was read.",
+        "what_a_reviewer_must_read": [
+          "The interface terms of use reachable from the app, including any Restricted Persons or jurisdiction clause.",
+          "Whether programmatic trading through the API is governed by the same terms as the interface, and whether an API-wallet/agent arrangement changes the analysis.",
+          "Whether the public S3 archive carries its own access or acceptable-use conditions on top of the general terms, given that the documentation states 'the requester of the data must pay for transfer costs'."
+        ]
+      },
+      "cost": "USD 0 for public API queries within rate limits and for reading the archive, but the S3 archive documentation states that 'the requester of the data must pay for transfer costs', so archive download is a metered AWS egress charge even though no subscription is required.",
+      "cost_evidence": "Read from https://hyperliquid.gitbook.io/hyperliquid-docs/historical-data : 'Note that the requester of the data must pay for transfer costs.'",
+      "perp_fields_verified_from_documentation": {
+        "meta": {"endpoint": "POST /info with type 'meta'", "returns": "Perpetuals metadata: the universe array and margin tables.", "universe_fields_read": ["name", "szDecimals", "maxLeverage", "onlyIsolated (documented as deprecated, meaning either strictIsolated or noCross)", "isDelisted (boolean)", "marginMode ('strictIsolated' means margin cannot be removed; 'noCross' means only isolated margin allowed)"], "margin_table_fields_read": ["marginTiers[] with lowerBound and maxLeverage, keyed by a tier id"], "significance": "This is the single best contract-specification response in the venue set: it carries delisting state, leverage caps, leverage tiers, and per-asset size decimals in one object. isDelisted is a true point-in-time-relevant field, though only its current value is served."},
+        "meta_and_asset_contexts": {"endpoint": "POST /info with type 'metaAndAssetCtxs'", "returns": "For each instrument: mark price, current funding, open interest and more, all in one array positionally aligned with the universe array.", "asset_context_fields_read": ["funding", "openInterest", "markPx", "midPx", "oraclePx", "premium", "prevDayPx", "dayNtlVlm", "impactPxs (a two-element array: bid-side and ask-side impact price)"], "significance": "One call yields mark price, the oracle/index reference, the premium, the current funding rate and open interest together — the complete perp state vector. This is a snapshot, so historical reconstruction requires the archive or repeated capture.", "watch_out": "The two arrays are positionally aligned rather than keyed, and HIP-3 coins carry a dex prefix. A mis-indexed join silently pairs the wrong instrument with the wrong context."},
+        "funding_history": {"endpoint": "POST /info with type 'fundingHistory'", "required_parameters": ["coin", "startTime"], "optional": ["endTime (defaults to now)"], "response_fields": ["coin", "fundingRate", "premium", "time"], "granularity": "Hourly funding settlements. The funding documentation states 'The funding rate on Hyperliquid is paid every hour', that the eight-hour formula is applied at one eighth per hour, and that 'The premium is sampled every 5 seconds and averaged over the hour.'", "important_consequence": "Because the venue pays hourly, its funding series is finer-grained than an eight-hour venue's. Pooling funding across venues without aligning to each venue's own settlement grid is a unit error in the time domain.", "pagination_limit": "Documentation states that responses taking a time range return at most 500 elements, and the rate-limit page confirms fundingHistory carries an additional weight per 20 items returned. A long history therefore requires many paginated calls."},
+        "predicted_fundings": {"endpoint": "POST /info with type 'predictedFundings'", "returns": "Predicted funding rates for different venues.", "note": "Documented as supported only for the first perp dex. This is a cross-venue funding comparison feed, which is unusual and potentially useful for a cross-venue basis feature. Its point-in-time availability is unverified."},
+        "candle_snapshot": {"endpoint": "POST /info with type 'candleSnapshot'", "intervals": ["1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "8h", "12h", "1d", "3d", "1w", "1M"], "hard_limit_read": "'Only the most recent 5000 candles are available.'", "implication": "This is the most severe data-depth constraint in the venue set for the declared folds. 5000 daily candles reach back about 13.7 years, which is sufficient for daily bars; 5000 hourly candles reach back only about 7 months, and 5000 one-minute candles only about 3.5 days. Any intraday Hyperliquid cohort must therefore come from the S3 archive or from forward capture, not from this endpoint."},
+        "historical_archive": {"location": "s3://hyperliquid-archive", "layout": "s3://hyperliquid-archive/market_data/[date]/[hour]/[datatype]/[coin].lz4 and s3://hyperliquid-archive/asset_ctxs/[date].csv.lz4", "documented_content": "'L2 book snapshots are available in market_data and asset contexts are available in asset_ctxs. No other historical data sets are provided via S3 (e.g. candles or spot asset data).'", "documented_cadence": "'Historical data is uploaded to the bucket hyperliquid-archive approximately once a month. There is no guarantee of timely updates and data may be missing.'", "trade_data": "s3://hl-mainnet-node-data/node_fills_by_block (fills, matching API format), s3://hl-mainnet-node-data/node_fills and node_trades (older, different format), with explorer_blocks, replica_cmds and misc_events_by_block also published. misc_events_by_block 'contains non-trade events such as transfers, staking, and funding'.", "significance": "This is the only venue in the set that publishes an on-chain archive of asset contexts (which include funding, open interest, mark and oracle price) rather than only a candle archive. It is also the only one whose archive explicitly warns that updates are not guaranteed timely and that data may be missing.", "not_verified": "The CSV column order and units of asset_ctxs, the LZ4 framing, and the actual date coverage were NOT read. No file was downloaded."},
+        "tick_and_lot_size": {"rule_read": "Prices carry at most 5 significant figures and no more than MAX_DECIMALS - szDecimals decimal places, where MAX_DECIMALS is 6 for perpetuals and 8 for spot. Integer prices are always allowed. Sizes are rounded to the instrument's szDecimals.", "significance": "Tick size and lot size are DERIVED, not stored. There is no tickSize field to read; it follows from the significant-figure rule and szDecimals. A simulator that assumes a fixed stored tick size will be wrong per instrument.", "minimum_notional_evidence": "The order-status enumeration includes a 'minTradeNtlRejected' status, i.e. minimum notional is enforced at order time rather than published as a single field."},
+        "liquidations_and_adl": {"documentation_read": "Liquidations use the mark price. Positions are first sent to the book as full-size market orders. If equity falls below two thirds of maintenance margin without a successful book liquidation, a backstop liquidation happens through the liquidator vault (a component strategy of HLP), transferring the position and margin. Positions larger than 100k USDC are only 20 percent liquidated in one block, followed by a 30-second cooldown during which all market liquidation orders for that user are for the entire position. 'Unlike CEXs there is no clearance fee on liquidations.'", "adl_reading": "The documented mechanism is a liquidator-vault backstop rather than a CEX-style ADL rank-and-queue. There is no ADL-quantile endpoint on this venue, which contrasts with Binance's position-ADL-quantile endpoint.", "availability_of_event_history": "No public liquidation-event dataset, endpoint, or stream was found in the documentation read. Liquidations are on-chain events, so a block-level reconstruction may be possible in principle from the published node data, but that pipeline is unbuilt and its completeness is unverified."},
+        "rate_limits": {"rest": "1200 aggregated weight per minute per IP. Documented weights: l2Book, allMids, clearinghouseState, orderStatus, spotClearinghouseState and exchangeStatus are weight 2; userRole is weight 60; all other documented info requests are weight 20. Several endpoints add weight per 20 items returned (including fundingHistory); candleSnapshot adds weight per 60 items returned.", "websocket": "Maximum 10 connections, 30 new connections per minute, 1000 subscriptions, 2000 messages per minute, 100 simultaneous inflight posts.", "documented_guidance_read": "'For large batch requests, use the S3 bucket instead.'", "significance": "The per-item weighting on fundingHistory and candleSnapshot means a naive full-history crawl is both slow and rate-limit-hostile. The venue itself points bulk users at the S3 archive, which is the documented path and the one this plan should use."},
+        "on_chain_addressability": {"finding": "Because position and fill data are keyed to on-chain addresses, an address-based API route exists (userFills, userFillsByTime, clearinghouseState, historicalOrders, portfolio). This makes per-account behaviour observable in a way that no CEX in this set exposes publicly.", "restriction_read": "'Returns at most 2000 most recent historical orders' and 'only the 10000 most recent fills are available' for the by-time variant, so account-level history is shallow through the API.", "privacy_note": "Address-level data is public on-chain data. Using it to attempt de-anonymisation of individuals is out of scope and is exactly the kind of use the Binance terms prohibit by name; this project has no need for it and does not propose it."}
+      },
+      "perp_fields_not_available": {
+        "historical_candles_beyond_5000": "Not through the API. The S3 archive is documented as NOT carrying candles at all.",
+        "public_liquidation_event_history": "No dataset, endpoint or stream found.",
+        "historical_account_state": "Shallow (2000 orders / 10000 fills) and address-scoped."
+      },
+      "timestamp_fields": "Millisecond integer epoch in API request and response times (for example 1683849600076 in the fundingHistory sample, 1708622398623 in a clearinghouse sample). The archive layout is hour-bucketed by date directory, which is a coarser partitioning than a timestamp and must not be mistaken for event time.",
+      "revision_policy": "unverified explicitly, and the archive documentation is candid that the archive itself is not guaranteed: 'approximately once a month. There is no guarantee of timely updates and data may be missing.' That is a stronger warning than any other venue publishes, and it must be treated as a real coverage risk rather than boilerplate.",
+      "delisting_coverage": "meta exposes an isDelisted boolean per instrument, and the order-status enumeration includes delistedCanceled. That is a usable delisting signal, but it is a CURRENT flag: whether the venue retains historical candles or contexts for a delisted coin is unverified, and the archive's hour-bucketed layout was not enumerated.",
+      "known_risks": [
+        "Terms entirely unread (403 / unreachable). No research-use or automated-trading permission is established.",
+        "The API candle history is capped at the most recent 5000 candles, which rules out intraday folds from the API and forces reliance on the S3 archive.",
+        "The S3 archive carries no candles, is published roughly monthly with explicit no-timeliness and possible-missing-data caveats, and is metered for egress.",
+        "No public liquidation/ADL event history; the mechanism is a vault backstop rather than a CEX-style ADL queue, so cross-venue ADL features are not comparable.",
+        "Funding settles hourly rather than every eight hours, so funding series are not directly comparable across venues without time-grid alignment.",
+        "Tick size is derived from a significant-figure rule rather than published, and minimum notional is only enforced at order time.",
+        "HIP-3 builder-deployed perp dexs share the API surface and require a dex-prefixed coin name; a non-prefixed query silently addresses the first perp dex.",
+        "The universe and asset-context arrays are positionally aligned, so an off-by-one join mislabels instruments.",
+        "Being a blockchain, the venue introduces an on-chain determinism question for point-in-time work: a block timestamp and an exchange event timestamp are different objects."
+      ],
+      "our_decision": "co_primary"
+    }
+  ],
+  "perp_data_model_coverage": {
+    "legend": "yes = documented or directly verified; partial = available with a stated limitation; no = not available from the read public sources; unverified = could not be established from what was readable.",
+    "matrix": {
+      "funding_rate_level": {"binance": "yes (monthly/daily fundingRate archive, per-settlement rows)", "bybit": "yes (GET /v5/market/funding/history, paginated)", "aster": "yes (GET /fapi/v3/fundingRate, paginated)", "hyperliquid": "yes (POST /info fundingHistory, hourly)"},
+      "funding_interval_or_schedule": {"binance": "yes (funding_interval_hours carried on EVERY archive row)", "bybit": "yes (fundingInterval in instruments-info, in minutes)", "aster": "partial (separate fundingRateConfig endpoint carries fundingIntervalHours; whether it serves history is unverified)", "hyperliquid": "yes (documented as hourly, one eighth of the eight-hour rate, premium sampled every 5 seconds)"},
+      "funding_settlement_timestamp": {"binance": "yes (calc_time per row, millisecond epoch)", "bybit": "yes (fundingRateTimestamp)", "aster": "yes (fundingTime)", "hyperliquid": "yes (time in each fundingHistory element)"},
+      "mark_price": {"binance": "yes (markPriceKlines archive)", "bybit": "yes (mark-price-kline endpoint and markPrice in tickers)", "aster": "yes (markPriceKlines endpoint and markPrice in premiumIndex)", "hyperliquid": "partial (markPx in metaAndAssetCtxs is a snapshot; hourly archive asset_ctxs is the historical route; API candles are capped at 5000)"},
+      "index_or_oracle_price": {"binance": "partial (UM indexPriceKlines verified; CM indexPriceKlines returned 404 at the probed path)", "bybit": "yes (index-price-kline endpoint and indexPrice in tickers)", "aster": "yes (indexPriceKlines and indexPrice in premiumIndex)", "hyperliquid": "yes (oraclePx in metaAndAssetCtxs; hourly archive asset_ctxs)"},
+      "last_price": {"binance": "yes (klines and trades archives)", "bybit": "yes (kline endpoint, lastPrice in tickers)", "aster": "yes (klines endpoint)", "hyperliquid": "partial (midPx and prevDayPx in asset contexts; the 5000-candle cap applies to candle history)"},
+      "premium_or_basis": {"binance": "yes (premiumIndexKlines archive)", "bybit": "partial (premium-index kline is linear-only; index and mark are both available so basis is computable)", "aster": "yes (premiumIndex returns lastFundingRate with mark and index; index-price-references endpoint exists)", "hyperliquid": "yes (premium is a first-class field in the asset context and in fundingHistory)"},
+      "open_interest": {"binance": "yes (daily metrics archive, 5-minute granularity, sum_open_interest and sum_open_interest_value; CM positioning columns are empty)", "bybit": "yes (open-interest endpoint at 5min/15min/30min/1h/4h/1d, both-sides and single-side, unit differs by contract type)", "aster": "no (no open-interest endpoint appears in the read public market-data documentation)", "hyperliquid": "yes (openInterest in metaAndAssetCtxs and in the hourly archive asset_ctxs)"},
+      "liquidation_events": {"binance": "no (no liquidation file found at any probed archive path; live WebSocket stream only)", "bybit": "no (current 1-minute ADL alert state and a 24-hour insurance balance; no historical event log)", "aster": "partial (live forceOrder stream down-sampled to one event per symbol per 1000 ms; an authenticated, deposit-gated forceOrders REST route returns LIQUIDATION and ADL orders)", "hyperliquid": "no (liquidations are on-chain events with no public event dataset; mechanism documented but history unavailable)"},
+      "adl_events": {"binance": "no (ADL quantile is an account endpoint, not public market history)", "bybit": "partial (adl-alert exposes current insurance-pool balance, pnlRatio, adlTriggerThreshold and adlStopRatio per symbol, updated every minute; no history)", "aster": "partial (forceOrders accepts autoCloseType=ADL and order messages include NEW_ADL; same authentication and deposit gate as liquidations)", "hyperliquid": "partial (the backstop liquidation mechanism is a vault, not a CEX-style ADL queue; no ADL event feed and the two mechanisms are not comparable)"},
+      "leverage_and_margin_mode": {"binance": "unverified (account state and exchangeInfo not reachable; not public market data)", "bybit": "partial (risk-limit endpoint publishes leverage tiers; margin mode is account state)", "aster": "partial (exchangeInfo publishes notional and leverage bracket structure; margin mode is account state)", "hyperliquid": "yes (meta carries maxLeverage per instrument, marginTiers with lowerBound/maxLeverage, and marginMode/onlyIsolated flags)"},
+      "contract_specifications": {"binance": "unverified (exchangeInfo not reachable from this environment)", "bybit": "yes (instruments-info: tickSize, qtyStep, minOrderQty, maxOrderQty, minNotionalValue, contractType, deliveryTime, fundingInterval)", "aster": "yes (exchangeInfo: tickSize, stepSize, minQty, MIN_NOTIONAL filter, liquidationFee, plus an explicit documentation warning that pricePrecision and quantityPrecision are not tickSize and stepSize)", "hyperliquid": "partial (szDecimals and maxLeverage per instrument; tick size is DERIVED from a five-significant-figure and decimals rule rather than published; minimum notional is enforced at order time)"},
+      "usdt_margined_vs_coin_margined": {"binance": "yes (separate futures/um and futures/cm archive trees; COIN-M klines expose Base asset volume and Taker buy volume columns instead of quote-denominated equivalents)", "bybit": "yes (category linear and inverse, with volume and turnover units that swap between them, and open interest in base coin for linear versus USD for inverse)", "aster": "partial (documented USDT-margined perpetual futures; no inverse family was read)", "hyperliquid": "partial (USDC-margined on-chain perpetuals; there is no inverse family, so the numeraire is a third base)"},
+      "historical_depth": {"binance": "strong (monthly archives; fundingRate probed from 2020-01, klines and markPriceKlines probed for 2023 and 2026)", "bybit": "unverified depth; documented upper bound is the symbol's launch time, and per-endpoint pagination limits apply", "aster": "unverified depth; no coverage measurement possible because the host was unreachable", "hyperliquid": "weak through the API (5000-candle cap); the S3 asset_ctxs archive is the only long history and is documented as roughly monthly with possible gaps"}
+    },
+    "cross_venue_comparability_warnings": [
+      "Funding interval differs (Binance 8h on the probed symbol, Bybit per-symbol and documented at 480 minutes for a USDT perpetual, Aster per-symbol at 8h or 4h in the documented sample, Hyperliquid hourly). A pooled funding series without per-venue time-grid alignment is meaningless.",
+      "Open-interest units differ (base coin for linear, USD for inverse, venue-specific on-chain). A pooled open-interest level is not a comparable quantity.",
+      "Oracle/index construction differs by venue, so the basis feature is comparable in definition but not in construction.",
+      "Liquidation mechanics differ fundamentally (CEX book-plus-insurance-fund versus on-chain liquidator vault). Any cross-venue liquidation feature must be documented as a mechanism proxy rather than a like-for-like event count.",
+      "Mark-price construction and damping rules are venue-specific and were not read at formula level for any venue, so a cross-venue mark-return label is comparable in units but not necessarily in construction."
+    ]
+  },
+  "recommendation": {
+    "minimal_first_market": "crypto PERPETUAL CONTRACT daily bars, mark-price labelled, USDT-margined linear instruments first, across the four-venue set with Binance's Bulk archive as the primary price source and the other three venues as coverage and holdout sources",
+    "primary_source_id": "binance_perp_bulk_archive",
+    "rationale": [
+      "It is the only venue in the set with a public bulk archive that was actually reachable and whose object paths and file headers were directly verified during this review.",
+      "Its funding archive carries the funding interval on every row, which removes the interval-join problem that Bybit and Aster have.",
+      "Its open-interest and positioning series are archived at 5-minute granularity with an explicit both-sides aggregate, which is the most granular and most clearly documented open-interest series in the set.",
+      "Mark-price, index-price and premium-index klines are all archived alongside the last-price klines, which is exactly the set of price references a perpetual data model needs.",
+      "No account, key, contract, or payment is required, so R1 remains a research-design decision rather than a spending or procurement decision.",
+      "The corporate-action and adjustment class of hazard is absent, so the pipeline can be validated without fighting vintage problems.",
+      "Storage and compute fit comfortably on the review machine."
+    ],
+    "conditional_on": [
+      "The reviewer accepting a non-commercial-only licence for research and accepting that any future execution phase requires different data rights (see BINANCE_NONCOMMERCIAL_BANNER).",
+      "The reviewer accepting that no liquidation or ADL event history is available from this source, so the liquidation feature is dropped or sourced elsewhere."
+    ],
+    "explicit_non_claims": [
+      "This does not claim the data is point-in-time authentic; there are no as-of vintages, and the archive is documented as having been rewritten for quality reasons before.",
+      "This does not claim perpetuals are a better research subject than any other instrument class, only that the user has fixed this scope.",
+      "This does not claim any performance, edge, or profitability.",
+      "This does not authorize live or paper trading. Binance's section 4.2 prohibits live proprietary trading execution outright, so this source cannot support any future execution phase.",
+      "This does not authorize any purchase, download, or account creation.",
+      "This does not assert anything about Bybit's, Aster's or Hyperliquid's terms, all three of which were unreachable."
+    ]
+  },
+  "cannot_verify_without_reading_primary_terms_or_paying": [
+    "Bybit's Terms of Service, its API terms, and any algorithmic-trading clause. www.bybit.com did not connect from this environment on any path attempted.",
+    "Aster's terms and conditions at docs.asterdex.com/resources/terms-and-conditions. The host did not connect.",
+    "Hyperliquid's terms of use at hyperliquid.xyz/terms, which returned HTTP 403 with an S3 AccessDenied body, and app.hyperliquid.xyz, which did not connect.",
+    "Binance's general Terms of Use and its live-API terms. www.binance.com, developers.binance.com and fapi.binance.com all failed to connect, so whether the LIVE API carries different permissions from the Bulk archive is unresolved.",
+    "Point-in-time as-of vintages for any venue. None was found, and payment is not obviously sufficient.",
+    "Whether any venue silently restates historical data. Detectable only forward in time by hashing at first retrieval.",
+    "Factual delisting and survivorship completeness for any venue. Binance keeps inactive symbols addressable and Hyperliquid exposes isDelisted, but neither claim was tested.",
+    "Whether the Hyperliquid S3 archive's asset_ctxs CSV column order, units and coverage match its documentation, and where its history actually begins.",
+    "Whether Bybit, Aster or Hyperliquid retain historical market data for delisted perpetual contracts.",
+    "Aster's open-interest coverage: no open-interest endpoint appears in the read documentation, and no live probe was possible.",
+    "Whether COIN-M index-price klines exist under a different archive path than the one probed.",
+    "Whether the post-2025 microsecond timestamp change touches any futures file. The README names SPOT only, and no post-2025 futures file was fetched to test its unit.",
+    "Whether each venue's mark-price construction is comparable enough to pool a cross-venue mark-return label.",
+    "The cost of any enterprise data licence or licensed redistributor that would make an execution phase permissible."
+  ],
+  "open_questions": [
+    {"id": "Q1", "question": "Accept the four-venue perpetual-only scope with Binance's Bulk archive as the primary price source?", "blocking": false, "default_if_unanswered": "Proceed with the recommendation; nothing is ingested until R1 approves."},
+    {"id": "Q2", "question": "Accept a non-commercial CC BY-NC-SA 4.0 archive licence as the basis of Track B research, given that section 4.2 prohibits live proprietary trading execution and section 3.4 excludes commercial licensing?", "blocking": true, "default_if_unanswered": "Treat as accepted for internal non-commercial research only, and treat any execution phase as blocked pending a different data right."},
+    {"id": "Q3", "question": "Is 'no point-in-time vintages, hash-pinned going forward only' an acceptable residual risk, given the archive's documented history of in-place file replacement?", "blocking": true, "default_if_unanswered": "Label every result as pipeline validation rather than financial evidence, and hash-pin every retrieved file."},
+    {"id": "Q4", "question": "Who independently confirms the licences and terms of record for all four venues before ingestion, and how are Bybit, Aster and Hyperliquid terms to be obtained given they were unreachable from the review environment?", "blocking": true, "default_if_unanswered": "Ingestion of the three unverified venues stays blocked; an automated agent reading web pages cannot satisfy the independent-confirmation constraint."},
+    {"id": "Q5", "question": "Is liquidation/ADL event history a required part of the perp data model, given that no venue in the set publishes it as a historical series?", "blocking": false, "default_if_unanswered": "Drop liquidation_intensity_1d from the allowlist and record the gap."},
+    {"id": "Q6", "question": "Is Aster's missing open-interest endpoint disqualifying for including Aster in the first cohort?", "blocking": false, "default_if_unanswered": "Include Aster for price and funding only, and exclude it from any open-interest feature; or exclude Aster from V1."},
+    {"id": "Q7", "question": "How is Hyperliquid's 5000-candle API cap and roughly-monthly, possibly-gapped S3 archive reconciled with the declared folds?", "blocking": false, "default_if_unanswered": "Restrict Hyperliquid to daily bars sourced from the S3 asset_ctxs archive, and drop it from any intraday extension."},
+    {"id": "Q8", "question": "Is a single-numeraire USDT-margined linear cohort accepted for V1, with coin-margined inverse and USDC-margined on-chain perpetuals deferred?", "blocking": false, "default_if_unanswered": "Restrict V1 to USDT-margined linear perpetuals and pre-register the rest separately."},
+    {"id": "Q9", "question": "Is a venue holdout required in addition to an instrument holdout?", "blocking": false, "default_if_unanswered": "Apply the protocol's instrument holdout and treat a venue holdout as a separately pre-registered extension."},
+    {"id": "Q10", "question": "Are the daily-bar label horizon and the 25 bps gross mark-price threshold acceptable, and is mark-price labelling accepted over last-price labelling?", "blocking": false, "default_if_unanswered": "Apply the protocol's mark-price 25 bps 1-day convention."},
+    {"id": "Q11", "question": "Are the three declared training seeds 1729, 2718 and 3141 final?", "blocking": false, "default_if_unanswered": "Treat as declared and unfrozen."},
+    {"id": "Q12", "question": "Should intraday (1-minute) ingestion belong to the first frozen protocol or to a separately pre-registered extension, given the per-venue depth differences?", "blocking": false, "default_if_unanswered": "Separately pre-registered extension."},
+    {"id": "Q13", "question": "What is the policy for the 5-minute open-interest grid appearing only in daily files on Binance while the other venues offer different grids?", "blocking": false, "default_if_unanswered": "Downsample every venue's open-interest series to a common declared grid and record the resampling rule."}
+  ],
+  "scope_limitations": [
+    "This manifest is a revision-2 draft prepared for review gate R1. It is not approved.",
+    "The asset class is crypto perpetual contracts only. Spot instruments were removed from scope by user decision and no spot instrument is a candidate source in this revision.",
+    "No dataset was downloaded, purchased, or subscribed to. The only retrieval operations were reading public documentation and terms pages, and issuing a small number of HEAD probes plus six small archive files (all under 30 KB each) used solely to read file headers, row counts and timestamp encodings. Those files were written under /tmp, not into this repository, and no market dataset was assembled.",
+    "No account was created, no API key was generated, and no credential of any kind exists. No wallet deposit was made.",
+    "No broker, exchange trading endpoint, or order-submission path was contacted. No authenticated endpoint was called.",
+    "No financial model was trained and no result of any kind is reported.",
+    "No profitability, edge, or performance claim is made anywhere in this file.",
+    "Licence and cost facts were read from public pages by an automated agent on the review date. Three of the four venues' terms could not be read at all and are recorded as unverified with the exact URLs and the exact failure mode, so that a human can complete the check.",
+    "No file other than docs/FINANCIAL_DATA_PLAN_V1.md, research/financial_source_manifest_v1.json, and research/financial_experiment_protocol_v1.json was created or modified, and no git commit or push was performed."
+  ],
+  "superseded_revision_1_note": "Revision 1 of this manifest surveyed 14 cross-asset sources for a SPOT first market and recommended Binance Vision spot daily bars. That recommendation is withdrawn. The four equities sources, three futures/CME sources, the macro source, the Nasdaq depth fixture and the second crypto venue from revision 1 are no longer candidate sources for this track and their per-source records have been removed from this file rather than retained as stale alternatives. Their evidence remains available in the repository history of this file (revision 1) if a future review ever reopens a non-perpetual scope."
+}

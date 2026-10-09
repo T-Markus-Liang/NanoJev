@@ -1,0 +1,70 @@
+{
+  "schema_version": "nanojev-financial-signal-spec-v1",
+  "status": "review_candidate_frozen",
+  "created_utc": "2026-09-24T00:00:00Z",
+  "frozen_by": "project-owner",
+  "signal_name": "crowded_long_carry_follow_v1",
+  "definition": {
+    "universe": "perp_pit_v1 cohort, binance_um, 5 assets (BTC/ETH/BNB/SOL/XRP USDT-PERP), daily decision bars",
+    "direction": "long_only",
+    "entry_condition": {
+      "funding_pct": ">= 0.80 trailing-180 mid-rank pct of last_funding_rate",
+      "basis_pct": ">= 0.66 trailing-180 mid-rank pct of mark_index_basis_bps",
+      "btc_trend": "BTC mark_price 20-bar log return > 0 (market-wide on/off switch)",
+      "optional_vol_amplifier": "rv_pct >= 0.66 roughly doubles per-trade economics at 64% fewer trades"
+    },
+    "exit_condition": {
+      "time_stop": "5-10 decision bars (5d primary)",
+      "regime_off": "BTC 20d trend turns <= 0"
+    },
+    "not_a_component": [
+      "funding momentum/change (T70 null)",
+      "funding streak persistence (T79 D-arm null)",
+      "funding >=0.95 extreme slice (no non-monotone reversal, T79 E-arm)",
+      "open_interest_change (T72 null)",
+      "cross-venue funding spread (T80 null)"
+    ]
+  },
+  "evidence": {
+    "correlation": {"ref": "results/financial_signal_labels_v4.json",
+                    "l3_funding_rho": 0.0422, "p": 0.001537, "fdr": true},
+    "robustness": {"ref": "results/financial_signal_robustness_v1.json",
+                   "cells": "12/12 FDR-pass across 3/5/10d x 70/80/90pct"},
+    "interaction": {"ref": "results/financial_signal_interactions_v1.json",
+                    "f2b2_vs_f2b0_bps": [164.4, -8.9], "p": 0.004417, "fdr": true},
+    "vol_condition": {"ref": "results/financial_signal_grid_v1.json",
+                      "vol_t2_contrast_t": 4.346, "p": 1e-05, "fdr": true},
+    "regime_gates": {"ref": "results/financial_signal_regime_v1.json",
+                     "btc_trend": {"up_bps": 228.6, "down_bps": -52.3, "p": 1.3e-5},
+                     "own_trend": {"up_bps": 225.0, "down_bps": 3.3, "p": 4.5e-4}},
+    "net_of_cost": {"ref": "results/financial_signal_conditional_v1.json",
+                    "double_gate_mean_net_bps": 172.1, "n": 302,
+                    "tri_gate_mean_net_bps": 294.8, "n": 110,
+                    "always_long_baseline_bps": 53.8},
+    "gated_harness": {"ref": "results/financial_signal_gated_run_v1.json",
+                      "cells_beating_always_long": "12/15",
+                      "total_pnl_vs_baseline": "+4760 vs -26366",
+                      "liquidations": 0},
+    "asset_concentration": "strongest on SOL/XRP; BTC/BNB ~null; ETH mixed"
+  },
+  "residual_risks": {
+    "temporal_instability": "fold1 test window negative under ALL gates; pooled rho 0.042 real but era-dependent (ridge fold rho: +0.009/-0.102/+0.026)",
+    "tail_driven": "double-gate median ~0; mean carried by right tail",
+    "sparsity": "tri-gate 110 trades over ~3.6yr x 5 assets (~6% cadence)",
+    "accounting_caveats": "no market-impact model; funding accrual approximate; collapsed bid=ask=mark book"
+  },
+  "forbidden_interpretations": [
+    "not a standalone trading strategy",
+    "not a profitability or live-trading claim",
+    "not authorization to train RLCD or trade",
+    "not evidence the signal persists beyond the measured window"
+  ],
+  "next_gate": "RLCD review: use as conditioned state feature / sparse policy; requires new protocol + owner authorization before any model fitting",
+  "receipt_hashes": {
+    "labels_v4": "c8f0942252fc247a47a504e3db42f7606c04ee1565327673e6b1cc3e24172dbe",
+    "conditional_v1": "f9971a9d (see results file)",
+    "regime_v1": "adf75ae5dbc3210a3c69db79345ca3830ccb5745238d860670574a18200c55e5",
+    "gated_run_v1": "6d19d87f08a854c0ba76c380941bf11af6715124d254e200baa4441cb36bbe7e",
+    "crossvenue_v1": "a2cce01d4c301fed3103e170894f75bb4e5b15915c9a929d289e536d86ca58c9"
+  }
+}

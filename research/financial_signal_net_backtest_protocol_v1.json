@@ -1,0 +1,29 @@
+{
+ "schema_version": "nanojev-financial-signal-net-backtest-protocol-v1",
+ "created_utc": "2026-09-24T00:00:00Z",
+ "purpose": "T67 net-of-cost accounting for the funding-following signal found in T66 (funding pct -> 5d return, rho=+0.042 FDR-pass). Honest net replay on real cohort, NOT a tradability claim.",
+ "cohort": {
+  "path": "data/perp_pit_v1/records.jsonl",
+  "records": 6554
+ },
+ "strategy": {
+  "long": "funding_pct>=0.80 -> long 5 bars",
+  "short": "funding_pct<=0.20 -> short 5 bars",
+  "overlap": "non-overlapping per asset",
+  "entry_exit": "mark close"
+ },
+ "costs": {
+  "taker_fee_bps_per_side": 5,
+  "funding_accrual": "direction * last_funding_rate * (24/funding_interval_hours) per held day — approximation flagged"
+ },
+ "baselines": [
+  "buy-and-hold per asset",
+  "always-long matched cadence"
+ ],
+ "forbidden": [
+  "fitting",
+  "trading",
+  "profitability claims",
+  "protocol edits post-run"
+ ]
+}

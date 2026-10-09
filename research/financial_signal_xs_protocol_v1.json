@@ -1,0 +1,36 @@
+{
+  "cohort": {
+    "assets": "10 USDT-M perps: BTCUSDT ETHUSDT SOLUSDT BNBUSDT XRPUSDT (data/binance_vision_v1) + ADAUSDT DOGEUSDT LINKUSDT LTCUSDT DOTUSDT (data/binance_xs_v1)",
+    "builder": "scripts/build_xs_v1.py",
+    "path": "data/perp_pit_xs_v1/records.jsonl",
+    "price_basis": "klines close as the mark proxy for ALL symbols (bounded T104 slice has no markPriceKlines); deviation quantified on legacy symbols in perp_pit_xs_v1/build_summary.json",
+    "targets": "label.forward_return_5d_bps (gross close-to-close, contiguous daily bars only)"
+  },
+  "created_utc": "2026-09-24T09:45:33Z",
+  "definitions": {
+    "decision_day_gate": ">=8 assets with score AND fwd_5d on that day",
+    "dfh20": "precomputed feature: close / max(close[i-20:i]) - 1 (strictly prior 20 contiguous bars)",
+    "funding_pct": "per-asset mid-rank pct of last_funding_rate vs its trailing-90 daily record values (MIN_WINDOW=20)",
+    "spread": "mean fwd_5d of the 2 extreme-ranked assets on the positive side minus the 2 on the negative side, signed per arm"
+  },
+  "forbidden": [
+    "fitting",
+    "trading",
+    "profitability claims",
+    "protocol edits post-run"
+  ],
+  "purpose": "T104: first REAL cross-sectional arm on the full 10-asset USDT-M perp cohort (5 legacy + 5 T104-expanded symbols, full archive span). Arm 1 = XS funding carry (funding_pct rank, top-2 vs bottom-2 next-5d close return spread; honest prior NULL \u2014 post-2020 literature reports the carry dead on majors). Arm 2 = XS distance-from-high momentum (dfh20 rank, same top-2/bottom-2 spread; direction prior POSITIVE). Pooled per-asset Spearman controls benchmark each rank contrast. Measurement only \u2014 no fitting, no trading, no profitability claims.",
+  "schema_version": "nanojev-financial-signal-xs-protocol-v1",
+  "statistics": {
+    "caveats": [
+      "top-2/bottom-2 on ~10 assets = ~4-5 effective dof per day",
+      "5d overlapping labels autocorrelate adjacent days; t is nominal",
+      "no multiple-testing correction across the two arms",
+      "cross-section composition is stable only while all symbols trade"
+    ],
+    "controls": "pooled + per-asset Spearman(score, fwd_5d)",
+    "daily": "mean daily XS spread + t across decision days",
+    "folds": "per-calendar-year fold mean spreads; sign consistency count",
+    "pooled": "Welch two-sample t (all top-2 vs all bottom-2 asset-days) with Welch-Satterthwaite df"
+  }
+}

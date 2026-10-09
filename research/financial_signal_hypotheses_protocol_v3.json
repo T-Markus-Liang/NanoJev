@@ -1,0 +1,57 @@
+{
+ "schema_version": "nanojev-financial-signal-hypotheses-protocol-v3",
+ "created_utc": "2026-09-24T00:00:00Z",
+ "purpose": "Round-3 signal replay: H6-H9 with direction priors corrected per crypto-edge-search falsification meta-prior ('extreme funding persists' — fade was backwards). Measurement only.",
+ "cohort": {
+  "path": "data/perp_pit_v1/records.jsonl",
+  "records": 6554,
+  "label": "perp_forward_mark_return_up_25bps_1d_gross"
+ },
+ "lookback_days": 180,
+ "arms": {
+  "h6_follow_high": {
+   "rule": "last_funding_rate trailing-180 pct >= .80",
+   "expect": "P(up) ABOVE base (funding-FOLLOWING; SSRN Crypto Carry + edge-search direction finding)",
+   "external_evidence": "Franz & Schmeling Crypto Carry; kimlage/crypto-edge-search"
+  },
+  "h6_follow_low": {
+   "rule": "pct <= .20",
+   "expect": "P(up) BELOW base (symmetry check)"
+  },
+  "h7_abnvol_high": {
+   "rule": "quote_volume/trailing-30-median in top decile",
+   "expect": "P(up) BELOW base (Garfinkel-Sokobin -0.5%/day Binance daily)",
+   "external_evidence": "peer-reviewed, same venue+granularity"
+  },
+  "h7_abnvol_low": {
+   "rule": "bottom decile",
+   "expect": "P(up) ABOVE base (complement)"
+  },
+  "h8_basis_up": {
+   "rule": "Δbasis 5-bar top tercile",
+   "expect": "P(up) ABOVE base (Chi et al basis momentum t=7.10)"
+  },
+  "h8_basis_down": {
+   "rule": "bottom tercile",
+   "expect": "P(up) BELOW base"
+  },
+  "h9_vol_strata": {
+   "rule": "H6+H7 split by realized_vol_24bar tercile",
+   "expect": "conditioning layer, not in FDR family"
+  }
+ },
+ "fdr_family": [
+  "h6_follow_high",
+  "h6_follow_low",
+  "h7_abnvol_high",
+  "h7_abnvol_low",
+  "h8_basis_up",
+  "h8_basis_down"
+ ],
+ "pit_safety": "trailing windows only",
+ "forbidden": [
+  "fitting",
+  "trading",
+  "promotion claims"
+ ]
+}

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key><string>ai.nanojev.service</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/markus/Documents/NanoJev/.venv/bin/python</string>
+        <string>/Users/markus/Documents/NanoJev/scripts/serve_decisions.py</string>
+        <string>--checkpoint-dir</string>
+        <string>/Users/markus/Documents/NanoJev/checkpoints/local_atomic_seed17/variants/local_atomic_seed17</string>
+        <string>--web-root</string>
+        <string>/Users/markus/Documents/NanoJev/web</string>
+        <string>--host</string><string>127.0.0.1</string>
+        <string>--port</string><string>8876</string>
+        <string>--device</string><string>auto</string>
+        <string>--precision</string><string>auto</string>
+    </array>
+    <key>WorkingDirectory</key><string>/Users/markus/Documents/NanoJev</string>
+    <key>RunAtLoad</key><true/>
+    <key>KeepAlive</key><true/>
+    <key>StandardOutPath</key><string>/tmp/nanojev-service.log</string>
+    <key>StandardErrorPath</key><string>/tmp/nanojev-service.log</string>
+</dict>
+</plist>
