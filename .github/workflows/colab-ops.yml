@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       op:
-        description: "sessions | status | new | exec | stop | download | kick_v10b"
+        description: "sessions | status | new | exec | stop | download | kick_v10b | hold"
         required: true
         default: "sessions"
       session:
@@ -33,7 +33,7 @@ on:
 jobs:
   colab:
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
 
@@ -92,6 +92,16 @@ jobs:
                 'r = subprocess.run(["bash","-c","cd /content/nanojev && nohup bash vm_pipeline.sh > pipeline.log 2>&1 & echo launched"],capture_output=True,text=True)' \
                 'print(r.stdout.strip())' > /tmp/kick.py
               colab exec -s "$SESSION" -f /tmp/kick.py --timeout 60 ;;
+            hold)
+              # Keep the kernel websocket busy so the backend does not
+              # reclaim the session (~50min orphan reap observed). One
+              # hold job covers ~5h; re-dispatch if the run is longer.
+              printf '%s\n' \
+                'import time' \
+                'for i in range(300):' \
+                '    time.sleep(60)' \
+                '    print("hb",i,flush=True)' > /tmp/hold.py
+              colab exec -s "$SESSION" -f /tmp/hold.py --timeout 20000 ;;
             *)
               echo "unknown op: $OP" >&2; exit 2 ;;
           esac

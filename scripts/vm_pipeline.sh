@@ -18,6 +18,13 @@ cp $R/kit/manifests/Qwen3.5-0.8B/valen_manifest.json $R/models/Qwen3.5-0.8B/ 2>/
 cp $R/kit/manifests/Qwen3.5-2B.json $R/models/Qwen3.5-2B/valen_manifest.json 2>/dev/null || true
 ls $R/models/Qwen3.5-0.8B/*.safetensors && echo MODELS_OK || echo MODELS_MISSING
 pip uninstall -y torchao >> $R/setup.log 2>&1
+# restore any previously pushed run state (resume-after-reclaim)
+rclone copy gdrive:nanojev-staging/runs/v10b/output $R/output --transfers=4 -q 2>/dev/null || true
+INIT=output/nano_sft_v4/latest
+if [ -f $R/output/nano_sft_text_v10b/latest/checkpoint.pt ]; then
+  INIT=output/nano_sft_text_v10b/latest
+  echo "RESUMING from pushed v10b checkpoint"
+fi
 # Drive push loop (checkpoint resilience — survives session death)
 ( while true; do
     sleep 300
@@ -25,7 +32,7 @@ pip uninstall -y torchao >> $R/setup.log 2>&1
     rclone copy $R/logs gdrive:nanojev-staging/runs/v10b/logs -q 2>/dev/null
   done ) &
 echo $! > $R/.pushloop_pid
-cd $R && CUDA_VISIBLE_DEVICES=0 nohup python -m valen.train --config configs/cuda/sft_nano_v10b_cuda.json --initialize output/nano_sft_v4/latest > logs/v10b.log 2>&1
+cd $R && CUDA_VISIBLE_DEVICES=0 nohup python -m valen.train --config configs/cuda/sft_nano_v10b_cuda.json --initialize $INIT >> logs/v10b.log 2>&1
 # blocking wait — script stays alive while training runs (colab run holds it)
 TRAIN_PID=$!
 wait $TRAIN_PID
