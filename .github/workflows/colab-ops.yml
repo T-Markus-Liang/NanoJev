@@ -1,0 +1,97 @@
+name: colab-ops
+# Jumpbox control plane for Google Colab. Runs on GitHub-hosted runners
+# (stable egress to colab.dev — immune to local proxy flakiness).
+# Trigger manually: gh workflow run colab-ops.yml -f op=...
+on:
+  workflow_dispatch:
+    inputs:
+      op:
+        description: "sessions | status | new | exec | stop | download | kick_v10b"
+        required: true
+        default: "sessions"
+      session:
+        description: "session name"
+        required: false
+        default: ""
+      gpu:
+        description: "T4 | L4 | A100 | H100"
+        required: false
+        default: "L4"
+      script_b64:
+        description: "base64-encoded python file for op=exec"
+        required: false
+        default: ""
+      remote_path:
+        description: "remote file for op=download"
+        required: false
+        default: ""
+      timeout_s:
+        description: "exec timeout seconds"
+        required: false
+        default: "60"
+
+jobs:
+  colab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install colab CLI
+        run: pip install --quiet google-colab-cli
+
+      - name: Auth (oauth2 token from secrets)
+        env:
+          COLAB_TOKEN_JSON: ${{ secrets.COLAB_TOKEN_JSON }}
+        run: |
+          mkdir -p ~/.config/colab-cli
+          printf '%s' "$COLAB_TOKEN_JSON" > ~/.config/colab-cli/token.json
+          chmod 600 ~/.config/colab-cli/token.json
+
+      - name: Run op
+        env:
+          OP: ${{ inputs.op }}
+          SESSION: ${{ inputs.session }}
+          GPU: ${{ inputs.gpu }}
+          SCRIPT_B64: ${{ inputs.script_b64 }}
+          REMOTE_PATH: ${{ inputs.remote_path }}
+          TIMEOUT_S: ${{ inputs.timeout_s }}
+          RCLONE_CONF: ${{ secrets.RCLONE_CONF }}
+        run: |
+          set -e
+          colab() { command colab --auth=oauth2 "$@"; }
+          case "$OP" in
+            sessions)
+              colab sessions ;;
+            status)
+              colab status -s "$SESSION" ;;
+            new)
+              colab new -s "$SESSION" --gpu "$GPU" ;;
+            stop)
+              colab stop -s "$SESSION" ;;
+            exec)
+              printf '%s' "$SCRIPT_B64" | base64 -d > /tmp/remote_script.py
+              colab exec -s "$SESSION" -f /tmp/remote_script.py --timeout "$TIMEOUT_S" ;;
+            download)
+              colab download -s "$SESSION" "$REMOTE_PATH" "/tmp/dl_$(basename "$REMOTE_PATH")"
+              tail -c 4000 "/tmp/dl_$(basename "$REMOTE_PATH")" || true ;;
+            kick_v10b)
+              # Full self-driving pipeline kick: upload pipeline + rclone.conf,
+              # launch nohup'd bash pipeline. VM pulls everything from Drive,
+              # pushes checkpoints back every 5 min.
+              mkdir -p ~/.config/rclone
+              printf '%s' "$RCLONE_CONF" > /tmp/rclone.conf
+              chmod 600 /tmp/rclone.conf
+              colab new -s "$SESSION" --gpu "$GPU"
+              printf 'import os\nos.makedirs("/content/nanojev",exist_ok=True)\nprint("ok")\n' > /tmp/mk.py
+              colab exec -s "$SESSION" -f /tmp/mk.py --timeout 60
+              colab upload -s "$SESSION" /tmp/rclone.conf /content/nanojev/rclone.conf
+              colab upload -s "$SESSION" ./scripts/vm_pipeline.sh /content/nanojev/vm_pipeline.sh
+              printf '%s\n' \
+                'import subprocess' \
+                'r = subprocess.run(["bash","-c","cd /content/nanojev && nohup bash vm_pipeline.sh > pipeline.log 2>&1 & echo launched"],capture_output=True,text=True)' \
+                'print(r.stdout.strip())' > /tmp/kick.py
+              colab exec -s "$SESSION" -f /tmp/kick.py --timeout 60 ;;
+            *)
+              echo "unknown op: $OP" >&2; exit 2 ;;
+          esac
