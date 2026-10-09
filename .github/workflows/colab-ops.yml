@@ -91,7 +91,16 @@ jobs:
                 'import subprocess' \
                 'r = subprocess.run(["bash","-c","cd /content/nanojev && nohup bash vm_pipeline.sh > pipeline.log 2>&1 & echo launched"],capture_output=True,text=True)' \
                 'print(r.stdout.strip())' > /tmp/kick.py
-              colab exec -s "$SESSION" -f /tmp/kick.py --timeout 60 ;;
+              colab exec -s "$SESSION" -f /tmp/kick.py --timeout 60
+              # hold: keep a kernel exec alive for ~5h so the backend does
+              # not orphan-reap the session (~50min observed). The job's
+              # local sessions.json knows $SESSION; a separate job would not.
+              printf '%s\n' \
+                'import time' \
+                'for i in range(290):' \
+                '    time.sleep(60)' \
+                '    print("hb",i,flush=True)' > /tmp/hold.py
+              colab exec -s "$SESSION" -f /tmp/hold.py --timeout 18000 ;;
             hold)
               # Keep the kernel websocket busy so the backend does not
               # reclaim the session (~50min orphan reap observed). One
