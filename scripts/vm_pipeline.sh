@@ -35,10 +35,9 @@ fi
     rclone copy $R/logs gdrive:nanojev-staging/runs/v10b/logs -q 2>/dev/null
   done ) &
 echo $! > $R/.pushloop_pid
-cd $R && CUDA_VISIBLE_DEVICES=0 nohup python -m valen.train --config configs/cuda/sft_nano_v10b_cuda.json --initialize $INIT >> logs/v10b.log 2>&1
-# blocking wait — script stays alive while training runs (colab run holds it)
-TRAIN_PID=$!
-wait $TRAIN_PID
+# train in foreground — blocks until done (wait on $! would latch the
+# push-loop PID and hang forever)
+cd $R && CUDA_VISIBLE_DEVICES=0 python -m valen.train --config configs/cuda/sft_nano_v10b_cuda.json --initialize $INIT >> logs/v10b.log 2>&1
 rclone copy $R/output gdrive:nanojev-staging/runs/v10b/output --transfers=4 2>/dev/null
 rclone copy $R/logs gdrive:nanojev-staging/runs/v10b/logs 2>/dev/null
 touch $R/.all_done
