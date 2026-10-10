@@ -22,7 +22,10 @@ pip uninstall -y torchao >> $R/setup.log 2>&1
 rclone copy gdrive:nanojev-staging/runs/v10b/output $R/output --transfers=4 -q 2>/dev/null || true
 INIT=output/nano_sft_v4/latest
 if [ -f $R/output/nano_sft_text_v10b/latest/checkpoint.pt ]; then
-  INIT=output/nano_sft_text_v10b/latest
+  # valen requires a NEW output dir for --initialize; move the restored run aside
+  mkdir -p $R/resume_ref
+  mv $R/output/nano_sft_text_v10b $R/resume_ref/v10b
+  INIT=resume_ref/v10b/latest
   echo "RESUMING from pushed v10b checkpoint"
 fi
 # Drive push loop (checkpoint resilience — survives session death)
